@@ -12,57 +12,44 @@
 
 namespace ob
 {
-	class Particle : public sf::Transformable, public sf::Drawable
+	class Particle
 	{
 		private:
-			sf::VertexArray vertices{sf::PrimitiveType::Quads, 4};
 			sf::Color color;
-			Vec2f velocity;
+			Vec2f position, velocity;
 			float acceleration{0.f}, size{1.f}, life{100.f}, lifeMax{100.f}, opacityMult{1.f};
-
-			inline void refreshColor() noexcept { for(auto i(0u); i < 4u; ++i) vertices[i].color = color; }
 
 		public:
 			inline void update(float mFrameTime)
 			{
 				life -= mFrameTime;
-
 				color.a = static_cast<unsigned char>(ssvu::getClamped(life * (255.f / lifeMax) * opacityMult, 0.f, 255.f));
-				refreshColor();
 				velocity *= acceleration;
-				move(velocity * mFrameTime);
+				position += velocity * mFrameTime;
 			}
 
-			inline void draw(sf::RenderTarget& mRenderTarget, sf::RenderStates mRenderStates) const override
-			{
-				mRenderStates.transform *= getTransform();
-				mRenderTarget.draw(vertices, mRenderStates);
-			}
-
+			inline void setPosition(const Vec2f& mPosition) noexcept	{ position = mPosition; }
 			inline void setColor(const sf::Color& mColor) noexcept		{ color = mColor; }
 			inline void setVelocity(const Vec2f& mVelocity) noexcept	{ velocity = mVelocity; }
 			inline void setAcceleration(float mAcceleration) noexcept	{ acceleration = mAcceleration; }
 			inline void setLife(float mLife) noexcept					{ life = lifeMax = mLife; }
 			inline void setOpacityMult(float mOpacityMult) noexcept		{ opacityMult = mOpacityMult; }
-			inline void setSize(float mSize) noexcept
-			{
-				size = mSize;
-				vertices[0].position = Vec2f(-size, -size);
-				vertices[1].position = Vec2f(size, -size);
-				vertices[2].position = Vec2f(size, size);
-				vertices[3].position = Vec2f(-size, size);
-			}
+			inline void setSize(float mSize) noexcept					{ size = mSize; }
 
-			inline float getLife() const noexcept { return life; }
+			inline float getLife() const noexcept						{ return life; }
+			inline float getSize() const noexcept						{ return size; }
+			inline const Vec2f& getPosition() const noexcept			{ return position; }
+			inline const sf::Color& getColor() const noexcept			{ return color; }
 	};
 
 	class ParticleSystem : public sf::Drawable
 	{
 		private:
+			sf::VertexArray vertices{sf::PrimitiveType::Quads};
 			std::vector<Particle> particles;
 
 		public:
-			ParticleSystem() { particles.reserve(350); }
+			inline ParticleSystem() { particles.reserve(350); }
 
 			inline void create(const Vec2f& mPosition, const Vec2f& mVelocity, float mAcceleration, const sf::Color& mColor, float mSize, float mLife)
 			{
@@ -131,14 +118,18 @@ namespace ob
 			inline void update(float mFrameTime)
 			{
 				ssvu::eraseRemoveIf(particles, [](const Particle& mParticle){ return mParticle.getLife() <= 0; });
-				for(auto& p : particles) p.update(mFrameTime);
+				vertices.clear();
+				for(auto& p : particles)
+				{
+					p.update(mFrameTime);
+					vertices.append({Vec2f(p.getPosition().x - p.getSize(), p.getPosition().y - p.getSize()), p.getColor()});
+					vertices.append({Vec2f(p.getPosition().x + p.getSize(), p.getPosition().y - p.getSize()), p.getColor()});
+					vertices.append({Vec2f(p.getPosition().x + p.getSize(), p.getPosition().y + p.getSize()), p.getColor()});
+					vertices.append({Vec2f(p.getPosition().x - p.getSize(), p.getPosition().y + p.getSize()), p.getColor()});
+				}
 			}
 
-			inline void draw(sf::RenderTarget& mRenderTarget, sf::RenderStates mRenderStates) const override
-			{
-				for(const auto& p : particles) mRenderTarget.draw(p, mRenderStates);
-			}
-
+			inline void draw(sf::RenderTarget& mRenderTarget, sf::RenderStates mRenderStates) const override { mRenderTarget.draw(vertices, mRenderStates); }
 			inline void clear() { particles.clear(); }
 	};
 

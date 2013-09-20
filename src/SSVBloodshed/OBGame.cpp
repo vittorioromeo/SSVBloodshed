@@ -101,8 +101,6 @@ namespace ob
 		permanentParticleSystem.update(mFrameTime);
 		tempParticleSystem.update(mFrameTime);
 
-		for(int k = 0; k < 300; ++k) { tempParticleSystem.createBlood(Vec2f(0,0)); }
-
 		updateDebugText(mFrameTime);
 		camera.update<int>(mFrameTime);
 	}
