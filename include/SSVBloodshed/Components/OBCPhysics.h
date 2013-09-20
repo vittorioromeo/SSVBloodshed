@@ -15,7 +15,6 @@ namespace ob
 	{
 		private:
 			static constexpr int crushedMax{3}, crushedTolerance{1};
-
 			ssvsc::World& world;
 			ssvsc::Body& body;
 			Vec2i lastResolution;
@@ -57,7 +56,10 @@ namespace ob
 					if(crushedBottom > 0) --crushedBottom;
 				};
 			}
-			inline void update(float) override { }
+			inline void update(float) override
+			{
+				//body.setVelocity(body.getVelocity() * 0.9f);
+			}
 
 			inline ssvsc::World& getWorld() const				{ return world; }
 			inline ssvsc::Body& getBody() const					{ return body; }

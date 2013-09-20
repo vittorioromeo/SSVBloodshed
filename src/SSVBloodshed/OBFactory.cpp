@@ -6,6 +6,7 @@
 
 #include "SSVBloodshed/Components/OBCPhysics.h"
 #include "SSVBloodshed/Components/OBCRender.h"
+#include "SSVBloodshed/Components/OBCPlayer.h"
 
 using namespace std;
 using namespace sf;
@@ -23,6 +24,7 @@ namespace ob
 	Entity& OBFactory::createFloor(const Vec2i& mPos)
 	{
 		auto& result(manager.createEntity());
+		result.setDrawPriority(10000);
 		auto& cPhysics(result.createComponent<OBCPhysics>(world, true, mPos, Vec2i{1000, 1000}));
 		auto& cRender(result.createComponent<OBCRender>(game, cPhysics.getBody()));
 
@@ -43,13 +45,9 @@ namespace ob
 		Body& body(cPhysics.getBody());
 		body.addGroup(OBGroup::Solid);
 		body.addGroupToCheck(OBGroup::Solid);
-		body.setVelTransferMultX(1.f);
-		body.setVelTransferMultY(1.f);
 
 		Sprite s{assets.get<Texture>("tileset.png")};
 		s.setTextureRect(assets.tileset[{1, 0}]);
-
-		body.setStressMult(0.f);
 
 		cRender.addSprite(s);
 		cRender.setScaleWithBody(false);
@@ -60,19 +58,76 @@ namespace ob
 	{
 		auto& result(manager.createEntity());
 		result.setDrawPriority(-1000);
+		result.addGroup(OBGroup::Player);
+		auto& cPhysics(result.createComponent<OBCPhysics>(world, false, mPos, Vec2i{700, 700}));
+		auto& cRender(result.createComponent<OBCRender>(game, cPhysics.getBody()));
+		auto& cPlayer(result.createComponent<OBCPlayer>(game, cPhysics, cRender, assets));
+
+		Body& body(cPhysics.getBody());
+		body.addGroup(OBGroup::Solid);
+		body.addGroup(OBGroup::Player);
+		body.addGroupToCheck(OBGroup::Solid);
+
+		Sprite s{assets.get<Texture>("tilesetPlayer.png")};
+		s.setTextureRect(assets.tilesetPlayer[{0, 0}]);
+
+		Sprite s2{assets.get<Texture>("tilesetPlayer.png")};
+		s2.setTextureRect(assets.tilesetPlayer[{4, 0}]);
+
+		cRender.addSprite(s);
+		cRender.addSprite(s2);
+		cRender.setScaleWithBody(false);
+
+		return result;
+	}
+	Entity& OBFactory::createTest(const Vec2i& mPos)
+	{
+		auto& result(manager.createEntity());
 		auto& cPhysics(result.createComponent<OBCPhysics>(world, false, mPos, Vec2i{700, 700}));
 		auto& cRender(result.createComponent<OBCRender>(game, cPhysics.getBody()));
 
 		Body& body(cPhysics.getBody());
 		body.addGroup(OBGroup::Solid);
 		body.addGroupToCheck(OBGroup::Solid);
-		body.setVelTransferMultX(1.f);
-		body.setVelTransferMultY(1.f);
 
-		Sprite s{assets.get<Texture>("tilesetPlayer.png")};
-		s.setTextureRect(assets.tilesetPlayer[{0, 0}]);
+		Sprite s{assets.get<Texture>("tileset.png")};
+		s.setTextureRect(assets.tileset[{0, 2}]);
 
-		body.setStressMult(0.f);
+		cRender.addSprite(s);
+		cRender.setScaleWithBody(false);
+
+		return result;
+	}
+	Entity& OBFactory::createTestProj(const Vec2i& mPos, float mDir)
+	{
+		auto& result(manager.createEntity());
+		auto& cPhysics(result.createComponent<OBCPhysics>(world, false, mPos, Vec2i{150, 150}));
+		auto& cRender(result.createComponent<OBCRender>(game, cPhysics.getBody()));
+		auto& cProjectile(result.createComponent<OBCProjectile>(game, cPhysics, cRender, 420.f, mDir));
+
+		Sprite s{assets.get<Texture>("tilesetProjectiles.png")};
+		s.setTextureRect(assets.tilesetProjectiles[{0, 0}]);
+		s.setRotation(mDir);
+
+		cRender.addSprite(s);
+		cRender.setScaleWithBody(false);
+
+		return result;
+	}
+	Entity& OBFactory::createTestEnemy(const Vec2i& mPos)
+	{
+		auto& result(manager.createEntity());
+		result.setDrawPriority(-500);
+		auto& cPhysics(result.createComponent<OBCPhysics>(world, false, mPos, Vec2i{700, 700}));
+		auto& cRender(result.createComponent<OBCRender>(game, cPhysics.getBody()));
+		auto& cEnemy(result.createComponent<OBCEnemy>(game, cPhysics, cRender, assets));
+
+		Body& body(cPhysics.getBody());
+		body.addGroup(OBGroup::Solid);
+		body.addGroupToCheck(OBGroup::Solid);
+
+		Sprite s{assets.get<Texture>("tilesetEnemy.png")};
+		s.setTextureRect(assets.tilesetEnemy[{0, 0}]);
 
 		cRender.addSprite(s);
 		cRender.setScaleWithBody(false);

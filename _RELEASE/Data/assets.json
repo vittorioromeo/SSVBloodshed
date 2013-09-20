@@ -3,7 +3,9 @@
 	[
 		"limeStroked.png",
 		"tileset.png",
-		"tilesetPlayer.png"
+		"tilesetPlayer.png",
+		"tilesetProjectiles.png",
+		"tilesetEnemy.png"
 	],
 	"soundBuffers":
 	[	

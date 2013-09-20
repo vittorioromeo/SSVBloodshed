@@ -31,10 +31,10 @@ namespace ob
 
 		gameState.addInput({{k::Escape}}, [this](float){ assets.musicPlayer.stop(); std::terminate(); });
 
-		gameState.addInput({{k::A}}, [=](float){ camera.pan(-10, 0); });
-		gameState.addInput({{k::D}}, [=](float){ camera.pan(10, 0); });
-		gameState.addInput({{k::W}}, [=](float){ camera.pan(0, -10); });
-		gameState.addInput({{k::S}}, [=](float){ camera.pan(0, 10); });
+		gameState.addInput({{k::A}}, [=](float){ camera.pan(-4, 0); });
+		gameState.addInput({{k::D}}, [=](float){ camera.pan(4, 0); });
+		gameState.addInput({{k::W}}, [=](float){ camera.pan(0, -4); });
+		gameState.addInput({{k::S}}, [=](float){ camera.pan(0, 4); });
 		gameState.addInput({{k::Q}}, [=](float){ camera.zoomOut(1.1f); });
 		gameState.addInput({{k::E}}, [=](float){ camera.zoomIn(1.1f); });
 
@@ -45,6 +45,9 @@ namespace ob
 		add3StateInput(gameState, {{k::Up}}, {{k::Down}}, inputY);
 
 		gameState.addInput({{k::R}}, [this](float){ newGame(); }, t::Once);
+
+		gameState.addInput({{k::Num1}}, [this](float){ factory.createWall(getMousePosition()); }, t::Once);
+		gameState.addInput({{k::Num2}}, [this](float){ factory.createTestEnemy(getMousePosition()); }, t::Once);
 
 		newGame();
 	}
@@ -64,6 +67,11 @@ namespace ob
 			}
 
 		factory.createPlayer(getTilePos(5, 5));
+		factory.createTest(getTilePos(7, 7));
+		factory.createTest(getTilePos(7, 8));
+		factory.createTest(getTilePos(8, 7));
+		factory.createTest(getTilePos(8, 8));
+		factory.createTestEnemy(getTilePos(13, 13));
 	}
 
 	void OBGame::update(float mFrameTime)
@@ -71,7 +79,7 @@ namespace ob
 		manager.update(mFrameTime);
 		world.update(mFrameTime);
 		updateDebugText(mFrameTime);
-		camera.update(mFrameTime);
+		camera.update<int>(mFrameTime);
 	}
 	void OBGame::updateDebugText(float mFrameTime)
 	{

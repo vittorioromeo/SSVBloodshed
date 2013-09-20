@@ -26,6 +26,9 @@ namespace ob
 			Entity& createFloor(const Vec2i& mPos);
 			Entity& createWall(const Vec2i& mPos);
 			Entity& createPlayer(const Vec2i& mPos);
+			Entity& createTest(const Vec2i& mPos);
+			Entity& createTestProj(const Vec2i& mPos, float mDir);
+			Entity& createTestEnemy(const Vec2i& mPos);
 	};
 }
 

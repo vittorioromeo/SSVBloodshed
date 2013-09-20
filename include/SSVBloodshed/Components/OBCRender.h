@@ -16,6 +16,7 @@ namespace ob
 			OBGame& game;
 			ssvsc::Body& body;
 			std::vector<sf::Sprite> sprites;
+			std::vector<Vec2f> spriteOffsets;
 			bool flippedX{false}, flippedY{false}, scaleWithBody{false};
 			Vec2f offset;
 
@@ -25,11 +26,13 @@ namespace ob
 			void update(float) override
 			{
 				const auto& position(toPixels(body.getPosition()));
-				for(auto& s : sprites)
+				for(auto i(0u); i < sprites.size(); ++i)
 				{
+					auto& s(sprites[i]);
+
 					const auto& rect(s.getTextureRect());
 					s.setOrigin({rect.width / 2.f, rect.height / 2.f});
-					s.setPosition(position + offset);
+					s.setPosition(position + offset + spriteOffsets[i]);
 					s.setScale(flippedX ? -1 : 1, flippedY ? -1 : 1);
 
 					if(!scaleWithBody) continue;
@@ -39,11 +42,12 @@ namespace ob
 			}
 			inline void draw() override { for(const auto& s : sprites) game.render(s); }
 
-			inline void addSprite(const sf::Sprite& mSprite) { sprites.push_back(mSprite); }
+			inline void addSprite(const sf::Sprite& mSprite) { sprites.push_back(mSprite); spriteOffsets.emplace_back(0.f, 0.f); }
 
 			inline bool isFlippedX() const						{ return flippedX; }
 			inline bool isFlippedY() const						{ return flippedY; }
 			inline std::vector<sf::Sprite>& getSprites()		{ return sprites; }
+			inline std::vector<Vec2f>& getSpriteOffsets()		{ return spriteOffsets; }
 			inline sf::Sprite& operator[](unsigned int mIdx)	{ return sprites[mIdx]; }
 
 			inline void setRotation(float mDegrees)				{ for(auto& s : sprites) s.setRotation(mDegrees); }

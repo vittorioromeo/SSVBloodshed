@@ -27,10 +27,12 @@ namespace ob
 
 	enum OBGroup : unsigned int
 	{
-		Solid
+		Solid,
+		Projectile,
+		Player
 	};
 
-	template<typename T> inline constexpr float toPixels(T mValue) noexcept		{ return mValue / 100.f; }
+	template<typename T> inline constexpr float toPixels(T mValue) noexcept		{ return mValue / 100; }
 	template<typename T> inline constexpr int toCoords(T mValue) noexcept		{ return mValue * 100; }
 	template<typename T> inline Vec2f toPixels(const Vec2<T>& mValue) noexcept	{ return {toPixels(mValue.x), toPixels(mValue.y)}; }
 	template<typename T> inline Vec2i toCoords(const Vec2<T>& mValue) noexcept	{ return {toCoords(mValue.x), toCoords(mValue.y)}; }

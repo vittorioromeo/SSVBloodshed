@@ -3,6 +3,6 @@
 
 	"labels": 
 	[
-		["standO", "standD", "aimO", "aimD"]
+		["standO", "standD", "aimO", "aimD", "gunO", "gunD"]
 	]
 }
