@@ -66,6 +66,7 @@ namespace ob
 		Body& body(cPhysics.getBody());
 		body.addGroup(OBGroup::Solid);
 		body.addGroup(OBGroup::Player);
+		body.addGroup(OBGroup::Organic);
 		body.addGroupToCheck(OBGroup::Solid);
 
 		Sprite s{assets.get<Texture>("tilesetPlayer.png")};
@@ -124,6 +125,7 @@ namespace ob
 
 		Body& body(cPhysics.getBody());
 		body.addGroup(OBGroup::Solid);
+		body.addGroup(OBGroup::Organic);
 		body.addGroupToCheck(OBGroup::Solid);
 
 		Sprite s{assets.get<Texture>("tilesetEnemy.png")};

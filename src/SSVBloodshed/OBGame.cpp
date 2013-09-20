@@ -49,12 +49,32 @@ namespace ob
 		gameState.addInput({{k::Num1}}, [this](float){ factory.createWall(getMousePosition()); }, t::Once);
 		gameState.addInput({{k::Num2}}, [this](float){ factory.createTestEnemy(getMousePosition()); }, t::Once);
 
+		// Particle textures
+		permanentParticles.create(320, 240);
+		tempParticles.create(320, 240);
+
 		newGame();
 	}
 
 	void OBGame::newGame()
 	{
 		manager.clear();
+
+		bloodParticleSystem.clear();
+		debrisParticleSystem.clear();
+		gibParticleSystem.clear();
+
+		bloodParticles = &manager.createEntity();
+		bloodParticles->createComponent<ParticleTextureComponent>(permanentParticles, this->getGameWindow().getRenderWindow(), false, 175);
+		bloodParticles->setDrawPriority(1000);
+
+		debrisParticles = &manager.createEntity();
+		debrisParticles->createComponent<ParticleTextureComponent>(tempParticles, this->getGameWindow().getRenderWindow(), true);
+		debrisParticles->setDrawPriority(999);
+
+		gibParticles = &manager.createEntity();
+		gibParticles->createComponent<ParticleTextureComponent>(tempParticles, this->getGameWindow().getRenderWindow(), true);
+		gibParticles->setDrawPriority(1001);
 
 		auto getTilePos = [](int mX, int mY) -> Vec2i { return toCoords(Vec2i{mX * 10 + 5, mY * 10 + 5}); };
 		constexpr int maxX{320 / 10}, maxY{240 / 10};
@@ -78,6 +98,11 @@ namespace ob
 	{
 		manager.update(mFrameTime);
 		world.update(mFrameTime);
+
+		bloodParticleSystem.update(mFrameTime);
+		debrisParticleSystem.update(mFrameTime);
+		gibParticleSystem.update(mFrameTime);
+
 		updateDebugText(mFrameTime);
 		camera.update<int>(mFrameTime);
 	}
@@ -106,6 +131,11 @@ namespace ob
 	{
 		camera.apply<int>();
 		manager.draw();
+
+		bloodParticles->getComponent<ParticleTextureComponent>().render(bloodParticleSystem);
+		debrisParticles->getComponent<ParticleTextureComponent>().render(debrisParticleSystem);
+		gibParticles->getComponent<ParticleTextureComponent>().render(gibParticleSystem);
+
 		camera.unapply();
 		render(debugText);
 	}

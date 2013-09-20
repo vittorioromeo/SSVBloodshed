@@ -139,7 +139,14 @@ namespace ob
 			{
 				body.addGroup(OBGroup::Projectile);
 				body.addGroupToCheck(OBGroup::Solid);
-				body.onDetection += [this](const ssvsc::DetectionInfo& mDI){ if(mDI.body.hasGroup(OBGroup::Solid)) getEntity().destroy(); };
+				body.onDetection += [this](const ssvsc::DetectionInfo& mDI)
+				{
+					if(mDI.body.hasGroup(OBGroup::Solid))
+					{
+						if(!mDI.body.hasGroup(OBGroup::Organic)) for(int i = 0; i < 7; ++i) game.debrisParticleSystem.createDebris(toPixels(body.getPosition()));
+						getEntity().destroy();
+					}
+				};
 			}
 			inline void update(float mFrameTime) override { body.setVelocity(ssvs::getVecFromDegrees(degrees, speed)); }
 			inline void draw() override { cRender.setRotation(degrees); }
@@ -156,6 +163,7 @@ namespace ob
 			float walkSpeed{100.f};
 			float currentDegrees{0.f};
 			float turnSpeed{7.5f};
+			int health{12};
 			//ssvs::Ticker shootTimer{4.7f};
 
 		public:
@@ -167,7 +175,18 @@ namespace ob
 				body.onDetection += [this](const ssvsc::DetectionInfo& mDI)
 				{
 					if(mDI.body.hasGroup(OBGroup::Solid)) body.applyForce(Vec2f(mDI.intersection) * 1.f);
-					if(mDI.body.hasGroup(OBGroup::Projectile)) getEntity().destroy();
+					if(mDI.body.hasGroup(OBGroup::Projectile))
+					{
+						--health;
+						for(int i = 0; i < 30; ++i) game.bloodParticleSystem.createBlood(toPixels(body.getPosition()));
+
+						if(health <= 0)
+						{
+							for(int i = 0; i < 110; ++i) game.bloodParticleSystem.createBlood(toPixels(body.getPosition()));
+							for(int i = 0; i < 200; ++i) game.gibParticleSystem.createGib(toPixels(body.getPosition()));
+							getEntity().destroy();
+						}
+					}
 				};
 			}
 			inline void update(float mFrameTime) override

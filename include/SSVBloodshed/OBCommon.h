@@ -29,7 +29,8 @@ namespace ob
 	{
 		Solid,
 		Projectile,
-		Player
+		Player,
+		Organic
 	};
 
 	template<typename T> inline constexpr float toPixels(T mValue) noexcept		{ return mValue / 100; }
