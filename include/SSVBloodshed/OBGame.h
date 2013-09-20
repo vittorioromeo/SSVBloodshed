@@ -15,32 +15,22 @@ namespace ob
 	class Particle : public sf::Transformable, public sf::Drawable
 	{
 		private:
-			sf::VertexArray vertices{sf::PrimitiveType::Quads};
-			Vec2f velocity;
-			float acceleration{0.f};
+			sf::VertexArray vertices{sf::PrimitiveType::Quads, 4};
 			sf::Color color;
-			float size{1.f}, life{100.f}, lifeMax{100.f};
-			float opacityMult{1.f};
+			Vec2f velocity;
+			float acceleration{0.f}, size{1.f}, life{100.f}, lifeMax{100.f}, opacityMult{1.f};
 
-			inline void refreshColor() noexcept { for(auto i(0u); i < vertices.getVertexCount(); ++i) vertices[i].color = color; }
+			inline void refreshColor() noexcept { for(auto i(0u); i < 4u; ++i) vertices[i].color = color; }
 
 		public:
-			inline Particle()
-			{
-				vertices.append({Vec2f(-size, -size), sf::Color::White});
-				vertices.append({Vec2f(size, -size), sf::Color::White});
-				vertices.append({Vec2f(size, size), sf::Color::White});
-				vertices.append({Vec2f(-size, size), sf::Color::White});
-			}
-
 			inline void update(float mFrameTime)
 			{
-				if(life > 0) life -= mFrameTime;
-				color.a = static_cast<unsigned char>(ssvu::getClamped(life * (255 / lifeMax) * opacityMult, 0.f, 255.f));
+				life -= mFrameTime;
+
+				color.a = static_cast<unsigned char>(ssvu::getClamped(life * (255.f / lifeMax) * opacityMult, 0.f, 255.f));
 				refreshColor();
-				velocity.x = ssvu::getClampedMin(std::abs(velocity.x) + acceleration * mFrameTime, 0.f) * ssvu::getSign(velocity.x);
-				velocity.y = ssvu::getClampedMin(std::abs(velocity.y) + acceleration * mFrameTime, 0.f) * ssvu::getSign(velocity.y);
-				setPosition(getPosition() + velocity * mFrameTime);
+				velocity *= acceleration;
+				move(velocity * mFrameTime);
 			}
 
 			inline void draw(sf::RenderTarget& mRenderTarget, sf::RenderStates mRenderStates) const override
@@ -72,6 +62,8 @@ namespace ob
 			std::vector<Particle> particles;
 
 		public:
+			ParticleSystem() { particles.reserve(350); }
+
 			inline void create(const Vec2f& mPosition, const Vec2f& mVelocity, float mAcceleration, const sf::Color& mColor, float mSize, float mLife)
 			{
 				Particle p;
@@ -89,7 +81,7 @@ namespace ob
 				Particle p;
 				p.setPosition(mPosition);
 				p.setVelocity(ssvs::getVecFromDegrees(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(0.f, 15.f)));
-				p.setAcceleration(ssvu::getRndR<float>(-11.f, -9.f) * 0.09f);
+				p.setAcceleration(0.9f);
 				p.setColor(sf::Color{ssvu::getRnd<unsigned char>(185, 255), 0, 0, 255});
 				p.setSize(1.f + ssvu::getRndR<float>(-0.3, 0.3));
 				p.setLife(100 + ssvu::getRnd(-50, 50));
@@ -102,7 +94,7 @@ namespace ob
 				Particle p;
 				p.setPosition(mPosition);
 				p.setVelocity(ssvs::getVecFromDegrees(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(5.f, 15.f)));
-				p.setAcceleration(ssvu::getRndR<float>(-11.f, -9.f) * 0.05f);
+				p.setAcceleration(0.93f);
 				p.setColor(sf::Color{ssvu::getRnd<unsigned char>(95, 170), 15, 15, 255});
 				p.setSize(1.1f + ssvu::getRndR<float>(-0.3, 0.3));
 				p.setLife(150 + ssvu::getRnd(-50, 50));
@@ -115,10 +107,23 @@ namespace ob
 				Particle p;
 				p.setPosition(mPosition);
 				p.setVelocity(ssvs::getVecFromDegrees(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(0.f, 9.f)));
-				p.setAcceleration(ssvu::getRndR<float>(-11.f, -9.f) * 0.09f);
+				p.setAcceleration(0.9f);
 				p.setColor(sf::Color::Black);
 				p.setSize(1.f + ssvu::getRndR<float>(-0.3, 0.3));
 				p.setLife(65 + ssvu::getRnd(-50, 50));
+				p.setOpacityMult(0.8f);
+
+				particles.push_back(p);
+			}
+			inline void createMuzzle(const Vec2f& mPosition)
+			{
+				Particle p;
+				p.setPosition(mPosition);
+				p.setVelocity(ssvs::getVecFromDegrees(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(1.f, 4.5f)));
+				p.setAcceleration(0.9f);
+				p.setColor(sf::Color{255, ssvu::getRnd<unsigned char>(95, 100), 15, 255});
+				p.setSize(1.1f + ssvu::getRndR<float>(-0.3, 0.3));
+				p.setLife(6 + ssvu::getRnd(-5, 5));
 
 				particles.push_back(p);
 			}
@@ -150,14 +155,17 @@ namespace ob
 			ParticleTextureComponent(sf::RenderTexture& mRenderTexture, sf::RenderTarget& mRenderTarget, bool mClearOnDraw = false, unsigned char mOpacity = 255)
 				: renderTexture(mRenderTexture), renderTarget(mRenderTarget), clearOnDraw{mClearOnDraw}, opacity{mOpacity} { }
 
-			inline void init() override { renderTexture.clear(sf::Color::Transparent); }
+			inline void init() override
+			{
+				renderTexture.clear(sf::Color::Transparent);
+				sprite.setTexture(renderTexture.getTexture());
+				sprite.setColor({255, 255, 255, opacity});
+			}
+
 			inline void draw() override
 			{
 				renderTexture.display();
-				sprite.setTexture(renderTexture.getTexture());
-				sprite.setColor({255, 255, 255, opacity});
 				renderTarget.draw(sprite);
-
 				if(clearOnDraw) renderTexture.clear(sf::Color::Transparent);
 			}
 
@@ -186,7 +194,7 @@ namespace ob
 
 		public:
 			sf::RenderTexture permanentParticles, tempParticles;
-			ParticleSystem bloodParticleSystem, debrisParticleSystem, gibParticleSystem;
+			ParticleSystem permanentParticleSystem, tempParticleSystem;
 			sses::Entity* bloodParticles;
 			sses::Entity* debrisParticles;
 			sses::Entity* gibParticles;

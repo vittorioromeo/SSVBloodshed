@@ -7,6 +7,8 @@
 #include "SSVBloodshed/Components/OBCPhysics.h"
 #include "SSVBloodshed/Components/OBCRender.h"
 #include "SSVBloodshed/Components/OBCPlayer.h"
+#include "SSVBloodshed/Components/OBCEnemy.h"
+#include "SSVBloodshed/Components/OBCProjectile.h"
 
 using namespace std;
 using namespace sf;
@@ -61,7 +63,7 @@ namespace ob
 		result.addGroup(OBGroup::Player);
 		auto& cPhysics(result.createComponent<OBCPhysics>(world, false, mPos, Vec2i{700, 700}));
 		auto& cRender(result.createComponent<OBCRender>(game, cPhysics.getBody()));
-		auto& cPlayer(result.createComponent<OBCPlayer>(game, cPhysics, cRender, assets));
+		result.createComponent<OBCPlayer>(game, cPhysics, cRender, assets);
 
 		Body& body(cPhysics.getBody());
 		body.addGroup(OBGroup::Solid);
@@ -104,7 +106,7 @@ namespace ob
 		auto& result(manager.createEntity());
 		auto& cPhysics(result.createComponent<OBCPhysics>(world, false, mPos, Vec2i{150, 150}));
 		auto& cRender(result.createComponent<OBCRender>(game, cPhysics.getBody()));
-		auto& cProjectile(result.createComponent<OBCProjectile>(game, cPhysics, cRender, 420.f, mDir));
+		result.createComponent<OBCProjectile>(game, cPhysics, cRender, 420.f, mDir);
 
 		Sprite s{assets.get<Texture>("tilesetProjectiles.png")};
 		s.setTextureRect(assets.tilesetProjectiles[{0, 0}]);
@@ -121,7 +123,7 @@ namespace ob
 		result.setDrawPriority(-500);
 		auto& cPhysics(result.createComponent<OBCPhysics>(world, false, mPos, Vec2i{700, 700}));
 		auto& cRender(result.createComponent<OBCRender>(game, cPhysics.getBody()));
-		auto& cEnemy(result.createComponent<OBCEnemy>(game, cPhysics, cRender, assets));
+		result.createComponent<OBCEnemy>(game, cPhysics, cRender, assets);
 
 		Body& body(cPhysics.getBody());
 		body.addGroup(OBGroup::Solid);

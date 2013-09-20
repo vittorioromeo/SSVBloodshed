@@ -16,7 +16,7 @@ using namespace sses;
 namespace ob
 {
 	OBGame::OBGame(GameWindow& mGameWindow, OBAssets& mAssets) : gameWindow(mGameWindow), assets(mAssets), factory{assets, *this, manager, world},
-		world(createResolver<Impulse>(), createSpatial<HashGrid>(1000, 1000, 3000, 500)),  debugText{assets.get<BitmapFont>("limeStroked")}
+		world(createResolver<Impulse>(), createSpatial<HashGrid>(1000, 1000, 1000, 500)),  debugText{assets.get<BitmapFont>("limeStroked")}
 	{
 		gameState.onUpdate += [this](float mFrameTime){ update(mFrameTime); };
 		gameState.onDraw += [this]{ draw(); };
@@ -47,7 +47,7 @@ namespace ob
 		gameState.addInput({{k::R}}, [this](float){ newGame(); }, t::Once);
 
 		gameState.addInput({{k::Num1}}, [this](float){ factory.createWall(getMousePosition()); }, t::Once);
-		gameState.addInput({{k::Num2}}, [this](float){ factory.createTestEnemy(getMousePosition()); }, t::Once);
+		gameState.addInput({{k::Num2}}, [this](float){ factory.createTestEnemy(getMousePosition()); });
 
 		// Particle textures
 		permanentParticles.create(320, 240);
@@ -60,12 +60,11 @@ namespace ob
 	{
 		manager.clear();
 
-		bloodParticleSystem.clear();
-		debrisParticleSystem.clear();
-		gibParticleSystem.clear();
+		permanentParticleSystem.clear();
+		tempParticleSystem.clear();
 
 		bloodParticles = &manager.createEntity();
-		bloodParticles->createComponent<ParticleTextureComponent>(permanentParticles, this->getGameWindow().getRenderWindow(), false, 175);
+		bloodParticles->createComponent<ParticleTextureComponent>(permanentParticles, this->getGameWindow().getRenderWindow(), false, 195);
 		bloodParticles->setDrawPriority(1000);
 
 		debrisParticles = &manager.createEntity();
@@ -91,7 +90,7 @@ namespace ob
 		factory.createTest(getTilePos(7, 8));
 		factory.createTest(getTilePos(8, 7));
 		factory.createTest(getTilePos(8, 8));
-		factory.createTestEnemy(getTilePos(13, 13));
+		//factory.createTestEnemy(getTilePos(13, 13));
 	}
 
 	void OBGame::update(float mFrameTime)
@@ -99,9 +98,10 @@ namespace ob
 		manager.update(mFrameTime);
 		world.update(mFrameTime);
 
-		bloodParticleSystem.update(mFrameTime);
-		debrisParticleSystem.update(mFrameTime);
-		gibParticleSystem.update(mFrameTime);
+		permanentParticleSystem.update(mFrameTime);
+		tempParticleSystem.update(mFrameTime);
+
+		for(int k = 0; k < 300; ++k) { tempParticleSystem.createBlood(Vec2f(0,0)); }
 
 		updateDebugText(mFrameTime);
 		camera.update<int>(mFrameTime);
@@ -132,9 +132,8 @@ namespace ob
 		camera.apply<int>();
 		manager.draw();
 
-		bloodParticles->getComponent<ParticleTextureComponent>().render(bloodParticleSystem);
-		debrisParticles->getComponent<ParticleTextureComponent>().render(debrisParticleSystem);
-		gibParticles->getComponent<ParticleTextureComponent>().render(gibParticleSystem);
+		bloodParticles->getComponent<ParticleTextureComponent>().render(permanentParticleSystem);
+		debrisParticles->getComponent<ParticleTextureComponent>().render(tempParticleSystem);
 
 		camera.unapply();
 		render(debugText);

@@ -79,7 +79,10 @@ namespace ob
 				}
 				else if(shootTimer.update(mFrameTime))
 				{
-					game.getFactory().createTestProj(body.getPosition() + Vec2i(dirVec * 1100.f), getDegreesFromDirection(direction));
+					// Shoot!
+					Vec2i shootPosition{body.getPosition() + Vec2i(dirVec * 1100.f)};
+					game.getFactory().createTestProj(shootPosition, getDegreesFromDirection(direction));
+					for(int i{0}; i < 20; ++i) game.tempParticleSystem.createMuzzle(toPixels(shootPosition));
 				}
 
 				if(ix != 0 || iy != 0) body.setVelocity(iVec * walkSpeed);
@@ -120,95 +123,6 @@ namespace ob
 
 			inline Action getAction() const noexcept		{ return action; }
 			inline Direction getDirection() const noexcept	{ return direction; }
-	};
-
-	class OBCProjectile : public sses::Component
-	{
-		private:
-			OBGame& game;
-			OBCPhysics& cPhysics;
-			OBCRender& cRender;
-			ssvsc::Body& body;
-			float speed{125.f}, degrees{0.f};
-
-		public:
-			OBCProjectile(OBGame& mGame, OBCPhysics& mCPhysics, OBCRender& mCRender, float mSpeed, float mDegrees)
-				: game(mGame), cPhysics(mCPhysics), cRender(mCRender), body(cPhysics.getBody()), speed{mSpeed}, degrees{mDegrees} { }
-
-			inline void init() override
-			{
-				body.addGroup(OBGroup::Projectile);
-				body.addGroupToCheck(OBGroup::Solid);
-				body.onDetection += [this](const ssvsc::DetectionInfo& mDI)
-				{
-					if(mDI.body.hasGroup(OBGroup::Solid))
-					{
-						if(!mDI.body.hasGroup(OBGroup::Organic)) for(int i = 0; i < 7; ++i) game.debrisParticleSystem.createDebris(toPixels(body.getPosition()));
-						getEntity().destroy();
-					}
-				};
-			}
-			inline void update(float mFrameTime) override { body.setVelocity(ssvs::getVecFromDegrees(degrees, speed)); }
-			inline void draw() override { cRender.setRotation(degrees); }
-	};
-
-	class OBCEnemy : public sses::Component
-	{
-		private:
-			OBGame& game;
-			OBCPhysics& cPhysics;
-			OBCRender& cRender;
-			OBAssets& assets;
-			ssvsc::Body& body;
-			float walkSpeed{100.f};
-			float currentDegrees{0.f};
-			float turnSpeed{7.5f};
-			int health{12};
-			//ssvs::Ticker shootTimer{4.7f};
-
-		public:
-			OBCEnemy(OBGame& mGame, OBCPhysics& mCPhysics, OBCRender& mCRender, OBAssets& mAssets) : game(mGame), cPhysics(mCPhysics), cRender(mCRender), assets(mAssets), body(cPhysics.getBody()) { }
-
-			inline void init() override
-			{
-				body.onPreUpdate += [this]{ body.setVelocity(ssvs::getMClamped(body.getVelocity(), -120.f, 120.f)); };
-				body.onDetection += [this](const ssvsc::DetectionInfo& mDI)
-				{
-					if(mDI.body.hasGroup(OBGroup::Solid)) body.applyForce(Vec2f(mDI.intersection) * 1.f);
-					if(mDI.body.hasGroup(OBGroup::Projectile))
-					{
-						--health;
-						for(int i = 0; i < 30; ++i) game.bloodParticleSystem.createBlood(toPixels(body.getPosition()));
-
-						if(health <= 0)
-						{
-							for(int i = 0; i < 110; ++i) game.bloodParticleSystem.createBlood(toPixels(body.getPosition()));
-							for(int i = 0; i < 200; ++i) game.gibParticleSystem.createGib(toPixels(body.getPosition()));
-							getEntity().destroy();
-						}
-					}
-				};
-			}
-			inline void update(float mFrameTime) override
-			{
-				for(const auto& e : game.getManager().getEntities(OBGroup::Player))
-				{
-					auto& ecPhysics(e->getComponent<OBCPhysics>());
-					float targetDegrees(ssvs::getDegreesTowards(Vec2f(body.getPosition()), Vec2f(ecPhysics.getBody().getPosition())));
-
-					currentDegrees = ssvu::getRotatedDegrees(currentDegrees, targetDegrees, turnSpeed * mFrameTime);
-					float sd = static_cast<int>(currentDegrees / 45.f) * 45.f;
-
-					body.applyForce(ssvs::getVecFromDegrees(sd, walkSpeed) * 0.05f);
-				}
-			}
-			inline void draw() override
-			{
-				auto& s0(cRender[0]);
-				s0.setTextureRect(assets.tilesetEnemy[{0, 0}]);
-				float sd = static_cast<int>(currentDegrees / 45.f) * 45.f;
-				s0.setRotation(sd);
-			}
 	};
 }
 
