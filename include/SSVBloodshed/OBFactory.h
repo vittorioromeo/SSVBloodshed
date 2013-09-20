@@ -25,6 +25,7 @@ namespace ob
 
 			Entity& createFloor(const Vec2i& mPos);
 			Entity& createWall(const Vec2i& mPos);
+			Entity& createPlayer(const Vec2i& mPos);
 	};
 }
 

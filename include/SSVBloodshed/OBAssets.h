@@ -19,6 +19,7 @@ namespace ob
 			ssvs::SoundPlayer soundPlayer;
 			ssvs::MusicPlayer musicPlayer;
 			ssvs::Tileset tileset{ssvuj::as<ssvs::Tileset>(ssvuj::readFromFile("Data/Tilesets/tileset.json"))};
+			ssvs::Tileset tilesetPlayer{ssvuj::as<ssvs::Tileset>(ssvuj::readFromFile("Data/Tilesets/tilesetPlayer.json"))};
 
 			inline OBAssets()
 			{

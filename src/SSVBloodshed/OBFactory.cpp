@@ -56,5 +56,28 @@ namespace ob
 
 		return result;
 	}
+	Entity& OBFactory::createPlayer(const Vec2i& mPos)
+	{
+		auto& result(manager.createEntity());
+		result.setDrawPriority(-1000);
+		auto& cPhysics(result.createComponent<OBCPhysics>(world, false, mPos, Vec2i{700, 700}));
+		auto& cRender(result.createComponent<OBCRender>(game, cPhysics.getBody()));
+
+		Body& body(cPhysics.getBody());
+		body.addGroup(OBGroup::Solid);
+		body.addGroupToCheck(OBGroup::Solid);
+		body.setVelTransferMultX(1.f);
+		body.setVelTransferMultY(1.f);
+
+		Sprite s{assets.get<Texture>("tilesetPlayer.png")};
+		s.setTextureRect(assets.tilesetPlayer[{0, 0}]);
+
+		body.setStressMult(0.f);
+
+		cRender.addSprite(s);
+		cRender.setScaleWithBody(false);
+
+		return result;
+	}
 }
 

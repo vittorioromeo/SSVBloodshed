@@ -2,7 +2,8 @@
 	"textures":
 	[
 		"limeStroked.png",
-		"tileset.png"
+		"tileset.png",
+		"tilesetPlayer.png"
 	],
 	"soundBuffers":
 	[	

@@ -62,6 +62,8 @@ namespace ob
 				if(iX == 0 || iX == maxX - 1 || iY == 0 || iY == maxY - 1) factory.createWall(getTilePos(iX, iY));
 				else factory.createFloor(getTilePos(iX, iY));
 			}
+
+		factory.createPlayer(getTilePos(5, 5));
 	}
 
 	void OBGame::update(float mFrameTime)

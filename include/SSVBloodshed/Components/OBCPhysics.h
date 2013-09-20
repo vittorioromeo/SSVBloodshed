@@ -28,7 +28,35 @@ namespace ob
 			OBCPhysics(ssvsc::World& mWorld, bool mIsStatic, const Vec2i& mPosition, const Vec2i& mSize) : world(mWorld), body(world.create(mPosition, mSize, mIsStatic)) { }
 			inline ~OBCPhysics() { body.destroy(); }
 
-			void init() override;
+			inline void init() override
+			{
+				body.setUserData(&getEntity());
+
+				body.onDetection += [this](const ssvsc::DetectionInfo& mDetectionInfo)
+				{
+					if(mDetectionInfo.userData == nullptr) return;
+					Entity* entity(static_cast<Entity*>(mDetectionInfo.userData));
+					onDetection(*entity);
+				};
+				body.onResolution += [this](const ssvsc::ResolutionInfo& mResolutionInfo)
+				{
+					onResolution(mResolutionInfo.resolution);
+
+					lastResolution = mResolutionInfo.resolution;
+					if(mResolutionInfo.resolution.x > 0) crushedLeft = crushedMax;
+					else if(mResolutionInfo.resolution.x < 0) crushedRight = crushedMax;
+					if(mResolutionInfo.resolution.y > 0) crushedTop = crushedMax;
+					else if(mResolutionInfo.resolution.y < 0) crushedBottom = crushedMax;
+				};
+				body.onPreUpdate += [this]
+				{
+					lastResolution = {0, 0};
+					if(crushedLeft > 0) --crushedLeft;
+					if(crushedRight > 0) --crushedRight;
+					if(crushedTop > 0) --crushedTop;
+					if(crushedBottom > 0) --crushedBottom;
+				};
+			}
 			inline void update(float) override { }
 
 			inline ssvsc::World& getWorld() const				{ return world; }
