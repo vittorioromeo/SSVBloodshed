@@ -1,0 +1,19 @@
+{
+	"textures":
+	[
+		"limeStroked.png",
+		"tileset.png"
+	],
+	"soundBuffers":
+	[	
+		
+	],
+	"musics":
+	[
+		
+	],
+	"bitmapFonts":
+	{
+		"limeStroked": ["limeStroked.png", "lime.json"]
+	}
+}

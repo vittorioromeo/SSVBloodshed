@@ -1,0 +1,11 @@
+{
+	"tileSize": [10, 10],
+
+	"labels": 
+	[
+		["floor", "wallBlock", "wallH", "wallHEndW", "wallHEndE", "wall90SW", "wallV", "wall90NE"],
+		["wall90NW", "floorGrate", "wallVEndS", "wallVEndN", "wall90SE", "door", "wallTNSW", "wallTNWE"],
+		["medkit", "ammokit", "wallTSWE", "dirarrow", "pit", "playerStandO", "playerUnused", "enemy"],
+		["playerAimO", "playerStandD", "playerAimD", "bulletUnused", "bullet"]
+	]
+}
