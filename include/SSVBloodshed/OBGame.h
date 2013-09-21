@@ -40,6 +40,8 @@ namespace ob
 			ParticleSystem* psTemp{nullptr};
 			ParticleSystem* psPerm{nullptr};
 
+			sf::Sprite hudSprite{assets.get<sf::Texture>("tempHud.png")};
+
 		public:
 			OBGame(ssvs::GameWindow& mGameWindow, OBAssets& mAssets);
 

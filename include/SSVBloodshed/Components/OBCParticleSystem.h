@@ -78,17 +78,17 @@ namespace ob
 			inline void createBlood(const Vec2f& mPosition)
 			{
 				create(mPosition,
-						ssvs::getVecFromDegrees(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(0.f, 15.f)),
+						ssvs::getVecFromDegrees(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(0.f, 13.f)),
 						0.9f,
 						{ssvu::getRnd<unsigned char>(185, 255), 0, 0, 255},
 						1.f + ssvu::getRndR<float>(-0.3, 0.3),
-						100 + ssvu::getRnd(-50, 50),
-						0.5f);
+						75 + ssvu::getRnd(-65, 65),
+						0.42f);
 			}
 			inline void createGib(const Vec2f& mPosition)
 			{
 				create(mPosition,
-						ssvs::getVecFromDegrees(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(5.f, 15.f)),
+						ssvs::getVecFromDegrees(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(2.f, 13.f)),
 						0.93f,
 						{ssvu::getRnd<unsigned char>(95, 170), 15, 15, 255},
 						1.1f + ssvu::getRndR<float>(-0.3, 0.3),

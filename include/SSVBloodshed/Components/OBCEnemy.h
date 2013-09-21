@@ -23,13 +23,19 @@ namespace ob
 			float walkSpeed{100.f}, currentDegrees{0.f}, turnSpeed{7.5f};
 			float snappedDegrees{0.f};
 			int health{3}; int gibMult{1};
-			//ssvs::Ticker shootTimer{4.7f};
+
+			ssvs::Ticker shootTimer{100.f};
+			ssvu::Timeline shootTimeline;
 
 		public:
 			OBCEnemy(OBGame& mGame, OBCPhysics& mCPhysics, OBCRender& mCRender, OBAssets& mAssets) : game(mGame), cPhysics(mCPhysics), cRender(mCRender), assets(mAssets), body(cPhysics.getBody()) { }
 
 			inline void init() override
 			{
+				shootTimeline.append<ssvu::Do>([this]{ shoot(-5); });
+				shootTimeline.append<ssvu::Wait>(4.f);
+				shootTimeline.append<ssvu::Go>(0, 3);
+
 				body.setRestitutionX(1.7f);
 				body.setRestitutionY(1.7f);
 				body.onPreUpdate += [this]{ body.setVelocity(ssvs::getMClamped(body.getVelocity(), -120.f, 120.f)); };
@@ -38,12 +44,12 @@ namespace ob
 					if(mDI.body.hasGroup(OBGroup::Projectile))
 					{
 						--health;
-						for(int i{0}; i < 8; ++i) game.getPSPerm().createBlood(toPixels(body.getPosition()));
+						for(int i{0}; i < 6; ++i) game.getPSPerm().createBlood(toPixels(body.getPosition()));
 
 						if(health <= 0)
 						{
-							for(int i{0}; i < 25 * gibMult; ++i) game.getPSPerm().createBlood(toPixels(body.getPosition()));
-							for(int i{0}; i < 60 * gibMult; ++i) game.getPSTemp().createGib(toPixels(body.getPosition()));
+							for(int i{0}; i < 20 * gibMult; ++i) game.getPSPerm().createBlood(toPixels(body.getPosition()));
+							for(int i{0}; i < 35 * gibMult; ++i) game.getPSTemp().createGib(toPixels(body.getPosition()));
 							getEntity().destroy();
 						}
 					}
@@ -61,12 +67,27 @@ namespace ob
 
 					body.applyForce(ssvs::getVecFromDegrees(snappedDegrees, walkSpeed) * 0.05f);
 				}
+
+				shootTimeline.update(mFrameTime);
+
+				if(shootTimer.update(mFrameTime))
+				{
+					shootTimeline.reset();
+					shootTimeline.start();
+				}
 			}
 			inline void draw() override
 			{
 				auto& s0(cRender[0]);
 				//s0.setTextureRect(assets.get<Tileset>("tileset")Enemy[{0, 0}]);
 				s0.setRotation(snappedDegrees);
+			}
+
+			inline void shoot(int mDeg)
+			{
+				Vec2i shootPosition{body.getPosition() + Vec2i(ssvs::getVecFromDegrees<float>(currentDegrees) * 1100.f)};
+				game.getFactory().createTestProj(shootPosition, currentDegrees + mDeg);
+				for(int i{0}; i < 20; ++i) game.getPSTemp().createMuzzle(toPixels(shootPosition));
 			}
 	};
 }

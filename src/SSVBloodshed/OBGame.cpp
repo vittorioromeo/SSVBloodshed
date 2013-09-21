@@ -56,6 +56,10 @@ namespace ob
 		psPermTexture.create(320, 240);
 		psTempTexture.create(320, 240);
 
+		// Temp hud sprite
+		hudSprite.setScale(2.f, 2.f);
+		hudSprite.setPosition(0, 480 - getGlobalHeight(hudSprite));
+
 		newGame();
 	}
 
@@ -67,7 +71,7 @@ namespace ob
 		psTemp = &factory.createParticleSystem(psTempTexture, true, 255).getComponent<OBCParticleSystem>().getParticleSystem();
 
 		auto getTilePos = [](int mX, int mY) -> Vec2i { return toCoords(Vec2i{mX * 10 + 5, mY * 10 + 5}); };
-		constexpr int maxX{320 / 10}, maxY{240 / 10};
+		constexpr int maxX{320 / 10}, maxY{240 / 10 - 2};
 
 		for(int iX{0}; iX < maxX; ++iX)
 			for(int iY{0}; iY < maxY; ++iY)
@@ -77,10 +81,10 @@ namespace ob
 			}
 
 		factory.createPlayer(getTilePos(5, 5));
-		factory.createTest(getTilePos(7, 7));
-		factory.createTest(getTilePos(7, 8));
-		factory.createTest(getTilePos(8, 7));
-		factory.createTest(getTilePos(8, 8));
+		//factory.createTest(getTilePos(7, 7));
+		//factory.createTest(getTilePos(7, 8));
+		//factory.createTest(getTilePos(8, 7));
+		//factory.createTest(getTilePos(8, 8));
 		//factory.createTestEnemy(getTilePos(13, 13));
 	}
 
@@ -118,6 +122,7 @@ namespace ob
 		camera.apply<int>();
 		manager.draw();
 		camera.unapply();
+		render(hudSprite);
 		render(debugText);
 	}
 }

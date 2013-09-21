@@ -68,6 +68,20 @@ namespace ob
 		return {{0, 0}};
 	}
 	template<typename T = int> inline Vec2<T> getVecFromDirection(Direction mDirection) noexcept { const auto& xy(getXYFromDirection<T>(mDirection)); return {xy[0], xy[1]}; }
+
+	template<typename T> float getGlobalLeft(const T& mElement)		{ return mElement.getGlobalBounds().left; }
+	template<typename T> float getGlobalRight(const T& mElement)	{ return mElement.getGlobalBounds().left + mElement.getGlobalBounds().width; }
+	template<typename T> float getGlobalTop(const T& mElement)		{ return mElement.getGlobalBounds().top; }
+	template<typename T> float getGlobalBottom(const T& mElement)	{ return mElement.getGlobalBounds().top + mElement.getGlobalBounds().height; }
+	template<typename T> float getGlobalWidth(const T& mElement)	{ return mElement.getGlobalBounds().width; }
+	template<typename T> float getGlobalHeight(const T& mElement)	{ return mElement.getGlobalBounds().height; }
+
+	template<typename T> float getLocalLeft(const T& mElement)		{ return mElement.getLocalBounds().left; }
+	template<typename T> float getLocalRight(const T& mElement)		{ return mElement.getLocalBounds().left + mElement.getLocalBounds().width; }
+	template<typename T> float getLocalTop(const T& mElement)		{ return mElement.getLocalBounds().top; }
+	template<typename T> float getLocalBottom(const T& mElement)	{ return mElement.getLocalBounds().top + mElement.getLocalBounds().height; }
+	template<typename T> float getLocalWidth(const T& mElement)		{ return mElement.getLocalBounds().width; }
+	template<typename T> float getLocalHeight(const T& mElement)	{ return mElement.getLocalBounds().height; }
 }
 
 #endif

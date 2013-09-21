@@ -1,6 +1,7 @@
 {
 	"textures":
 	[
+		"tempHud.png",
 		"limeStroked.png",
 		"tileset.png",
 		"tilesetPlayer.png",
