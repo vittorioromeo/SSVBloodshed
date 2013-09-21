@@ -5,7 +5,8 @@
 		"tileset.png",
 		"tilesetPlayer.png",
 		"tilesetProjectiles.png",
-		"tilesetEnemy.png"
+		"tilesetEnemy.png",
+		"tilesetEnemyBig.png"
 	],
 	"soundBuffers":
 	[	

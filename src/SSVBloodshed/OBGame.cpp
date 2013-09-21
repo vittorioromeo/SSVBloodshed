@@ -3,6 +3,7 @@
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
 #include "SSVBloodshed/OBGame.h"
+#include "SSVBloodshed/Components/OBCParticleSystem.h"
 
 using namespace std;
 using namespace sf;
@@ -40,6 +41,7 @@ namespace ob
 
 		add2StateInput(gameState, {{k::Z}}, inputShoot);
 		add2StateInput(gameState, {{k::X}}, inputSwitch, t::Once);
+		add2StateInput(gameState, {{k::Space}}, inputBomb, t::Once);
 
 		add3StateInput(gameState, {{k::Left}}, {{k::Right}}, inputX);
 		add3StateInput(gameState, {{k::Up}}, {{k::Down}}, inputY);
@@ -48,10 +50,11 @@ namespace ob
 
 		gameState.addInput({{k::Num1}}, [this](float){ factory.createWall(getMousePosition()); }, t::Once);
 		gameState.addInput({{k::Num2}}, [this](float){ factory.createTestEnemy(getMousePosition()); });
+		gameState.addInput({{k::Num3}}, [this](float){ factory.createTestEnemyBig(getMousePosition()); }, t::Once);
 
 		// Particle textures
-		permanentParticles.create(320, 240);
-		tempParticles.create(320, 240);
+		psPermTexture.create(320, 240);
+		psTempTexture.create(320, 240);
 
 		newGame();
 	}
@@ -60,20 +63,8 @@ namespace ob
 	{
 		manager.clear();
 
-		permanentParticleSystem.clear();
-		tempParticleSystem.clear();
-
-		bloodParticles = &manager.createEntity();
-		bloodParticles->createComponent<ParticleTextureComponent>(permanentParticles, this->getGameWindow().getRenderWindow(), false, 195);
-		bloodParticles->setDrawPriority(1000);
-
-		debrisParticles = &manager.createEntity();
-		debrisParticles->createComponent<ParticleTextureComponent>(tempParticles, this->getGameWindow().getRenderWindow(), true);
-		debrisParticles->setDrawPriority(999);
-
-		gibParticles = &manager.createEntity();
-		gibParticles->createComponent<ParticleTextureComponent>(tempParticles, this->getGameWindow().getRenderWindow(), true);
-		gibParticles->setDrawPriority(1001);
+		psPerm = &factory.createParticleSystem(psPermTexture, false, 175).getComponent<OBCParticleSystem>().getParticleSystem();
+		psTemp = &factory.createParticleSystem(psTempTexture, true, 255).getComponent<OBCParticleSystem>().getParticleSystem();
 
 		auto getTilePos = [](int mX, int mY) -> Vec2i { return toCoords(Vec2i{mX * 10 + 5, mY * 10 + 5}); };
 		constexpr int maxX{320 / 10}, maxY{240 / 10};
@@ -97,9 +88,6 @@ namespace ob
 	{
 		manager.update(mFrameTime);
 		world.update(mFrameTime);
-
-		permanentParticleSystem.update(mFrameTime);
-		tempParticleSystem.update(mFrameTime);
 
 		updateDebugText(mFrameTime);
 		camera.update<int>(mFrameTime);
@@ -129,10 +117,6 @@ namespace ob
 	{
 		camera.apply<int>();
 		manager.draw();
-
-		bloodParticles->getComponent<ParticleTextureComponent>().render(permanentParticleSystem);
-		debrisParticles->getComponent<ParticleTextureComponent>().render(tempParticleSystem);
-
 		camera.unapply();
 		render(debugText);
 	}

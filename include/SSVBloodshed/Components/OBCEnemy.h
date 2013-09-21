@@ -14,14 +14,15 @@ namespace ob
 {
 	class OBCEnemy : public sses::Component
 	{
-		private:
+		public:
 			OBGame& game;
 			OBCPhysics& cPhysics;
 			OBCRender& cRender;
 			OBAssets& assets;
 			ssvsc::Body& body;
 			float walkSpeed{100.f}, currentDegrees{0.f}, turnSpeed{7.5f};
-			int health{1};
+			float snappedDegrees{0.f};
+			int health{3}; int gibMult{1};
 			//ssvs::Ticker shootTimer{4.7f};
 
 		public:
@@ -29,19 +30,20 @@ namespace ob
 
 			inline void init() override
 			{
+				body.setRestitutionX(1.7f);
+				body.setRestitutionY(1.7f);
 				body.onPreUpdate += [this]{ body.setVelocity(ssvs::getMClamped(body.getVelocity(), -120.f, 120.f)); };
 				body.onDetection += [this](const ssvsc::DetectionInfo& mDI)
 				{
-					if(mDI.body.hasGroup(OBGroup::Solid)) body.applyForce(Vec2f(mDI.intersection) * 1.f);
 					if(mDI.body.hasGroup(OBGroup::Projectile))
 					{
 						--health;
-						for(int i{0}; i < 10; ++i) game.permanentParticleSystem.createBlood(toPixels(body.getPosition()));
+						for(int i{0}; i < 8; ++i) game.getPSPerm().createBlood(toPixels(body.getPosition()));
 
 						if(health <= 0)
 						{
-							for(int i{0}; i < 40; ++i) game.permanentParticleSystem.createBlood(toPixels(body.getPosition()));
-							for(int i{0}; i < 80; ++i) game.tempParticleSystem.createGib(toPixels(body.getPosition()));
+							for(int i{0}; i < 25 * gibMult; ++i) game.getPSPerm().createBlood(toPixels(body.getPosition()));
+							for(int i{0}; i < 60 * gibMult; ++i) game.getPSTemp().createGib(toPixels(body.getPosition()));
 							getEntity().destroy();
 						}
 					}
@@ -55,17 +57,16 @@ namespace ob
 					float targetDegrees(ssvs::getDegreesTowards(Vec2f(body.getPosition()), Vec2f(ecPhysics.getBody().getPosition())));
 
 					currentDegrees = ssvu::getRotatedDegrees(currentDegrees, targetDegrees, turnSpeed * mFrameTime);
-					float sd = static_cast<int>(currentDegrees / 45.f) * 45.f;
+					snappedDegrees = static_cast<int>(currentDegrees / 45.f) * 45.f;
 
-					body.applyForce(ssvs::getVecFromDegrees(sd, walkSpeed) * 0.05f);
+					body.applyForce(ssvs::getVecFromDegrees(snappedDegrees, walkSpeed) * 0.05f);
 				}
 			}
 			inline void draw() override
 			{
 				auto& s0(cRender[0]);
-				s0.setTextureRect(assets.tilesetEnemy[{0, 0}]);
-				float sd = static_cast<int>(currentDegrees / 45.f) * 45.f;
-				s0.setRotation(sd);
+				//s0.setTextureRect(assets.get<Tileset>("tileset")Enemy[{0, 0}]);
+				s0.setRotation(snappedDegrees);
 			}
 	};
 }

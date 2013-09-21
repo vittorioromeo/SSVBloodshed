@@ -13,7 +13,6 @@ namespace ob
 	{
 		private:
 			bool soundEnabled{true}, musicEnabled{true};
-
 			inline static OBConfig& getInstance() noexcept { static OBConfig instance; return instance; }
 
 		public:

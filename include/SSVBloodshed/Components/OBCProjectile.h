@@ -27,13 +27,14 @@ namespace ob
 
 			inline void init() override
 			{
+				body.setResolve(false);
 				body.addGroup(OBGroup::Projectile);
 				body.addGroupToCheck(OBGroup::Solid);
 				body.onDetection += [this](const ssvsc::DetectionInfo& mDI)
 				{
 					if(mDI.body.hasGroup(OBGroup::Solid))
 					{
-						if(!mDI.body.hasGroup(OBGroup::Organic)) for(int i = 0; i < 6; ++i) game.tempParticleSystem.createDebris(toPixels(body.getPosition()));
+						if(!mDI.body.hasGroup(OBGroup::Organic)) for(int i = 0; i < 6; ++i) game.getPSTemp().createDebris(toPixels(body.getPosition()));
 						getEntity().destroy();
 					}
 				};
