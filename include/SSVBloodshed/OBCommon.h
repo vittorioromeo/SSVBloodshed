@@ -20,12 +20,14 @@
 
 namespace ob
 {
+	// Typedefs
+	template<typename T> using Vec2 = ssvs::Vec2<T>;
+	template<typename T, typename TDeleter = std::default_delete<T>> using Uptr = ssvs::Uptr<T, TDeleter>;
+	using Entity = sses::Entity;
 	using Vec2i = ssvs::Vec2i;
 	using Vec2f = ssvs::Vec2f;
-	template<typename T, typename TDeleter = std::default_delete<T>> using Uptr = ssvs::Uptr<T, TDeleter>;
-	template<typename T> using Vec2 = ssvs::Vec2<T>;
-	using Entity = sses::Entity;
 
+	// Game enums
 	enum OBGroup : unsigned int
 	{
 		Solid,
@@ -34,12 +36,14 @@ namespace ob
 		Organic
 	};
 
+	// Pixel <-> coords utils
 	template<typename T> inline constexpr float toPixels(T mValue) noexcept		{ return mValue / 100; }
 	template<typename T> inline constexpr int toCoords(T mValue) noexcept		{ return mValue * 100; }
 	template<typename T> inline Vec2f toPixels(const Vec2<T>& mValue) noexcept	{ return {toPixels(mValue.x), toPixels(mValue.y)}; }
 	template<typename T> inline Vec2i toCoords(const Vec2<T>& mValue) noexcept	{ return {toCoords(mValue.x), toCoords(mValue.y)}; }
 
-	enum Direction : int{E = 0, SE = 1, S = 2, SW = 3, W = 4, NW = 5, N = 6, NE = 7};
+	// Direction utils
+	enum Direction : int {E = 0, SE = 1, S = 2, SW = 3, W = 4, NW = 5, N = 6, NE = 7};
 	template<typename T = float> inline T getDegreesFromDirection(Direction mDirection) noexcept { return T(static_cast<int>(mDirection) * T(45)); }
 	template<typename T> inline Direction getDirectionFromXY(T mX, T mY) noexcept
 	{
@@ -67,8 +71,10 @@ namespace ob
 		}
 		return {{0, 0}};
 	}
+	template<typename T> inline Direction getDirectionFromVec(const Vec2<T>& mVec) noexcept { return getDirectionFromXY(mVec.x, mVec.y); }
 	template<typename T = int> inline Vec2<T> getVecFromDirection(Direction mDirection) noexcept { const auto& xy(getXYFromDirection<T>(mDirection)); return {xy[0], xy[1]}; }
 
+	// SFML shortcuts (TODO: remove? move to ssvs?)
 	template<typename T> float getGlobalLeft(const T& mElement)		{ return mElement.getGlobalBounds().left; }
 	template<typename T> float getGlobalRight(const T& mElement)	{ return mElement.getGlobalBounds().left + mElement.getGlobalBounds().width; }
 	template<typename T> float getGlobalTop(const T& mElement)		{ return mElement.getGlobalBounds().top; }

@@ -51,6 +51,7 @@ namespace ob
 		gameState.addInput({{k::Num1}}, [this](float){ factory.createWall(getMousePosition()); }, t::Once);
 		gameState.addInput({{k::Num2}}, [this](float){ factory.createTestEnemy(getMousePosition()); });
 		gameState.addInput({{k::Num3}}, [this](float){ factory.createTestEnemyBig(getMousePosition()); }, t::Once);
+		gameState.addInput({{k::Num4}}, [this](float){ factory.createTestJuggernaut(getMousePosition()); }, t::Once);
 
 		// Particle textures
 		psPermTexture.create(320, 240);
@@ -125,4 +126,9 @@ namespace ob
 		render(hudSprite);
 		render(debugText);
 	}
+
+	void OBGame::createPBlood(unsigned int mCount, const Vec2f& mPosition, float mMult)	{ for(auto i(0u); i < mCount; ++i) ob::createPBlood(*psPerm, mPosition, mMult); }
+	void OBGame::createPGib(unsigned int mCount, const Vec2f& mPosition)				{ for(auto i(0u); i < mCount; ++i) ob::createPGib(*psTemp, mPosition); }
+	void OBGame::createPDebris(unsigned int mCount,const Vec2f& mPosition)				{ for(auto i(0u); i < mCount; ++i) ob::createPDebris(*psTemp, mPosition); }
+	void OBGame::createPMuzzle(unsigned int mCount, const Vec2f& mPosition)				{ for(auto i(0u); i < mCount; ++i) ob::createPMuzzle(*psTemp, mPosition); }
 }

@@ -7,8 +7,8 @@
 
 #include "SSVBloodshed/OBCommon.h"
 #include "SSVBloodshed/OBGame.h"
-#include "SSVBloodshed/Components/OBCPhysics.h"
-#include "SSVBloodshed/Components/OBCRender.h"
+#include "SSVBloodshed/Components/OBCPhys.h"
+#include "SSVBloodshed/Components/OBCDraw.h"
 #include "SSVBloodshed/Components/OBCParticleSystem.h"
 
 namespace ob
@@ -16,31 +16,31 @@ namespace ob
 	class OBCPlayer : public sses::Component
 	{
 		public:
-			enum class Action{Standing, Aiming};
+			enum class Action{Idle, Shooting};
 
 		private:
 			OBGame& game;
-			OBCPhysics& cPhysics;
-			OBCRender& cRender;
+			OBCPhys& cPhys;
+			OBCDraw& cDraw;
 			OBAssets& assets;
 			ssvsc::Body& body;
-			Action action{Action::Standing};
+			Action action{Action::Idle};
 			Direction direction{Direction::E};
 			float walkSpeed{125.f};
 			ssvs::Ticker shootTimer{4.7f};
 
 		public:
-			OBCPlayer(OBGame& mGame, OBCPhysics& mCPhysics, OBCRender& mCRender, OBAssets& mAssets) : game(mGame), cPhysics(mCPhysics), cRender(mCRender), assets(mAssets), body(cPhysics.getBody()) { }
+			OBCPlayer(OBGame& mGame, OBCPhys& mCPhysics, OBCDraw& mCRender, OBAssets& mAssets) : game(mGame), cPhys(mCPhysics), cDraw(mCRender), assets(mAssets), body(cPhys.getBody()) { }
 
 			inline void update(float mFrameTime) override
 			{
-				action = game.getIShoot() ? Action::Aiming : Action::Standing;
+				action = game.getIShoot() ? Action::Shooting : Action::Idle;
 
 				const auto& ix(game.getIX());
 				const auto& iy(game.getIY());
 				const auto& iVec(ssvs::getNormalized(Vec2f(ix, iy)));
 
-				if(action != Action::Aiming)
+				if(action != Action::Shooting)
 				{
 					if(ix != 0 || iy != 0) direction = getDirectionFromXY(ix, iy);
 				}
@@ -52,12 +52,12 @@ namespace ob
 			}
 			inline void draw() override
 			{
-				auto& s0(cRender[0]);
-				auto& s1(cRender[1]);
-				auto& s1Offset(cRender.getSpriteOffsets()[1]);
-				s1.setColor({255, 255, 255, action != Action::Aiming ? static_cast<unsigned char>(0) : static_cast<unsigned char>(255)});
+				auto& s0(cDraw[0]);
+				auto& s1(cDraw[1]);
+				auto& s1Offset(cDraw.getOffsets()[1]);
+				s1.setColor({255, 255, 255, action != Action::Shooting ? static_cast<unsigned char>(0) : static_cast<unsigned char>(255)});
 
-				const auto& tileX(action == Action::Aiming ? 2u : 0u);
+				const auto& tileX(action == Action::Shooting ? 2u : 0u);
 
 				auto setSpriteO = [&](int mRot)
 				{
@@ -79,8 +79,8 @@ namespace ob
 			inline void shoot()
 			{
 				Vec2i shootPosition{body.getPosition() + Vec2i(getVecFromDirection<float>(direction) * 1100.f)};
-				game.getFactory().createTestProj(shootPosition, getDegreesFromDirection(direction));
-				for(int i{0}; i < 20; ++i) game.getPSTemp().createMuzzle(toPixels(shootPosition));
+				game.getFactory().createProjectileBullet(shootPosition, getDegreesFromDirection(direction));
+				game.createPMuzzle(20, toPixels(shootPosition));
 			}
 
 			inline void bomb() { }

@@ -3,7 +3,7 @@
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
 #include "SSVBloodshed/OBGame.h"
-#include "SSVBloodshed/Components/OBCPhysics.h"
+#include "SSVBloodshed/Components/OBCPhys.h"
 
 using namespace ssvs;
 using namespace sses;

@@ -7,8 +7,8 @@
 
 #include "SSVBloodshed/OBCommon.h"
 #include "SSVBloodshed/OBGame.h"
-#include "SSVBloodshed/Components/OBCPhysics.h"
-#include "SSVBloodshed/Components/OBCRender.h"
+#include "SSVBloodshed/Components/OBCPhys.h"
+#include "SSVBloodshed/Components/OBCDraw.h"
 
 namespace ob
 {
@@ -16,26 +16,22 @@ namespace ob
 	{
 		public:
 			OBGame& game;
-			OBCPhysics& cPhysics;
-			OBCRender& cRender;
+			OBCPhys& cPhys;
+			OBCDraw& cDraw;
 			OBAssets& assets;
 			ssvsc::Body& body;
 			float walkSpeed{100.f}, currentDegrees{0.f}, turnSpeed{7.5f};
 			float snappedDegrees{0.f};
 			int health{3}; int gibMult{1};
 
-			ssvs::Ticker shootTimer{100.f};
-			ssvu::Timeline shootTimeline;
+			//ssvs::Ticker shootTimer{120.f};
+			//ssvu::Timeline shootTimeline;
 
 		public:
-			OBCEnemy(OBGame& mGame, OBCPhysics& mCPhysics, OBCRender& mCRender, OBAssets& mAssets) : game(mGame), cPhysics(mCPhysics), cRender(mCRender), assets(mAssets), body(cPhysics.getBody()) { }
+			OBCEnemy(OBGame& mGame, OBCPhys& mCPhysics, OBCDraw& mCRender, OBAssets& mAssets) : game(mGame), cPhys(mCPhysics), cDraw(mCRender), assets(mAssets), body(cPhys.getBody()) { }
 
 			inline void init() override
 			{
-				shootTimeline.append<ssvu::Do>([this]{ shoot(-5); });
-				shootTimeline.append<ssvu::Wait>(4.f);
-				shootTimeline.append<ssvu::Go>(0, 3);
-
 				body.setRestitutionX(1.7f);
 				body.setRestitutionY(1.7f);
 				body.onPreUpdate += [this]{ body.setVelocity(ssvs::getMClamped(body.getVelocity(), -120.f, 120.f)); };
@@ -44,12 +40,12 @@ namespace ob
 					if(mDI.body.hasGroup(OBGroup::Projectile))
 					{
 						--health;
-						for(int i{0}; i < 6; ++i) game.getPSPerm().createBlood(toPixels(body.getPosition()));
+						game.createPBlood(6 * gibMult, toPixels(body.getPosition()));
 
 						if(health <= 0)
 						{
-							for(int i{0}; i < 20 * gibMult; ++i) game.getPSPerm().createBlood(toPixels(body.getPosition()));
-							for(int i{0}; i < 35 * gibMult; ++i) game.getPSTemp().createGib(toPixels(body.getPosition()));
+							game.createPBlood(20 * gibMult * gibMult, toPixels(body.getPosition()), gibMult);
+							game.createPGib(35 * gibMult * gibMult, toPixels(body.getPosition()));
 							getEntity().destroy();
 						}
 					}
@@ -59,35 +55,35 @@ namespace ob
 			{
 				for(const auto& e : game.getManager().getEntities(OBGroup::Player))
 				{
-					auto& ecPhysics(e->getComponent<OBCPhysics>());
-					float targetDegrees(ssvs::getDegreesTowards(Vec2f(body.getPosition()), Vec2f(ecPhysics.getBody().getPosition())));
+					auto& ecPhys(e->getComponent<OBCPhys>());
+					float targetDegrees(ssvs::getDegreesTowards(Vec2f(body.getPosition()), Vec2f(ecPhys.getBody().getPosition())));
 
 					currentDegrees = ssvu::getRotatedDegrees(currentDegrees, targetDegrees, turnSpeed * mFrameTime);
-					snappedDegrees = static_cast<int>(currentDegrees / 45.f) * 45.f;
+					snappedDegrees = static_cast<int>(ssvu::wrapDegrees(currentDegrees) / 45) * 45;
 
 					body.applyForce(ssvs::getVecFromDegrees(snappedDegrees, walkSpeed) * 0.05f);
 				}
 
-				shootTimeline.update(mFrameTime);
+				/*shootTimeline.update(mFrameTime);
 
 				if(shootTimer.update(mFrameTime))
 				{
 					shootTimeline.reset();
 					shootTimeline.start();
-				}
+				}*/
 			}
 			inline void draw() override
 			{
-				auto& s0(cRender[0]);
+				auto& s0(cDraw[0]);
 				//s0.setTextureRect(assets.get<Tileset>("tileset")Enemy[{0, 0}]);
 				s0.setRotation(snappedDegrees);
 			}
 
 			inline void shoot(int mDeg)
 			{
-				Vec2i shootPosition{body.getPosition() + Vec2i(ssvs::getVecFromDegrees<float>(currentDegrees) * 1100.f)};
-				game.getFactory().createTestProj(shootPosition, currentDegrees + mDeg);
-				for(int i{0}; i < 20; ++i) game.getPSTemp().createMuzzle(toPixels(shootPosition));
+				Vec2i shootPosition{body.getPosition() + Vec2i(ssvs::getVecFromDegrees<float>(currentDegrees) * 2100.f)};
+				game.getFactory().createProjectilePlasma(shootPosition, currentDegrees + mDeg);
+				game.createPMuzzle(20, toPixels(body.getPosition()));
 			}
 	};
 }

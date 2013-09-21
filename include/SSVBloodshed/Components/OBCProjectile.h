@@ -7,8 +7,8 @@
 
 #include "SSVBloodshed/OBCommon.h"
 #include "SSVBloodshed/OBGame.h"
-#include "SSVBloodshed/Components/OBCPhysics.h"
-#include "SSVBloodshed/Components/OBCRender.h"
+#include "SSVBloodshed/Components/OBCPhys.h"
+#include "SSVBloodshed/Components/OBCDraw.h"
 
 namespace ob
 {
@@ -16,14 +16,16 @@ namespace ob
 	{
 		private:
 			OBGame& game;
-			OBCPhysics& cPhysics;
-			OBCRender& cRender;
+			OBCPhys& cPhys;
+			OBCDraw& cDraw;
 			ssvsc::Body& body;
+			ssvs::Ticker life{150.f};
 			float speed{125.f}, degrees{0.f};
+			bool pierceOrganic{true};
 
 		public:
-			OBCProjectile(OBGame& mGame, OBCPhysics& mCPhysics, OBCRender& mCRender, float mSpeed, float mDegrees)
-				: game(mGame), cPhysics(mCPhysics), cRender(mCRender), body(cPhysics.getBody()), speed{mSpeed}, degrees{mDegrees} { }
+			OBCProjectile(OBGame& mGame, OBCPhys& mCPhysics, OBCDraw& mCRender, float mSpeed, float mDegrees)
+				: game(mGame), cPhys(mCPhysics), cDraw(mCRender), body(cPhys.getBody()), speed{mSpeed}, degrees{mDegrees} { }
 
 			inline void init() override
 			{
@@ -34,13 +36,24 @@ namespace ob
 				{
 					if(mDI.body.hasGroup(OBGroup::Solid))
 					{
-						if(!mDI.body.hasGroup(OBGroup::Organic)) for(int i = 0; i < 6; ++i) game.getPSTemp().createDebris(toPixels(body.getPosition()));
-						getEntity().destroy();
+						if(!mDI.body.hasGroup(OBGroup::Organic))
+						{
+							game.createPDebris(6, toPixels(body.getPosition()));
+							getEntity().destroy();
+						}
+						else
+						{
+							if(!pierceOrganic) getEntity().destroy();
+						}
 					}
 				};
 			}
-			inline void update(float) override { body.setVelocity(ssvs::getVecFromDegrees(degrees, speed)); }
-			inline void draw() override { cRender.setRotation(degrees); }
+			inline void update(float mFrameTime) override
+			{
+				body.setVelocity(ssvs::getVecFromDegrees(degrees, speed));
+				if(life.update(mFrameTime)) getEntity().destroy();
+			}
+			inline void draw() override { cDraw.setRotation(degrees); }
 	};
 }
 

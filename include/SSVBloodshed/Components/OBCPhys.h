@@ -9,9 +9,7 @@
 
 namespace ob
 {
-	class OBGame;
-
-	class OBCPhysics : public sses::Component
+	class OBCPhys : public sses::Component
 	{
 		private:
 			static constexpr int crushedMax{3}, crushedTolerance{1};
@@ -24,8 +22,8 @@ namespace ob
 			ssvu::Delegate<void(sses::Entity&)> onDetection;
 			ssvu::Delegate<void(const Vec2i&)> onResolution;
 
-			OBCPhysics(ssvsc::World& mWorld, bool mIsStatic, const Vec2i& mPosition, const Vec2i& mSize) : world(mWorld), body(world.create(mPosition, mSize, mIsStatic)) { }
-			inline ~OBCPhysics() { body.destroy(); }
+			OBCPhys(ssvsc::World& mWorld, bool mIsStatic, const Vec2i& mPosition, const Vec2i& mSize) : world(mWorld), body(world.create(mPosition, mSize, mIsStatic)) { }
+			inline ~OBCPhys() { body.destroy(); }
 
 			inline void init() override
 			{
@@ -61,18 +59,18 @@ namespace ob
 				//body.setVelocity(body.getVelocity() * 0.9f);
 			}
 
-			inline ssvsc::World& getWorld() const				{ return world; }
-			inline ssvsc::Body& getBody() const					{ return body; }
-			inline const Vec2i& getPos() const					{ return body.getPosition(); }
-			inline const Vec2i& getLastResolution() const		{ return lastResolution; }
-			inline bool isCrushedLeft() const					{ return crushedLeft > crushedTolerance; }
-			inline bool isCrushedRight() const					{ return crushedRight > crushedTolerance; }
-			inline bool isCrushedTop() const					{ return crushedTop > crushedTolerance; }
-			inline bool isCrushedBottom() const					{ return crushedBottom > crushedTolerance; }
-			inline int getCrushedLeft() const					{ return crushedLeft; }
-			inline int getCrushedRight() const					{ return crushedRight; }
-			inline int getCrushedTop() const					{ return crushedTop; }
-			inline int getCrushedBottom() const					{ return crushedBottom; }
+			inline ssvsc::World& getWorld() const noexcept			{ return world; }
+			inline ssvsc::Body& getBody() const noexcept			{ return body; }
+			inline const Vec2i& getPos() const noexcept				{ return body.getPosition(); }
+			inline const Vec2i& getLastResolution() const noexcept	{ return lastResolution; }
+			inline bool isCrushedLeft() const noexcept				{ return crushedLeft > crushedTolerance; }
+			inline bool isCrushedRight() const noexcept				{ return crushedRight > crushedTolerance; }
+			inline bool isCrushedTop() const noexcept				{ return crushedTop > crushedTolerance; }
+			inline bool isCrushedBottom() const noexcept			{ return crushedBottom > crushedTolerance; }
+			inline int getCrushedLeft() const noexcept				{ return crushedLeft; }
+			inline int getCrushedRight() const noexcept				{ return crushedRight; }
+			inline int getCrushedTop() const noexcept				{ return crushedTop; }
+			inline int getCrushedBottom() const	noexcept			{ return crushedBottom; }
 	};
 }
 

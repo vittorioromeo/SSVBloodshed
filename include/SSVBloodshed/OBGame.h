@@ -12,14 +12,6 @@
 
 namespace ob
 {
-
-
-
-
-
-
-
-
 	class OBGame
 	{
 		private:
@@ -37,8 +29,8 @@ namespace ob
 			int inputX{0}, inputY{0};
 
 			sf::RenderTexture psPermTexture, psTempTexture;
-			ParticleSystem* psTemp{nullptr};
 			ParticleSystem* psPerm{nullptr};
+			ParticleSystem* psTemp{nullptr};
 
 			sf::Sprite hudSprite{assets.get<sf::Texture>("tempHud.png")};
 
@@ -67,8 +59,10 @@ namespace ob
 			inline int getIX() const noexcept			{ return inputX; }
 			inline int getIY() const noexcept			{ return inputY; }
 
-			inline ParticleSystem& getPSTemp() const noexcept { return *psTemp; }
-			inline ParticleSystem& getPSPerm() const noexcept { return *psPerm; }
+			void createPBlood(unsigned int mCount, const Vec2f& mPosition, float mMult = 1.f);
+			void createPGib(unsigned int mCount, const Vec2f& mPosition);
+			void createPDebris(unsigned int mCount, const Vec2f& mPosition);
+			void createPMuzzle(unsigned int mCount, const Vec2f& mPosition);
 	};
 
 	// TODO: join walls, hud mockup, color fixes, etc etc etc
