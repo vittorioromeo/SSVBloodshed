@@ -48,13 +48,13 @@ namespace ob
 					}
 				};
 
-				getEntity().addGroup(OBGroup::Player);
-				getEntity().addGroup(OBGroup::Friendly);
-				body.addGroup(OBGroup::Solid);
-				body.addGroup(OBGroup::Player);
-				body.addGroup(OBGroup::Friendly);
-				body.addGroup(OBGroup::Organic);
-				body.addGroupToCheck(OBGroup::Solid);
+				getEntity().addGroup(OBGroup::OBGPlayer);
+				getEntity().addGroup(OBGroup::OBGFriendly);
+				body.addGroup(OBGroup::OBGSolid);
+				body.addGroup(OBGroup::OBGPlayer);
+				body.addGroup(OBGroup::OBGFriendly);
+				body.addGroup(OBGroup::OBGOrganic);
+				body.addGroupToCheck(OBGroup::OBGSolid);
 			}
 			inline void update(float mFrameTime) override
 			{
@@ -85,14 +85,14 @@ namespace ob
 
 				const auto& intDir(static_cast<int>(direction));
 				s1Offset = ssvs::getVecFromDegrees(getDegreesFromDirection(direction)) * 10.f;
-				s0.setTextureRect(assets.tilesetPlayer[{action == Action::Shooting ? 2u : 0u, 0}]); s0.setRotation(45 * intDir);
-				s1.setTextureRect(assets.tilesetPlayer[{4, 0}]); s1.setRotation(45 * intDir);
+				s0.setTextureRect(assets.tsCharSmall[{action == Action::Shooting ? 1u : 0u, 0}]); s0.setRotation(45 * intDir);
+				s1.setTextureRect(assets.tsCharSmall[{2, 0}]); s1.setRotation(45 * intDir);
 			}
 
 			inline void shoot()
 			{
 				Vec2i shootPosition{body.getPosition() + Vec2i(getVecFromDirection<float>(direction) * 1000.f)};
-				int weapon = 0;
+				int weapon = 1;
 
 				switch(weapon)
 				{

@@ -26,7 +26,7 @@ namespace ob
 		public:
 			OBCFloor(OBCPhys& mCPhys, OBCDraw& mCDraw) : game(mCDraw.getGame()), cPhys(mCPhys), cDraw(mCDraw), assets(game.getAssets()), body(cPhys.getBody()) { }
 
-			inline void init() override { cPhys.getBody().addGroup(OBGroup::Floor); }
+			inline void init() override { cPhys.getBody().addGroup(OBGroup::OBGFloor); }
 			inline void smash() noexcept
 			{
 				if(smashed) return;
@@ -34,7 +34,7 @@ namespace ob
 				cDraw[0].setTextureRect(assets.tileset[{1, 1}]);
 				game.createPDebris(20, toPixels(body.getPosition()));
 				game.createPDebrisFloor(4, toPixels(body.getPosition()));
-				getEntity().setDrawPriority(999);
+				getEntity().setDrawPriority(OBDrawPriority::OBDPFloorGrate);
 			}
 			inline bool isSmashed() const noexcept { return smashed; }
 	};
