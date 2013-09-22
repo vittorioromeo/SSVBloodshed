@@ -30,13 +30,26 @@ namespace ob
 	// Game enums
 	enum OBGroup : unsigned int
 	{
-		Solid,
-		Projectile,
-		Player,
-		Organic,
-		Floor,
-		Friendly,
-		Enemy
+		OBGSolid,
+		OBGProjectile,
+		OBGPlayer,
+		OBGOrganic,
+		OBGFloor,
+		OBGFriendly,
+		OBGEnemy
+	};
+
+	enum OBDrawPriority : int
+	{
+		OBDPWall,
+		OBDPParticleTemp,
+		OBDPProjectile,
+		OBDPPlayer,
+		OBDPEnemy,
+		OBDPFloorGrate,
+		OBDPParticleBlood,
+		OBDPFloor,
+		OBDPBackground
 	};
 
 	// Pixel <-> coords utils

@@ -42,14 +42,14 @@ namespace ob
 	}
 	std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCHealth&, OBCEnemy&> OBFactory::createEnemyBase(const Vec2i& mPos, const Vec2i& mSize, int mHealth)
 	{
-		auto tpl(createActorBase(mPos, mSize, -500));
+		auto tpl(createActorBase(mPos, mSize, OBDrawPriority::OBDPEnemy));
 		auto& cHealth(getEntity(tpl).createComponent<OBCHealth>(mHealth));
 		auto& cEnemy(getEntity(tpl).createComponent<OBCEnemy>(getCPhys(tpl), getCDraw(tpl), cHealth));
 		return std::forward_as_tuple(getEntity(tpl), getCPhys(tpl), getCDraw(tpl), cHealth, cEnemy);
 	}
 	std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCProjectile&> OBFactory::createProjectileBase(const Vec2i& mPos, const Vec2i& mSize, float mSpeed, float mDegrees, const Vec2u& mTileIdx)
 	{
-		auto tpl(createActorBase(mPos, mSize, 0));
+		auto tpl(createActorBase(mPos, mSize, OBDrawPriority::OBDPProjectile));
 		auto& cProjectile(getEntity(tpl).createComponent<OBCProjectile>(getCPhys(tpl), getCDraw(tpl), mSpeed, mDegrees));
 		emplaceSpriteFromTile(getCDraw(tpl), "tilesetProjectiles.png", assets.tilesetProjectiles[mTileIdx]);
 		return std::forward_as_tuple(getEntity(tpl), getCPhys(tpl), getCDraw(tpl), cProjectile);
@@ -63,36 +63,37 @@ namespace ob
 	}
 	Entity& OBFactory::createFloor(const Vec2i& mPos)
 	{
-		auto tpl(createActorBase(mPos, {1000, 1000}, 10000));
+		auto tpl(createActorBase(mPos, {1000, 1000}, OBDrawPriority::OBDPFloor));
 		getEntity(tpl).createComponent<OBCFloor>(getCPhys(tpl), getCDraw(tpl));
 		emplaceSpriteFromTile(getCDraw(tpl), "tileset.png", assets.tileset[{0, 0}]);
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createWall(const Vec2i& mPos)
 	{
-		auto tpl(createActorBase(mPos, {1000, 1000}, 0, true));
-		getCPhys(tpl).getBody().addGroup(OBGroup::Solid);
+		auto tpl(createActorBase(mPos, {1000, 1000}, OBDrawPriority::OBDPWall, true));
+		getCPhys(tpl).getBody().addGroup(OBGroup::OBGSolid);
 		emplaceSpriteFromTile(getCDraw(tpl), "tileset.png", assets.tileset[{1, 0}]);
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createPlayer(const Vec2i& mPos)
 	{
-		auto tpl(createActorBase(mPos, {650, 650}, -1000));
+		auto tpl(createActorBase(mPos, {650, 650}, OBDrawPriority::OBDPPlayer));
 		auto& cHealth(getEntity(tpl).createComponent<OBCHealth>(10));
 		getEntity(tpl).createComponent<OBCPlayer>(getCPhys(tpl), getCDraw(tpl), cHealth);
-		emplaceSpriteFromTile(getCDraw(tpl), "tilesetPlayer.png", assets.tilesetPlayer[{0, 0}]);
-		emplaceSpriteFromTile(getCDraw(tpl), "tilesetPlayer.png", assets.tilesetPlayer[{4, 0}]);
+		emplaceSpriteFromTile(getCDraw(tpl), "tsCharSmall.png", assets.tsCharSmall[{0, 0}]);
+		emplaceSpriteFromTile(getCDraw(tpl), "tsCharSmall.png", assets.tsCharSmall[{2, 0}]);
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createTestEnemy(const Vec2i& mPos)
 	{
-		auto tpl(createEnemyBase(mPos, {600, 600}, 6));
-		emplaceSpriteFromTile(getCDraw(tpl), "tilesetEnemy.png", assets.tilesetEnemy[{0, 0}]);
+		auto tpl(createEnemyBase(mPos, {600, 600}, 2));
+		emplaceSpriteFromTile(getCDraw(tpl), "tsCharSmall.png", assets.tsCharSmall[{0, 4}]);
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createTestEnemyBig(const Vec2i& mPos)
 	{
 		auto tpl(createEnemyBase(mPos, {1100, 1100}, 18));
+		getEntity(tpl).createComponent<OBCECharger>(getCEnemy(tpl));
 		getCEnemy(tpl).setWalkSpeed(20.f);
 		getCEnemy(tpl).setTurnSpeed(3.f);
 		getCEnemy(tpl).setGibMult(2);
@@ -112,7 +113,7 @@ namespace ob
 	Entity& OBFactory::createTestGiant(const Vec2i& mPos)
 	{
 		auto tpl(createEnemyBase(mPos, {2500, 2500}, 42));
-		getEntity(tpl).createComponent<OBCEJuggernaut>(getCEnemy(tpl));
+		getEntity(tpl).createComponent<OBCEGiant>(getCEnemy(tpl));
 		getCEnemy(tpl).setWalkSpeed(10.f);
 		getCEnemy(tpl).setTurnSpeed(2.5f);
 		getCEnemy(tpl).setGibMult(8);
@@ -132,7 +133,7 @@ namespace ob
 	Entity& OBFactory::createProjectileEnemyBullet(const Vec2i& mPos, float mDegrees)
 	{
 		auto tpl(createProjectileBase(mPos, {150, 150}, 320.f, mDegrees, {2, 0}));
-		getCProjectile(tpl).setTargetGroup(OBGroup::Friendly);
+		getCProjectile(tpl).setTargetGroup(OBGroup::OBGFriendly);
 		return getEntity(tpl);
 	}
 
