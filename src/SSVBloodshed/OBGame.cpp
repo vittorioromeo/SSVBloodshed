@@ -67,6 +67,7 @@ namespace ob
 	void OBGame::newGame()
 	{
 		manager.clear();
+		world.clear();
 
 		psPerm = &factory.createParticleSystem(psPermTexture, false, 175).getComponent<OBCParticleSystem>().getParticleSystem();
 		psTemp = &factory.createParticleSystem(psTempTexture, true, 255).getComponent<OBCParticleSystem>().getParticleSystem();
@@ -82,11 +83,6 @@ namespace ob
 			}
 
 		factory.createPlayer(getTilePos(5, 5));
-		//factory.createTest(getTilePos(7, 7));
-		//factory.createTest(getTilePos(7, 8));
-		//factory.createTest(getTilePos(8, 7));
-		//factory.createTest(getTilePos(8, 8));
-		//factory.createTestEnemy(getTilePos(13, 13));
 	}
 
 	void OBGame::update(float mFrameTime)
@@ -132,4 +128,6 @@ namespace ob
 	void OBGame::createPDebris(unsigned int mCount, const Vec2f& mPosition)				{ for(auto i(0u); i < mCount; ++i) ob::createPDebris(*psTemp, mPosition); }
 	void OBGame::createPDebrisFloor(unsigned int mCount, const Vec2f& mPosition)		{ for(auto i(0u); i < mCount; ++i) ob::createPDebrisFloor(*psTemp, mPosition); }
 	void OBGame::createPMuzzle(unsigned int mCount, const Vec2f& mPosition)				{ for(auto i(0u); i < mCount; ++i) ob::createPMuzzle(*psTemp, mPosition); }
+	void OBGame::createPPlasma(unsigned int mCount, const Vec2f& mPosition)				{ for(auto i(0u); i < mCount; ++i) ob::createPPlasma(*psTemp, mPosition); }
+	void OBGame::createPSmoke(unsigned int mCount, const Vec2f& mPosition)				{ for(auto i(0u); i < mCount; ++i) ob::createPSmoke(*psTemp, mPosition); }
 }
