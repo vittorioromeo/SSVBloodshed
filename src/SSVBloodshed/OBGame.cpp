@@ -129,6 +129,7 @@ namespace ob
 
 	void OBGame::createPBlood(unsigned int mCount, const Vec2f& mPosition, float mMult)	{ for(auto i(0u); i < mCount; ++i) ob::createPBlood(*psPerm, mPosition, mMult); }
 	void OBGame::createPGib(unsigned int mCount, const Vec2f& mPosition)				{ for(auto i(0u); i < mCount; ++i) ob::createPGib(*psTemp, mPosition); }
-	void OBGame::createPDebris(unsigned int mCount,const Vec2f& mPosition)				{ for(auto i(0u); i < mCount; ++i) ob::createPDebris(*psTemp, mPosition); }
+	void OBGame::createPDebris(unsigned int mCount, const Vec2f& mPosition)				{ for(auto i(0u); i < mCount; ++i) ob::createPDebris(*psTemp, mPosition); }
+	void OBGame::createPDebrisFloor(unsigned int mCount, const Vec2f& mPosition)		{ for(auto i(0u); i < mCount; ++i) ob::createPDebrisFloor(*psTemp, mPosition); }
 	void OBGame::createPMuzzle(unsigned int mCount, const Vec2f& mPosition)				{ for(auto i(0u); i < mCount; ++i) ob::createPMuzzle(*psTemp, mPosition); }
 }
