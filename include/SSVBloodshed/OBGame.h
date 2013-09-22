@@ -64,6 +64,8 @@ namespace ob
 			void createPDebris(unsigned int mCount, const Vec2f& mPosition);
 			void createPDebrisFloor(unsigned int mCount, const Vec2f& mPosition);
 			void createPMuzzle(unsigned int mCount, const Vec2f& mPosition);
+			void createPPlasma(unsigned int mCount, const Vec2f& mPosition);
+			void createPSmoke(unsigned int mCount, const Vec2f& mPosition);
 	};
 
 	// TODO: join walls, hud mockup, color fixes, etc etc etc

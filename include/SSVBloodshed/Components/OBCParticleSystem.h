@@ -160,6 +160,26 @@ namespace ob
 				6 + ssvu::getRnd(-5, 5),
 				1.5f);
 	}
+	inline void createPPlasma(ParticleSystem& mPS, const Vec2f& mPosition)
+	{
+		mPS.emplace(mPosition,
+				ssvs::getVecFromDegrees(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(0.3f, 1.5f)),
+				0.95f,
+				{255, 15, ssvu::getRnd<unsigned char>(95, 100), 255},
+				1.1f + ssvu::getRndR<float>(-0.3, 0.3),
+				5 + ssvu::getRnd(-4, 4),
+				1.5f);
+	}
+	inline void createPSmoke(ParticleSystem& mPS, const Vec2f& mPosition)
+	{
+		mPS.emplace(mPosition,
+				ssvs::getVecFromDegrees(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(0.3f, 1.5f)),
+				0.96f,
+				{45, 45, 45, 225},
+				1.1f + ssvu::getRndR<float>(-0.3, 0.3),
+				5 + ssvu::getRnd(-4, 4),
+				1.5f);
+	}
 }
 
 #endif
