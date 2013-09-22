@@ -9,6 +9,7 @@
 #include "SSVBloodshed/OBGame.h"
 #include "SSVBloodshed/Components/OBCPhys.h"
 #include "SSVBloodshed/Components/OBCDraw.h"
+#include "SSVBloodshed/Components/OBCHealth.h"
 #include "SSVBloodshed/Components/OBCParticleSystem.h"
 
 namespace ob
@@ -22,6 +23,7 @@ namespace ob
 			OBGame& game;
 			OBCPhys& cPhys;
 			OBCDraw& cDraw;
+			OBCHealth& cHealth;
 			OBAssets& assets;
 			ssvsc::Body& body;
 			Action action{Action::Idle};
@@ -31,10 +33,21 @@ namespace ob
 			//ssvs::Ticker shootTimer{24.7f};
 
 		public:
-			OBCPlayer(OBGame& mGame, OBCPhys& mCPhys, OBCDraw& mCDraw) : game(mGame), cPhys(mCPhys), cDraw(mCDraw), assets(game.getAssets()), body(cPhys.getBody()) { }
+			OBCPlayer(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCHealth& mCHealth) : game(mCDraw.getGame()), cPhys(mCPhys), cDraw(mCDraw), cHealth(mCHealth), assets(game.getAssets()), body(cPhys.getBody()) { }
 
 			inline void init() override
 			{
+				cHealth.onDamage += [this]
+				{
+					game.createPBlood(6, toPixels(body.getPosition()));
+					if(cHealth.isDead())
+					{
+						game.createPBlood(1000, toPixels(body.getPosition()));
+						game.createPGib(1000, toPixels(body.getPosition()));
+						getEntity().destroy();
+					}
+				};
+
 				getEntity().addGroup(OBGroup::Player);
 				getEntity().addGroup(OBGroup::Friendly);
 				body.addGroup(OBGroup::Solid);
@@ -115,7 +128,10 @@ namespace ob
 
 			inline void bomb()
 			{
-				for(int i{0}; i < 360; i += 360 / 8) game.getFactory().createProjectileTestBomb(body.getPosition(), getDegreesFromDirection(direction) + (i * (360 / 8)));
+				for(int k{0}; k < 15; ++k)
+				{
+					for(int i{0}; i < 360; i += 360 / 8) game.getFactory().createProjectileTestBomb(body.getPosition(), getDegreesFromDirection(direction) + (i * (360 / 8)), 2.f - k * 0.2f, 4.f + k * 0.3f);
+				}
 			}
 
 			inline Action getAction() const noexcept		{ return action; }

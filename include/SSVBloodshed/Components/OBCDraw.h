@@ -51,6 +51,7 @@ namespace ob
 			inline void setScaleWithBody(bool mScale) noexcept			{ scaleWithBody = mScale; }
 			inline void setGlobalOffset(const Vec2f& mOffset) noexcept	{ globalOffset = mOffset; }
 
+			inline OBGame& getGame() const noexcept							{ return game; }
 			inline bool isFlippedX() const noexcept							{ return flippedX; }
 			inline bool isFlippedY() const noexcept							{ return flippedY; }
 			inline const decltype(sprites)& getSprites() const noexcept		{ return sprites; }

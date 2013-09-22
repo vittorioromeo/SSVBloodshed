@@ -31,7 +31,7 @@ namespace ob
 		public:
 			ssvu::Delegate<void()> onDestroy;
 
-			OBCProjectile(OBGame& mGame, OBCPhys& mCPhys, OBCDraw& mCDraw, float mSpeed, float mDegrees) : game(mGame), cPhys(mCPhys), cDraw(mCDraw), body(cPhys.getBody()), speed{mSpeed}, degrees{mDegrees} { }
+			OBCProjectile(OBCPhys& mCPhys, OBCDraw& mCDraw, float mSpeed, float mDegrees) : game(mCDraw.getGame()), cPhys(mCPhys), cDraw(mCDraw), body(cPhys.getBody()), speed{mSpeed}, degrees{mDegrees} { }
 
 			inline void init() override
 			{

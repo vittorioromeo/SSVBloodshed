@@ -26,11 +26,8 @@ namespace ob
 			float snappedDegrees{0.f};
 			int gibMult{1};
 
-			ssvs::Ticker shootTimer{60.f};
-			//ssvu::Timeline shootTimeline;
-
 		public:
-			OBCEnemy(OBGame& mGame, OBCPhys& mCPhys, OBCDraw& mCDraw, OBCHealth& mCHealth) : game(mGame), cPhys(mCPhys), cDraw(mCDraw), cHealth(mCHealth), assets(game.getAssets()), body(cPhys.getBody()) { }
+			OBCEnemy(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCHealth& mCHealth) : game(mCDraw.getGame()), cPhys(mCPhys), cDraw(mCDraw), cHealth(mCHealth), assets(game.getAssets()), body(cPhys.getBody()) { }
 
 			inline void init() override
 			{
@@ -53,7 +50,14 @@ namespace ob
 				body.setRestitutionX(1.7f);
 				body.setRestitutionY(1.7f);
 				body.onPreUpdate += [this]{ body.setVelocity(ssvs::getMClamped(body.getVelocity(), -120.f, 120.f)); };
-				body.onDetection += [this](const ssvsc::DetectionInfo&){ };
+				body.onDetection += [this](const ssvsc::DetectionInfo& mDI)
+				{
+					if(mDI.body.hasGroup(OBGroup::Friendly))
+					{
+						auto& e(*static_cast<Entity*>(mDI.body.getUserData()));
+						e.getComponent<OBCHealth>().damage(1);
+					}
+				};
 			}
 			inline void update(float mFrameTime) override
 			{
@@ -67,13 +71,8 @@ namespace ob
 
 					body.applyForce(ssvs::getVecFromDegrees(snappedDegrees, walkSpeed) * 0.05f);
 				}
-				//shootTimeline.update(mFrameTime);
-
-				if(shootTimer.update(mFrameTime))
-				{
-					shoot(0);
-				}
 			}
+
 			inline void draw() override
 			{
 				auto& s0(cDraw[0]);
@@ -81,16 +80,58 @@ namespace ob
 				s0.setRotation(snappedDegrees);
 			}
 
-			inline void shoot(int mDeg)
-			{
-				Vec2i shootPosition{body.getPosition() + Vec2i(ssvs::getVecFromDegrees<float>(currentDegrees) * 2100.f)};
-				game.getFactory().createProjectileEnemyBullet(shootPosition, currentDegrees + mDeg);
-				game.createPMuzzle(20, toPixels(body.getPosition()));
-			}
-
 			inline void setWalkSpeed(float mValue) noexcept	{ walkSpeed = mValue; }
 			inline void setTurnSpeed(float mValue) noexcept	{ turnSpeed = mValue; }
 			inline void setGibMult(int mValue) noexcept		{ gibMult = mValue; }
+
+			inline OBGame& getGame() const noexcept			{ return game; }
+			inline OBCPhys& getCPhys() const noexcept		{ return cPhys; }
+			inline OBCDraw& getCDraw() const noexcept		{ return cDraw; }
+			inline OBCHealth& getCHealth() const noexcept	{ return cHealth; }
+			inline float getCurrentDegrees() const noexcept	{ return currentDegrees; }
+	};
+
+	class OBCEJuggernaut : public sses::Component
+	{
+		private:
+			OBCEnemy& cEnemy;
+			OBGame& game;
+			OBCPhys& cPhys;
+			OBCDraw& cDraw;
+			OBCHealth& cHealth;
+			OBAssets& assets;
+			ssvsc::Body& body;
+			ssvs::Ticker juggernautShootTimer{150.f};
+			ssvu::Timeline juggernautShootTimeline;
+
+			float lastDeg{0};
+
+		public:
+			OBCEJuggernaut(OBCEnemy& mCEnemy) : cEnemy(mCEnemy), game(cEnemy.getGame()), cPhys(cEnemy.getCPhys()), cDraw(cEnemy.getCDraw()), cHealth(cEnemy.getCHealth()), assets(game.getAssets()), body(cPhys.getBody()) { }
+
+			inline void init() override
+			{
+				juggernautShootTimeline.append<ssvu::Do>([this]{ shoot(ssvu::getRnd(-10, 10)); });
+				juggernautShootTimeline.append<ssvu::Wait>(1.1f);
+				juggernautShootTimeline.append<ssvu::Go>(0, 8);
+				juggernautShootTimeline.append<ssvu::Wait>(15.f);
+				juggernautShootTimeline.append<ssvu::Do>([this]{ lastDeg = cEnemy.getCurrentDegrees(); cEnemy.setWalkSpeed(-100.f); });
+				juggernautShootTimeline.append<ssvu::Do>([this]{ shoot(lastDeg); lastDeg += 265; });
+				juggernautShootTimeline.append<ssvu::Wait>(0.3f);
+				juggernautShootTimeline.append<ssvu::Go>(5, 45);
+				juggernautShootTimeline.append<ssvu::Do>([this]{ cEnemy.setWalkSpeed(100.f); });
+			}
+			inline void update(float mFrameTime) override
+			{
+				juggernautShootTimeline.update(mFrameTime);
+				if(juggernautShootTimer.update(mFrameTime)) { juggernautShootTimeline.reset(); juggernautShootTimeline.start(); }
+			}
+			inline void shoot(int mDeg)
+			{
+				Vec2i shootPos{body.getPosition() + Vec2i(ssvs::getVecFromDegrees<float>(cEnemy.getCurrentDegrees()) * 100.f)};
+				game.getFactory().createProjectileEnemyBullet(shootPos, cEnemy.getCurrentDegrees() + mDeg);
+				game.createPMuzzle(20, toPixels(body.getPosition()));
+			}
 	};
 }
 

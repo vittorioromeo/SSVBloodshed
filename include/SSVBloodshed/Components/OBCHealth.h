@@ -17,16 +17,24 @@ namespace ob
 	{
 		private:
 			int health, maxHealth;
+			ssvs::Ticker cooldown{1.f};
 
 		public:
 			ssvu::Delegate<void()> onDamage, onHeal;
 
 			OBCHealth(int mHealth) : health{mHealth}, maxHealth{mHealth} { }
 
-			inline void heal(int mHealth) noexcept			{ health += mHealth; ssvu::clampMax(health, maxHealth); onHeal(); }
-			inline void damage(int mDamage) noexcept		{ health -= mDamage; ssvu::clampMin(health, 0); onDamage(); }
+			inline void update(float mFrameTime) override { if(cooldown.update(mFrameTime)) cooldown.stop(); }
+
+			inline void heal(int mHealth) noexcept { health += mHealth; ssvu::clampMax(health, maxHealth); onHeal(); }
+			inline void damage(int mDamage) noexcept
+			{
+				if(cooldown.isEnabled()) return; else cooldown.restart();
+				health -= mDamage; ssvu::clampMin(health, 0); onDamage();
+			}
 			inline void setHealth(int mHealth) noexcept		{ health = mHealth; ssvu::clamp(health, 0, maxHealth); }
 			inline void setMaxHealth(int mValue) noexcept	{ maxHealth = mValue; }
+			inline void setCooldown(float mValue) noexcept	{ cooldown.restart(mValue); }
 
 			inline bool isDead() const noexcept			{ return health <= 0; }
 			inline int getHealth() const noexcept		{ return health; }

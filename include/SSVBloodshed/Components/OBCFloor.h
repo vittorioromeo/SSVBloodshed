@@ -24,8 +24,9 @@ namespace ob
 			bool smashed{false};
 
 		public:
-			OBCFloor(OBGame& mGame, OBCPhys& mCPhys, OBCDraw& mCDraw) : game(mGame), cPhys(mCPhys), cDraw(mCDraw), assets(game.getAssets()), body(cPhys.getBody()) { }
+			OBCFloor(OBCPhys& mCPhys, OBCDraw& mCDraw) : game(mCDraw.getGame()), cPhys(mCPhys), cDraw(mCDraw), assets(game.getAssets()), body(cPhys.getBody()) { }
 
+			inline void init() override { cPhys.getBody().addGroup(OBGroup::Floor); }
 			inline void smash() noexcept
 			{
 				if(smashed) return;
