@@ -83,23 +83,11 @@ namespace ob
 				auto& s1Offset(cDraw.getOffsets()[1]);
 				s1.setColor({255, 255, 255, action != Action::Shooting ? static_cast<unsigned char>(0) : static_cast<unsigned char>(255)});
 
-				const auto& tileX(action == Action::Shooting ? 2u : 0u);
-
-				auto setSpriteO = [&](int mRot)
-				{
-					s0.setTextureRect(assets.tilesetPlayer[{tileX, 0}]); s0.setRotation(90 * mRot);
-					s1.setTextureRect(assets.tilesetPlayer[{4, 0}]); s1.setRotation(90 * mRot);
-				};
-				auto setSpriteD = [&](int mRot)
-				{
-					s0.setTextureRect(assets.tilesetPlayer[{1 + tileX, 0}]); s0.setRotation(90 * mRot);
-					s1.setTextureRect(assets.tilesetPlayer[{5, 0}]); s1.setRotation(90 * mRot);
-				};
-
 				const auto& xy(getXYFromDirection(direction));
 				const auto& intDir(static_cast<int>(direction));
-				s1Offset = Vec2f(xy[0], xy[1]) * 10.f;
-				if(intDir % 2 == 0) setSpriteO(intDir / 2); else setSpriteD(intDir / 2);
+				s1Offset = ssvs::getVecFromDegrees(getDegreesFromDirection(direction)) * 10.f;
+				s0.setTextureRect(assets.tilesetPlayer[{action == Action::Shooting ? 2u : 0u, 0}]); s0.setRotation(45 * intDir);
+				s1.setTextureRect(assets.tilesetPlayer[{4, 0}]); s1.setRotation(45 * intDir);
 			}
 
 			inline void shoot()
