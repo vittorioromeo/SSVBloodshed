@@ -138,6 +138,16 @@ namespace ob
 				65 + ssvu::getRnd(-50, 50),
 				0.8f);
 	}
+	inline void createPDebrisFloor(ParticleSystem& mPS, const Vec2f& mPosition)
+	{
+		mPS.emplace(mPosition,
+				ssvs::getVecFromDegrees(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(0.5f, 3.4f)),
+				0.9f,
+				{179, 179, 179, 255},
+				2.5f,
+				65 + ssvu::getRnd(-50, 50),
+				0.8f);
+	}
 	inline void createPMuzzle(ParticleSystem& mPS, const Vec2f& mPosition)
 	{
 		mPS.emplace(mPosition,
