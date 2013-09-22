@@ -34,6 +34,7 @@ namespace ob
 				cDraw[0].setTextureRect(assets.tileset[{1, 1}]);
 				game.createPDebris(20, toPixels(body.getPosition()));
 				game.createPDebrisFloor(4, toPixels(body.getPosition()));
+				getEntity().setDrawPriority(999);
 			}
 			inline bool isSmashed() const noexcept { return smashed; }
 	};

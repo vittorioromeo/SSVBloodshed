@@ -83,7 +83,6 @@ namespace ob
 				auto& s1Offset(cDraw.getOffsets()[1]);
 				s1.setColor({255, 255, 255, action != Action::Shooting ? static_cast<unsigned char>(0) : static_cast<unsigned char>(255)});
 
-				const auto& xy(getXYFromDirection(direction));
 				const auto& intDir(static_cast<int>(direction));
 				s1Offset = ssvs::getVecFromDegrees(getDegreesFromDirection(direction)) * 10.f;
 				s0.setTextureRect(assets.tilesetPlayer[{action == Action::Shooting ? 2u : 0u, 0}]); s0.setRotation(45 * intDir);
@@ -92,7 +91,7 @@ namespace ob
 
 			inline void shoot()
 			{
-				Vec2i shootPosition{body.getPosition() + Vec2i(getVecFromDirection<float>(direction) * 1100.f)};
+				Vec2i shootPosition{body.getPosition() + Vec2i(getVecFromDirection<float>(direction) * 1000.f)};
 				int weapon = 0;
 
 				switch(weapon)
@@ -116,9 +115,9 @@ namespace ob
 
 			inline void bomb()
 			{
-				for(int k{0}; k < 15; ++k)
+				for(int k{0}; k < 5; ++k)
 				{
-					for(int i{0}; i < 360; i += 360 / 8) game.getFactory().createProjectileTestBomb(body.getPosition(), getDegreesFromDirection(direction) + (i * (360 / 8)), 2.f - k * 0.2f, 4.f + k * 0.3f);
+					for(int i{0}; i < 360; i += 360 / 16) game.getFactory().createProjectileTestBomb(body.getPosition(), getDegreesFromDirection(direction) + (i * (360 / 16)), 2.f - k * 0.2f + i * 0.004f, 4.f + k * 0.3f - i * 0.004f);
 				}
 			}
 

@@ -55,9 +55,9 @@ namespace ob
 		return std::forward_as_tuple(getEntity(tpl), getCPhys(tpl), getCDraw(tpl), cProjectile);
 	}
 
-	Entity& OBFactory::createParticleSystem(RenderTexture& mRenderTexture, bool mClearOnDraw, unsigned char mOpacity)
+	Entity& OBFactory::createParticleSystem(RenderTexture& mRenderTexture, bool mClearOnDraw, unsigned char mOpacity, int mDrawPriority)
 	{
-		auto& result(manager.createEntity()); result.setDrawPriority(1000);
+		auto& result(manager.createEntity()); result.setDrawPriority(mDrawPriority);
 		result.createComponent<OBCParticleSystem>(mRenderTexture, game.getGameWindow(), mClearOnDraw, mOpacity);
 		return result;
 	}
