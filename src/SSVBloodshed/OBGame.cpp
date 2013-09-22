@@ -52,6 +52,7 @@ namespace ob
 		gameState.addInput({{k::Num2}}, [this](float){ factory.createTestEnemy(getMousePosition()); });
 		gameState.addInput({{k::Num3}}, [this](float){ factory.createTestEnemyBig(getMousePosition()); }, t::Once);
 		gameState.addInput({{k::Num4}}, [this](float){ factory.createTestJuggernaut(getMousePosition()); }, t::Once);
+		gameState.addInput({{k::Num5}}, [this](float){ factory.createTestGiant(getMousePosition()); }, t::Once);
 
 		// Particle textures
 		psPermTexture.create(320, 240);
@@ -102,13 +103,13 @@ namespace ob
 		for(const auto& e : entities) componentCount += e->getComponents().size();
 		for(const auto& b : bodies) if(!b->isStatic()) ++dynamicBodiesCount;
 
-		s << "FPS: "				<< gameWindow.getFPS() << endl;
-		s << "FrameTime: "			<< mFrameTime << endl;
-		s << "Bodies(all): "		<< bodies.size() << endl;
-		s << "Bodies(static): "		<< bodies.size() - dynamicBodiesCount << endl;
-		s << "Bodies(dynamic): "	<< dynamicBodiesCount << endl;
-		s << "Sensors: "			<< world.getSensors().size() << endl;
-		s << "Entities: "			<< entities.size() << endl;
+		s << "FPS: "				<< gameWindow.getFPS() << "\n";
+		s << "FrameTime: "			<< mFrameTime << "\n";
+		s << "Bodies(all): "		<< bodies.size() << "\n";
+		s << "Bodies(static): "		<< bodies.size() - dynamicBodiesCount << "\n";
+		s << "Bodies(dynamic): "	<< dynamicBodiesCount << "\n";
+		s << "Sensors: "			<< world.getSensors().size() << "\n";
+		s << "Entities: "			<< entities.size() << "\n";
 		s << "Components: "			<< componentCount << endl;
 
 		debugText.setString(s.str());
