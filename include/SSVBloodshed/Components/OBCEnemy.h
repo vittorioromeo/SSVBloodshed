@@ -14,7 +14,7 @@ namespace ob
 {
 	class OBCEnemy : public sses::Component
 	{
-		public:
+		private:
 			OBGame& game;
 			OBCPhys& cPhys;
 			OBCDraw& cDraw;
@@ -85,6 +85,11 @@ namespace ob
 				game.getFactory().createProjectilePlasma(shootPosition, currentDegrees + mDeg);
 				game.createPMuzzle(20, toPixels(body.getPosition()));
 			}
+
+			inline void setWalkSpeed(float mValue) noexcept	{ walkSpeed = mValue; }
+			inline void setTurnSpeed(float mValue) noexcept	{ turnSpeed = mValue; }
+			inline void setHealth(int mValue) noexcept		{ health = mValue; }
+			inline void setGibMult(int mValue) noexcept		{ gibMult = mValue; }
 	};
 }
 
