@@ -19,14 +19,20 @@ namespace ob
 			ssvs::SoundPlayer soundPlayer;
 			ssvs::MusicPlayer musicPlayer;
 
-			ssvs::Tileset& tileset{assetManager.load<ssvs::Tileset>("ts", "Data/Tilesets/tileset.json")};
-			ssvs::Tileset& tilesetPlayer{assetManager.load<ssvs::Tileset>("tsPlayer", "Data/Tilesets/tilesetPlayer.json")};
-			ssvs::Tileset& tilesetProjectiles{assetManager.load<ssvs::Tileset>("tsProjectiles", "Data/Tilesets/tilesetProjectiles.json")};
-			ssvs::Tileset& tilesetEnemy{assetManager.load<ssvs::Tileset>("tsEnemy", "Data/Tilesets/tilesetEnemy.json")};
-			ssvs::Tileset& tilesetEnemyBig{assetManager.load<ssvs::Tileset>("tsEnemyBig", "Data/Tilesets/tilesetEnemyBig.json")};
-			ssvs::Tileset& tilesetJuggernaut{assetManager.load<ssvs::Tileset>("tsJuggernaut", "Data/Tilesets/tilesetJuggernaut.json")};
+			ssvs::Tileset& tileset;
+			ssvs::Tileset& tilesetPlayer;
+			ssvs::Tileset& tilesetProjectiles;
+			ssvs::Tileset& tilesetEnemy;
+			ssvs::Tileset& tilesetEnemyBig;
+			ssvs::Tileset& tilesetJuggernaut;
 
-			inline OBAssets()
+			inline OBAssets() :
+				tileset(assetManager.load<ssvs::Tileset>("ts", "Data/Tilesets/tileset.json")),
+				tilesetPlayer(assetManager.load<ssvs::Tileset>("tsPlayer", "Data/Tilesets/tilesetPlayer.json")),
+				tilesetProjectiles(assetManager.load<ssvs::Tileset>("tsProjectiles", "Data/Tilesets/tilesetProjectiles.json")),
+				tilesetEnemy(assetManager.load<ssvs::Tileset>("tsEnemy", "Data/Tilesets/tilesetEnemy.json")),
+				tilesetEnemyBig(assetManager.load<ssvs::Tileset>("tsEnemyBig", "Data/Tilesets/tilesetEnemyBig.json")),
+				tilesetJuggernaut(assetManager.load<ssvs::Tileset>("tsJuggernaut", "Data/Tilesets/tilesetJuggernaut.json"))
 			{
 				ssvs::loadAssetsFromJson(assetManager, "Data/", ssvuj::readFromFile("Data/assets.json"));
 
