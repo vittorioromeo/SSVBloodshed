@@ -49,6 +49,7 @@ namespace ob
 	class ParticleSystem : public sf::Drawable
 	{
 		private:
+			unsigned int maxParticles{10000};
 			sf::VertexArray vertices{sf::PrimitiveType::Quads};
 			std::vector<Particle> particles;
 
@@ -56,6 +57,7 @@ namespace ob
 			inline ParticleSystem() { particles.reserve(350); }
 			inline void emplace(const Vec2f& mPosition, const Vec2f& mVelocity, float mAcceleration, const sf::Color& mColor, float mSize, float mLife, float mAlphaMult = 1.f)
 			{
+				if(particles.size() >= maxParticles) return;
 				particles.emplace_back(mPosition, mVelocity, mAcceleration, mColor, mSize, mLife, mAlphaMult);
 			}
 			inline void update(float mFrameTime)
