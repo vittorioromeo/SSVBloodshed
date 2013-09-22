@@ -9,6 +9,7 @@
 #include "SSVBloodshed/OBGame.h"
 #include "SSVBloodshed/Components/OBCPhys.h"
 #include "SSVBloodshed/Components/OBCDraw.h"
+#include "SSVBloodshed/Components/OBCFloor.h"
 
 namespace ob
 {
@@ -21,39 +22,63 @@ namespace ob
 			ssvsc::Body& body;
 			ssvs::Ticker life{150.f};
 			float speed{125.f}, degrees{0.f};
-			bool pierceOrganic{true};
+			int pierceOrganic{0}, damage{1};
+			bool destroyFloor{false};
+			OBGroup targetGroup{OBGroup::Enemy};
+
+			inline void destroy() { getEntity().destroy(); onDestroy(); }
 
 		public:
-			OBCProjectile(OBGame& mGame, OBCPhys& mCPhysics, OBCDraw& mCRender, float mSpeed, float mDegrees)
-				: game(mGame), cPhys(mCPhysics), cDraw(mCRender), body(cPhys.getBody()), speed{mSpeed}, degrees{mDegrees} { }
+			ssvu::Delegate<void()> onDestroy;
+
+			OBCProjectile(OBGame& mGame, OBCPhys& mCPhys, OBCDraw& mCDraw, float mSpeed, float mDegrees) : game(mGame), cPhys(mCPhys), cDraw(mCDraw), body(cPhys.getBody()), speed{mSpeed}, degrees{mDegrees} { }
 
 			inline void init() override
 			{
-				body.setResolve(false);
 				body.addGroup(OBGroup::Projectile);
 				body.addGroupToCheck(OBGroup::Solid);
+				body.addGroupToCheck(OBGroup::Floor);
+				body.setResolve(false);
 				body.onDetection += [this](const ssvsc::DetectionInfo& mDI)
 				{
-					if(mDI.body.hasGroup(OBGroup::Solid))
+					if(!mDI.body.hasGroup(targetGroup))
 					{
-						if(!mDI.body.hasGroup(OBGroup::Organic))
+						if(!mDI.body.hasGroup(OBGroup::Organic) && mDI.body.hasGroup(OBGroup::Solid))
 						{
 							game.createPDebris(6, toPixels(body.getPosition()));
-							getEntity().destroy();
+							destroy();
 						}
-						else
-						{
-							if(!pierceOrganic) getEntity().destroy();
-						}
+					}
+					else
+					{
+						auto& e(*static_cast<Entity*>(mDI.body.getUserData()));
+						e.getComponent<OBCHealth>().damage(damage);
+
+						if(pierceOrganic == 0) destroy();
+						else --pierceOrganic;
+					}
+
+					if(destroyFloor && mDI.body.hasGroup(OBGroup::Floor))
+					{
+						auto& e(*static_cast<Entity*>(mDI.body.getUserData()));
+						e.getComponent<OBCFloor>().smash();
 					}
 				};
 			}
 			inline void update(float mFrameTime) override
 			{
 				body.setVelocity(ssvs::getVecFromDegrees(degrees, speed));
-				if(life.update(mFrameTime)) getEntity().destroy();
+				if(life.update(mFrameTime)) destroy();
 			}
 			inline void draw() override { cDraw.setRotation(degrees); }
+
+			inline void setLife(float mValue) noexcept			{ life.restart(mValue); }
+			inline void setSpeed(float mValue) noexcept			{ speed = mValue; }
+			inline void setDegrees(float mValue) noexcept		{ degrees = mValue; }
+			inline void setDamage(int mValue) noexcept			{ damage = mValue; }
+			inline void setPierceOrganic(int mValue) noexcept	{ pierceOrganic = mValue; }
+			inline void setDestroyFloor(bool mValue) noexcept	{ destroyFloor = mValue; }
+			inline void setTargetGroup(OBGroup mValue) noexcept	{ targetGroup = mValue; }
 	};
 }
 

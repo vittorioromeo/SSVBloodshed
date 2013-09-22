@@ -54,7 +54,7 @@ namespace ob
 			std::vector<Particle> particles;
 
 		public:
-			inline ParticleSystem() { particles.reserve(350); }
+			inline ParticleSystem() { particles.reserve(maxParticles); }
 			inline void emplace(const Vec2f& mPosition, const Vec2f& mVelocity, float mAcceleration, const sf::Color& mColor, float mSize, float mLife, float mAlphaMult = 1.f)
 			{
 				if(particles.size() >= maxParticles) return;

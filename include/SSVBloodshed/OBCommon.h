@@ -33,7 +33,10 @@ namespace ob
 		Solid,
 		Projectile,
 		Player,
-		Organic
+		Organic,
+		Floor,
+		Friendly,
+		Enemy
 	};
 
 	// Pixel <-> coords utils

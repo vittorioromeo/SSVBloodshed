@@ -9,6 +9,7 @@
 #include "SSVBloodshed/OBGame.h"
 #include "SSVBloodshed/Components/OBCPhys.h"
 #include "SSVBloodshed/Components/OBCDraw.h"
+#include "SSVBloodshed/Components/OBCHealth.h"
 
 namespace ob
 {
@@ -18,38 +19,41 @@ namespace ob
 			OBGame& game;
 			OBCPhys& cPhys;
 			OBCDraw& cDraw;
+			OBCHealth& cHealth;
 			OBAssets& assets;
 			ssvsc::Body& body;
 			float walkSpeed{100.f}, currentDegrees{0.f}, turnSpeed{7.5f};
 			float snappedDegrees{0.f};
-			int health{3}; int gibMult{1};
+			int gibMult{1};
 
-			//ssvs::Ticker shootTimer{120.f};
+			ssvs::Ticker shootTimer{60.f};
 			//ssvu::Timeline shootTimeline;
 
 		public:
-			OBCEnemy(OBGame& mGame, OBCPhys& mCPhys, OBCDraw& mCDraw) : game(mGame), cPhys(mCPhys), cDraw(mCDraw), assets(game.getAssets()), body(cPhys.getBody()) { }
+			OBCEnemy(OBGame& mGame, OBCPhys& mCPhys, OBCDraw& mCDraw, OBCHealth& mCHealth) : game(mGame), cPhys(mCPhys), cDraw(mCDraw), cHealth(mCHealth), assets(game.getAssets()), body(cPhys.getBody()) { }
 
 			inline void init() override
 			{
+				cHealth.onDamage += [this]
+				{
+					game.createPBlood(6 * gibMult, toPixels(body.getPosition()));
+					if(cHealth.isDead())
+					{
+						game.createPBlood(20 * gibMult * gibMult, toPixels(body.getPosition()), gibMult);
+						game.createPGib(35 * gibMult * gibMult, toPixels(body.getPosition()));
+						getEntity().destroy();
+					}
+				};
+
+				getEntity().addGroup(OBGroup::Enemy);
+				body.addGroup(OBGroup::Solid);
+				body.addGroup(OBGroup::Enemy);
+				body.addGroup(OBGroup::Organic);
+				body.addGroupToCheck(OBGroup::Solid);
 				body.setRestitutionX(1.7f);
 				body.setRestitutionY(1.7f);
 				body.onPreUpdate += [this]{ body.setVelocity(ssvs::getMClamped(body.getVelocity(), -120.f, 120.f)); };
-				body.onDetection += [this](const ssvsc::DetectionInfo& mDI)
-				{
-					if(mDI.body.hasGroup(OBGroup::Projectile))
-					{
-						--health;
-						game.createPBlood(6 * gibMult, toPixels(body.getPosition()));
-
-						if(health <= 0)
-						{
-							game.createPBlood(20 * gibMult * gibMult, toPixels(body.getPosition()), gibMult);
-							game.createPGib(35 * gibMult * gibMult, toPixels(body.getPosition()));
-							getEntity().destroy();
-						}
-					}
-				};
+				body.onDetection += [this](const ssvsc::DetectionInfo&){ };
 			}
 			inline void update(float mFrameTime) override
 			{
@@ -63,14 +67,12 @@ namespace ob
 
 					body.applyForce(ssvs::getVecFromDegrees(snappedDegrees, walkSpeed) * 0.05f);
 				}
-
-				/*shootTimeline.update(mFrameTime);
+				//shootTimeline.update(mFrameTime);
 
 				if(shootTimer.update(mFrameTime))
 				{
-					shootTimeline.reset();
-					shootTimeline.start();
-				}*/
+					shoot(0);
+				}
 			}
 			inline void draw() override
 			{
@@ -82,13 +84,12 @@ namespace ob
 			inline void shoot(int mDeg)
 			{
 				Vec2i shootPosition{body.getPosition() + Vec2i(ssvs::getVecFromDegrees<float>(currentDegrees) * 2100.f)};
-				game.getFactory().createProjectilePlasma(shootPosition, currentDegrees + mDeg);
+				game.getFactory().createProjectileEnemyBullet(shootPosition, currentDegrees + mDeg);
 				game.createPMuzzle(20, toPixels(body.getPosition()));
 			}
 
 			inline void setWalkSpeed(float mValue) noexcept	{ walkSpeed = mValue; }
 			inline void setTurnSpeed(float mValue) noexcept	{ turnSpeed = mValue; }
-			inline void setHealth(int mValue) noexcept		{ health = mValue; }
 			inline void setGibMult(int mValue) noexcept		{ gibMult = mValue; }
 	};
 }

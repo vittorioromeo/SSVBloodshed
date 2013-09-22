@@ -23,7 +23,7 @@ namespace ob
 			ssvsc::World& world;
 
 			sf::Sprite getSpriteFromTile(const std::string& mTextureId, const sf::IntRect& mTextureRect) const;
-			void emplaceSpriteFromTile(OBCDraw& mCRender, const std::string& mTextureId, const sf::IntRect& mTextureRect) const;
+			void emplaceSpriteFromTile(OBCDraw& mCDraw, const std::string& mTextureId, const sf::IntRect& mTextureRect) const;
 
 		public:
 			OBFactory(OBAssets& mAssets, OBGame& mGame, sses::Manager& mManager, ssvsc::World& mWorld) : assets(mAssets), game(mGame), manager(mManager), world(mWorld) { }
@@ -41,6 +41,8 @@ namespace ob
 			Entity& createProjectileBullet(const Vec2i& mPos, float mDegrees);
 			Entity& createProjectilePlasma(const Vec2i& mPos, float mDegrees);
 			Entity& createProjectileEnemyBullet(const Vec2i& mPos, float mDegrees);
+
+			Entity& createProjectileTestBomb(const Vec2i& mPos, float mDegrees);
 	};
 }
 

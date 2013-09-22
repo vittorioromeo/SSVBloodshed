@@ -62,6 +62,7 @@ namespace ob
 			void createPBlood(unsigned int mCount, const Vec2f& mPosition, float mMult = 1.f);
 			void createPGib(unsigned int mCount, const Vec2f& mPosition);
 			void createPDebris(unsigned int mCount, const Vec2f& mPosition);
+			void createPDebrisFloor(unsigned int mCount, const Vec2f& mPosition);
 			void createPMuzzle(unsigned int mCount, const Vec2f& mPosition);
 	};
 

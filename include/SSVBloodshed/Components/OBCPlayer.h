@@ -28,12 +28,25 @@ namespace ob
 			Direction direction{Direction::E};
 			float walkSpeed{125.f};
 			ssvs::Ticker shootTimer{4.7f};
+			//ssvs::Ticker shootTimer{24.7f};
 
 		public:
-			OBCPlayer(OBGame& mGame, OBCPhys& mCPhysics, OBCDraw& mCRender, OBAssets& mAssets) : game(mGame), cPhys(mCPhysics), cDraw(mCRender), assets(mAssets), body(cPhys.getBody()) { }
+			OBCPlayer(OBGame& mGame, OBCPhys& mCPhys, OBCDraw& mCDraw) : game(mGame), cPhys(mCPhys), cDraw(mCDraw), assets(game.getAssets()), body(cPhys.getBody()) { }
 
+			inline void init() override
+			{
+				getEntity().addGroup(OBGroup::Player);
+				getEntity().addGroup(OBGroup::Friendly);
+				body.addGroup(OBGroup::Solid);
+				body.addGroup(OBGroup::Player);
+				body.addGroup(OBGroup::Friendly);
+				body.addGroup(OBGroup::Organic);
+				body.addGroupToCheck(OBGroup::Solid);
+			}
 			inline void update(float mFrameTime) override
 			{
+				if(shootTimer.update(mFrameTime)) shootTimer.stop();
+
 				action = game.getIShoot() ? Action::Shooting : Action::Idle;
 
 				const auto& ix(game.getIX());
@@ -44,7 +57,7 @@ namespace ob
 				{
 					if(ix != 0 || iy != 0) direction = getDirectionFromXY(ix, iy);
 				}
-				else if(shootTimer.update(mFrameTime)) shoot();
+				else if(!shootTimer.isEnabled()) shoot();
 
 				if(game.getIBomb()) bomb();
 
@@ -79,7 +92,24 @@ namespace ob
 			inline void shoot()
 			{
 				Vec2i shootPosition{body.getPosition() + Vec2i(getVecFromDirection<float>(direction) * 1100.f)};
-				game.getFactory().createProjectileBullet(shootPosition, getDegreesFromDirection(direction));
+				int weapon = 1;
+
+				switch(weapon)
+				{
+					case 0:
+						game.getFactory().createProjectileBullet(shootPosition, getDegreesFromDirection(direction));
+						shootTimer.restart(4.5f);
+						break;
+					case 1:
+						game.getFactory().createProjectilePlasma(shootPosition, getDegreesFromDirection(direction));
+						shootTimer.restart(9.5f);
+						break;
+					case 2:
+						game.getFactory().createProjectileTestBomb(shootPosition, getDegreesFromDirection(direction));
+						shootTimer.restart(25.f);
+						break;
+				}
+
 				game.createPMuzzle(20, toPixels(shootPosition));
 			}
 
