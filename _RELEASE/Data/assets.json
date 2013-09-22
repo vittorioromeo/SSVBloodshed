@@ -8,7 +8,8 @@
 		"tilesetProjectiles.png",
 		"tilesetEnemy.png",
 		"tilesetEnemyBig.png",
-		"tilesetJuggernaut.png"
+		"tilesetJuggernaut.png",
+		"tilesetGiant.png"
 	],
 	"soundBuffers":
 	[	
