@@ -3,13 +3,12 @@
 	[
 		"tempHud.png",
 		"limeStroked.png",
-		"tileset.png",
-		"tilesetPlayer.png",
-		"tilesetProjectiles.png",
-		"tilesetEnemy.png",
+		"tileset.png",		
+		"tilesetProjectiles.png",		
 		"tilesetEnemyBig.png",
 		"tilesetJuggernaut.png",
-		"tilesetGiant.png"
+		"tilesetGiant.png",
+		"tsCharSmall.png"
 	],
 	"soundBuffers":
 	[	
