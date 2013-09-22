@@ -28,7 +28,7 @@ namespace ob
 			//ssvu::Timeline shootTimeline;
 
 		public:
-			OBCEnemy(OBGame& mGame, OBCPhys& mCPhysics, OBCDraw& mCRender, OBAssets& mAssets) : game(mGame), cPhys(mCPhysics), cDraw(mCRender), assets(mAssets), body(cPhys.getBody()) { }
+			OBCEnemy(OBGame& mGame, OBCPhys& mCPhys, OBCDraw& mCDraw) : game(mGame), cPhys(mCPhys), cDraw(mCDraw), assets(game.getAssets()), body(cPhys.getBody()) { }
 
 			inline void init() override
 			{
