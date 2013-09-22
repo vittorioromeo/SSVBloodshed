@@ -21,7 +21,7 @@ namespace ob
 			OBCDraw& cDraw;
 			ssvsc::Body& body;
 			ssvs::Ticker life{150.f};
-			float speed{125.f}, degrees{0.f};
+			float speed{125.f}, degrees{0.f}, curveSpeed{0.f};
 			int pierceOrganic{0}, damage{1};
 			bool destroyFloor{false};
 			OBGroup targetGroup{OBGroup::Enemy};
@@ -54,8 +54,7 @@ namespace ob
 						auto& e(*static_cast<Entity*>(mDI.body.getUserData()));
 						e.getComponent<OBCHealth>().damage(damage);
 
-						if(pierceOrganic == 0) destroy();
-						else --pierceOrganic;
+						if(pierceOrganic-- == 0) destroy();
 					}
 
 					if(destroyFloor && mDI.body.hasGroup(OBGroup::Floor))
@@ -67,6 +66,7 @@ namespace ob
 			}
 			inline void update(float mFrameTime) override
 			{
+				degrees += curveSpeed * mFrameTime;
 				body.setVelocity(ssvs::getVecFromDegrees(degrees, speed));
 				if(life.update(mFrameTime)) destroy();
 			}
@@ -75,6 +75,7 @@ namespace ob
 			inline void setLife(float mValue) noexcept			{ life.restart(mValue); }
 			inline void setSpeed(float mValue) noexcept			{ speed = mValue; }
 			inline void setDegrees(float mValue) noexcept		{ degrees = mValue; }
+			inline void setCurveSpeed(float mValue) noexcept	{ curveSpeed = mValue; }
 			inline void setDamage(int mValue) noexcept			{ damage = mValue; }
 			inline void setPierceOrganic(int mValue) noexcept	{ pierceOrganic = mValue; }
 			inline void setDestroyFloor(bool mValue) noexcept	{ destroyFloor = mValue; }

@@ -8,6 +8,7 @@
 #include "SSVBloodshed/Components/OBCPlayer.h"
 #include "SSVBloodshed/Components/OBCEnemy.h"
 #include "SSVBloodshed/Components/OBCProjectile.h"
+#include "SSVBloodshed/Components/OBCParticleEmitter.h"
 #include "SSVBloodshed/Components/OBCParticleSystem.h"
 #include "SSVBloodshed/Components/OBCFloor.h"
 #include "SSVBloodshed/Components/OBCHealth.h"
@@ -160,6 +161,7 @@ namespace ob
 		auto& cPhys(result.createComponent<OBCPhys>(world, false, mPos, Vec2i{150, 150}));
 		auto& cDraw(result.createComponent<OBCDraw>(game, cPhys.getBody()));
 		auto& cProjectile(result.createComponent<OBCProjectile>(game, cPhys, cDraw, 260.f, mDegrees));
+		result.createComponent<OBCParticleEmitter>(game, cPhys, OBCParticleEmitter::Type::Plasma);
 
 		cProjectile.setPierceOrganic(-1);
 
@@ -190,11 +192,12 @@ namespace ob
 		auto& cDraw(result.createComponent<OBCDraw>(game, cPhys.getBody()));
 		auto& cProjectile(result.createComponent<OBCProjectile>(game, cPhys, cDraw, 150.f, mDegrees));
 
+		cProjectile.setCurveSpeed(2.f);
 		cProjectile.setPierceOrganic(-1);
 		cProjectile.setDestroyFloor(true);
 		cProjectile.onDestroy += [this, &cPhys]
 		{
-			for(int i{0}; i < 360; i += 360 / 100) createProjectileBullet(cPhys.getPos() + Vec2i(ssvs::getVecFromDegrees<float>(i) * 300.f), i);
+			for(int i{0}; i < 360; i += 360 / 100) createProjectilePlasma(cPhys.getPos() + Vec2i(ssvs::getVecFromDegrees<float>(i) * 300.f), i);
 		};
 
 		emplaceSpriteFromTile(cDraw, "tilesetProjectiles.png", assets.tileset[{2, 0}]);

@@ -92,7 +92,7 @@ namespace ob
 			inline void shoot()
 			{
 				Vec2i shootPosition{body.getPosition() + Vec2i(getVecFromDirection<float>(direction) * 1100.f)};
-				int weapon = 1;
+				int weapon = 0;
 
 				switch(weapon)
 				{
@@ -113,7 +113,10 @@ namespace ob
 				game.createPMuzzle(20, toPixels(shootPosition));
 			}
 
-			inline void bomb() { }
+			inline void bomb()
+			{
+				for(int i{0}; i < 360; i += 360 / 8) game.getFactory().createProjectileTestBomb(body.getPosition(), getDegreesFromDirection(direction) + (i * (360 / 8)));
+			}
 
 			inline Action getAction() const noexcept		{ return action; }
 			inline Direction getDirection() const noexcept	{ return direction; }
