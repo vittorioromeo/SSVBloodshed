@@ -12,6 +12,7 @@
 #include "SSVBloodshed/Components/OBCHealth.h"
 #include "SSVBloodshed/Components/OBCParticleSystem.h"
 #include "SSVBloodshed/Components/OBCActorBase.h"
+#include "SSVBloodshed/Components/OBCKillable.h"
 
 namespace ob
 {
@@ -21,7 +22,7 @@ namespace ob
 			enum class Action{Idle, Shooting};
 
 		private:
-			OBCHealth& cHealth;
+			OBCKillable& cKillable;
 			Action action{Action::Idle};
 			Direction direction{Direction::E};
 			float walkSpeed{125.f};
@@ -29,25 +30,14 @@ namespace ob
 			//ssvs::Ticker shootTimer{24.7f};
 
 		public:
-			OBCPlayer(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCHealth& mCHealth) : OBCActorBase{mCPhys, mCDraw}, cHealth(mCHealth) { }
+			OBCPlayer(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCKillable& mCKillable) : OBCActorBase{mCPhys, mCDraw}, cKillable(mCKillable) { }
 
 			inline void init() override
 			{
-				cHealth.onDamage += [this]
-				{
-					game.createPBlood(6, toPixels(body.getPosition()));
-					if(cHealth.isDead())
-					{
-						game.createPBlood(1000, toPixels(body.getPosition()));
-						game.createPGib(1000, toPixels(body.getPosition()));
-						getEntity().destroy();
-					}
-				};
+				cKillable.onDeath += [this]{ assets.playSound("Sounds/playerDeath.wav"); };
 
-				getEntity().addGroup(OBGroup::GPlayer);
 				getEntity().addGroup(OBGroup::GFriendly);
 				body.addGroup(OBGroup::GSolid);
-				body.addGroup(OBGroup::GPlayer);
 				body.addGroup(OBGroup::GFriendly);
 				body.addGroup(OBGroup::GOrganic);
 				body.addGroupToCheck(OBGroup::GSolid);
@@ -82,7 +72,7 @@ namespace ob
 				const auto& intDir(static_cast<int>(direction));
 				s1Offset = ssvs::getVecFromDegrees(getDegreesFromDirection(direction)) * 10.f;
 				s0.setTextureRect(action == Action::Shooting ? assets.p1Shoot : assets.p1Stand); s0.setRotation(45 * intDir);
-				s1.setTextureRect(assets.p2Gun); s1.setRotation(45 * intDir);
+				s1.setTextureRect(assets.p1Gun); s1.setRotation(45 * intDir);
 			}
 
 			inline void shoot()
@@ -93,6 +83,7 @@ namespace ob
 				switch(weapon)
 				{
 					case 0:
+						assets.playSound("Sounds/machineGun.wav");
 						getFactory().createProjectileBullet(shootPosition, getDegreesFromDirection(direction));
 						shootTimer.restart(4.5f);
 						break;

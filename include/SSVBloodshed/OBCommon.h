@@ -33,7 +33,6 @@ namespace ob
 	{
 		GSolid,
 		GProjectile,
-		GPlayer,
 		GOrganic,
 		GFloor,
 		GFriendly,
@@ -43,10 +42,10 @@ namespace ob
 	enum OBLayer : int
 	{
 		PWall,
-		PParticleTemp,
-		PProjectile,
 		PPlayer,
 		PEnemy,
+		PParticleTemp,
+		PProjectile,
 		PFloorGrate,
 		PParticlePerm,
 		PFloor,

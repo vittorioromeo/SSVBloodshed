@@ -80,6 +80,16 @@ namespace ob
 				5 + ssvu::getRnd(-4, 4),
 				1.5f);
 	}
+	inline void createPElectric(ParticleSystem& mPS, const Vec2f& mPosition)
+	{
+		mPS.emplace(mPosition,
+				ssvs::getVecFromDegrees(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(0.3f, 7.4f)),
+				0.94f,
+				(ssvu::getRnd(0, 10) > 8) ? sf::Color::Cyan : sf::Color::Yellow,
+				1.1f + ssvu::getRndR<float>(-0.3, 0.3),
+				65 + ssvu::getRnd(-25, 55),
+				1.5f);
+	}
 }
 
 #endif

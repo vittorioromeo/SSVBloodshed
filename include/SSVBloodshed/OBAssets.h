@@ -35,6 +35,7 @@ namespace ob
 			sf::IntRect floorGrate, floorGrateAlt1, floorGrateAlt2;			// Floor grate
 			sf::IntRect wallSingle;											// Wall
 			sf::IntRect pjBullet, pjPlasma, pjStar;							// Projectiles
+			sf::IntRect eBall;												// Ball enemy
 
 			// Medium tileset (20x20)
 			sf::IntRect e3Stand;											// Charger alien
@@ -47,7 +48,7 @@ namespace ob
 
 			inline OBAssets()
 			{
-				soundPlayer.setVolume(50);
+				soundPlayer.setVolume(5);
 				musicPlayer.setVolume(30);
 
 				ssvs::loadAssetsFromJson(assetManager, "Data/", ssvuj::readFromFile("Data/assets.json"));
@@ -74,6 +75,7 @@ namespace ob
 				floorGrate = tsSmall("floorGrate"); floorGrateAlt1 = tsSmall("floorGrateAlt1"); floorGrateAlt2 = tsSmall("floorGrateAlt2");
 				wallSingle = tsSmall("wallSingle");
 				pjBullet = tsSmall("pjBullet"); pjPlasma = tsSmall("pjPlasma"); pjStar = tsSmall("pjStar");
+				eBall = tsSmall("eBall");
 
 				// Medium tileset (20x20)
 				e3Stand = tsMedium("e3Stand");

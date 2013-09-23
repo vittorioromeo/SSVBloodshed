@@ -44,9 +44,10 @@ namespace ob
 
 				gs.addInput({{k::Num1}}, [this](float){ game.factory.createWall(game.getMousePosition()); }, t::Once);
 				gs.addInput({{k::Num2}}, [this](float){ game.factory.createTestEnemy(game.getMousePosition()); });
-				gs.addInput({{k::Num3}}, [this](float){ game.factory.createTestEnemyBig(game.getMousePosition()); }, t::Once);
+				gs.addInput({{k::Num3}}, [this](float){ game.factory.createTestCharger(game.getMousePosition()); }, t::Once);
 				gs.addInput({{k::Num4}}, [this](float){ game.factory.createTestJuggernaut(game.getMousePosition()); }, t::Once);
 				gs.addInput({{k::Num5}}, [this](float){ game.factory.createTestGiant(game.getMousePosition()); }, t::Once);
+				gs.addInput({{k::Num6}}, [this](float){ game.factory.createTestEnemyBall(game.getMousePosition()); }, t::Once);
 			}
 
 			inline bool getIShoot() const noexcept		{ return iShoot; }

@@ -20,7 +20,6 @@ namespace ob
 			ssvs::Ticker life{150.f};
 			float speed{125.f}, degrees{0.f}, curveSpeed{0.f};
 			int pierceOrganic{0}, damage{1};
-			bool destroyFloor{false};
 			OBGroup targetGroup{OBGroup::GEnemy};
 
 			inline void destroy() { getEntity().destroy(); onDestroy(); }
@@ -34,7 +33,6 @@ namespace ob
 			{
 				body.addGroup(OBGroup::GProjectile);
 				body.addGroupToCheck(OBGroup::GSolid);
-				body.addGroupToCheck(OBGroup::GFloor);
 				body.setResolve(false);
 				body.onDetection += [this](const ssvsc::DetectionInfo& mDI)
 				{
@@ -43,21 +41,17 @@ namespace ob
 						if(!mDI.body.hasGroup(OBGroup::GOrganic) && mDI.body.hasGroup(OBGroup::GSolid))
 						{
 							game.createPDebris(6, toPixels(body.getPosition()));
+							assets.playSound("Sounds/bulletHitWall.wav");
 							destroy();
 						}
 					}
 					else
 					{
 						auto& e(*static_cast<Entity*>(mDI.body.getUserData()));
-						if(e.getComponent<OBCHealth>().damage(damage)) --pierceOrganic;
-
-						if(pierceOrganic == 0) destroy();
-					}
-
-					if(destroyFloor && mDI.body.hasGroup(OBGroup::GFloor))
-					{
-						auto& e(*static_cast<Entity*>(mDI.body.getUserData()));
-						e.getComponent<OBCFloor>().smash();
+						if(e.getComponent<OBCHealth>().damage(damage))
+						{
+							if(pierceOrganic-- == 0) destroy();
+						}
 					}
 				};
 			}
@@ -75,7 +69,6 @@ namespace ob
 			inline void setCurveSpeed(float mValue) noexcept	{ curveSpeed = mValue; }
 			inline void setDamage(int mValue) noexcept			{ damage = mValue; }
 			inline void setPierceOrganic(int mValue) noexcept	{ pierceOrganic = mValue; }
-			inline void setDestroyFloor(bool mValue) noexcept	{ destroyFloor = mValue; }
 			inline void setTargetGroup(OBGroup mValue) noexcept	{ targetGroup = mValue; }
 
 			inline float getSpeed() const noexcept				{ return speed; }

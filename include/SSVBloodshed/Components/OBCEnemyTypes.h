@@ -13,62 +13,99 @@
 #include "SSVBloodshed/Components/OBCFloor.h"
 #include "SSVBloodshed/Components/OBCActorBase.h"
 #include "SSVBloodshed/Components/OBCEnemy.h"
+#include "SSVBloodshed/Components/OBCFloorBreaker.h"
+#include "SSVBloodshed/Components/OBCKillable.h"
 
 namespace ob
 {
-	class OBCEBase : public OBCActorBase
+	template<typename T> class PingPongValue
 	{
 		private:
-			bool breakFloor{false};
-
-		protected:
-			OBCEnemy& cEnemy;
-			OBCHealth& cHealth;
+			T value, min, max, speed, dir{1};
 
 		public:
-			OBCEBase(OBCEnemy& mCEnemy) : OBCActorBase{mCEnemy.getCPhys(), mCEnemy.getCDraw()}, cEnemy(mCEnemy), cHealth(cEnemy.getCHealth())
+			inline PingPongValue(T mMin, T mMax, T mSpeed) : value(mMin), min(mMin), max(mMax), speed(mSpeed) { }
+
+			inline void update(float mFrameTime)
 			{
-				body.addGroupNoResolve(OBGroup::GFloor);
-				body.onDetection += [this](const ssvsc::DetectionInfo& mDI)
-				{
-					if(breakFloor && mDI.body.hasGroup(OBGroup::GFloor)) static_cast<Entity*>(mDI.body.getUserData())->getComponent<OBCFloor>().smash();
-				};
+				value += speed * mFrameTime * dir;
+				if(value > max) { value = max; dir = -1; }
+				else if(value < min) { value = min; dir = 1; }
 			}
 
-			inline void setBreakFloor(bool mValue) noexcept
-			{
-				breakFloor = mValue;
+			inline operator T() const noexcept { return value; }
+	};
 
-				if(mValue) body.addGroupToCheck(OBGroup::GFloor);
-				else body.delGroupToCheck(OBGroup::GFloor);
+	class OBCEBase : public OBCActorBase
+	{
+		protected:
+			OBCEnemy& cEnemy;
+			OBCKillable& cKillable;
+
+		public:
+			OBCEBase(OBCEnemy& mCEnemy) : OBCActorBase{mCEnemy.getCPhys(), mCEnemy.getCDraw()}, cEnemy(mCEnemy), cKillable(cEnemy.getCKillable()) { }
+	};
+
+	class OBCEBall : public OBCEBase
+	{
+		private:
+			OBCFloorBreaker& cFloorBreaker;
+			float deg{0};
+			PingPongValue<float> ts{0.1f, 15.f, 0.07f};
+
+		public:
+			OBCEBall(OBCEnemy& mCEnemy, OBCFloorBreaker& mCFloorBreaker) : OBCEBase{mCEnemy}, cFloorBreaker(mCFloorBreaker) { }
+
+			inline void init() override
+			{
+				cKillable.setType(OBCKillable::Type::Robotic);
+
+				//cKillable.onDeath += [this]{ for(int i = 0; i < 4; ++i) game.getFactory().createTestEnemyBallSmall(cPhys.getPos<int>()); };
+				cFloorBreaker.setActive(true);
+
+				cEnemy.setFaceDirection(false);
+				cEnemy.setWalkSpeed(200.f);
+				cEnemy.setTurnSpeed(3.f);
+
+				cEnemy.setMaxVelocity(400.f);
 			}
+			inline void update(float mFrameTime) override
+			{
+				deg += mFrameTime * 15.f;
+				ts.update(mFrameTime);
+			//	cEnemy.setWalkSpeed(ts * 50.f);
+
+			}
+			inline void draw() override { cDraw.setRotation(deg); }
 	};
 
 	class OBCECharger : public OBCEBase
 	{
 		private:
+			OBCFloorBreaker& cFloorBreaker;
 			ssvs::Ticker timerCharge{250.f};
 			ssvu::Timeline tlCharge{false};
 			float lastDeg{0};
 
 		public:
-			OBCECharger(OBCEnemy& mCEnemy) : OBCEBase{mCEnemy} { }
+			OBCECharger(OBCEnemy& mCEnemy, OBCFloorBreaker& mCFloorBreaker) : OBCEBase{mCEnemy}, cFloorBreaker(mCFloorBreaker) { }
 
 			inline void init() override
 			{
+				cKillable.setParticleMult(2);
+
 				cEnemy.setWalkSpeed(20.f);
 				cEnemy.setTurnSpeed(3.f);
-				cEnemy.setGibMult(2);
 				cEnemy.setMaxVelocity(40.f);
 
 				tlCharge.append<ssvu::Do>([this]{ body.setVelocity(body.getVelocity() * 0.8f); });
 				tlCharge.append<ssvu::Wait>(2.5f);
 				tlCharge.append<ssvu::Go>(0, 10);
-				tlCharge.append<ssvu::Do>([this]{ setBreakFloor(true); lastDeg = cEnemy.getCurrentDegrees(); body.applyForce(ssvs::getVecFromDegrees(lastDeg, 1250.f)); });
+				tlCharge.append<ssvu::Do>([this]{ cFloorBreaker.setActive(true); lastDeg = cEnemy.getCurrentDegrees(); body.applyForce(ssvs::getVecFromDegrees(lastDeg, 1250.f)); });
 				tlCharge.append<ssvu::Wait>(10.f);
 				tlCharge.append<ssvu::Do>([this]{ body.applyForce(ssvs::getVecFromDegrees(lastDeg, -150.f)); });
 				tlCharge.append<ssvu::Wait>(9.f);
-				tlCharge.append<ssvu::Do>([this]{ setBreakFloor(false); cEnemy.setWalkSpeed(20.f); });
+				tlCharge.append<ssvu::Do>([this]{ cFloorBreaker.setActive(false); cEnemy.setWalkSpeed(20.f); });
 			}
 			inline void update(float mFrameTime) override
 			{
@@ -89,9 +126,11 @@ namespace ob
 
 			inline void init() override
 			{
+				cKillable.setParticleMult(4);
+				cKillable.onDeath += [this]{ assets.playSound("Sounds/alienDeath.wav"); };
+
 				cEnemy.setWalkSpeed(10.f);
 				cEnemy.setTurnSpeed(2.5f);
-				cEnemy.setGibMult(4);
 
 				tlShoot.append<ssvu::Do>([this]{ shoot(ssvu::getRnd(-10, 10)); });
 				tlShoot.append<ssvu::Wait>(1.1f);
@@ -110,6 +149,7 @@ namespace ob
 			}
 			inline void shoot(int mDeg)
 			{
+				assets.playSound("Sounds/spark.wav");
 				Vec2i shootPos{body.getPosition() + Vec2i(ssvs::getVecFromDegrees<float>(cEnemy.getCurrentDegrees()) * 100.f)};
 				getFactory().createProjectileEnemyBullet(shootPos, cEnemy.getCurrentDegrees() + mDeg);
 				game.createPMuzzle(20, toPixels(body.getPosition()));
@@ -119,21 +159,25 @@ namespace ob
 	class OBCEGiant : public OBCEBase
 	{
 		private:
+			OBCFloorBreaker& cFloorBreaker;
 			ssvs::Ticker timerShoot{185.f};
 			ssvu::Timeline tlShoot{false};
 			ssvu::Timeline tlSummon{false};
 			float lastDeg{0};
 
 		public:
-			OBCEGiant(OBCEnemy& mCEnemy) : OBCEBase{mCEnemy} { }
+			OBCEGiant(OBCEnemy& mCEnemy, OBCFloorBreaker& mCFloorBreaker) : OBCEBase{mCEnemy}, cFloorBreaker(mCFloorBreaker) { }
 
 			inline void init() override
 			{
+				cKillable.setParticleMult(8);
+				cKillable.onDeath += [this]{ assets.playSound("Sounds/alienDeath.wav"); };
+
 				cEnemy.setWalkSpeed(10.f);
 				cEnemy.setTurnSpeed(2.5f);
-				cEnemy.setGibMult(8);
 
-				setBreakFloor(true);
+				cFloorBreaker.setActive(true);
+
 				tlShoot.append<ssvu::Do>([this]{ shoot(ssvu::getRnd(-15, 15)); });
 				tlShoot.append<ssvu::Wait>(0.4f);
 				tlShoot.append<ssvu::Go>(0, 20);
@@ -164,6 +208,7 @@ namespace ob
 			}
 			inline void shoot(int mDeg)
 			{
+				assets.playSound("Sounds/spark.wav");
 				Vec2i shootPos{body.getPosition() + Vec2i(ssvs::getVecFromDegrees<float>(cEnemy.getCurrentDegrees()) * 100.f)};
 				getFactory().createProjectileEnemyBullet(shootPos, cEnemy.getCurrentDegrees() + mDeg);
 				game.createPMuzzle(20, toPixels(body.getPosition()));
@@ -172,3 +217,4 @@ namespace ob
 }
 
 #endif
+

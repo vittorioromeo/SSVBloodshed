@@ -13,6 +13,7 @@
 #include "SSVBloodshed/Components/OBCFloor.h"
 #include "SSVBloodshed/Components/OBCHealth.h"
 #include "SSVBloodshed/Components/OBCEnemyTypes.h"
+#include "SSVBloodshed/Components/OBCKillable.h"
 
 using namespace std;
 using namespace sf;
@@ -33,6 +34,7 @@ namespace ob
 	template<typename T1, typename... TArgs> constexpr inline OBCDraw& getCDraw(const std::tuple<Entity&, T1, OBCDraw&, TArgs...>& mTuple) { return std::get<2>(mTuple); }
 	template<typename T1, typename T2, typename... TArgs> constexpr inline OBCProjectile& getCProjectile(const std::tuple<Entity&, T1, T2, OBCProjectile&, TArgs...>& mTuple) { return std::get<3>(mTuple); }
 	template<typename T1, typename T2, typename T3, typename... TArgs> constexpr inline OBCEnemy& getCEnemy(const std::tuple<Entity&, T1, T2, T3, OBCEnemy&, TArgs...>& mTuple) { return std::get<4>(mTuple); }
+	template<typename T1, typename T2, typename T3, typename T4, typename... TArgs> constexpr inline OBCKillable& getCKillable(const std::tuple<Entity&, T1, T2, T3, T4, OBCKillable&, TArgs...>& mTuple) { return std::get<5>(mTuple); }
 	std::tuple<Entity&, OBCPhys&, OBCDraw&> OBFactory::createActorBase(const Vec2i& mPos, const Vec2i& mSize, int mDrawPriority, bool mStatic)
 	{
 		auto& result(createEntity(mDrawPriority));
@@ -41,12 +43,15 @@ namespace ob
 		cDraw.setScaleWithBody(false);
 		return std::forward_as_tuple(result, cPhys, cDraw);
 	}
-	std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCHealth&, OBCEnemy&> OBFactory::createEnemyBase(const Vec2i& mPos, const Vec2i& mSize, int mHealth)
+	std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCHealth&, OBCEnemy&, OBCKillable&> OBFactory::createEnemyBase(const Vec2i& mPos, const Vec2i& mSize, int mHealth)
 	{
 		auto tpl(createActorBase(mPos, mSize, OBLayer::PEnemy));
 		auto& cHealth(getEntity(tpl).createComponent<OBCHealth>(mHealth));
-		auto& cEnemy(getEntity(tpl).createComponent<OBCEnemy>(getCPhys(tpl), getCDraw(tpl), cHealth));
-		return std::forward_as_tuple(getEntity(tpl), getCPhys(tpl), getCDraw(tpl), cHealth, cEnemy);
+		auto& cKillable(getEntity(tpl).createComponent<OBCKillable>(getCPhys(tpl), cHealth, OBCKillable::Type::Organic));
+		auto& cTargeter(getEntity(tpl).createComponent<OBCTargeter>(getCPhys(tpl), OBGroup::GFriendly));
+		auto& cBoid(getEntity(tpl).createComponent<OBCBoid>(getCPhys(tpl)));
+		auto& cEnemy(getEntity(tpl).createComponent<OBCEnemy>(getCPhys(tpl), getCDraw(tpl), cKillable, cTargeter, cBoid));
+		return std::forward_as_tuple(getEntity(tpl), getCPhys(tpl), getCDraw(tpl), cHealth, cEnemy, cKillable);
 	}
 	std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCProjectile&> OBFactory::createProjectileBase(const Vec2i& mPos, const Vec2i& mSize, float mSpeed, float mDegrees, const IntRect& mIntRect)
 	{
@@ -80,9 +85,18 @@ namespace ob
 	{
 		auto tpl(createActorBase(mPos, {650, 650}, OBLayer::PPlayer));
 		auto& cHealth(getEntity(tpl).createComponent<OBCHealth>(10));
-		getEntity(tpl).createComponent<OBCPlayer>(getCPhys(tpl), getCDraw(tpl), cHealth);
+		auto& cKillable(getEntity(tpl).createComponent<OBCKillable>(getCPhys(tpl), cHealth, OBCKillable::Type::Organic));
+		getEntity(tpl).createComponent<OBCPlayer>(getCPhys(tpl), getCDraw(tpl), cKillable);
 		emplaceSpriteFromTile(getCDraw(tpl), assets.txSmall, assets.p1Stand);
 		emplaceSpriteFromTile(getCDraw(tpl), assets.txSmall, assets.p1Gun);
+		return getEntity(tpl);
+	}
+	Entity& OBFactory::createTestEnemyBall(const Vec2i& mPos)
+	{
+		auto tpl(createEnemyBase(mPos, {750, 750}, 5));
+		auto& cFloorBreaker(getEntity(tpl).createComponent<OBCFloorBreaker>(getCPhys(tpl)));
+		getEntity(tpl).createComponent<OBCEBall>(getCEnemy(tpl), cFloorBreaker);
+		emplaceSpriteFromTile(getCDraw(tpl), assets.txSmall, assets.eBall);
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createTestEnemy(const Vec2i& mPos)
@@ -91,10 +105,11 @@ namespace ob
 		emplaceSpriteFromTile(getCDraw(tpl), assets.txSmall, assets.e1Stand);
 		return getEntity(tpl);
 	}
-	Entity& OBFactory::createTestEnemyBig(const Vec2i& mPos)
+	Entity& OBFactory::createTestCharger(const Vec2i& mPos)
 	{
 		auto tpl(createEnemyBase(mPos, {1100, 1100}, 18));
-		getEntity(tpl).createComponent<OBCECharger>(getCEnemy(tpl));
+		auto& cFloorBreaker(getEntity(tpl).createComponent<OBCFloorBreaker>(getCPhys(tpl)));
+		getEntity(tpl).createComponent<OBCECharger>(getCEnemy(tpl), cFloorBreaker);
 		emplaceSpriteFromTile(getCDraw(tpl), assets.txMedium, assets.e3Stand);
 		return getEntity(tpl);
 	}
@@ -108,7 +123,8 @@ namespace ob
 	Entity& OBFactory::createTestGiant(const Vec2i& mPos)
 	{
 		auto tpl(createEnemyBase(mPos, {2500, 2500}, 42));
-		getEntity(tpl).createComponent<OBCEGiant>(getCEnemy(tpl));
+		auto& cFloorBreaker(getEntity(tpl).createComponent<OBCFloorBreaker>(getCPhys(tpl)));
+		getEntity(tpl).createComponent<OBCEGiant>(getCEnemy(tpl), cFloorBreaker);
 		emplaceSpriteFromTile(getCDraw(tpl), assets.txGiant, assets.e5Stand);
 		return getEntity(tpl);
 	}
@@ -132,13 +148,13 @@ namespace ob
 	Entity& OBFactory::createProjectileTestBomb(const Vec2i& mPos, float mDegrees, float mSpeedMult, float mCurveMult)
 	{
 		auto tpl(createProjectileBase(mPos, {150, 150}, 150.f * mSpeedMult, mDegrees, assets.pjStar));
+		getEntity(tpl).createComponent<OBCFloorBreaker>(getCPhys(tpl)).setActive(true);
 		getCProjectile(tpl).setCurveSpeed(2.f * mCurveMult);
 		getCProjectile(tpl).setPierceOrganic(-1);
-		getCProjectile(tpl).setDestroyFloor(true);
 		getCProjectile(tpl).setDamage(10);
 		getCProjectile(tpl).onDestroy += [this, tpl]
 		{
-			for(int i{0}; i < 360; i += 360 / 10) createProjectilePlasma(getCPhys(tpl).getPos() + Vec2i(ssvs::getVecFromDegrees<float>(i) * 300.f), i);
+			for(int i{0}; i < 360; i += 360 / 10) createProjectilePlasma(getCPhys(tpl).getPos<int>() + Vec2i(ssvs::getVecFromDegrees<float>(i) * 300.f), i);
 		};
 		return getEntity(tpl);
 	}

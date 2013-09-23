@@ -16,6 +16,7 @@ namespace ob
 	class OBCHealth;
 	class OBCEnemy;
 	class OBCProjectile;
+	class OBCKillable;
 	class ParticleSystem;
 
 	class OBFactory
@@ -30,7 +31,7 @@ namespace ob
 
 			inline sses::Entity& createEntity(int mDrawPriority = 0) { auto& result(manager.createEntity()); result.setDrawPriority(mDrawPriority); return result; }
 			std::tuple<Entity&, OBCPhys&, OBCDraw&> createActorBase(const Vec2i& mPos, const Vec2i& mSize, int mDrawPriority = 0, bool mStatic = false);
-			std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCHealth&, OBCEnemy&> createEnemyBase(const Vec2i& mPos, const Vec2i& mSize, int mHealth);
+			std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCHealth&, OBCEnemy&, OBCKillable&> createEnemyBase(const Vec2i& mPos, const Vec2i& mSize, int mHealth);
 			std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCProjectile&> createProjectileBase(const Vec2i& mPos, const Vec2i& mSize, float mSpeed, float mDegrees, const sf::IntRect& mIntRect);
 
 		public:
@@ -41,8 +42,10 @@ namespace ob
 			Entity& createFloor(const Vec2i& mPos);
 			Entity& createWall(const Vec2i& mPos);
 			Entity& createPlayer(const Vec2i& mPos);
+
+			Entity& createTestEnemyBall(const Vec2i& mPos);
 			Entity& createTestEnemy(const Vec2i& mPos);
-			Entity& createTestEnemyBig(const Vec2i& mPos);
+			Entity& createTestCharger(const Vec2i& mPos);
 			Entity& createTestJuggernaut(const Vec2i& mPos);
 			Entity& createTestGiant(const Vec2i& mPos);
 

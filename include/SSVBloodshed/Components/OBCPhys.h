@@ -64,7 +64,6 @@ namespace ob
 			inline OBGame& getGame() const noexcept					{ return game; }
 			inline ssvsc::World& getWorld() const noexcept			{ return world; }
 			inline ssvsc::Body& getBody() const noexcept			{ return body; }
-			inline const Vec2i& getPos() const noexcept				{ return body.getPosition(); }
 			inline const Vec2i& getLastResolution() const noexcept	{ return lastResolution; }
 			inline bool isCrushedLeft() const noexcept				{ return crushedLeft > crushedTolerance; }
 			inline bool isCrushedRight() const noexcept				{ return crushedRight > crushedTolerance; }
@@ -74,6 +73,9 @@ namespace ob
 			inline int getCrushedRight() const noexcept				{ return crushedRight; }
 			inline int getCrushedTop() const noexcept				{ return crushedTop; }
 			inline int getCrushedBottom() const	noexcept			{ return crushedBottom; }
+
+			template<typename T> inline Vec2<T> getPos() const noexcept { return Vec2<T>(body.getPosition()); }
+			inline const Vec2f& getVel() const noexcept { return body.getVelocity(); }
 	};
 }
 
