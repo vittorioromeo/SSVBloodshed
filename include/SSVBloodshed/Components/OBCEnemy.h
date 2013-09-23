@@ -39,17 +39,17 @@ namespace ob
 					}
 				};
 
-				getEntity().addGroup(OBGroup::OBGEnemy);
-				body.addGroup(OBGroup::OBGSolid);
-				body.addGroup(OBGroup::OBGEnemy);
-				body.addGroup(OBGroup::OBGOrganic);
-				body.addGroupToCheck(OBGroup::OBGSolid);
+				getEntity().addGroup(OBGroup::GEnemy);
+				body.addGroup(OBGroup::GSolid);
+				body.addGroup(OBGroup::GEnemy);
+				body.addGroup(OBGroup::GOrganic);
+				body.addGroupToCheck(OBGroup::GSolid);
 				body.setRestitutionX(0.9f);
 				body.setRestitutionY(0.9f);
 				//body.onPreUpdate += [this]{ body.setVelocity(ssvs::getMClamped(body.getVelocity(), -120.f, 120.f)); };
 				body.onDetection += [this](const ssvsc::DetectionInfo& mDI)
 				{
-					if(mDI.body.hasGroup(OBGroup::OBGFriendly))
+					if(mDI.body.hasGroup(OBGroup::GFriendly))
 					{
 						auto& e(*static_cast<Entity*>(mDI.body.getUserData()));
 						e.getComponent<OBCHealth>().damage(1);
@@ -58,7 +58,7 @@ namespace ob
 			}
 			inline void update(float mFrameTime) override
 			{
-				for(const auto& e : game.getManager().getEntities(OBGroup::OBGPlayer))
+				for(const auto& e : game.getManager().getEntities(OBGroup::GPlayer))
 				{
 					auto& ecPhys(e->getComponent<OBCPhys>());
 					float targetDegrees(ssvs::getDegreesTowards(Vec2f(body.getPosition()), Vec2f(ecPhys.getBody().getPosition())));
@@ -74,7 +74,7 @@ namespace ob
 			inline void draw() override
 			{
 				auto& s0(cDraw[0]);
-				//s0.setTextureRect(assets.get<Tileset>("tileset")OBGEnemy[{0, 0}]);
+				//s0.setTextureRect(assets.get<Tileset>("tileset")GEnemy[{0, 0}]);
 				s0.setRotation(snappedDegrees);
 			}
 

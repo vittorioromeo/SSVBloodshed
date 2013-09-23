@@ -28,10 +28,10 @@ namespace ob
 		public:
 			OBCEBase(OBCEnemy& mCEnemy) : OBCActorBase{mCEnemy.getCPhys(), mCEnemy.getCDraw()}, cEnemy(mCEnemy), cHealth(cEnemy.getCHealth())
 			{
-				body.addGroupNoResolve(OBGroup::OBGFloor);
+				body.addGroupNoResolve(OBGroup::GFloor);
 				body.onDetection += [this](const ssvsc::DetectionInfo& mDI)
 				{
-					if(breakFloor && mDI.body.hasGroup(OBGroup::OBGFloor)) static_cast<Entity*>(mDI.body.getUserData())->getComponent<OBCFloor>().smash();
+					if(breakFloor && mDI.body.hasGroup(OBGroup::GFloor)) static_cast<Entity*>(mDI.body.getUserData())->getComponent<OBCFloor>().smash();
 				};
 			}
 
@@ -39,8 +39,8 @@ namespace ob
 			{
 				breakFloor = mValue;
 
-				if(mValue) body.addGroupToCheck(OBGroup::OBGFloor);
-				else body.delGroupToCheck(OBGroup::OBGFloor);
+				if(mValue) body.addGroupToCheck(OBGroup::GFloor);
+				else body.delGroupToCheck(OBGroup::GFloor);
 			}
 	};
 

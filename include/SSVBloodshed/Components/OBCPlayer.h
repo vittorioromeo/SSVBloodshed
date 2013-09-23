@@ -44,13 +44,13 @@ namespace ob
 					}
 				};
 
-				getEntity().addGroup(OBGroup::OBGPlayer);
-				getEntity().addGroup(OBGroup::OBGFriendly);
-				body.addGroup(OBGroup::OBGSolid);
-				body.addGroup(OBGroup::OBGPlayer);
-				body.addGroup(OBGroup::OBGFriendly);
-				body.addGroup(OBGroup::OBGOrganic);
-				body.addGroupToCheck(OBGroup::OBGSolid);
+				getEntity().addGroup(OBGroup::GPlayer);
+				getEntity().addGroup(OBGroup::GFriendly);
+				body.addGroup(OBGroup::GSolid);
+				body.addGroup(OBGroup::GPlayer);
+				body.addGroup(OBGroup::GFriendly);
+				body.addGroup(OBGroup::GOrganic);
+				body.addGroupToCheck(OBGroup::GSolid);
 			}
 			inline void update(float mFrameTime) override
 			{
@@ -81,14 +81,14 @@ namespace ob
 
 				const auto& intDir(static_cast<int>(direction));
 				s1Offset = ssvs::getVecFromDegrees(getDegreesFromDirection(direction)) * 10.f;
-				s0.setTextureRect(assets.tsCharSmall[{action == Action::Shooting ? 1u : 0u, 0}]); s0.setRotation(45 * intDir);
-				s1.setTextureRect(assets.tsCharSmall[{2, 0}]); s1.setRotation(45 * intDir);
+				s0.setTextureRect(action == Action::Shooting ? assets.p1Shoot : assets.p1Stand); s0.setRotation(45 * intDir);
+				s1.setTextureRect(assets.p2Gun); s1.setRotation(45 * intDir);
 			}
 
 			inline void shoot()
 			{
 				Vec2i shootPosition{body.getPosition() + Vec2i(getVecFromDirection<float>(direction) * 1000.f)};
-				int weapon = 1;
+				int weapon{0};
 
 				switch(weapon)
 				{
@@ -103,6 +103,14 @@ namespace ob
 					case 2:
 						getFactory().createProjectileTestBomb(shootPosition, getDegreesFromDirection(direction));
 						shootTimer.restart(25.f);
+						break;
+					case 3:
+						getFactory().createProjectileTestShell(shootPosition, getDegreesFromDirection(direction) + 5.f);
+						getFactory().createProjectileTestShell(shootPosition, getDegreesFromDirection(direction) + 2.5f);
+						getFactory().createProjectileTestShell(shootPosition, getDegreesFromDirection(direction));
+						getFactory().createProjectileTestShell(shootPosition, getDegreesFromDirection(direction) - 2.5f);
+						getFactory().createProjectileTestShell(shootPosition, getDegreesFromDirection(direction) - 5.f);
+						shootTimer.restart(16.f);
 						break;
 				}
 

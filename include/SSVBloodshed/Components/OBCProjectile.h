@@ -21,7 +21,7 @@ namespace ob
 			float speed{125.f}, degrees{0.f}, curveSpeed{0.f};
 			int pierceOrganic{0}, damage{1};
 			bool destroyFloor{false};
-			OBGroup targetGroup{OBGroup::OBGEnemy};
+			OBGroup targetGroup{OBGroup::GEnemy};
 
 			inline void destroy() { getEntity().destroy(); onDestroy(); }
 
@@ -32,15 +32,15 @@ namespace ob
 
 			inline void init() override
 			{
-				body.addGroup(OBGroup::OBGProjectile);
-				body.addGroupToCheck(OBGroup::OBGSolid);
-				body.addGroupToCheck(OBGroup::OBGFloor);
+				body.addGroup(OBGroup::GProjectile);
+				body.addGroupToCheck(OBGroup::GSolid);
+				body.addGroupToCheck(OBGroup::GFloor);
 				body.setResolve(false);
 				body.onDetection += [this](const ssvsc::DetectionInfo& mDI)
 				{
 					if(!mDI.body.hasGroup(targetGroup))
 					{
-						if(!mDI.body.hasGroup(OBGroup::OBGOrganic) && mDI.body.hasGroup(OBGroup::OBGSolid))
+						if(!mDI.body.hasGroup(OBGroup::GOrganic) && mDI.body.hasGroup(OBGroup::GSolid))
 						{
 							game.createPDebris(6, toPixels(body.getPosition()));
 							destroy();
@@ -49,12 +49,12 @@ namespace ob
 					else
 					{
 						auto& e(*static_cast<Entity*>(mDI.body.getUserData()));
-						e.getComponent<OBCHealth>().damage(damage);
+						if(e.getComponent<OBCHealth>().damage(damage)) --pierceOrganic;
 
-						if(pierceOrganic-- == 0) destroy();
+						if(pierceOrganic == 0) destroy();
 					}
 
-					if(destroyFloor && mDI.body.hasGroup(OBGroup::OBGFloor))
+					if(destroyFloor && mDI.body.hasGroup(OBGroup::GFloor))
 					{
 						auto& e(*static_cast<Entity*>(mDI.body.getUserData()));
 						e.getComponent<OBCFloor>().smash();
@@ -77,6 +77,8 @@ namespace ob
 			inline void setPierceOrganic(int mValue) noexcept	{ pierceOrganic = mValue; }
 			inline void setDestroyFloor(bool mValue) noexcept	{ destroyFloor = mValue; }
 			inline void setTargetGroup(OBGroup mValue) noexcept	{ targetGroup = mValue; }
+
+			inline float getSpeed() const noexcept				{ return speed; }
 	};
 }
 

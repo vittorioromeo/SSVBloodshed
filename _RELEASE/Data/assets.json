@@ -3,12 +3,10 @@
 	[
 		"tempHud.png",
 		"limeStroked.png",
-		"tileset.png",		
-		"tilesetProjectiles.png",		
-		"tilesetEnemyBig.png",
-		"tilesetJuggernaut.png",
-		"tilesetGiant.png",
-		"tsCharSmall.png"
+		"tsSmall.png",
+		"tsMedium.png",
+		"tsBig.png",
+		"tsGiant.png"
 	],
 	"soundBuffers":
 	[	
@@ -21,5 +19,12 @@
 	"bitmapFonts":
 	{
 		"limeStroked": ["limeStroked.png", "lime.json"]
+	},
+	"tilesets":
+	{
+		"tsSmall": "Tilesets/tsSmall.json",
+		"tsMedium": "Tilesets/tsMedium.json",
+		"tsBig": "Tilesets/tsBig.json",
+		"tsGiant": "Tilesets/tsGiant.json"
 	}
 }

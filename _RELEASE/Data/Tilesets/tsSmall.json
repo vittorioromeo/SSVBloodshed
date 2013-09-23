@@ -1,0 +1,13 @@
+{
+	"tileSize": [10, 10],
+
+	"labels": 
+	[
+		["p1Stand", "p1Shoot", "p1Gun", "wallVEndN", "wallCornerNW", "wallTN", "wallCornerNE", "pjBullet"],
+		["p2Stand", "p2Shoot", "p2Gun", "wallV", "wallTW", "wallCross", "wallTE", "pjPlasma"],
+		["p3Stand", "p3Shoot", "p3Gun", "wallVEndS", "wallCornerSW", "wallTS", "wallCornerSE", "pjStar"],
+		["p4Stand", "p4Shoot", "p4Gun", "wallSingle", "wallHEndW", "wallH", "wallHEndE"],
+		["e1Stand", "null1", "null2", "floor", "floorGrate", "pit",  "floorAlt2"],
+		["e2Stand", "e2Shoot", "e2Gun", "floorAlt1", "floorGrateAlt1", "floorGrateAlt2"]
+	]
+}

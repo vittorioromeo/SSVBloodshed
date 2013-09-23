@@ -26,30 +26,31 @@ namespace ob
 	using Entity = sses::Entity;
 	using Vec2i = ssvs::Vec2i;
 	using Vec2f = ssvs::Vec2f;
+	using Vec2u = ssvs::Vec2u;
 
 	// Game enums
 	enum OBGroup : unsigned int
 	{
-		OBGSolid,
-		OBGProjectile,
-		OBGPlayer,
-		OBGOrganic,
-		OBGFloor,
-		OBGFriendly,
-		OBGEnemy
+		GSolid,
+		GProjectile,
+		GPlayer,
+		GOrganic,
+		GFloor,
+		GFriendly,
+		GEnemy
 	};
 
-	enum OBDrawPriority : int
+	enum OBLayer : int
 	{
-		OBDPWall,
-		OBDPParticleTemp,
-		OBDPProjectile,
-		OBDPPlayer,
-		OBDPEnemy,
-		OBDPFloorGrate,
-		OBDPParticleBlood,
-		OBDPFloor,
-		OBDPBackground
+		PWall,
+		PParticleTemp,
+		PProjectile,
+		PPlayer,
+		PEnemy,
+		PFloorGrate,
+		PParticlePerm,
+		PFloor,
+		PBackground
 	};
 
 	// Pixel <-> coords utils
