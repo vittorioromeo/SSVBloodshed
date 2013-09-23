@@ -11,21 +11,17 @@
 #include "SSVBloodshed/Components/OBCDraw.h"
 #include "SSVBloodshed/Components/OBCHealth.h"
 #include "SSVBloodshed/Components/OBCParticleSystem.h"
+#include "SSVBloodshed/Components/OBCActorBase.h"
 
 namespace ob
 {
-	class OBCPlayer : public sses::Component
+	class OBCPlayer : public OBCActorBase
 	{
 		public:
 			enum class Action{Idle, Shooting};
 
 		private:
-			OBGame& game;
-			OBCPhys& cPhys;
-			OBCDraw& cDraw;
 			OBCHealth& cHealth;
-			OBAssets& assets;
-			ssvsc::Body& body;
 			Action action{Action::Idle};
 			Direction direction{Direction::E};
 			float walkSpeed{125.f};
@@ -33,7 +29,7 @@ namespace ob
 			//ssvs::Ticker shootTimer{24.7f};
 
 		public:
-			OBCPlayer(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCHealth& mCHealth) : game(mCDraw.getGame()), cPhys(mCPhys), cDraw(mCDraw), cHealth(mCHealth), assets(game.getAssets()), body(cPhys.getBody()) { }
+			OBCPlayer(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCHealth& mCHealth) : OBCActorBase{mCPhys, mCDraw}, cHealth(mCHealth) { }
 
 			inline void init() override
 			{
@@ -60,10 +56,10 @@ namespace ob
 			{
 				if(shootTimer.update(mFrameTime)) shootTimer.stop();
 
-				action = game.getIShoot() ? Action::Shooting : Action::Idle;
+				action = game.getInput().getIShoot() ? Action::Shooting : Action::Idle;
 
-				const auto& ix(game.getIX());
-				const auto& iy(game.getIY());
+				const auto& ix(game.getInput().getIX());
+				const auto& iy(game.getInput().getIY());
 				const auto& iVec(ssvs::getNormalized(Vec2f(ix, iy)));
 
 				if(action != Action::Shooting)
@@ -72,7 +68,7 @@ namespace ob
 				}
 				else if(!shootTimer.isEnabled()) shoot();
 
-				if(game.getIBomb()) bomb();
+				if(game.getInput().getIBomb()) bomb();
 
 				body.setVelocity(iVec * walkSpeed);
 			}
@@ -97,15 +93,15 @@ namespace ob
 				switch(weapon)
 				{
 					case 0:
-						game.getFactory().createProjectileBullet(shootPosition, getDegreesFromDirection(direction));
+						getFactory().createProjectileBullet(shootPosition, getDegreesFromDirection(direction));
 						shootTimer.restart(4.5f);
 						break;
 					case 1:
-						game.getFactory().createProjectilePlasma(shootPosition, getDegreesFromDirection(direction));
+						getFactory().createProjectilePlasma(shootPosition, getDegreesFromDirection(direction));
 						shootTimer.restart(9.5f);
 						break;
 					case 2:
-						game.getFactory().createProjectileTestBomb(shootPosition, getDegreesFromDirection(direction));
+						getFactory().createProjectileTestBomb(shootPosition, getDegreesFromDirection(direction));
 						shootTimer.restart(25.f);
 						break;
 				}
@@ -117,7 +113,7 @@ namespace ob
 			{
 				for(int k{0}; k < 5; ++k)
 				{
-					for(int i{0}; i < 360; i += 360 / 16) game.getFactory().createProjectileTestBomb(body.getPosition(), getDegreesFromDirection(direction) + (i * (360 / 16)), 2.f - k * 0.2f + i * 0.004f, 4.f + k * 0.3f - i * 0.004f);
+					for(int i{0}; i < 360; i += 360 / 16) getFactory().createProjectileTestBomb(body.getPosition(), getDegreesFromDirection(direction) + (i * (360 / 16)), 2.f - k * 0.2f + i * 0.004f, 4.f + k * 0.3f - i * 0.004f);
 				}
 			}
 

@@ -6,6 +6,7 @@
 #define SSVOB_COMPONENTS_PHYSICS
 
 #include "SSVBloodshed/OBCommon.h"
+#include "SSVBloodshed/OBGame.h"
 
 namespace ob
 {
@@ -13,6 +14,7 @@ namespace ob
 	{
 		private:
 			static constexpr int crushedMax{3}, crushedTolerance{1};
+			OBGame& game;
 			ssvsc::World& world;
 			ssvsc::Body& body;
 			Vec2i lastResolution;
@@ -22,7 +24,7 @@ namespace ob
 			ssvu::Delegate<void(sses::Entity&)> onDetection;
 			ssvu::Delegate<void(const Vec2i&)> onResolution;
 
-			OBCPhys(ssvsc::World& mWorld, bool mIsStatic, const Vec2i& mPosition, const Vec2i& mSize) : world(mWorld), body(world.create(mPosition, mSize, mIsStatic)) { }
+			OBCPhys(OBGame& mGame, bool mIsStatic, const Vec2i& mPosition, const Vec2i& mSize) : game(mGame), world(mGame.getWorld()), body(world.create(mPosition, mSize, mIsStatic)) { }
 			inline ~OBCPhys() { body.destroy(); }
 
 			inline void init() override
@@ -59,6 +61,7 @@ namespace ob
 				//body.setVelocity(body.getVelocity() * 0.9f);
 			}
 
+			inline OBGame& getGame() const noexcept					{ return game; }
 			inline ssvsc::World& getWorld() const noexcept			{ return world; }
 			inline ssvsc::Body& getBody() const noexcept			{ return body; }
 			inline const Vec2i& getPos() const noexcept				{ return body.getPosition(); }

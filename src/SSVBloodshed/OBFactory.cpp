@@ -12,6 +12,7 @@
 #include "SSVBloodshed/Components/OBCParticleSystem.h"
 #include "SSVBloodshed/Components/OBCFloor.h"
 #include "SSVBloodshed/Components/OBCHealth.h"
+#include "SSVBloodshed/Components/OBCEnemyTypes.h"
 
 using namespace std;
 using namespace sf;
@@ -34,8 +35,8 @@ namespace ob
 	template<typename T1, typename T2, typename T3, typename... TArgs> constexpr inline OBCEnemy& getCEnemy(const std::tuple<Entity&, T1, T2, T3, OBCEnemy&, TArgs...>& mTuple) { return std::get<4>(mTuple); }
 	std::tuple<Entity&, OBCPhys&, OBCDraw&> OBFactory::createActorBase(const Vec2i& mPos, const Vec2i& mSize, int mDrawPriority, bool mStatic)
 	{
-		auto& result(manager.createEntity()); result.setDrawPriority(mDrawPriority);
-		auto& cPhys(result.createComponent<OBCPhys>(world, mStatic, mPos, mSize));
+		auto& result(createEntity(mDrawPriority));
+		auto& cPhys(result.createComponent<OBCPhys>(game, mStatic, mPos, mSize));
 		auto& cDraw(result.createComponent<OBCDraw>(game, cPhys.getBody()));
 		cDraw.setScaleWithBody(false);
 		return std::forward_as_tuple(result, cPhys, cDraw);
@@ -57,7 +58,7 @@ namespace ob
 
 	Entity& OBFactory::createParticleSystem(RenderTexture& mRenderTexture, bool mClearOnDraw, unsigned char mOpacity, int mDrawPriority)
 	{
-		auto& result(manager.createEntity()); result.setDrawPriority(mDrawPriority);
+		auto& result(createEntity(mDrawPriority));
 		result.createComponent<OBCParticleSystem>(mRenderTexture, game.getGameWindow(), mClearOnDraw, mOpacity);
 		return result;
 	}
@@ -94,9 +95,6 @@ namespace ob
 	{
 		auto tpl(createEnemyBase(mPos, {1100, 1100}, 18));
 		getEntity(tpl).createComponent<OBCECharger>(getCEnemy(tpl));
-		getCEnemy(tpl).setWalkSpeed(20.f);
-		getCEnemy(tpl).setTurnSpeed(3.f);
-		getCEnemy(tpl).setGibMult(2);
 		emplaceSpriteFromTile(getCDraw(tpl), "tilesetEnemyBig.png", assets.tilesetEnemyBig[{0, 0}]);
 		return getEntity(tpl);
 	}
@@ -104,9 +102,6 @@ namespace ob
 	{
 		auto tpl(createEnemyBase(mPos, {2000, 2000}, 36));
 		getEntity(tpl).createComponent<OBCEJuggernaut>(getCEnemy(tpl));
-		getCEnemy(tpl).setWalkSpeed(10.f);
-		getCEnemy(tpl).setTurnSpeed(2.5f);
-		getCEnemy(tpl).setGibMult(4);
 		emplaceSpriteFromTile(getCDraw(tpl), "tilesetJuggernaut.png", assets.tilesetJuggernaut[{0, 0}]);
 		return getEntity(tpl);
 	}
@@ -114,9 +109,6 @@ namespace ob
 	{
 		auto tpl(createEnemyBase(mPos, {2500, 2500}, 42));
 		getEntity(tpl).createComponent<OBCEGiant>(getCEnemy(tpl));
-		getCEnemy(tpl).setWalkSpeed(10.f);
-		getCEnemy(tpl).setTurnSpeed(2.5f);
-		getCEnemy(tpl).setGibMult(8);
 		emplaceSpriteFromTile(getCDraw(tpl), "tilesetGiant.png", assets.tilesetGiant[{0, 0}]);
 		return getEntity(tpl);
 	}
@@ -126,7 +118,7 @@ namespace ob
 	Entity& OBFactory::createProjectilePlasma(const Vec2i& mPos, float mDegrees)
 	{
 		auto tpl(createProjectileBase(mPos, {150, 150}, 260.f, mDegrees, {1, 0}));
-		getEntity(tpl).createComponent<OBCParticleEmitter>(game, getCPhys(tpl), OBCParticleEmitter::Type::Plasma);
+		getEntity(tpl).createComponent<OBCParticleEmitter>(getCPhys(tpl), OBCParticleEmitter::Type::Plasma);
 		getCProjectile(tpl).setPierceOrganic(-1);
 		return getEntity(tpl);
 	}

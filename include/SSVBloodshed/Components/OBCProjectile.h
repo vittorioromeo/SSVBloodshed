@@ -10,16 +10,13 @@
 #include "SSVBloodshed/Components/OBCPhys.h"
 #include "SSVBloodshed/Components/OBCDraw.h"
 #include "SSVBloodshed/Components/OBCFloor.h"
+#include "SSVBloodshed/Components/OBCActorBase.h"
 
 namespace ob
 {
-	class OBCProjectile : public sses::Component
+	class OBCProjectile : public OBCActorBase
 	{
 		private:
-			OBGame& game;
-			OBCPhys& cPhys;
-			OBCDraw& cDraw;
-			ssvsc::Body& body;
 			ssvs::Ticker life{150.f};
 			float speed{125.f}, degrees{0.f}, curveSpeed{0.f};
 			int pierceOrganic{0}, damage{1};
@@ -31,7 +28,7 @@ namespace ob
 		public:
 			ssvu::Delegate<void()> onDestroy;
 
-			OBCProjectile(OBCPhys& mCPhys, OBCDraw& mCDraw, float mSpeed, float mDegrees) : game(mCDraw.getGame()), cPhys(mCPhys), cDraw(mCDraw), body(cPhys.getBody()), speed{mSpeed}, degrees{mDegrees} { }
+			OBCProjectile(OBCPhys& mCPhys, OBCDraw& mCDraw, float mSpeed, float mDegrees) : OBCActorBase{mCPhys, mCDraw}, speed{mSpeed}, degrees{mDegrees} { }
 
 			inline void init() override
 			{

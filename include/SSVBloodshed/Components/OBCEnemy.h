@@ -11,24 +11,20 @@
 #include "SSVBloodshed/Components/OBCDraw.h"
 #include "SSVBloodshed/Components/OBCHealth.h"
 #include "SSVBloodshed/Components/OBCFloor.h"
+#include "SSVBloodshed/Components/OBCActorBase.h"
 
 namespace ob
 {
-	class OBCEnemy : public sses::Component
+	class OBCEnemy : public OBCActorBase
 	{
 		private:
-			OBGame& game;
-			OBCPhys& cPhys;
-			OBCDraw& cDraw;
 			OBCHealth& cHealth;
-			OBAssets& assets;
-			ssvsc::Body& body;
 			float walkSpeed{100.f}, currentDegrees{0.f}, turnSpeed{7.5f};
 			float snappedDegrees{0.f}, maxVelocity{120.f};
 			int gibMult{1};
 
 		public:
-			OBCEnemy(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCHealth& mCHealth) : game(mCDraw.getGame()), cPhys(mCPhys), cDraw(mCDraw), cHealth(mCHealth), assets(game.getAssets()), body(cPhys.getBody()) { }
+			OBCEnemy(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCHealth& mCHealth) : OBCActorBase{mCPhys, mCDraw}, cHealth(mCHealth) { }
 
 			inline void init() override
 			{
@@ -87,146 +83,8 @@ namespace ob
 			inline void setGibMult(int mValue) noexcept		{ gibMult = mValue; }
 			inline void setMaxVelocity(float mMax) noexcept	{ maxVelocity = mMax; }
 
-			inline OBGame& getGame() const noexcept			{ return game; }
-			inline OBCPhys& getCPhys() const noexcept		{ return cPhys; }
-			inline OBCDraw& getCDraw() const noexcept		{ return cDraw; }
 			inline OBCHealth& getCHealth() const noexcept	{ return cHealth; }
 			inline float getCurrentDegrees() const noexcept	{ return currentDegrees; }
-	};
-
-	class OBCEBase
-	{
-		private:
-			bool breakFloor{false};
-
-		protected:
-			OBCEnemy& cEnemy;
-			OBGame& game;
-			OBCPhys& cPhys;
-			OBCDraw& cDraw;
-			OBCHealth& cHealth;
-			OBAssets& assets;
-			ssvsc::Body& body;
-
-		public:
-			OBCEBase(OBCEnemy& mCEnemy) : cEnemy(mCEnemy), game(cEnemy.getGame()), cPhys(cEnemy.getCPhys()), cDraw(cEnemy.getCDraw()), cHealth(cEnemy.getCHealth()), assets(game.getAssets()), body(cPhys.getBody())
-			{
-				body.addGroupNoResolve(OBGroup::OBGFloor);
-				body.onDetection += [this](const ssvsc::DetectionInfo& mDI)
-				{
-					if(breakFloor && mDI.body.hasGroup(OBGroup::OBGFloor))
-						static_cast<Entity*>(mDI.body.getUserData())->getComponent<OBCFloor>().smash();
-				};
-			}
-
-			inline void setBreakFloor(bool mValue) noexcept
-			{
-				breakFloor = mValue;
-
-				if(mValue) body.addGroupToCheck(OBGroup::OBGFloor);
-				else body.delGroupToCheck(OBGroup::OBGFloor);
-			}
-	};
-
-	class OBCECharger : public OBCEBase, public sses::Component
-	{
-		private:
-			ssvs::Ticker timerCharge{250.f};
-			ssvu::Timeline tlCharge{false};
-			float lastDeg{0};
-
-		public:
-			OBCECharger(OBCEnemy& mCEnemy) : OBCEBase{mCEnemy} { }
-
-			inline void init() override
-			{
-				cEnemy.setMaxVelocity(40.f);
-
-				tlCharge.append<ssvu::Do>([this]{ body.setVelocity(body.getVelocity() * 0.8f); });
-				tlCharge.append<ssvu::Wait>(2.5f);
-				tlCharge.append<ssvu::Go>(0, 10);
-				tlCharge.append<ssvu::Do>([this]{ setBreakFloor(true); lastDeg = cEnemy.getCurrentDegrees(); body.applyForce(ssvs::getVecFromDegrees(lastDeg, 1250.f)); });
-				tlCharge.append<ssvu::Wait>(10.f);
-				tlCharge.append<ssvu::Do>([this]{ body.applyForce(ssvs::getVecFromDegrees(lastDeg, -150.f)); });
-				tlCharge.append<ssvu::Wait>(9.f);
-				tlCharge.append<ssvu::Do>([this]{ setBreakFloor(false); cEnemy.setWalkSpeed(20.f); });
-			}
-			inline void update(float mFrameTime) override
-			{
-				tlCharge.update(mFrameTime);
-				if(timerCharge.update(mFrameTime)) { tlCharge.reset(); tlCharge.start(); }
-			}
-	};
-
-	class OBCEJuggernaut : public OBCEBase, public sses::Component
-	{
-		private:
-			ssvs::Ticker timerShoot{150.f};
-			ssvu::Timeline tlShoot{false};
-			float lastDeg{0};
-
-		public:
-			OBCEJuggernaut(OBCEnemy& mCEnemy) : OBCEBase{mCEnemy} { }
-
-			inline void init() override
-			{
-				tlShoot.append<ssvu::Do>([this]{ shoot(ssvu::getRnd(-10, 10)); });
-				tlShoot.append<ssvu::Wait>(1.1f);
-				tlShoot.append<ssvu::Go>(0, 8);
-				tlShoot.append<ssvu::Wait>(15.f);
-				tlShoot.append<ssvu::Do>([this]{ lastDeg = cEnemy.getCurrentDegrees(); cEnemy.setWalkSpeed(-100.f); });
-				tlShoot.append<ssvu::Do>([this]{ shoot(lastDeg); lastDeg += 265; });
-				tlShoot.append<ssvu::Wait>(0.3f);
-				tlShoot.append<ssvu::Go>(5, 45);
-				tlShoot.append<ssvu::Do>([this]{ cEnemy.setWalkSpeed(100.f); });
-			}
-			inline void update(float mFrameTime) override
-			{
-				tlShoot.update(mFrameTime);
-				if(timerShoot.update(mFrameTime)) { tlShoot.reset(); tlShoot.start(); }
-			}
-			inline void shoot(int mDeg)
-			{
-				Vec2i shootPos{body.getPosition() + Vec2i(ssvs::getVecFromDegrees<float>(cEnemy.getCurrentDegrees()) * 100.f)};
-				game.getFactory().createProjectileEnemyBullet(shootPos, cEnemy.getCurrentDegrees() + mDeg);
-				game.createPMuzzle(20, toPixels(body.getPosition()));
-			}
-	};
-
-	class OBCEGiant : public OBCEBase, public sses::Component
-	{
-		private:
-			ssvs::Ticker timerShoot{185.f};
-			ssvu::Timeline tlShoot{false};
-			float lastDeg{0};
-
-		public:
-			OBCEGiant(OBCEnemy& mCEnemy) : OBCEBase{mCEnemy} { }
-
-			inline void init() override
-			{
-				setBreakFloor(true);
-				tlShoot.append<ssvu::Do>([this]{ shoot(ssvu::getRnd(-15, 15)); });
-				tlShoot.append<ssvu::Wait>(0.4f);
-				tlShoot.append<ssvu::Go>(0, 20);
-				tlShoot.append<ssvu::Wait>(19.f);
-				tlShoot.append<ssvu::Do>([this]{ lastDeg = cEnemy.getCurrentDegrees(); cEnemy.setWalkSpeed(-50.f); });
-				tlShoot.append<ssvu::Do>([this]{ shoot(lastDeg); lastDeg += 235; });
-				tlShoot.append<ssvu::Wait>(0.1f);
-				tlShoot.append<ssvu::Go>(5, 150);
-				tlShoot.append<ssvu::Do>([this]{ cEnemy.setWalkSpeed(100.f); });
-			}
-			inline void update(float mFrameTime) override
-			{
-				tlShoot.update(mFrameTime);
-				if(timerShoot.update(mFrameTime)) { tlShoot.reset(); tlShoot.start(); }
-			}
-			inline void shoot(int mDeg)
-			{
-				Vec2i shootPos{body.getPosition() + Vec2i(ssvs::getVecFromDegrees<float>(cEnemy.getCurrentDegrees()) * 100.f)};
-				game.getFactory().createProjectileEnemyBullet(shootPos, cEnemy.getCurrentDegrees() + mDeg);
-				game.createPMuzzle(20, toPixels(body.getPosition()));
-			}
 	};
 }
 

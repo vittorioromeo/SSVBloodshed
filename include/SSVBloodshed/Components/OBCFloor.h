@@ -10,21 +10,17 @@
 #include "SSVBloodshed/Components/OBCPhys.h"
 #include "SSVBloodshed/Components/OBCDraw.h"
 #include "SSVBloodshed/Components/OBCParticleSystem.h"
+#include "SSVBloodshed/Components/OBCActorBase.h"
 
 namespace ob
 {
-	class OBCFloor : public sses::Component
+	class OBCFloor : public OBCActorBase
 	{
 		private:
-			OBGame& game;
-			OBCPhys& cPhys;
-			OBCDraw& cDraw;
-			OBAssets& assets;
-			ssvsc::Body& body;
 			bool smashed{false};
 
 		public:
-			OBCFloor(OBCPhys& mCPhys, OBCDraw& mCDraw) : game(mCDraw.getGame()), cPhys(mCPhys), cDraw(mCDraw), assets(game.getAssets()), body(cPhys.getBody()) { }
+			OBCFloor(OBCPhys& mCPhys, OBCDraw& mCDraw) : OBCActorBase{mCPhys, mCDraw} { }
 
 			inline void init() override { cPhys.getBody().addGroup(OBGroup::OBGFloor); }
 			inline void smash() noexcept

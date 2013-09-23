@@ -24,17 +24,17 @@ namespace ob
 			OBAssets& assets;
 			OBGame& game;
 			sses::Manager& manager;
-			ssvsc::World& world;
 
 			sf::Sprite getSpriteFromTile(const std::string& mTextureId, const sf::IntRect& mTextureRect) const;
 			void emplaceSpriteFromTile(OBCDraw& mCDraw, const std::string& mTextureId, const sf::IntRect& mTextureRect) const;
 
+			inline sses::Entity& createEntity(int mDrawPriority = 0) { auto& result(manager.createEntity()); result.setDrawPriority(mDrawPriority); return result; }
 			std::tuple<Entity&, OBCPhys&, OBCDraw&> createActorBase(const Vec2i& mPos, const Vec2i& mSize, int mDrawPriority = 0, bool mStatic = false);
 			std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCHealth&, OBCEnemy&> createEnemyBase(const Vec2i& mPos, const Vec2i& mSize, int mHealth);
 			std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCProjectile&> createProjectileBase(const Vec2i& mPos, const Vec2i& mSize, float mSpeed, float mDegrees, const ssvs::Vec2u& mTileIdx);
 
 		public:
-			OBFactory(OBAssets& mAssets, OBGame& mGame, sses::Manager& mManager, ssvsc::World& mWorld) : assets(mAssets), game(mGame), manager(mManager), world(mWorld) { }
+			OBFactory(OBAssets& mAssets, OBGame& mGame, sses::Manager& mManager) : assets(mAssets), game(mGame), manager(mManager) { }
 
 			Entity& createParticleSystem(sf::RenderTexture& mRenderTexture, bool mClearOnDraw = false, unsigned char mOpacity = 255, int mDrawPriority = 1000);
 

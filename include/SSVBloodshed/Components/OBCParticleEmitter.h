@@ -13,21 +13,17 @@
 
 namespace ob
 {
-	class OBCParticleEmitter : public sses::Component
+	class OBCParticleEmitter : public OBCActorNoDrawBase
 	{
 		public:
 			enum class Type{Smoke, Plasma};
 
 		private:
-			OBGame& game;
-			OBCPhys& cPhys;
-			OBAssets& assets;
-			ssvsc::Body& body;
 			Vec2f offset;
 			Type type;
 
 		public:
-			OBCParticleEmitter(OBGame& mGame, OBCPhys& mCPhys, Type mType) : game(mGame), cPhys(mCPhys), assets(game.getAssets()), body(cPhys.getBody()), type{mType} { }
+			OBCParticleEmitter(OBCPhys& mCPhys, Type mType) : OBCActorNoDrawBase{mCPhys}, type{mType} { }
 
 			inline void update(float) override
 			{
