@@ -59,42 +59,42 @@ namespace ob
 	template<typename T> inline Vec2i toCoords(const Vec2<T>& mValue) noexcept	{ return {toCoords(mValue.x), toCoords(mValue.y)}; }
 
 	// Direction utils
-	enum Direction : int {E = 0, SE = 1, S = 2, SW = 3, W = 4, NW = 5, N = 6, NE = 7};
-	template<typename T = float> inline T getDegreesFromDirection(Direction mDirection) noexcept { return T(static_cast<int>(mDirection) * T(45)); }
-	template<typename T> inline Direction getDirectionFromDegrees(T mDegrees) noexcept
+	enum Direction8 : int {E = 0, SE = 1, S = 2, SW = 3, W = 4, NW = 5, N = 6, NE = 7};
+	template<typename T = float> inline T getDegreesFromDirection(Direction8 mDirection) noexcept { return T(static_cast<int>(mDirection) * T(45)); }
+	template<typename T> inline Direction8 getDirectionFromDegrees(T mDegrees) noexcept
 	{
 		mDegrees = ssvu::wrapDegrees(mDegrees);
 		int i = static_cast<int>((mDegrees + 22.5f) / 45);
-		return static_cast<Direction>(i % 8);
+		return static_cast<Direction8>(i % 8);
 	}
-	template<typename T> inline Direction getDirectionFromXY(T mX, T mY) noexcept
+	template<typename T> inline Direction8 getDirectionFromXY(T mX, T mY) noexcept
 	{
-		if(mX < 0 && mY == 0)		return Direction::W;
-		else if(mX > 0 && mY == 0)	return Direction::E;
-		else if(mX == 0 && mY < 0)	return Direction::N;
-		else if(mX == 0 && mY > 0)	return Direction::S;
-		else if(mX < 0 && mY < 0)	return Direction::NW;
-		else if(mX < 0 && mY > 0)	return Direction::SW;
-		else if(mX > 0 && mY < 0)	return Direction::NE;
-		return Direction::SE;
+		if(mX < 0 && mY == 0)		return Direction8::W;
+		else if(mX > 0 && mY == 0)	return Direction8::E;
+		else if(mX == 0 && mY < 0)	return Direction8::N;
+		else if(mX == 0 && mY > 0)	return Direction8::S;
+		else if(mX < 0 && mY < 0)	return Direction8::NW;
+		else if(mX < 0 && mY > 0)	return Direction8::SW;
+		else if(mX > 0 && mY < 0)	return Direction8::NE;
+		return Direction8::SE;
 	}
-	template<typename T = int> inline std::array<T, 2> getXYFromDirection(Direction mDirection) noexcept
+	template<typename T = int> inline std::array<T, 2> getXYFromDirection(Direction8 mDirection) noexcept
 	{
 		switch(mDirection)
 		{
-			case Direction::E:	return {{1, 0}};
-			case Direction::SE:	return {{1, 1}};
-			case Direction::S:	return {{0, 1}};
-			case Direction::SW:	return {{-1, 1}};
-			case Direction::W:	return {{-1, 0}};
-			case Direction::NW:	return {{-1, -1}};
-			case Direction::N:	return {{0, -1}};
-			case Direction::NE:	return {{1, -1}};
+			case Direction8::E:	return {{1, 0}};
+			case Direction8::SE:	return {{1, 1}};
+			case Direction8::S:	return {{0, 1}};
+			case Direction8::SW:	return {{-1, 1}};
+			case Direction8::W:	return {{-1, 0}};
+			case Direction8::NW:	return {{-1, -1}};
+			case Direction8::N:	return {{0, -1}};
+			case Direction8::NE:	return {{1, -1}};
 		}
 		return {{0, 0}};
 	}
-	template<typename T> inline Direction getDirectionFromVec(const Vec2<T>& mVec) noexcept { return getDirectionFromXY(mVec.x, mVec.y); }
-	template<typename T = int> inline Vec2<T> getVecFromDirection(Direction mDirection) noexcept { const auto& xy(getXYFromDirection<T>(mDirection)); return {xy[0], xy[1]}; }
+	template<typename T> inline Direction8 getDirectionFromVec(const Vec2<T>& mVec) noexcept { return getDirectionFromXY(mVec.x, mVec.y); }
+	template<typename T = int> inline Vec2<T> getVecFromDirection(Direction8 mDirection) noexcept { const auto& xy(getXYFromDirection<T>(mDirection)); return {xy[0], xy[1]}; }
 
 	// SFML shortcuts (TODO: remove? move to ssvs?)
 	template<typename T> float getGlobalLeft(const T& mElement)		{ return mElement.getGlobalBounds().left; }

@@ -44,11 +44,11 @@ namespace ob
 			Entity& createPlayer(const Vec2i& mPos);
 
 			Entity& createTestEnemyBall(const Vec2i& mPos);
-			Entity& createTestEnemy(const Vec2i& mPos);
-			Entity& createTestEnemyGunner(const Vec2i& mPos);
-			Entity& createTestCharger(const Vec2i& mPos);
-			Entity& createTestJuggernaut(const Vec2i& mPos);
-			Entity& createTestGiant(const Vec2i& mPos);
+			Entity& createERunner(const Vec2i& mPos, bool mArmed);
+			Entity& createECharger(const Vec2i& mPos, bool mArmed);
+			Entity& createEJuggernaut(const Vec2i& mPos, bool mArmed);
+			Entity& createEGiant(const Vec2i& mPos);
+
 
 			Entity& createProjectileBullet(const Vec2i& mPos, float mDegrees);
 			Entity& createProjectilePlasma(const Vec2i& mPos, float mDegrees);

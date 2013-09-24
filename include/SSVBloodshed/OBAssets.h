@@ -31,7 +31,7 @@ namespace ob
 			sf::IntRect p3Stand, p3Shoot, p3Gun;							// Player class 3
 			sf::IntRect p4Stand, p4Shoot, p4Gun;							// Player class 4
 			sf::IntRect e1Stand;											// Runner alien
-			sf::IntRect e2Stand, e2Shoot, e2Gun;							// Gunner alien
+			sf::IntRect e2Stand, e2Shoot, e2Gun;							// RunnerArmed alien
 			sf::IntRect floor, floorAlt1, floorAlt2;						// Floor
 			sf::IntRect floorGrate, floorGrateAlt1, floorGrateAlt2;			// Floor grate
 			sf::IntRect wallSingle;											// Wall
@@ -40,9 +40,11 @@ namespace ob
 
 			// Medium tileset (20x20)
 			sf::IntRect e3Stand;											// Charger alien
+			sf::IntRect e6Stand, e6Shoot, e6Gun;							// ChargerArmed alien
 
 			// Big tileset (30x30)
 			sf::IntRect e4Stand;											// Juggernaut alien
+			sf::IntRect e7Stand, e7Shoot, e7Gun;							// JuggernautArmed alien
 
 			// Giant tileset (40x40)
 			sf::IntRect e5Stand;											// Giant alien
@@ -81,9 +83,11 @@ namespace ob
 
 				// Medium tileset (20x20)
 				e3Stand = tsMedium("e3Stand");
+				e6Stand = tsMedium("e6Stand"); e6Shoot = tsMedium("e6Shoot"); e6Gun = tsMedium("e6Gun");
 
 				// Big tileset (30x30)
 				e4Stand = tsBig("e4Stand");
+				e7Stand = tsBig("e7Stand"); e7Shoot = tsBig("e7Shoot"); e7Gun = tsBig("e7Gun");
 
 				// Giant tileset (40x40)
 				e5Stand = tsGiant("e5Stand");

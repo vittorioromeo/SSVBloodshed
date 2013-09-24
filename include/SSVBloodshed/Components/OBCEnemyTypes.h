@@ -7,14 +7,13 @@
 
 #include "SSVBloodshed/OBCommon.h"
 #include "SSVBloodshed/OBGame.h"
-#include "SSVBloodshed/Components/OBCPhys.h"
-#include "SSVBloodshed/Components/OBCDraw.h"
 #include "SSVBloodshed/Components/OBCHealth.h"
 #include "SSVBloodshed/Components/OBCFloor.h"
 #include "SSVBloodshed/Components/OBCActorBase.h"
 #include "SSVBloodshed/Components/OBCEnemy.h"
 #include "SSVBloodshed/Components/OBCFloorSmasher.h"
 #include "SSVBloodshed/Components/OBCKillable.h"
+#include "SSVBloodshed/Components/OBCWielder.h"
 
 namespace ob
 {
@@ -48,82 +47,219 @@ namespace ob
 			OBCEBase(OBCEnemy& mCEnemy) : OBCActorBase{mCEnemy.getCPhys(), mCEnemy.getCDraw()}, cEnemy(mCEnemy), cKillable(cEnemy.getCKillable()), cBoid(cEnemy.getCBoid()), cTargeter(cEnemy.getCTargeter()) { }
 	};
 
-	class OBCERunner : public OBCEBase
+	class OBCEArmedBase : public OBCEBase
 	{
-		public:
-			OBCERunner(OBCEnemy& mCEnemy) : OBCEBase{mCEnemy} { }
+		protected:
+			OBCWielder& cWielder;
+			OBCDirection8& cDirection8;
+			bool armed{false};
+			int weaponHealth{1};
 
-			inline void init() override
+		public:
+			OBCEArmedBase(OBCEnemy& mCEnemy, OBCWielder& mCWielder, bool mArmed, int mWeaponHealth)
+				: OBCEBase{mCEnemy}, cWielder(mCWielder), cDirection8(mCWielder.getCDirection()), armed{mArmed}, weaponHealth(mWeaponHealth)
 			{
-				cKillable.setType(OBCKillable::Type::Organic);
-				cEnemy.setWalkSpeed(150.f);
-				cEnemy.setTurnSpeed(4.5f);
-				cEnemy.setMaxVelocity(200.f);
+				cKillable.getCHealth().onDamage += [this]{ if(armed && weaponHealth-- <= 0) { armed = false; game.createPElectric(10, toPixels(cPhys.getPosF())); } };
 			}
-			inline void update(float) override { if(cTargeter.hasTarget()) cBoid.pursuit(cTargeter.getTarget()); }
+
+			inline void pursuitOrAlign(float mCurrentDistance, float mPursuitDistance)
+			{
+				if(mCurrentDistance > mPursuitDistance) cBoid.pursuit(cTargeter.getTarget());
+				else cBoid.seek(ssvs::getOrbitFromDegrees(cTargeter.getTarget().getPosF(), cDirection8.getDegrees() + 180, mPursuitDistance), 0.018f, 1250.f);
+				//else body.applyForce((cPhys.getPosF() - ssvs::getOrbitFromDegrees(cPhys.getPosF(), cDirection8.getDegrees(), 3000.f)) * 0.0005f);
+			}
 	};
 
-	class OBCEGunner : public OBCEBase
+
+	class OBCERunner : public OBCEArmedBase
 	{
 		private:
 			ssvs::Ticker timerShoot{150.f};
-			Direction direction{Direction::E};
-			bool inRange{false};
 
 		public:
-			OBCEGunner(OBCEnemy& mCEnemy) : OBCEBase{mCEnemy} { }
+			OBCERunner(OBCEnemy& mCEnemy, OBCWielder& mCWielder, bool mArmed) : OBCEArmedBase{mCEnemy, mCWielder, mArmed, 1} { }
 
 			inline void init() override
 			{
+				cEnemy.setWalkSpeed(150.f); cEnemy.setTurnSpeed(4.5f); cEnemy.setMaxVelocity(200.f);
 				cKillable.setType(OBCKillable::Type::Organic);
-				cEnemy.setWalkSpeed(100.f);
-				cEnemy.setTurnSpeed(3.5f);
-				cEnemy.setMaxVelocity(110.f);
 			}
 			inline void update(float mFrameTime) override
 			{
 				if(cTargeter.hasTarget())
 				{
-					const auto& tp(cTargeter.getPosF());
-					const auto& p(cPhys.getPosF());
+					float distance{ssvs::getDistEuclidean(cTargeter.getPosF(), cPhys.getPosF())};
+					cWielder.setShooting(armed && distance < 10000);
 
-					float distance{ssvs::getDistEuclidean(tp, p)};
-
-					inRange = distance < 10000;
-
-					if(distance > 9000) cBoid.pursuit(cTargeter.getTarget());
-					else body.applyForce((cPhys.getPosF() - ssvs::getOrbitFromDegrees(cPhys.getPosF(), getDegreesFromDirection(direction), 3000.f)) * 0.0005f);
-
-					if(inRange && timerShoot.update(mFrameTime)) shoot(0);
-					direction = getDirectionFromDegrees(cEnemy.getCurrentDegrees());
+					if(armed)
+					{
+						pursuitOrAlign(distance, 9000.f);
+						if(cWielder.isShooting() && timerShoot.update(mFrameTime)) shoot(0);
+						cDirection8 = getDirectionFromDegrees(cEnemy.getCurrentDegrees());
+					}
+					else cBoid.pursuit(cTargeter.getTarget());
 				}
-				else inRange = false;
+				else cWielder.setShooting(false);
 			}
 			inline void draw() override
 			{
-				// TODO: new component and merge with player
-				const auto& intDir(static_cast<int>(direction));
-				cDraw.setRotation(45 * intDir);
-
-				if(inRange)
+				if(armed)
 				{
-					cDraw.getOffsets()[1] = ssvs::getVecFromDegrees(getDegreesFromDirection(direction)) * 10.f;
-					cDraw[0].setTextureRect(assets.e2Shoot);
-					cDraw[1].setColor({255, 255, 255, 255});
-					cDraw[1].setTextureRect(assets.e2Gun);
+					cDraw[0].setRotation(45 * cDirection8.getInt());
+					cDraw[0].setTextureRect(cWielder.isShooting() ? assets.e2Shoot : assets.e2Stand);
 				}
-				else
-				{
-					cDraw[0].setTextureRect(assets.e2Stand);
-					cDraw[1].setColor({255, 255, 255, 0});
-				}
+				else cDraw[0].setTextureRect(assets.e1Stand);
 			}
 
 			inline void shoot(int mDeg)
 			{
 				assets.playSound("Sounds/spark.wav");
-				Vec2i shootPos{body.getPosition() + Vec2i(ssvs::getVecFromDegrees<float>(getDegreesFromDirection(direction)) * 100.f)};
-				getFactory().createProjectileEnemyBullet(shootPos, getDegreesFromDirection(direction) + mDeg);
+				getFactory().createProjectileEnemyBullet(cWielder.getShootingPos(), cDirection8.getDegrees() + mDeg);
+				game.createPMuzzle(20, toPixels(body.getPosition()));
+			}
+	};
+
+	class OBCECharger : public OBCEArmedBase
+	{
+		private:
+			ssvs::Ticker timerGunShoot{35.f};
+			OBCFloorSmasher& cFloorSmasher;
+			ssvs::Ticker timerCharge{250.f};
+			ssvu::Timeline tlCharge{false};
+			float lastDeg{0};
+
+		public:
+			OBCECharger(OBCEnemy& mCEnemy, OBCFloorSmasher& mCFloorSmasher, OBCWielder& mCWielder, bool mArmed) : OBCEArmedBase{mCEnemy, mCWielder, mArmed, 9}, cFloorSmasher(mCFloorSmasher) { }
+
+			inline void init() override
+			{
+				cEnemy.setWalkSpeed(25.f); cEnemy.setTurnSpeed(3.2f); cEnemy.setMaxVelocity(50.f);
+				cWielder.setWieldDistance(2000.f);
+				cKillable.setType(OBCKillable::Type::Organic);
+				cKillable.setParticleMult(2);
+
+				tlCharge.append<ssvu::Do>([this]{ body.setVelocity(body.getVelocity() * 0.8f); });
+				tlCharge.append<ssvu::Wait>(2.5f);
+				tlCharge.append<ssvu::Go>(0, 10);
+				tlCharge.append<ssvu::Do>([this]{ cFloorSmasher.setActive(true); lastDeg = cEnemy.getCurrentDegrees(); body.applyForce(ssvs::getVecFromDegrees(lastDeg, 1250.f)); });
+				tlCharge.append<ssvu::Wait>(10.f);
+				tlCharge.append<ssvu::Do>([this]{ body.applyForce(ssvs::getVecFromDegrees(lastDeg, -150.f)); });
+				tlCharge.append<ssvu::Wait>(9.f);
+				tlCharge.append<ssvu::Do>([this]{ cFloorSmasher.setActive(false); cEnemy.setWalkSpeed(20.f); });
+			}
+			inline void update(float mFrameTime) override
+			{
+				if(cTargeter.hasTarget())
+				{
+					float distance{ssvs::getDistEuclidean(cTargeter.getPosF(), cPhys.getPosF())};
+					cWielder.setShooting(armed && distance < 10000);
+
+					if(armed)
+					{
+						pursuitOrAlign(distance, 9000.f);
+						if(cWielder.isShooting() && timerGunShoot.update(mFrameTime)) { shoot(-10); shoot(0); shoot(10); }
+						cDirection8 = getDirectionFromDegrees(cEnemy.getCurrentDegrees());
+					}
+					else
+					{
+						cBoid.pursuit(cTargeter.getTarget());
+						tlCharge.update(mFrameTime);
+						if(timerCharge.update(mFrameTime)) { tlCharge.reset(); tlCharge.start(); }
+					}
+				}
+				else cWielder.setShooting(false);
+			}
+			inline void draw() override
+			{
+				if(armed)
+				{
+					cDraw[0].setRotation(45 * cDirection8.getInt());
+					cDraw[0].setTextureRect(cWielder.isShooting() ? assets.e6Shoot : assets.e6Stand);
+				}
+				else cDraw[0].setTextureRect(assets.e3Stand);
+			}
+
+			inline void shoot(int mDeg)
+			{
+				assets.playSound("Sounds/spark.wav");
+				getFactory().createProjectileEnemyBullet(cWielder.getShootingPos(), cDirection8.getDegrees() + mDeg);
+				game.createPMuzzle(20, toPixels(body.getPosition()));
+			}
+	};
+
+	class OBCEJuggernaut : public OBCEArmedBase
+	{
+		private:
+			ssvs::Ticker timerGunShoot{25.f};
+			ssvs::Ticker timerShoot{150.f};
+			ssvu::Timeline tlShoot{false};
+			float lastDeg{0};
+
+		public:
+			OBCEJuggernaut(OBCEnemy& mCEnemy, OBCWielder& mCWielder, bool mArmed) : OBCEArmedBase{mCEnemy, mCWielder, mArmed, 18} { }
+
+			inline void init() override
+			{
+				cEnemy.setWalkSpeed(25.f); cEnemy.setTurnSpeed(3.2f); cEnemy.setMaxVelocity(50.f);
+
+				cKillable.setParticleMult(4);
+				cKillable.onDeath += [this]{ assets.playSound("Sounds/alienDeath.wav"); };
+
+				cWielder.setWieldDistance(2800.f);
+
+				cKillable.setType(OBCKillable::Type::Organic);
+				cKillable.setParticleMult(2);
+
+				tlShoot.append<ssvu::Do>([this]{ shoot(ssvu::getRnd(-10, 10)); });
+				tlShoot.append<ssvu::Wait>(1.1f);
+				tlShoot.append<ssvu::Go>(0, 8);
+				tlShoot.append<ssvu::Wait>(15.f);
+				tlShoot.append<ssvu::Do>([this]{ lastDeg = cEnemy.getCurrentDegrees(); cEnemy.setWalkSpeed(-100.f); });
+				tlShoot.append<ssvu::Do>([this]{ shoot(lastDeg); lastDeg += 265; });
+				tlShoot.append<ssvu::Wait>(0.3f);
+				tlShoot.append<ssvu::Go>(5, 45);
+				tlShoot.append<ssvu::Do>([this]{ cEnemy.setWalkSpeed(100.f); });
+			}
+			inline void update(float mFrameTime) override
+			{
+				if(cTargeter.hasTarget())
+				{
+					float distance{ssvs::getDistEuclidean(cTargeter.getPosF(), cPhys.getPosF())};
+					cWielder.setShooting(armed && distance < 10000);
+
+					if(armed)
+					{
+						pursuitOrAlign(distance, 9000.f);
+						if(cWielder.isShooting() && timerGunShoot.update(mFrameTime)) for(int i{-20}; i <= 20; i += 5) shoot(i);
+						cDirection8 = getDirectionFromDegrees(cEnemy.getCurrentDegrees());
+					}
+					else
+					{
+						if(distance > 10000) cBoid.pursuit(cTargeter.getTarget()); else cBoid.evade(cTargeter.getTarget());
+
+						tlShoot.update(mFrameTime);
+						if(timerShoot.update(mFrameTime)) { tlShoot.reset(); tlShoot.start(); }
+					}
+				}
+				else cWielder.setShooting(false);
+			}
+			inline void draw() override
+			{
+				if(armed)
+				{
+					cDraw[0].setRotation(45 * cDirection8.getInt());
+					cDraw[0].setTextureRect(cWielder.isShooting() ? assets.e7Shoot : assets.e7Stand);
+				}
+				else cDraw[0].setTextureRect(assets.e4Stand);
+			}
+
+			inline void shoot(int mDeg)
+			{
+				assets.playSound("Sounds/spark.wav");
+
+				if(armed) getFactory().createProjectileEnemyBullet(cWielder.getShootingPos(), cDirection8.getDegrees() + mDeg);
+				else getFactory().createProjectileEnemyBullet(cPhys.getPosI(), cEnemy.getCurrentDegrees() + mDeg);
+
 				game.createPMuzzle(20, toPixels(body.getPosition()));
 			}
 	};
@@ -145,10 +281,7 @@ namespace ob
 				cFloorSmasher.setActive(true);
 
 				cEnemy.setFaceDirection(false);
-				cEnemy.setWalkSpeed(200.f);
-				cEnemy.setTurnSpeed(3.f);
-
-				cEnemy.setMaxVelocity(400.f);
+				cEnemy.setWalkSpeed(200.f); cEnemy.setTurnSpeed(3.f); cEnemy.setMaxVelocity(400.f);
 			}
 			inline void update(float mFrameTime) override
 			{
@@ -156,93 +289,6 @@ namespace ob
 				spin += mFrameTime * 15.f;
 			}
 			inline void draw() override { cDraw.setRotation(spin); }
-	};
-
-	class OBCECharger : public OBCEBase
-	{
-		private:
-			OBCFloorSmasher& cFloorSmasher;
-			ssvs::Ticker timerCharge{250.f};
-			ssvu::Timeline tlCharge{false};
-			float lastDeg{0};
-
-		public:
-			OBCECharger(OBCEnemy& mCEnemy, OBCFloorSmasher& mCFloorSmasher) : OBCEBase{mCEnemy}, cFloorSmasher(mCFloorSmasher) { }
-
-			inline void init() override
-			{
-				cKillable.setParticleMult(2);
-
-				cEnemy.setWalkSpeed(20.f);
-				cEnemy.setTurnSpeed(3.f);
-				cEnemy.setMaxVelocity(40.f);
-
-				tlCharge.append<ssvu::Do>([this]{ body.setVelocity(body.getVelocity() * 0.8f); });
-				tlCharge.append<ssvu::Wait>(2.5f);
-				tlCharge.append<ssvu::Go>(0, 10);
-				tlCharge.append<ssvu::Do>([this]{ cFloorSmasher.setActive(true); lastDeg = cEnemy.getCurrentDegrees(); body.applyForce(ssvs::getVecFromDegrees(lastDeg, 1250.f)); });
-				tlCharge.append<ssvu::Wait>(10.f);
-				tlCharge.append<ssvu::Do>([this]{ body.applyForce(ssvs::getVecFromDegrees(lastDeg, -150.f)); });
-				tlCharge.append<ssvu::Wait>(9.f);
-				tlCharge.append<ssvu::Do>([this]{ cFloorSmasher.setActive(false); cEnemy.setWalkSpeed(20.f); });
-			}
-			inline void update(float mFrameTime) override
-			{
-				if(cTargeter.hasTarget())
-				{
-					cBoid.pursuit(cTargeter.getTarget());
-					tlCharge.update(mFrameTime);
-					if(timerCharge.update(mFrameTime)) { tlCharge.reset(); tlCharge.start(); }
-				}
-			}
-	};
-
-	class OBCEJuggernaut : public OBCEBase
-	{
-		private:
-			ssvs::Ticker timerShoot{150.f};
-			ssvu::Timeline tlShoot{false};
-			float lastDeg{0};
-
-		public:
-			OBCEJuggernaut(OBCEnemy& mCEnemy) : OBCEBase{mCEnemy} { }
-
-			inline void init() override
-			{
-				cKillable.setParticleMult(4);
-				cKillable.onDeath += [this]{ assets.playSound("Sounds/alienDeath.wav"); };
-
-				cEnemy.setWalkSpeed(10.f);
-				cEnemy.setTurnSpeed(2.5f);
-
-				tlShoot.append<ssvu::Do>([this]{ shoot(ssvu::getRnd(-10, 10)); });
-				tlShoot.append<ssvu::Wait>(1.1f);
-				tlShoot.append<ssvu::Go>(0, 8);
-				tlShoot.append<ssvu::Wait>(15.f);
-				tlShoot.append<ssvu::Do>([this]{ lastDeg = cEnemy.getCurrentDegrees(); cEnemy.setWalkSpeed(-100.f); });
-				tlShoot.append<ssvu::Do>([this]{ shoot(lastDeg); lastDeg += 265; });
-				tlShoot.append<ssvu::Wait>(0.3f);
-				tlShoot.append<ssvu::Go>(5, 45);
-				tlShoot.append<ssvu::Do>([this]{ cEnemy.setWalkSpeed(100.f); });
-			}
-			inline void update(float mFrameTime) override
-			{
-				if(cTargeter.hasTarget())
-				{
-					if(ssvs::getDistEuclidean(cTargeter.getPosF(), cPhys.getPosF()) > 10000) cBoid.pursuit(cTargeter.getTarget());
-					else cBoid.evade(cTargeter.getTarget());
-
-					tlShoot.update(mFrameTime);
-					if(timerShoot.update(mFrameTime)) { tlShoot.reset(); tlShoot.start(); }
-				}
-			}
-			inline void shoot(int mDeg)
-			{
-				assets.playSound("Sounds/spark.wav");
-				Vec2i shootPos{body.getPosition() + Vec2i(ssvs::getVecFromDegrees<float>(cEnemy.getCurrentDegrees()) * 100.f)};
-				getFactory().createProjectileEnemyBullet(shootPos, cEnemy.getCurrentDegrees() + mDeg);
-				game.createPMuzzle(20, toPixels(body.getPosition()));
-			}
 	};
 
 	class OBCEGiant : public OBCEBase
@@ -281,7 +327,7 @@ namespace ob
 				tlSummon.append<ssvu::Do>([this]
 				{
 					body.setVelocity(body.getVelocity() * 0.8f);
-					getFactory().createTestEnemy(body.getPosition() + Vec2i(ssvs::getVecFromDegrees<float>(lastDeg) * 1000.f));
+					getFactory().createERunner(body.getPosition() + Vec2i(ssvs::getVecFromDegrees<float>(lastDeg) * 1000.f), false);
 					lastDeg += 360 / 16;
 				});
 				tlSummon.append<ssvu::Wait>(4.5f);
@@ -300,14 +346,8 @@ namespace ob
 					tlSummon.update(mFrameTime);
 					if(timerShoot.update(mFrameTime))
 					{
-						if(ssvu::getRnd(0, 2) > 0)
-						{
-							tlShoot.reset(); tlShoot.start();
-						}
-						else
-						{
-							tlSummon.reset(); tlSummon.start();
-						}
+						if(ssvu::getRnd(0, 2) > 0) { tlShoot.reset(); tlShoot.start(); }
+						else { tlSummon.reset(); tlSummon.start(); }
 					}
 				}
 			}

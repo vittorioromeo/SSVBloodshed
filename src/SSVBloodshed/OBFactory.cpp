@@ -86,7 +86,9 @@ namespace ob
 		auto tpl(createActorBase(mPos, {650, 650}, OBLayer::PPlayer));
 		auto& cHealth(getEntity(tpl).createComponent<OBCHealth>(10));
 		auto& cKillable(getEntity(tpl).createComponent<OBCKillable>(getCPhys(tpl), cHealth, OBCKillable::Type::Organic));
-		getEntity(tpl).createComponent<OBCPlayer>(getCPhys(tpl), getCDraw(tpl), cKillable);
+		auto& cDirection8(getEntity(tpl).createComponent<OBCDirection8>());
+		auto& cWielder(getEntity(tpl).createComponent<OBCWielder>(getCPhys(tpl), getCDraw(tpl), cDirection8));
+		getEntity(tpl).createComponent<OBCPlayer>(getCPhys(tpl), getCDraw(tpl), cKillable, cWielder);
 		emplaceSpriteFromTile(getCDraw(tpl), assets.txSmall, assets.p1Stand);
 		emplaceSpriteFromTile(getCDraw(tpl), assets.txSmall, assets.p1Gun);
 		return getEntity(tpl);
@@ -99,37 +101,39 @@ namespace ob
 		emplaceSpriteFromTile(getCDraw(tpl), assets.txSmall, assets.eBall);
 		return getEntity(tpl);
 	}
-	Entity& OBFactory::createTestEnemy(const Vec2i& mPos)
+
+	Entity& OBFactory::createERunner(const Vec2i& mPos, bool mArmed)
 	{
-		auto tpl(createEnemyBase(mPos, {600, 600}, 2));
-		getEntity(tpl).createComponent<OBCERunner>(getCEnemy(tpl));
-		emplaceSpriteFromTile(getCDraw(tpl), assets.txSmall, assets.e1Stand);
-		return getEntity(tpl);
-	}
-	Entity& OBFactory::createTestEnemyGunner(const Vec2i& mPos)
-	{
-		auto tpl(createEnemyBase(mPos, {600, 600}, 2));
-		getEntity(tpl).createComponent<OBCEGunner>(getCEnemy(tpl));
+		auto tpl(createEnemyBase(mPos, {600, 600}, 4));
+		auto& cDirection8(getEntity(tpl).createComponent<OBCDirection8>());
+		auto& cWielder(getEntity(tpl).createComponent<OBCWielder>(getCPhys(tpl), getCDraw(tpl), cDirection8));
+		getEntity(tpl).createComponent<OBCERunner>(getCEnemy(tpl), cWielder, mArmed);
 		emplaceSpriteFromTile(getCDraw(tpl), assets.txSmall, assets.e2Stand);
 		emplaceSpriteFromTile(getCDraw(tpl), assets.txSmall, assets.e2Gun);
 		return getEntity(tpl);
 	}
-	Entity& OBFactory::createTestCharger(const Vec2i& mPos)
+	Entity& OBFactory::createECharger(const Vec2i& mPos, bool mArmed)
 	{
 		auto tpl(createEnemyBase(mPos, {1100, 1100}, 18));
 		auto& cFloorSmasher(getEntity(tpl).createComponent<OBCFloorSmasher>(getCPhys(tpl)));
-		getEntity(tpl).createComponent<OBCECharger>(getCEnemy(tpl), cFloorSmasher);
-		emplaceSpriteFromTile(getCDraw(tpl), assets.txMedium, assets.e3Stand);
+		auto& cDirection8(getEntity(tpl).createComponent<OBCDirection8>());
+		auto& cWielder(getEntity(tpl).createComponent<OBCWielder>(getCPhys(tpl), getCDraw(tpl), cDirection8));
+		getEntity(tpl).createComponent<OBCECharger>(getCEnemy(tpl), cFloorSmasher, cWielder, mArmed);
+		emplaceSpriteFromTile(getCDraw(tpl), assets.txMedium, assets.e6Stand);
+		emplaceSpriteFromTile(getCDraw(tpl), assets.txMedium, assets.e6Gun);
 		return getEntity(tpl);
 	}
-	Entity& OBFactory::createTestJuggernaut(const Vec2i& mPos)
+	Entity& OBFactory::createEJuggernaut(const Vec2i& mPos, bool mArmed)
 	{
-		auto tpl(createEnemyBase(mPos, {2000, 2000}, 36));
-		getEntity(tpl).createComponent<OBCEJuggernaut>(getCEnemy(tpl));
-		emplaceSpriteFromTile(getCDraw(tpl), assets.txBig, assets.e4Stand);
+		auto tpl(createEnemyBase(mPos, {2100, 2100}, 36));
+		auto& cDirection8(getEntity(tpl).createComponent<OBCDirection8>());
+		auto& cWielder(getEntity(tpl).createComponent<OBCWielder>(getCPhys(tpl), getCDraw(tpl), cDirection8));
+		getEntity(tpl).createComponent<OBCEJuggernaut>(getCEnemy(tpl), cWielder, mArmed);
+		emplaceSpriteFromTile(getCDraw(tpl), assets.txBig, assets.e7Stand);
+		emplaceSpriteFromTile(getCDraw(tpl), assets.txBig, assets.e7Gun);
 		return getEntity(tpl);
 	}
-	Entity& OBFactory::createTestGiant(const Vec2i& mPos)
+	Entity& OBFactory::createEGiant(const Vec2i& mPos)
 	{
 		auto tpl(createEnemyBase(mPos, {2500, 2500}, 42));
 		auto& cFloorSmasher(getEntity(tpl).createComponent<OBCFloorSmasher>(getCPhys(tpl)));
@@ -137,7 +141,6 @@ namespace ob
 		emplaceSpriteFromTile(getCDraw(tpl), assets.txGiant, assets.e5Stand);
 		return getEntity(tpl);
 	}
-
 
 	Entity& OBFactory::createProjectileBullet(const Vec2i& mPos, float mDegrees) { return getEntity(createProjectileBase(mPos, {150, 150}, 420.f, mDegrees, assets.pjBullet)); }
 	Entity& OBFactory::createProjectilePlasma(const Vec2i& mPos, float mDegrees)

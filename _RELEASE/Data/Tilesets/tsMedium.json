@@ -3,6 +3,7 @@
 
 	"labels": 
 	[
-		["e3Stand"]
+		["e3Stand"],
+		["e6Stand", "e6Shoot", "e6Gun"]
 	]
 }

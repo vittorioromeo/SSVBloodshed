@@ -71,6 +71,7 @@ namespace ob
 			inline void setType(Type mType) noexcept		{ type = mType; }
 			inline void setParticleMult(int mMult) noexcept { particleMult = mMult; }
 
+			inline OBCHealth& getCHealth() const noexcept	{ return cHealth; }
 			inline Type getType() const noexcept			{ return type; }
 			inline int getParticleMult() const noexcept		{ return particleMult; }
 	};
