@@ -76,6 +76,10 @@ namespace ob
 
 			template<typename T> inline Vec2<T> getPos() const noexcept { return Vec2<T>(body.getPosition()); }
 			inline const Vec2f& getVel() const noexcept { return body.getVelocity(); }
+			inline float getLeft() const noexcept	{ return body.getShape().getLeft(); }
+			inline float getRight() const noexcept	{ return body.getShape().getRight(); }
+			inline float getTop() const noexcept	{ return body.getShape().getTop(); }
+			inline float getBottom() const noexcept	{ return body.getShape().getBottom(); }
 	};
 }
 

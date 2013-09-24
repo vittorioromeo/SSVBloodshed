@@ -41,9 +41,103 @@ namespace ob
 		protected:
 			OBCEnemy& cEnemy;
 			OBCKillable& cKillable;
+			OBCBoid& cBoid;
+			OBCTargeter& cTargeter;
 
 		public:
-			OBCEBase(OBCEnemy& mCEnemy) : OBCActorBase{mCEnemy.getCPhys(), mCEnemy.getCDraw()}, cEnemy(mCEnemy), cKillable(cEnemy.getCKillable()) { }
+			OBCEBase(OBCEnemy& mCEnemy) : OBCActorBase{mCEnemy.getCPhys(), mCEnemy.getCDraw()}, cEnemy(mCEnemy), cKillable(cEnemy.getCKillable()), cBoid(cEnemy.getCBoid()), cTargeter(cEnemy.getCTargeter()) { }
+	};
+
+	class OBCERunner : public OBCEBase
+	{
+		public:
+			OBCERunner(OBCEnemy& mCEnemy) : OBCEBase{mCEnemy} { }
+
+			inline void init() override
+			{
+				cKillable.setType(OBCKillable::Type::Organic);
+				cEnemy.setWalkSpeed(150.f);
+				cEnemy.setTurnSpeed(4.5f);
+				cEnemy.setMaxVelocity(200.f);
+			}
+			inline void update(float mFrameTime) override { if(cTargeter.hasTarget()) cBoid.pursuit(cTargeter.getTarget()); }
+	};
+
+	class OBCEGunner : public OBCEBase
+	{
+		private:
+			ssvs::Ticker timerShoot{150.f};
+			Direction direction{Direction::E};
+			bool inRange{false};
+
+		public:
+			OBCEGunner(OBCEnemy& mCEnemy) : OBCEBase{mCEnemy} { }
+
+			inline void init() override
+			{
+				cKillable.setType(OBCKillable::Type::Organic);
+				cEnemy.setWalkSpeed(100.f);
+				cEnemy.setTurnSpeed(3.5f);
+				cEnemy.setMaxVelocity(110.f);
+			}
+			inline void update(float mFrameTime) override
+			{
+				if(cTargeter.hasTarget())
+				{
+					const auto& tp(cTargeter.getTarget().getPos<float>());
+					const auto& p(cPhys.getPos<float>());
+
+					float distance{ssvs::getDistEuclidean(tp, p)};
+
+					inRange = distance < 10000;
+
+					if(distance > 9000) cBoid.pursuit(cTargeter.getTarget());
+					else cBoid.evade(cTargeter.getTarget());
+
+					if(false && inRange)
+					{
+						float dx{tp.x - p.x}, dy{tp.y - p.y};
+
+						if(std::abs(dx) < std::abs(dy))
+						{
+							cPhys.getBody().applyForce(Vec2f(1.f * ssvu::getSign(dx), 0.f));
+						}
+						else
+						{
+							cPhys.getBody().applyForce(Vec2f(0.f, 1.f * ssvu::getSign(dy)));
+						}
+					}
+				}
+
+				direction = getDirectionFromDegrees(cEnemy.getCurrentDegrees());
+				if(inRange && timerShoot.update(mFrameTime)) shoot(0);
+				if(inRange && cTargeter.hasTarget())
+				{
+					float d{getDegreesFromDirection(direction)};
+					Vec2f targetSnap{cTargeter.getCPhys().getPos<float>() + ssvs::getVecFromDegrees(d, 4000.f)};
+					cPhys.getBody().applyForce((cPhys.getPos<float>() - targetSnap) * 0.0005f);
+				}
+			}
+			inline void draw() override
+			{
+				auto& s1(cDraw[1]);
+				auto& s1Offset(cDraw.getOffsets()[1]);
+				s1.setColor({255, 255, 255, !inRange ? static_cast<unsigned char>(0) : static_cast<unsigned char>(255)});
+
+				int intDir{static_cast<int>(direction)};
+				s1Offset = ssvs::getVecFromDegrees(getDegreesFromDirection(direction)) * 10.f;
+				cDraw[0].setTextureRect(inRange ? assets.e2Shoot : assets.e2Stand);
+				cDraw[0].setRotation(45 * intDir);
+				s1.setTextureRect(assets.e2Gun); s1.setRotation(45 * intDir);
+			}
+
+			inline void shoot(int mDeg)
+			{
+				assets.playSound("Sounds/spark.wav");
+				Vec2i shootPos{body.getPosition() + Vec2i(ssvs::getVecFromDegrees<float>(getDegreesFromDirection(direction)) * 100.f)};
+				getFactory().createProjectileEnemyBullet(shootPos, getDegreesFromDirection(direction) + mDeg);
+				game.createPMuzzle(20, toPixels(body.getPosition()));
+			}
 	};
 
 	class OBCEBall : public OBCEBase
@@ -51,7 +145,6 @@ namespace ob
 		private:
 			OBCFloorBreaker& cFloorBreaker;
 			float deg{0};
-			PingPongValue<float> ts{0.1f, 15.f, 0.07f};
 
 		public:
 			OBCEBall(OBCEnemy& mCEnemy, OBCFloorBreaker& mCFloorBreaker) : OBCEBase{mCEnemy}, cFloorBreaker(mCFloorBreaker) { }
@@ -69,13 +162,7 @@ namespace ob
 
 				cEnemy.setMaxVelocity(400.f);
 			}
-			inline void update(float mFrameTime) override
-			{
-				deg += mFrameTime * 15.f;
-				ts.update(mFrameTime);
-			//	cEnemy.setWalkSpeed(ts * 50.f);
-
-			}
+			inline void update(float mFrameTime) override { if(cTargeter.hasTarget()) cBoid.pursuit(cTargeter.getTarget()); deg += mFrameTime * 15.f; }
 			inline void draw() override { cDraw.setRotation(deg); }
 	};
 
@@ -109,6 +196,7 @@ namespace ob
 			}
 			inline void update(float mFrameTime) override
 			{
+				if(cTargeter.hasTarget()) cBoid.pursuit(cTargeter.getTarget());
 				tlCharge.update(mFrameTime);
 				if(timerCharge.update(mFrameTime)) { tlCharge.reset(); tlCharge.start(); }
 			}
@@ -144,6 +232,12 @@ namespace ob
 			}
 			inline void update(float mFrameTime) override
 			{
+				if(cTargeter.hasTarget())
+				{
+					if(ssvs::getDistEuclidean(cTargeter.getTarget().getPos<float>(), cPhys.getPos<float>()) > 10000) cBoid.pursuit(cTargeter.getTarget());
+					else cBoid.evade(cTargeter.getTarget());
+				}
+
 				tlShoot.update(mFrameTime);
 				if(timerShoot.update(mFrameTime)) { tlShoot.reset(); tlShoot.start(); }
 			}
@@ -202,6 +296,12 @@ namespace ob
 			}
 			inline void update(float mFrameTime) override
 			{
+				if(cTargeter.hasTarget())
+				{
+					if(ssvs::getDistEuclidean(cTargeter.getTarget().getPos<float>(), cPhys.getPos<float>()) > 10000) cBoid.pursuit(cTargeter.getTarget());
+					else cBoid.evade(cTargeter.getTarget());
+				}
+
 				tlShoot.update(mFrameTime);
 				tlSummon.update(mFrameTime);
 				if(timerShoot.update(mFrameTime)) { tlShoot.reset(); tlShoot.start(); }

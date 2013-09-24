@@ -13,98 +13,11 @@
 #include "SSVBloodshed/Components/OBCFloor.h"
 #include "SSVBloodshed/Components/OBCActorBase.h"
 #include "SSVBloodshed/Components/OBCKillable.h"
+#include "SSVBloodshed/Components/OBCTargeter.h"
+#include "SSVBloodshed/Components/OBCBoid.h"
 
 namespace ob
 {
-	class OBCTargeter : public OBCActorNoDrawBase
-	{
-		private:
-			OBCPhys* target{nullptr};
-			OBGroup targetGroup;
-			sses::EntityStat targetStat;
-
-		public:
-			OBCTargeter(OBCPhys& mCPhys, OBGroup mTargetGroup) : OBCActorNoDrawBase{mCPhys}, targetGroup(mTargetGroup) { }
-
-			inline void update(float) override
-			{
-				if(game.getManager().hasEntity(targetGroup))
-				{
-					targetStat = game.getManager().getEntities(targetGroup).front()->getStat();
-					target = &game.getManager().getEntities(targetGroup).front()->getComponent<OBCPhys>();
-				}
-
-				if(!game.getManager().isAlive(targetStat)) target = nullptr;
-			}
-
-			inline bool hasTarget() const noexcept { return target != nullptr && game.getManager().isAlive(targetStat); }
-			inline OBCPhys& getTarget() const noexcept { return *target; }
-	};
-
-	class OBCBoid : public OBCActorNoDrawBase
-	{
-		public:
-			enum class State{Nothing, Pursuit, Wander};
-
-		private:
-			State state{State::Nothing};
-			Vec2f targetPos, targetVel;
-			float slowRadius{1500.f}, maxVelocity{150.f}, forceMult{0.02f};
-			ssvs::Ticker wanderTimer{250.f};
-
-			inline Vec2f seek(const Vec2f& mTargetPos) const noexcept
-			{
-				Vec2f desired{mTargetPos - cPhys.getPos<float>()};
-
-				float distance{ssvs::getMagnitude(desired)};
-				ssvs::normalize(desired);
-
-				if(distance <= slowRadius) ssvs::resize(desired, maxVelocity * distance / slowRadius);
-				else ssvs::resize(desired, maxVelocity);
-
-				return desired - cPhys.getVel();
-			}
-			inline Vec2f pursuit() const noexcept
-			{
-				return seek(targetPos + ssvs::getResized(targetVel, ssvs::getMagnitude(targetPos - cPhys.getPos<float>()) / maxVelocity));
-			}
-			inline void randomWanderTarget() noexcept
-			{
-				ssvs::nullify(targetVel);
-				targetPos = cPhys.getPos<float>() + Vec2f(ssvu::getRnd(-10000, 10000), ssvu::getRnd(-10000, 10000));
-			}
-
-		public:
-			OBCBoid(OBCPhys& mCPhys) : OBCActorNoDrawBase{mCPhys} { }
-
-			inline void update(float mFrameTime) override
-			{
-				switch(state)
-				{
-					case State::Nothing: break;
-					case State::Pursuit:
-						body.applyForce(pursuit() * forceMult);
-						break;
-					case State::Wander:
-						body.applyForce(pursuit() * forceMult);
-						if(wanderTimer.update(mFrameTime)) randomWanderTarget();
-						break;
-				}
-			}
-
-			inline void setState(State mState) noexcept				{ state = mState; }
-			inline void setTarget(const OBCPhys& mTarget) noexcept	{ targetPos = mTarget.getPos<float>(); targetVel = mTarget.getVel(); }
-			inline void setTargetPos(const Vec2f& mValue) noexcept	{ targetPos = mValue; }
-			inline void setTargetVel(const Vec2f& mValue) noexcept	{ targetVel = mValue; }
-			inline void setSlowRadius(float mValue) noexcept		{ slowRadius = mValue; }
-			inline void setMaxVelocity(float mValue) noexcept		{ maxVelocity = mValue; }
-			inline void setForceMult(float mValue) noexcept			{ forceMult = mValue; }
-
-			inline State getState() const noexcept				{ return state; }
-			inline const Vec2f& getTargetPos() const noexcept	{ return targetPos; }
-			inline const Vec2f& getTargetVel() const noexcept	{ return targetVel; }
-	};
-
 	class OBCEnemy : public OBCActorBase
 	{
 		private:
@@ -135,25 +48,14 @@ namespace ob
 				};
 			}
 
-
 			inline void update(float mFrameTime) override
 			{
 				if(cTargeter.hasTarget())
 				{
-					cBoid.setState(OBCBoid::State::Pursuit);
-					cBoid.setTarget(cTargeter.getTarget());
-					float targetDegrees(ssvs::getDegreesTowards(cPhys.getPos<float>(), cBoid.getTargetPos()));
-
+					float targetDegrees(ssvs::getDegreesTowards(cPhys.getPos<float>(), cTargeter.getTarget().getPos<float>()));
 					currentDegrees = ssvu::getRotatedDegrees(currentDegrees, targetDegrees, turnSpeed * mFrameTime);
 					snappedDegrees = static_cast<int>(ssvu::wrapDegrees(currentDegrees) / 45) * 45;
 				}
-				else
-				{
-					cBoid.setState(OBCBoid::State::Wander);
-					currentDegrees = ssvs::getDegrees(cPhys.getVel());
-					snappedDegrees = static_cast<int>(ssvu::wrapDegrees(currentDegrees) / 45) * 45;
-				}
-
 			}
 
 			inline void draw() override { if(faceDirection) cDraw.setRotation(snappedDegrees); }
@@ -164,7 +66,10 @@ namespace ob
 			inline void setMaxVelocity(float mMax) noexcept		{ cBoid.setMaxVelocity(mMax); }
 
 			inline OBCKillable& getCKillable() const noexcept	{ return cKillable; }
+			inline OBCBoid& getCBoid() const noexcept			{ return cBoid; }
+			inline OBCTargeter& getCTargeter() const noexcept	{ return cTargeter; }
 			inline float getCurrentDegrees() const noexcept		{ return currentDegrees; }
+			inline float getSnappedDegrees() const noexcept		{ return snappedDegrees; }
 	};
 }
 

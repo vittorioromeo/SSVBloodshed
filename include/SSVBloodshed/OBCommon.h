@@ -61,6 +61,12 @@ namespace ob
 	// Direction utils
 	enum Direction : int {E = 0, SE = 1, S = 2, SW = 3, W = 4, NW = 5, N = 6, NE = 7};
 	template<typename T = float> inline T getDegreesFromDirection(Direction mDirection) noexcept { return T(static_cast<int>(mDirection) * T(45)); }
+	template<typename T> inline Direction getDirectionFromDegrees(T mDegrees) noexcept
+	{
+		mDegrees = ssvu::wrapDegrees(mDegrees);
+		int i = static_cast<int>((mDegrees + 22.5f) / 45);
+		return static_cast<Direction>(i % 8);
+	}
 	template<typename T> inline Direction getDirectionFromXY(T mX, T mY) noexcept
 	{
 		if(mX < 0 && mY == 0)		return Direction::W;

@@ -45,6 +45,7 @@ namespace ob
 
 			Entity& createTestEnemyBall(const Vec2i& mPos);
 			Entity& createTestEnemy(const Vec2i& mPos);
+			Entity& createTestEnemyGunner(const Vec2i& mPos);
 			Entity& createTestCharger(const Vec2i& mPos);
 			Entity& createTestJuggernaut(const Vec2i& mPos);
 			Entity& createTestGiant(const Vec2i& mPos);

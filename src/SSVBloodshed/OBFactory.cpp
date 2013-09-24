@@ -102,7 +102,16 @@ namespace ob
 	Entity& OBFactory::createTestEnemy(const Vec2i& mPos)
 	{
 		auto tpl(createEnemyBase(mPos, {600, 600}, 2));
+		getEntity(tpl).createComponent<OBCERunner>(getCEnemy(tpl));
 		emplaceSpriteFromTile(getCDraw(tpl), assets.txSmall, assets.e1Stand);
+		return getEntity(tpl);
+	}
+	Entity& OBFactory::createTestEnemyGunner(const Vec2i& mPos)
+	{
+		auto tpl(createEnemyBase(mPos, {600, 600}, 2));
+		getEntity(tpl).createComponent<OBCEGunner>(getCEnemy(tpl));
+		emplaceSpriteFromTile(getCDraw(tpl), assets.txSmall, assets.e2Stand);
+		emplaceSpriteFromTile(getCDraw(tpl), assets.txSmall, assets.e2Gun);
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createTestCharger(const Vec2i& mPos)

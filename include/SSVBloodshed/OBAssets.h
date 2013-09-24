@@ -31,6 +31,7 @@ namespace ob
 			sf::IntRect p3Stand, p3Shoot, p3Gun;							// Player class 3
 			sf::IntRect p4Stand, p4Shoot, p4Gun;							// Player class 4
 			sf::IntRect e1Stand;											// Runner alien
+			sf::IntRect e2Stand, e2Shoot, e2Gun;							// Gunner alien
 			sf::IntRect floor, floorAlt1, floorAlt2;						// Floor
 			sf::IntRect floorGrate, floorGrateAlt1, floorGrateAlt2;			// Floor grate
 			sf::IntRect wallSingle;											// Wall
@@ -71,6 +72,7 @@ namespace ob
 				p3Stand = tsSmall("p3Stand"); p3Shoot = tsSmall("p3Shoot"); p3Gun = tsSmall("p3Gun");
 				p4Stand = tsSmall("p4Stand"); p4Shoot = tsSmall("p4Shoot"); p4Gun = tsSmall("p4Gun");
 				e1Stand = tsSmall("e1Stand");
+				e2Stand = tsSmall("e2Stand"); e2Shoot = tsSmall("e2Shoot"); e2Gun = tsSmall("e2Gun");
 				floor = tsSmall("floor"); floorAlt1 = tsSmall("floorAlt1"); floorAlt2 = tsSmall("floorAlt2");
 				floorGrate = tsSmall("floorGrate"); floorGrateAlt1 = tsSmall("floorGrateAlt1"); floorGrateAlt2 = tsSmall("floorGrateAlt2");
 				wallSingle = tsSmall("wallSingle");
