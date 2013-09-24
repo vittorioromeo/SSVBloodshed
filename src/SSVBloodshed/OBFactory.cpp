@@ -94,8 +94,8 @@ namespace ob
 	Entity& OBFactory::createTestEnemyBall(const Vec2i& mPos)
 	{
 		auto tpl(createEnemyBase(mPos, {750, 750}, 5));
-		auto& cFloorBreaker(getEntity(tpl).createComponent<OBCFloorBreaker>(getCPhys(tpl)));
-		getEntity(tpl).createComponent<OBCEBall>(getCEnemy(tpl), cFloorBreaker);
+		auto& cFloorSmasher(getEntity(tpl).createComponent<OBCFloorSmasher>(getCPhys(tpl)));
+		getEntity(tpl).createComponent<OBCEBall>(getCEnemy(tpl), cFloorSmasher);
 		emplaceSpriteFromTile(getCDraw(tpl), assets.txSmall, assets.eBall);
 		return getEntity(tpl);
 	}
@@ -117,8 +117,8 @@ namespace ob
 	Entity& OBFactory::createTestCharger(const Vec2i& mPos)
 	{
 		auto tpl(createEnemyBase(mPos, {1100, 1100}, 18));
-		auto& cFloorBreaker(getEntity(tpl).createComponent<OBCFloorBreaker>(getCPhys(tpl)));
-		getEntity(tpl).createComponent<OBCECharger>(getCEnemy(tpl), cFloorBreaker);
+		auto& cFloorSmasher(getEntity(tpl).createComponent<OBCFloorSmasher>(getCPhys(tpl)));
+		getEntity(tpl).createComponent<OBCECharger>(getCEnemy(tpl), cFloorSmasher);
 		emplaceSpriteFromTile(getCDraw(tpl), assets.txMedium, assets.e3Stand);
 		return getEntity(tpl);
 	}
@@ -132,8 +132,8 @@ namespace ob
 	Entity& OBFactory::createTestGiant(const Vec2i& mPos)
 	{
 		auto tpl(createEnemyBase(mPos, {2500, 2500}, 42));
-		auto& cFloorBreaker(getEntity(tpl).createComponent<OBCFloorBreaker>(getCPhys(tpl)));
-		getEntity(tpl).createComponent<OBCEGiant>(getCEnemy(tpl), cFloorBreaker);
+		auto& cFloorSmasher(getEntity(tpl).createComponent<OBCFloorSmasher>(getCPhys(tpl)));
+		getEntity(tpl).createComponent<OBCEGiant>(getCEnemy(tpl), cFloorSmasher);
 		emplaceSpriteFromTile(getCDraw(tpl), assets.txGiant, assets.e5Stand);
 		return getEntity(tpl);
 	}
@@ -157,13 +157,13 @@ namespace ob
 	Entity& OBFactory::createProjectileTestBomb(const Vec2i& mPos, float mDegrees, float mSpeedMult, float mCurveMult)
 	{
 		auto tpl(createProjectileBase(mPos, {150, 150}, 150.f * mSpeedMult, mDegrees, assets.pjStar));
-		getEntity(tpl).createComponent<OBCFloorBreaker>(getCPhys(tpl)).setActive(true);
+		getEntity(tpl).createComponent<OBCFloorSmasher>(getCPhys(tpl)).setActive(true);
 		getCProjectile(tpl).setCurveSpeed(2.f * mCurveMult);
 		getCProjectile(tpl).setPierceOrganic(-1);
 		getCProjectile(tpl).setDamage(10);
 		getCProjectile(tpl).onDestroy += [this, tpl]
 		{
-			for(int i{0}; i < 360; i += 360 / 10) createProjectilePlasma(getCPhys(tpl).getPos<int>() + Vec2i(ssvs::getVecFromDegrees<float>(i) * 300.f), i);
+			for(int i{0}; i < 360; i += 360 / 10) createProjectilePlasma(getCPhys(tpl).getPosI() + Vec2i(ssvs::getVecFromDegrees<float>(i) * 300.f), i);
 		};
 		return getEntity(tpl);
 	}

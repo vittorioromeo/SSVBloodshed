@@ -2,8 +2,8 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
-#ifndef SSVOB_COMPONENTS_FLOORBREAKER
-#define SSVOB_COMPONENTS_FLOORBREAKER
+#ifndef SSVOB_COMPONENTS_FLOORSMASHER
+#define SSVOB_COMPONENTS_FLOORSMASHER
 
 #include "SSVBloodshed/OBCommon.h"
 #include "SSVBloodshed/OBGame.h"
@@ -11,7 +11,7 @@
 
 namespace ob
 {
-	class OBCFloorBreaker : public sses::Component
+	class OBCFloorSmasher : public sses::Component
 	{
 		private:
 			OBCPhys& cPhys;
@@ -19,7 +19,7 @@ namespace ob
 			bool active{false};
 
 		public:
-			OBCFloorBreaker(OBCPhys& mCPhys) : cPhys(mCPhys), body(cPhys.getBody()) { }
+			OBCFloorSmasher(OBCPhys& mCPhys) : cPhys(mCPhys), body(cPhys.getBody()) { }
 
 			inline void init() override
 			{

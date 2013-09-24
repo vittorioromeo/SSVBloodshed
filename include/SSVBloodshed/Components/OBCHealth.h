@@ -29,11 +29,14 @@ namespace ob
 			inline void heal(int mHealth) noexcept { health += mHealth; ssvu::clampMax(health, maxHealth); onHeal(); }
 			inline bool damage(int mDamage) noexcept
 			{
-				if(cooldown.isEnabled()) return false; else cooldown.restart();
-				health -= mDamage; ssvu::clampMin(health, 0); onDamage();
+				if(cooldown.isRunning()) return false;
+
+				cooldown.restart();
+				health = ssvu::getClampedMin(health - mDamage, 0);
+				onDamage();
 				return true;
 			}
-			inline void setHealth(int mHealth) noexcept		{ health = mHealth; ssvu::clamp(health, 0, maxHealth); }
+			inline void setHealth(int mHealth) noexcept		{ health = ssvu::getClamped(mHealth, 0, maxHealth); }
 			inline void setMaxHealth(int mValue) noexcept	{ maxHealth = mValue; }
 			inline void setCooldown(float mValue) noexcept	{ cooldown.restart(mValue); }
 

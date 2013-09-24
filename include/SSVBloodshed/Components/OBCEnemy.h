@@ -52,7 +52,7 @@ namespace ob
 			{
 				if(cTargeter.hasTarget())
 				{
-					float targetDegrees(ssvs::getDegreesTowards(cPhys.getPos<float>(), cTargeter.getTarget().getPos<float>()));
+					float targetDegrees(ssvs::getDegreesTowards(cPhys.getPosF(), cTargeter.getPosF()));
 					currentDegrees = ssvu::getRotatedDegrees(currentDegrees, targetDegrees, turnSpeed * mFrameTime);
 					snappedDegrees = static_cast<int>(ssvu::wrapDegrees(currentDegrees) / 45) * 45;
 				}

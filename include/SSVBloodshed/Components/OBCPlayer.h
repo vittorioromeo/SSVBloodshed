@@ -27,7 +27,6 @@ namespace ob
 			Direction direction{Direction::E};
 			float walkSpeed{125.f};
 			ssvs::Ticker shootTimer{4.7f};
-			//ssvs::Ticker shootTimer{24.7f};
 
 		public:
 			OBCPlayer(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCKillable& mCKillable) : OBCActorBase{mCPhys, mCDraw}, cKillable(mCKillable) { }
@@ -56,7 +55,7 @@ namespace ob
 				{
 					if(ix != 0 || iy != 0) direction = getDirectionFromXY(ix, iy);
 				}
-				else if(!shootTimer.isEnabled()) shoot();
+				else if(shootTimer.isStopped()) shoot();
 
 				if(game.getInput().getIBomb()) bomb();
 
@@ -64,20 +63,28 @@ namespace ob
 			}
 			inline void draw() override
 			{
-				auto& s0(cDraw[0]);
-				auto& s1(cDraw[1]);
-				auto& s1Offset(cDraw.getOffsets()[1]);
-				s1.setColor({255, 255, 255, action != Action::Shooting ? static_cast<unsigned char>(0) : static_cast<unsigned char>(255)});
-
+				// TODO: new component and merge with Gunner
 				const auto& intDir(static_cast<int>(direction));
-				s1Offset = ssvs::getVecFromDegrees(getDegreesFromDirection(direction)) * 10.f;
-				s0.setTextureRect(action == Action::Shooting ? assets.p1Shoot : assets.p1Stand); s0.setRotation(45 * intDir);
-				s1.setTextureRect(assets.p1Gun); s1.setRotation(45 * intDir);
+				cDraw.setRotation(45 * intDir);
+
+				if(action == Action::Shooting)
+				{
+					cDraw.getOffsets()[1] = ssvs::getVecFromDegrees(getDegreesFromDirection(direction)) * 10.f;
+					cDraw[0].setTextureRect(assets.p1Shoot);
+					cDraw[1].setColor({255, 255, 255, 255});
+					cDraw[1].setTextureRect(assets.p1Gun);
+				}
+				else
+				{
+					cDraw[0].setTextureRect(assets.p1Stand);
+					cDraw[1].setColor({255, 255, 255, 0});
+				}
 			}
 
 			inline void shoot()
 			{
-				Vec2i shootPosition{body.getPosition() + Vec2i(getVecFromDirection<float>(direction) * 1000.f)};
+				Vec2i shootPosition{cPhys.getPosI() + Vec2i(getVecFromDirection<float>(direction) * 1000.f)};
+				//Vec2i shootPosition(ssvs::getOrbitFromDegrees(cPhys.getPosF(), getDegreesFromDirection(direction), 1000.f));
 				int weapon{0};
 
 				switch(weapon)

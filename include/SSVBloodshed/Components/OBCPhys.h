@@ -56,10 +56,7 @@ namespace ob
 					if(crushedBottom > 0) --crushedBottom;
 				};
 			}
-			inline void update(float) override
-			{
-				//body.setVelocity(body.getVelocity() * 0.9f);
-			}
+			inline void update(float) override { }
 
 			inline OBGame& getGame() const noexcept					{ return game; }
 			inline ssvsc::World& getWorld() const noexcept			{ return world; }
@@ -74,12 +71,14 @@ namespace ob
 			inline int getCrushedTop() const noexcept				{ return crushedTop; }
 			inline int getCrushedBottom() const	noexcept			{ return crushedBottom; }
 
-			template<typename T> inline Vec2<T> getPos() const noexcept { return Vec2<T>(body.getPosition()); }
-			inline const Vec2f& getVel() const noexcept { return body.getVelocity(); }
-			inline float getLeft() const noexcept	{ return body.getShape().getLeft(); }
-			inline float getRight() const noexcept	{ return body.getShape().getRight(); }
-			inline float getTop() const noexcept	{ return body.getShape().getTop(); }
-			inline float getBottom() const noexcept	{ return body.getShape().getBottom(); }
+			inline const Vec2i& getPosI() const noexcept			{ return body.getPosition(); }
+			inline Vec2f getPosF() const noexcept					{ return Vec2f(body.getPosition()); }
+			inline const Vec2f& getVel() const noexcept				{ return body.getVelocity(); }
+			inline float getLeft() const noexcept					{ return body.getShape().getLeft(); }
+			inline float getRight() const noexcept					{ return body.getShape().getRight(); }
+			inline float getTop() const noexcept					{ return body.getShape().getTop(); }
+			inline float getBottom() const noexcept					{ return body.getShape().getBottom(); }
+
 	};
 }
 

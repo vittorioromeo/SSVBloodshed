@@ -22,12 +22,12 @@ namespace ob
 		public:
 			OBCFloor(OBCPhys& mCPhys, OBCDraw& mCDraw) : OBCActorBase{mCPhys, mCDraw} { }
 
-			inline void init() override { cPhys.getBody().addGroup(OBGroup::GFloor); }
+			inline void init() override { body.addGroup(OBGroup::GFloor); }
 			inline void smash() noexcept
 			{
 				if(smashed) return;
 				smashed = true;
-				cDraw[0].setTextureRect(ssvu::getRnd(0, 10) < 9 ? assets.floorGrate : (ssvu::getRnd(0, 2) < 1 ? assets.floorGrateAlt1 : assets.floorGrateAlt2));
+				cDraw[0].setTextureRect(ssvu::getRnd(0, 10) < 9 ? assets.floorGrate : (ssvu::getRnd(0, 2) < 1 ? assets.floorGrateAlt1 : assets.floorGrateAlt2)); // TODO: assets.getRandomFloorGrateIntRectOrSomething
 				game.createPDebris(20, toPixels(body.getPosition()));
 				game.createPDebrisFloor(4, toPixels(body.getPosition()));
 				getEntity().setDrawPriority(OBLayer::PFloorGrate);
