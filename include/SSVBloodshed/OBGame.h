@@ -13,6 +13,7 @@
 #include "SSVBloodshed/OBGParticles.h"
 #include "SSVBloodshed/OBGInput.h"
 #include "SSVBloodshed/Particles/OBParticleTypes.h"
+#include "SSVBloodshed/OBBarCounter.h"
 
 namespace ob
 {
@@ -36,6 +37,8 @@ namespace ob
 			sf::Sprite hudSprite{assets.get<sf::Texture>("tempHud.png")};
 
 		public:
+			OBBarCounter testhp{2, 6, 13};
+
 			inline OBGame(ssvs::GameWindow& mGameWindow, OBAssets& mAssets) : gameWindow(mGameWindow), assets(mAssets)
 			{
 				gameState.onUpdate += [this](float mFT){ update(mFT); };
@@ -44,6 +47,12 @@ namespace ob
 				// Temp hud sprite
 				hudSprite.setScale(2.f, 2.f);
 				hudSprite.setPosition(0, 480 - getGlobalHeight(hudSprite));
+
+				//
+				testhp.setTracking(1);
+				testhp.setColor(sf::Color{184, 37, 53, 255});
+				testhp.setScale(2.f, 2.f);
+				testhp.setPosition(26, (480 - getGlobalHeight(hudSprite) / 2.f) - 2.f);
 
 				newGame();
 			}
@@ -57,14 +66,48 @@ namespace ob
 				auto getTilePos = [](int mX, int mY) -> Vec2i { return toCoords(Vec2i{mX * 10 + 5, mY * 10 + 5}); };
 				constexpr int maxX{320 / 10}, maxY{240 / 10 - 2};
 
-				for(int iX{0}; iX < maxX; ++iX)
-					for(int iY{0}; iY < maxY; ++iY)
-					{
-						if(iX == 0 || iX == maxX - 1 || iY == 0 || iY == maxY - 1) factory.createWall(getTilePos(iX, iY));
-						else factory.createFloor(getTilePos(iX, iY));
-					}
+				std::string level = "################################"
+									"#..............................#"
+									"#..P...#.......................#"
+									"#......#.......................#"
+									"#..#####............##.........#"
+									"#...................W#.........#"
+									"#...................#E.........#"
+									"#...................W#.........#"
+									"#...gggggg..........##.........#"
+									"#...goooog.....................#"
+									"#...goooog.....................#"
+									"#...goooog.....gggggggggg......#"
+									"#...goooog.....goooooooog......#"
+									"#...goooog.....goooooooog......#"
+									"#...gggggg.....goooooooog......#"
+									"#..............goooooooog......#"
+									"#..............gggggggggg......#"
+									"#....##........................#"
+									"#....##........................#"
+									"#....##........................#"
+									"#...............#N#............#"
+									"################################";
 
-				factory.createPlayer(getTilePos(5, 5));
+				unsigned int idx{0};
+				for(int iY{0}; iY < maxY; ++iY)
+					for(int iX{0}; iX < maxX; ++iX)
+					{
+						const auto& tp(getTilePos(iX, iY));
+
+						switch(level[idx++])
+						{
+							case '#': factory.createWall(tp); break;
+							case '.': factory.createFloor(tp); break;
+							case 'o': factory.createPit(tp); break;
+							case 'g': factory.createFloor(tp, true); break;
+							case 'P': factory.createFloor(tp); factory.createPlayer(tp); break;
+							case 'N': factory.createFloor(tp); factory.createETurret(tp, Direction8::N); break;
+							case 'S': factory.createFloor(tp); factory.createETurret(tp, Direction8::S); break;
+							case 'W': factory.createFloor(tp); factory.createETurret(tp, Direction8::W); break;
+							case 'E': factory.createFloor(tp); factory.createETurret(tp, Direction8::E); break;
+						}
+					}
 			}
 
 			inline void update(float mFT)
@@ -81,6 +124,7 @@ namespace ob
 				camera.unapply();
 				render(hudSprite);
 				debugText.draw();
+				render(testhp);
 			}
 
 			inline void render(const sf::Drawable& mDrawable) { gameWindow.draw(mDrawable); }
