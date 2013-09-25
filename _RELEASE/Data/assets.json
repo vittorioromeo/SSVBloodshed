@@ -3,6 +3,8 @@
 	[
 		"tempHud.png",
 		"limeStroked.png",
+		"fontOb.png",
+		"fontObStroked.png",
 		"tsSmall.png",
 		"tsMedium.png",
 		"tsBig.png",
@@ -24,7 +26,9 @@
 	],
 	"bitmapFonts":
 	{
-		"limeStroked": ["limeStroked.png", "lime.json"]
+		"limeStroked": ["limeStroked.png", "lime.json"],
+		"fontOb": ["fontOb.png", "fontOb.json"],
+		"fontObStroked": ["fontObStroked.png", "fontOb.json"]
 	},
 	"tilesets":
 	{
