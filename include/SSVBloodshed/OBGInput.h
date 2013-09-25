@@ -43,7 +43,7 @@ namespace ob
 				gs.addInput({{k::R}}, [this](float){ game.newGame(); }, t::Once);
 
 				gs.addInput({{k::Num0}}, [this](float){ game.factory.createPit(game.getMousePosition()); }, t::Once);
-				gs.addInput({{k::Num1}}, [this](float){ game.factory.createWall(game.getMousePosition()); }, t::Once);
+				gs.addInput({{k::Num1}}, [this](float){ game.factory.createWall(game.getMousePosition(), game.getAssets().wallSingle); }, t::Once);
 				gs.addInput({{k::Num2}}, [this](float){ game.factory.createERunner(game.getMousePosition(), false); });
 				gs.addInput({{k::Num3}}, [this](float){ game.factory.createECharger(game.getMousePosition(), false); }, t::Once);
 				gs.addInput({{k::Num4}}, [this](float){ game.factory.createEJuggernaut(game.getMousePosition(), false); }, t::Once);

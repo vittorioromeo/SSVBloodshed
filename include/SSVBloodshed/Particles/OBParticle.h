@@ -25,7 +25,7 @@ namespace ob
 			{
 				life -= mFT;
 				color.a = static_cast<unsigned char>(ssvu::getClamped(life * (255.f / lifeMax) * alphaMult, 0.f, 255.f));
-				velocity *= acceleration; // TODO: * mFT?
+				velocity *= acceleration;
 				position += velocity * mFT;
 			}
 

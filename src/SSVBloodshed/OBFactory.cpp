@@ -70,7 +70,7 @@ namespace ob
 	Entity& OBFactory::createFloor(const Vec2i& mPos, bool mGrate)
 	{
 		auto tpl(createActorBase(mPos, {1000, 1000}, OBLayer::LFloor));
-		emplaceSpriteFromTile(getCDraw(tpl), assets.txSmall, getRnd(0, 10) < 9 ? assets.floor : (ssvu::getRnd(0, 2) < 1 ? assets.floorAlt1 : assets.floorAlt2));
+		emplaceSpriteFromTile(getCDraw(tpl), assets.txSmall, assets.getFloorVariant());
 		getEntity(tpl).createComponent<OBCFloor>(getCPhys(tpl), getCDraw(tpl), mGrate);
 		return getEntity(tpl);
 	}
@@ -81,12 +81,12 @@ namespace ob
 		emplaceSpriteFromTile(getCDraw(tpl), assets.txSmall, assets.pit);
 		return getEntity(tpl);
 	}
-	Entity& OBFactory::createWall(const Vec2i& mPos)
+	Entity& OBFactory::createWall(const Vec2i& mPos, const sf::IntRect& mIntRect)
 	{
 		auto tpl(createActorBase(mPos, {1000, 1000}, OBLayer::LWall, true));
 		getCPhys(tpl).getBody().addGroup(OBGroup::GSolidGround);
 		getCPhys(tpl).getBody().addGroup(OBGroup::GSolidAir);
-		emplaceSpriteFromTile(getCDraw(tpl), assets.txSmall, assets.wallSingle);
+		emplaceSpriteFromTile(getCDraw(tpl), assets.txSmall, mIntRect);
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createPlayer(const Vec2i& mPos)
@@ -116,8 +116,8 @@ namespace ob
 		auto& cDirection8(getEntity(tpl).createComponent<OBCDirection8>());
 		auto& cWielder(getEntity(tpl).createComponent<OBCWielder>(getCPhys(tpl), getCDraw(tpl), cDirection8));
 		getEntity(tpl).createComponent<OBCERunner>(getCEnemy(tpl), cWielder, mArmed);
-		emplaceSpriteFromTile(getCDraw(tpl), assets.txSmall, assets.e2Stand);
-		emplaceSpriteFromTile(getCDraw(tpl), assets.txSmall, assets.e2Gun);
+		emplaceSpriteFromTile(getCDraw(tpl), assets.txSmall, assets.e1AStand);
+		emplaceSpriteFromTile(getCDraw(tpl), assets.txSmall, assets.e1AGun);
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createECharger(const Vec2i& mPos, bool mArmed)
@@ -127,8 +127,8 @@ namespace ob
 		auto& cDirection8(getEntity(tpl).createComponent<OBCDirection8>());
 		auto& cWielder(getEntity(tpl).createComponent<OBCWielder>(getCPhys(tpl), getCDraw(tpl), cDirection8));
 		getEntity(tpl).createComponent<OBCECharger>(getCEnemy(tpl), cFloorSmasher, cWielder, mArmed);
-		emplaceSpriteFromTile(getCDraw(tpl), assets.txMedium, assets.e6Stand);
-		emplaceSpriteFromTile(getCDraw(tpl), assets.txMedium, assets.e6Gun);
+		emplaceSpriteFromTile(getCDraw(tpl), assets.txMedium, assets.e2AStand);
+		emplaceSpriteFromTile(getCDraw(tpl), assets.txMedium, assets.e2AGun);
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createEJuggernaut(const Vec2i& mPos, bool mArmed)
@@ -137,8 +137,8 @@ namespace ob
 		auto& cDirection8(getEntity(tpl).createComponent<OBCDirection8>());
 		auto& cWielder(getEntity(tpl).createComponent<OBCWielder>(getCPhys(tpl), getCDraw(tpl), cDirection8));
 		getEntity(tpl).createComponent<OBCEJuggernaut>(getCEnemy(tpl), cWielder, mArmed);
-		emplaceSpriteFromTile(getCDraw(tpl), assets.txBig, assets.e7Stand);
-		emplaceSpriteFromTile(getCDraw(tpl), assets.txBig, assets.e7Gun);
+		emplaceSpriteFromTile(getCDraw(tpl), assets.txBig, assets.e3AStand);
+		emplaceSpriteFromTile(getCDraw(tpl), assets.txBig, assets.e3AGun);
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createEGiant(const Vec2i& mPos)
@@ -146,7 +146,7 @@ namespace ob
 		auto tpl(createEnemyBase(mPos, {2500, 2500}, 42));
 		auto& cFloorSmasher(getEntity(tpl).createComponent<OBCFloorSmasher>(getCPhys(tpl)));
 		getEntity(tpl).createComponent<OBCEGiant>(getCEnemy(tpl), cFloorSmasher);
-		emplaceSpriteFromTile(getCDraw(tpl), assets.txGiant, assets.e5Stand);
+		emplaceSpriteFromTile(getCDraw(tpl), assets.txGiant, assets.e4UAStand);
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createETurret(const Vec2i& mPos, Direction8 mDirection)

@@ -19,7 +19,7 @@ namespace ob
 			inline void makeGrate()
 			{
 				grate = true;
-				cDraw[0].setTextureRect(ssvu::getRnd(0, 10) < 9 ? assets.floorGrate : (ssvu::getRnd(0, 2) < 1 ? assets.floorGrateAlt1 : assets.floorGrateAlt2)); // TODO: assets.getRandomFloorGrateIntRectOrSomething
+				cDraw[0].setTextureRect(assets.getFloorGrateVariant());
 				getEntity().setDrawPriority(OBLayer::LFloorGrate);
 			}
 

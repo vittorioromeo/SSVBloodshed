@@ -41,7 +41,7 @@ namespace ob
 
 			Entity& createFloor(const Vec2i& mPos, bool mGrate = false);
 			Entity& createPit(const Vec2i& mPos);
-			Entity& createWall(const Vec2i& mPos);
+			Entity& createWall(const Vec2i& mPos, const sf::IntRect& mIntRect);
 			Entity& createPlayer(const Vec2i& mPos);
 
 			// Enemies

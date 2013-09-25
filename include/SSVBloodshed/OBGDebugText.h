@@ -17,7 +17,7 @@ namespace ob
 			ssvs::BitmapText debugText;
 
 		public:
-			OBGDebugText(TGame& mGame) : game(mGame), debugText{game.getAssets().template get<ssvs::BitmapFont>("limeStroked")}
+			OBGDebugText(TGame& mGame) : game(mGame), debugText{game.getAssets().template get<ssvs::BitmapFont>("fontObStroked")}
 			{
 				debugText.setTracking(-3);
 			}
@@ -31,7 +31,7 @@ namespace ob
 				for(const auto& e : entities) componentCount += e->getComponents().size();
 				for(const auto& b : bodies) if(!b->isStatic()) ++dynamicBodiesCount;
 
-				s << "FPS: "				<< game.getGameWindow().getFPS() << "\n"
+				s	<< "FPS: "				<< game.getGameWindow().getFPS() << "\n"
 					<< "FrameTime: "		<< mFT << "\n"
 					<< "Bodies(all): "		<< bodies.size() << "\n"
 					<< "Bodies(static): "	<< bodies.size() - dynamicBodiesCount << "\n"
