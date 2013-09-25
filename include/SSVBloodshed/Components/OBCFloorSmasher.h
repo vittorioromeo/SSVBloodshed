@@ -26,7 +26,7 @@ namespace ob
 				body.addGroupNoResolve(OBGroup::GFloor);
 				body.onDetection += [this](const ssvsc::DetectionInfo& mDI)
 				{
-					if(active && mDI.body.hasGroup(OBGroup::GFloor) && ssvu::getRnd(0, 10) > 8) static_cast<Entity*>(mDI.body.getUserData())->getComponent<OBCFloor>().smash();
+					if(active && mDI.body.hasGroup(OBGroup::GFloor) && ssvu::getRnd(0, 10) > 8) getEntityFromBody(mDI.body).getComponent<OBCFloor>().smash();
 				};
 			}
 

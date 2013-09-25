@@ -14,6 +14,45 @@
 
 namespace ob
 {
+	class OBCTurret : public OBCActorBase
+	{
+		private:
+			OBCKillable& cKillable;
+			Direction8 direction;
+			ssvs::Ticker timerShoot{125.f};
+			ssvu::Timeline tlShoot{false};
+
+		public:
+			OBCTurret(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCKillable& mCKillable, Direction8 mDirection) : OBCActorBase{mCPhys, mCDraw}, cKillable(mCKillable), direction{mDirection} { }
+
+			inline void init() override
+			{
+				getEntity().addGroup(OBGroup::GEnemy);
+				body.setResolve(false);
+				body.addGroup(OBGroup::GSolidGround);
+				body.addGroup(OBGroup::GSolidAir);
+				body.addGroup(OBGroup::GEnemy);
+
+				repeat(tlShoot, [this]{ shoot(); }, 3, 5.2f);
+			}
+			inline void update(float mFT) override
+			{
+				tlShoot.update(mFT);
+				if(timerShoot.update(mFT)) { tlShoot.reset(); tlShoot.start(); }
+			}
+			inline void draw() override { cDraw.setRotation(getDegreesFromDirection8(direction)); }
+
+			inline void shoot()
+			{
+				assets.playSound("Sounds/spark.wav");
+				Vec2i shootPos{body.getPosition() + getVecFromDirection8<int>(direction) * 600};
+				getFactory().createPJEnemyStar(shootPos, getDegreesFromDirection8(direction));
+				game.createPMuzzle(20, cPhys.getPosPixels());
+			}
+
+			inline OBCKillable& getCKillable() const noexcept { return cKillable; }
+	};
+
 	class OBCEnemy : public OBCActorBase
 	{
 		private:
@@ -22,7 +61,7 @@ namespace ob
 			OBCBoid& cBoid;
 			float walkSpeed{100.f}, currentDegrees{0.f}, turnSpeed{7.5f}, snappedDegrees{0.f};
 			bool faceDirection{true};
-			int bodyDamage{1};
+			float bodyDamage{1};
 
 		public:
 			OBCEnemy(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCKillable& mCKillable, OBCTargeter& mCTargeter, OBCBoid& mCBoid) : OBCActorBase{mCPhys, mCDraw}, cKillable(mCKillable), cTargeter(mCTargeter), cBoid(mCBoid) { }
@@ -30,16 +69,17 @@ namespace ob
 			inline void init() override
 			{
 				getEntity().addGroup(OBGroup::GEnemy);
-				body.addGroup(OBGroup::GSolid);
+				body.addGroup(OBGroup::GSolidGround);
+				body.addGroup(OBGroup::GSolidAir);
 				body.addGroup(OBGroup::GEnemy);
 				body.addGroup(OBGroup::GOrganic);
-				body.addGroupToCheck(OBGroup::GSolid);
+				body.addGroupToCheck(OBGroup::GSolidGround);
 				body.setRestitutionX(0.9f);
 				body.setRestitutionY(0.9f);
 
 				body.onDetection += [this](const ssvsc::DetectionInfo& mDI)
 				{
-					if(mDI.body.hasGroup(OBGroup::GFriendly)) static_cast<Entity*>(mDI.body.getUserData())->getComponent<OBCHealth>().damage(bodyDamage);
+					if(mDI.body.hasGroup(OBGroup::GFriendly)) getEntityFromBody(mDI.body).getComponent<OBCHealth>().damage(bodyDamage);
 				};
 			}
 

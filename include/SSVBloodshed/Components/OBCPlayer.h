@@ -29,16 +29,27 @@ namespace ob
 
 			inline void init() override
 			{
-				cKillable.onDeath += [this]{ assets.playSound("Sounds/playerDeath.wav"); };
+				cKillable.onDeath += [this]
+				{
+					assets.playSound("Sounds/playerDeath.wav");
+					game.testhp.setValue(0.f);
+				};
 
 				getEntity().addGroup(OBGroup::GFriendly);
-				body.addGroup(OBGroup::GSolid);
+				body.addGroup(OBGroup::GSolidGround);
+				body.addGroup(OBGroup::GSolidAir);
 				body.addGroup(OBGroup::GFriendly);
 				body.addGroup(OBGroup::GOrganic);
-				body.addGroupToCheck(OBGroup::GSolid);
+				body.addGroupToCheck(OBGroup::GSolidGround);
 			}
 			inline void update(float mFT) override
 			{
+				{
+					auto& cHealth(getEntity().getComponent<OBCHealth>());
+					game.testhp.setValue(cHealth.getHealth());
+					game.testhp.setMaxValue(cHealth.getMaxHealth());
+				}
+
 				if(shootTimer.update(mFT)) shootTimer.stop();
 
 				cWielder.setShooting(game.getInput().getIShoot());

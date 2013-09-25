@@ -18,7 +18,7 @@ namespace ob
 			std::vector<sf::Sprite> sprites;
 			std::vector<Vec2f> offsets;
 			bool flippedX{false}, flippedY{false}, scaleWithBody{false};
-			Vec2f globalOffset;
+			Vec2f globalOffset, globalScale{1.f, 1.f};
 
 		public:
 			inline OBCDraw(OBGame& mGame, ssvsc::Body& mBody) : game(mGame), body(mBody) { }
@@ -35,7 +35,7 @@ namespace ob
 					const auto& rect(s.getTextureRect());
 					s.setOrigin({rect.width / 2.f, rect.height / 2.f});
 					s.setPosition(position + globalOffset + offsets[i]);
-					s.setScale(flippedX ? -1 : 1, flippedY ? -1 : 1);
+					s.setScale(flippedX ? -globalScale.x : globalScale.x, flippedY ? -globalScale.y : globalScale.y);
 
 					if(scaleWithBody) s.setScale(size.x / rect.width, size.y / rect.height);
 				}
@@ -45,6 +45,7 @@ namespace ob
 			inline void addSprite(const sf::Sprite& mSprite) { sprites.push_back(mSprite); offsets.emplace_back(); }
 			template<typename... TArgs> inline void emplaceSprite(TArgs&&... mArgs) { sprites.emplace_back(std::forward<TArgs>(mArgs)...); offsets.emplace_back(); }
 
+			inline void setGlobalScale(const Vec2f& mScale) noexcept	{ globalScale = mScale; }
 			inline void setRotation(float mDegrees)	noexcept			{ for(auto& s : sprites) s.setRotation(mDegrees); }
 			inline void setFlippedX(bool mFlippedX)	noexcept			{ flippedX = mFlippedX; }
 			inline void setFlippedY(bool mFlippedY)	noexcept			{ flippedY = mFlippedY; }

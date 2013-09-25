@@ -219,22 +219,44 @@ namespace ob
 	class OBCEBall : public OBCEBase
 	{
 		private:
-			OBCFloorSmasher& cFloorSmasher;
 			float spin{0};
+			bool flying{false}, small{false};
 
 		public:
-			OBCEBall(OBCEnemy& mCEnemy, OBCFloorSmasher& mCFloorSmasher) : OBCEBase{mCEnemy}, cFloorSmasher(mCFloorSmasher) { }
+			OBCEBall(OBCEnemy& mCEnemy, bool mFlying, bool mSmall) : OBCEBase{mCEnemy}, flying{mFlying}, small{mSmall} { }
 
 			inline void init() override
 			{
-				//cKillable.onDeath += [this]{ for(int i = 0; i < 4; ++i) game.getFactory().createEBallSmall(cPhys.getPosI()); };
+				if(!small)
+				{
+					cKillable.onDeath += [this]
+					{
+						for(int i{0}; i < 3; ++i)
+						{
+							auto& e(getFactory().createEBall(cPhys.getPosI(), flying, true));
+							e.getComponent<OBCPhys>().setVel(ssvs::getVecFromDegrees(360.f / 3.f * i, 400.f));
+						}
+					};
+				}
+				else cKillable.setParticleMult(0.3f);
+
 				cKillable.setType(OBCKillable::Type::Robotic);
-				cFloorSmasher.setActive(true);
 				cEnemy.setFaceDirection(false);
 				cEnemy.setWalkSpeed(200.f); cEnemy.setTurnSpeed(3.f); cEnemy.setMaxVelocity(400.f);
+
+				if(flying)
+				{
+					body.onResolution += [this](const ssvsc::ResolutionInfo& mRI)
+					{
+						if(!mRI.body.hasGroup(OBGroup::GSolidAir) && mRI.body.hasGroup(OBGroup::GSolidGround))
+							mRI.noResolvePosition = mRI.noResolveVelocity = true;
+					};
+					body.addGroupToCheck(OBGroup::GSolidAir);
+				}
 			}
 			inline void update(float mFT) override
 			{
+				if(flying && !small && ssvu::getRnd(0, 9) > 7) game.createPElectric(1, cPhys.getPosPixels());
 				if(cTargeter.hasTarget()) cBoid.pursuit(cTargeter.getTarget());
 				spin += mFT * 15.f;
 			}

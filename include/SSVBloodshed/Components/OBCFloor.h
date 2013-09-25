@@ -14,20 +14,26 @@ namespace ob
 	class OBCFloor : public OBCActorBase
 	{
 		private:
-			bool smashed{false};
+			bool smashed{false}, grate{false};
+
+			inline void makeGrate()
+			{
+				grate = true;
+				cDraw[0].setTextureRect(ssvu::getRnd(0, 10) < 9 ? assets.floorGrate : (ssvu::getRnd(0, 2) < 1 ? assets.floorGrateAlt1 : assets.floorGrateAlt2)); // TODO: assets.getRandomFloorGrateIntRectOrSomething
+				getEntity().setDrawPriority(OBLayer::LFloorGrate);
+			}
 
 		public:
-			OBCFloor(OBCPhys& mCPhys, OBCDraw& mCDraw) : OBCActorBase{mCPhys, mCDraw} { }
+			OBCFloor(OBCPhys& mCPhys, OBCDraw& mCDraw, bool mGrate) : OBCActorBase{mCPhys, mCDraw}, grate{mGrate} { }
 
-			inline void init() override { body.addGroup(OBGroup::GFloor); }
+			inline void init() override { body.addGroup(OBGroup::GFloor); if(grate) makeGrate(); }
 			inline void smash() noexcept
 			{
-				if(smashed) return;
+				if(smashed || grate) return;
 				smashed = true;
-				cDraw[0].setTextureRect(ssvu::getRnd(0, 10) < 9 ? assets.floorGrate : (ssvu::getRnd(0, 2) < 1 ? assets.floorGrateAlt1 : assets.floorGrateAlt2)); // TODO: assets.getRandomFloorGrateIntRectOrSomething
 				game.createPDebris(20, cPhys.getPosPixels());
 				game.createPDebrisFloor(4, cPhys.getPosPixels());
-				getEntity().setDrawPriority(OBLayer::LFloorGrate);
+				makeGrate();
 			}
 			inline bool isSmashed() const noexcept { return smashed; }
 	};

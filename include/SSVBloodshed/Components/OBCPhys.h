@@ -21,31 +21,17 @@ namespace ob
 			int crushedLeft{0}, crushedRight{0}, crushedTop{0}, crushedBottom{0};
 
 		public:
-			ssvu::Delegate<void(Entity&)> onDetection;
-			ssvu::Delegate<void(const Vec2i&)> onResolution;
-
 			OBCPhys(OBGame& mGame, bool mIsStatic, const Vec2i& mPosition, const Vec2i& mSize) : game(mGame), world(mGame.getWorld()), body(world.create(mPosition, mSize, mIsStatic)) { }
 			inline ~OBCPhys() { body.destroy(); }
 
 			inline void init() override
 			{
 				body.setUserData(&getEntity());
-
-				body.onDetection += [this](const ssvsc::DetectionInfo& mDetectionInfo)
-				{
-					if(mDetectionInfo.userData == nullptr) return;
-					Entity* entity(static_cast<Entity*>(mDetectionInfo.userData));
-					onDetection(*entity);
-				};
 				body.onResolution += [this](const ssvsc::ResolutionInfo& mResolutionInfo)
 				{
-					onResolution(mResolutionInfo.resolution);
-
 					lastResolution = mResolutionInfo.resolution;
-					if(mResolutionInfo.resolution.x > 0) crushedLeft = crushedMax;
-					else if(mResolutionInfo.resolution.x < 0) crushedRight = crushedMax;
-					if(mResolutionInfo.resolution.y > 0) crushedTop = crushedMax;
-					else if(mResolutionInfo.resolution.y < 0) crushedBottom = crushedMax;
+					if(lastResolution.x > 0) crushedLeft = crushedMax; else if(lastResolution.x < 0) crushedRight = crushedMax;
+					if(lastResolution.y > 0) crushedTop = crushedMax; else if(lastResolution.y < 0) crushedBottom = crushedMax;
 				};
 				body.onPreUpdate += [this]
 				{
@@ -57,6 +43,9 @@ namespace ob
 				};
 			}
 			inline void update(float) override { }
+
+			inline void setPos(const Vec2i& mPos) noexcept			{ body.setPosition(mPos); }
+			inline void setVel(const Vec2f& mVel) noexcept			{ body.setVelocity(mVel); }
 
 			inline OBGame& getGame() const noexcept					{ return game; }
 			inline ssvsc::World& getWorld() const noexcept			{ return world; }
