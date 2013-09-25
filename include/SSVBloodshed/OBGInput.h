@@ -33,12 +33,12 @@ namespace ob
 
 				gs.addInput({{k::Escape}}, [this](float){ game.assets.musicPlayer.stop(); std::terminate(); });
 
-				gs.addInput({{k::A}}, [=](float){ game.camera.pan(-4, 0); });
-				gs.addInput({{k::D}}, [=](float){ game.camera.pan(4, 0); });
-				gs.addInput({{k::W}}, [=](float){ game.camera.pan(0, -4); });
-				gs.addInput({{k::S}}, [=](float){ game.camera.pan(0, 4); });
-				gs.addInput({{k::Q}}, [=](float){ game.camera.zoomOut(1.1f); });
-				gs.addInput({{k::E}}, [=](float){ game.camera.zoomIn(1.1f); });
+				gs.addInput({{k::A}}, [=](float){ game.gameCamera.pan(-4, 0); });
+				gs.addInput({{k::D}}, [=](float){ game.gameCamera.pan(4, 0); });
+				gs.addInput({{k::W}}, [=](float){ game.gameCamera.pan(0, -4); });
+				gs.addInput({{k::S}}, [=](float){ game.gameCamera.pan(0, 4); });
+				gs.addInput({{k::Q}}, [=](float){ game.gameCamera.zoomOut(1.1f); });
+				gs.addInput({{k::E}}, [=](float){ game.gameCamera.zoomIn(1.1f); });
 
 				gs.addInput({{k::R}}, [this](float){ game.newGame(); }, t::Once);
 
@@ -55,11 +55,11 @@ namespace ob
 				gs.addInput({{k::P}}, [this](float){ game.factory.createEBall(game.getMousePosition(), true); }, t::Once);
 			}
 
-			inline bool getIShoot() const noexcept		{ return iShoot; }
-			inline bool getISwitch() const noexcept		{ return iSwitch; }
-			inline bool getIBomb() const noexcept		{ return iBomb; }
-			inline int getIX() const noexcept			{ return iX; }
-			inline int getIY() const noexcept			{ return iY; }
+			inline bool getIShoot() const noexcept	{ return iShoot; }
+			inline bool getISwitch() const noexcept	{ return iSwitch; }
+			inline bool getIBomb() const noexcept	{ return iBomb; }
+			inline int getIX() const noexcept		{ return iX; }
+			inline int getIY() const noexcept		{ return iY; }
 	};
 }
 

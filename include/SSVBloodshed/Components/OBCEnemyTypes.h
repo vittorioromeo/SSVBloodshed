@@ -117,7 +117,11 @@ namespace ob
 				cKillable.setType(OBCKillable::Type::Organic);
 				cKillable.setParticleMult(2);
 
-				repeat(tlCharge, [this]{ body.setVelocity(body.getVelocity() * 0.8f); }, 10, 2.5f);
+				repeat(tlCharge, [this]
+				{
+					body.setVelocity(cPhys.getVel() * 0.8f);
+					game.createPCharge(4, cPhys.getPosPixels());
+				}, 10, 2.5f);
 				tlCharge.append<ssvu::Do>([this]{ cFloorSmasher.setActive(true); lastDeg = cEnemy.getCurrentDegrees(); body.applyForce(ssvs::getVecFromDegrees(lastDeg, 1250.f)); });
 				tlCharge.append<ssvu::Wait>(10.f);
 				tlCharge.append<ssvu::Do>([this]{ body.applyForce(ssvs::getVecFromDegrees(lastDeg, -150.f)); });
@@ -175,7 +179,7 @@ namespace ob
 				cWielder.setWieldDistance(2800.f);
 
 				repeat(tlShoot, [this]{ shootUnarmed(ssvu::getRnd(-10, 10)); }, 8, 1.1f);
-				tlShoot.append<ssvu::Wait>(15.f);
+				repeat(tlShoot, [this]{ game.createPCharge(4, cPhys.getPosPixels()); }, 15, 1.f);
 				tlShoot.append<ssvu::Do>([this]{ lastDeg = cEnemy.getCurrentDegrees(); cEnemy.setWalkSpeed(-100.f); });
 				repeat(tlShoot, [this]{ shootUnarmed(lastDeg); lastDeg += 265; }, 45, 0.3f);
 				tlShoot.append<ssvu::Do>([this]{ cEnemy.setWalkSpeed(100.f); });
@@ -268,8 +272,7 @@ namespace ob
 		private:
 			OBCFloorSmasher& cFloorSmasher;
 			ssvs::Ticker timerShoot{185.f};
-			ssvu::Timeline tlShoot{false};
-			ssvu::Timeline tlSummon{false};
+			ssvu::Timeline tlShoot{false}, tlSummon{false};
 			float lastDeg{0};
 
 		public:
@@ -286,7 +289,7 @@ namespace ob
 				cFloorSmasher.setActive(true);
 
 				repeat(tlShoot, [this]{ shoot(ssvu::getRnd(-15, 15)); }, 20, 0.4f);
-				tlShoot.append<ssvu::Wait>(19.f);
+				repeat(tlShoot, [this]{ game.createPCharge(5, cPhys.getPosPixels()); }, 19, 1.f);
 				tlShoot.append<ssvu::Do>([this]{ lastDeg = cEnemy.getCurrentDegrees(); cEnemy.setWalkSpeed(-50.f); });
 				repeat(tlShoot, [this]{ shoot(lastDeg); lastDeg += 235; }, 150, 0.1f);
 				tlShoot.append<ssvu::Do>([this]{ cEnemy.setWalkSpeed(100.f); });
@@ -294,6 +297,7 @@ namespace ob
 				tlSummon.append<ssvu::Do>([this]{ lastDeg = cEnemy.getCurrentDegrees(); cEnemy.setWalkSpeed(0.f); });
 				repeat(tlSummon, [this]
 				{
+					game.createPCharge(5, cPhys.getPosPixels());
 					body.setVelocity(body.getVelocity() * 0.8f);
 					getFactory().createERunner(body.getPosition() + Vec2i(ssvs::getVecFromDegrees<float>(lastDeg) * 1000.f), false);
 					lastDeg += 360 / 16;

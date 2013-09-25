@@ -90,6 +90,18 @@ namespace ob
 				65 + ssvu::getRnd(-25, 55),
 				1.5f);
 	}
+	inline void createPCharge(ParticleSystem& mPS, const Vec2f& mPosition)
+	{
+		Vec2f pos{ssvs::getOrbitFromDegrees(mPosition, ssvu::getRndR<float>(0.f, 360.f), 48.f)};
+
+		mPS.emplace(pos,
+				ssvs::getNormalized(mPosition - pos) * 3.5f,
+				0.97f,
+				(ssvu::getRnd(0, 10) > 8) ? sf::Color::Red : sf::Color::Yellow,
+				1.1f + ssvu::getRndR<float>(-0.3, 0.3),
+				55 + ssvu::getRnd(-25, 45),
+				1.5f);
+	}
 }
 
 #endif

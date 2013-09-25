@@ -24,7 +24,7 @@ namespace ob
 		private:
 			ssvs::GameWindow& gameWindow;
 			OBAssets& assets;
-			ssvs::Camera camera{gameWindow, 2.f};
+			ssvs::Camera gameCamera{gameWindow, 2.f}, overlayCamera{gameWindow, 2.f};
 			OBFactory factory{assets, *this, manager};
 			ssvs::GameState gameState;
 			ssvsc::World world{ssvsc::createResolver<ssvsc::Impulse>(), ssvsc::createSpatial<ssvsc::HashGrid>(1000, 1000, 1000, 500)};
@@ -36,7 +36,7 @@ namespace ob
 			OBGDebugText<OBGame> debugText{*this};
 			sf::Sprite hudSprite{assets.get<sf::Texture>("tempHud.png")};
 
-			ssvs::BitmapText hpText{assets.get<ssvs::BitmapFont>("fontObStroked")};
+			ssvs::BitmapText testAmmoTxt{assets.get<ssvs::BitmapFont>("fontObStroked")};
 
 		public:
 			OBBarCounter testhp{2, 6, 13};
@@ -46,18 +46,14 @@ namespace ob
 				gameState.onUpdate += [this](float mFT){ update(mFT); };
 				gameState.onDraw += [this]{ draw(); };
 
-
 				// Testing hud
-				hudSprite.setScale(2.f, 2.f);
-				hudSprite.setPosition(0, 480 - getGlobalHeight(hudSprite));
+				hudSprite.setPosition(0, 240 - getGlobalHeight(hudSprite));
 
-				testhp.setColor(sf::Color{184, 37, 53, 255});
-				testhp.setScale(2.f, 2.f); testhp.setTracking(1);
-				testhp.setPosition(26, (480 - getGlobalHeight(hudSprite) / 2.f) - 2.f);
+				testhp.setColor(sf::Color{184, 37, 53, 255}); testhp.setTracking(1);
+				testhp.setPosition(13, (240 - getGlobalHeight(hudSprite) / 2.f) - 1.f);
 
-				hpText.setScale(2.f, 2.f); hpText.setTracking(-3);
-				hpText.setPosition(172, (480 - getGlobalHeight(hudSprite) / 2.f) - 6.f);
-				hpText.setColor(sf::Color{136, 199, 234, 255});
+				testAmmoTxt.setColor(sf::Color{136, 199, 234, 255}); testAmmoTxt.setTracking(-3);
+				testAmmoTxt.setPosition(86, (240 - getGlobalHeight(hudSprite) / 2.f) - 3.f);
 
 				newGame();
 			}
@@ -175,25 +171,29 @@ namespace ob
 				manager.update(mFT);
 				world.update(mFT);
 				debugText.update(mFT);
-				camera.update<int>(mFT);
+				gameCamera.update<int>(mFT);
 
-				hpText.setString(ssvu::toStr(testhp.getValue()));
+				testAmmoTxt.setString(ssvu::toStr(testhp.getValue()));
 			}
 			inline void draw()
 			{
-				camera.apply<int>();
+				gameCamera.apply<int>();
 				manager.draw();
-				camera.unapply();
+				gameCamera.unapply();
+
+				overlayCamera.apply<int>();
 				render(hudSprite);
+				render(testhp);
+				render(testAmmoTxt);
+				overlayCamera.unapply();
+
 				debugText.draw();
 
-				render(testhp);
-				render(hpText);
 			}
 
 			inline void render(const sf::Drawable& mDrawable) { gameWindow.draw(mDrawable); }
 
-			inline Vec2i getMousePosition() const					{ return toCoords(camera.getMousePosition()); }
+			inline Vec2i getMousePosition() const					{ return toCoords(gameCamera.getMousePosition()); }
 			inline ssvs::GameWindow& getGameWindow() noexcept		{ return gameWindow; }
 			inline OBAssets& getAssets() noexcept					{ return assets; }
 			inline OBFactory& getFactory() noexcept					{ return factory; }
@@ -214,6 +214,7 @@ namespace ob
 			inline void createPPlasma(unsigned int mCount, const Vec2f& mPos)					{ for(auto i(0u); i < mCount; ++i) ob::createPPlasma(particles.getPSTemp(), mPos); }
 			inline void createPSmoke(unsigned int mCount, const Vec2f& mPos)					{ for(auto i(0u); i < mCount; ++i) ob::createPSmoke(particles.getPSTemp(), mPos); }
 			inline void createPElectric(unsigned int mCount, const Vec2f& mPos)					{ for(auto i(0u); i < mCount; ++i) ob::createPElectric(particles.getPSTemp(), mPos); }
+			inline void createPCharge(unsigned int mCount, const Vec2f& mPos)					{ for(auto i(0u); i < mCount; ++i) ob::createPCharge(particles.getPSTemp(), mPos); }
 	};
 }
 

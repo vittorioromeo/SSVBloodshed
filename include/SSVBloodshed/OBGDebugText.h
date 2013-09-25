@@ -31,8 +31,8 @@ namespace ob
 				for(const auto& e : entities) componentCount += e->getComponents().size();
 				for(const auto& b : bodies) if(!b->isStatic()) ++dynamicBodiesCount;
 
-				s	<< "FPS: "				<< game.getGameWindow().getFPS() << "\n"
-					<< "FrameTime: "		<< mFT << "\n"
+				s	<< "FPS: "				<< static_cast<int>(game.getGameWindow().getFPS()) << "\t"
+					<< "FT: "				<< mFT << "\n"
 					<< "Bodies(all): "		<< bodies.size() << "\n"
 					<< "Bodies(static): "	<< bodies.size() - dynamicBodiesCount << "\n"
 					<< "Bodies(dynamic): "	<< dynamicBodiesCount << "\n"
