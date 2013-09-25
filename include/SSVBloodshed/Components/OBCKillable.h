@@ -19,7 +19,7 @@ namespace ob
 		private:
 			OBCHealth& cHealth;
 			Type type{Type::Organic};
-			int particleMult{1};
+			float particleMult{1.f};
 
 			inline void effectHit()
 			{
@@ -68,8 +68,8 @@ namespace ob
 				};
 			}
 
-			inline void setType(Type mType) noexcept		{ type = mType; }
-			inline void setParticleMult(int mMult) noexcept { particleMult = mMult; }
+			inline void setType(Type mType) noexcept			{ type = mType; }
+			inline void setParticleMult(float mMult) noexcept	{ particleMult = mMult; }
 
 			inline OBCHealth& getCHealth() const noexcept	{ return cHealth; }
 			inline Type getType() const noexcept			{ return type; }

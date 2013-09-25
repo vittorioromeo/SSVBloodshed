@@ -17,7 +17,8 @@ namespace ob
 		private:
 			ssvs::Ticker life{150.f};
 			float speed{125.f}, degrees{0.f}, curveSpeed{0.f};
-			int pierceOrganic{0}, damage{1};
+			int pierceOrganic{0};
+			float damage{1};
 			OBGroup targetGroup{OBGroup::GEnemy};
 
 			inline void destroy() { getEntity().destroy(); onDestroy(); }
@@ -30,13 +31,14 @@ namespace ob
 			inline void init() override
 			{
 				body.addGroup(OBGroup::GProjectile);
-				body.addGroupToCheck(OBGroup::GSolid);
+				body.addGroupToCheck(OBGroup::GSolidGround);
+				body.addGroupToCheck(OBGroup::GSolidAir);
 				body.setResolve(false);
 				body.onDetection += [this](const ssvsc::DetectionInfo& mDI)
 				{
 					if(!mDI.body.hasGroup(targetGroup))
 					{
-						if(!mDI.body.hasGroup(OBGroup::GOrganic) && mDI.body.hasGroup(OBGroup::GSolid))
+						if(!mDI.body.hasGroup(OBGroup::GOrganic) && mDI.body.hasGroup(OBGroup::GSolidAir))
 						{
 							game.createPDebris(6, cPhys.getPosPixels());
 							assets.playSound("Sounds/bulletHitWall.wav");
@@ -45,11 +47,8 @@ namespace ob
 					}
 					else
 					{
-						auto& e(*static_cast<Entity*>(mDI.body.getUserData()));
-						if(e.getComponent<OBCHealth>().damage(damage))
-						{
+						if(getEntityFromBody(mDI.body).getComponent<OBCHealth>().damage(damage))
 							if(pierceOrganic-- == 0) destroy();
-						}
 					}
 				};
 			}
