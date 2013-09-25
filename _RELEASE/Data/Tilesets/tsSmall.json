@@ -9,6 +9,6 @@
 		["p4Stand", "p4Shoot", "p4Gun", "wallSingle", "wallHEndW", "wallH", "wallHEndE"],
 		["e1Stand", "null1", "null2", "floor", "floorGrate", "pit",  "floorAlt2"],
 		["e2Stand", "e2Shoot", "e2Gun", "floorAlt1", "floorGrateAlt1", "floorGrateAlt2"],
-		["eBall"]
+		["eBall", "eBallFlying", "eTurret"]
 	]
 }

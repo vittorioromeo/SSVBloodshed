@@ -35,8 +35,10 @@ namespace ob
 			sf::IntRect floor, floorAlt1, floorAlt2;						// Floor
 			sf::IntRect floorGrate, floorGrateAlt1, floorGrateAlt2;			// Floor grate
 			sf::IntRect wallSingle;											// Wall
+			sf::IntRect pit;												// Pit
 			sf::IntRect pjBullet, pjPlasma, pjStar;							// Projectiles
-			sf::IntRect eBall;												// Ball enemy
+			sf::IntRect eBall, eBallFlying;									// Ball enemy
+			sf::IntRect eTurret;											// Turret enemy
 
 			// Medium tileset (20x20)
 			sf::IntRect e3Stand;											// Charger alien
@@ -73,8 +75,10 @@ namespace ob
 				floor = tsSmall("floor"); floorAlt1 = tsSmall("floorAlt1"); floorAlt2 = tsSmall("floorAlt2");
 				floorGrate = tsSmall("floorGrate"); floorGrateAlt1 = tsSmall("floorGrateAlt1"); floorGrateAlt2 = tsSmall("floorGrateAlt2");
 				wallSingle = tsSmall("wallSingle");
+				pit = tsSmall("pit");
 				pjBullet = tsSmall("pjBullet"); pjPlasma = tsSmall("pjPlasma"); pjStar = tsSmall("pjStar");
-				eBall = tsSmall("eBall");
+				eBall = tsSmall("eBall"); eBallFlying = tsSmall("eBallFlying");
+				eTurret = tsSmall("eTurret");
 
 				// Medium tileset (20x20)
 				const auto& tsMedium(assetManager.get<ssvs::Tileset>("tsMedium"));
