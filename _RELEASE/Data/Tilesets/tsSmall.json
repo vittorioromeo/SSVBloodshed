@@ -7,8 +7,8 @@
 		["p2Stand", "p2Shoot", "p2Gun", "wallV", "wallTW", "wallCross", "wallTE", "pjPlasma"],
 		["p3Stand", "p3Shoot", "p3Gun", "wallVEndS", "wallCornerSW", "wallTS", "wallCornerSE", "pjStar"],
 		["p4Stand", "p4Shoot", "p4Gun", "wallSingle", "wallHEndW", "wallH", "wallHEndE"],
-		["e1Stand", "null1", "null2", "floor", "floorGrate", "pit",  "floorAlt2"],
-		["e2Stand", "e2Shoot", "e2Gun", "floorAlt1", "floorGrateAlt1", "floorGrateAlt2"],
+		["e1UAStand", "null1", "null2", "floor", "floorGrate", "pit",  "floorAlt2"],
+		["e1AStand", "e1AShoot", "e1AGun", "floorAlt1", "floorGrateAlt1", "floorGrateAlt2"],
 		["eBall", "eBallFlying", "eTurret"]
 	]
 }

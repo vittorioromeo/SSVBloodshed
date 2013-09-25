@@ -26,30 +26,32 @@ namespace ob
 			sf::Texture* txGiant{nullptr};
 
 			// Small tileset (10x10)
-			sf::IntRect p1Stand, p1Shoot, p1Gun;							// Player class 1
-			sf::IntRect p2Stand, p2Shoot, p2Gun;							// Player class 2
-			sf::IntRect p3Stand, p3Shoot, p3Gun;							// Player class 3
-			sf::IntRect p4Stand, p4Shoot, p4Gun;							// Player class 4
-			sf::IntRect e1Stand;											// Runner alien
-			sf::IntRect e2Stand, e2Shoot, e2Gun;							// RunnerArmed alien
-			sf::IntRect floor, floorAlt1, floorAlt2;						// Floor
-			sf::IntRect floorGrate, floorGrateAlt1, floorGrateAlt2;			// Floor grate
-			sf::IntRect wallSingle;											// Wall
-			sf::IntRect pit;												// Pit
-			sf::IntRect pjBullet, pjPlasma, pjStar;							// Projectiles
-			sf::IntRect eBall, eBallFlying;									// Ball enemy
-			sf::IntRect eTurret;											// Turret enemy
+			sf::IntRect p1Stand, p1Shoot, p1Gun;								// Player class 1
+			sf::IntRect p2Stand, p2Shoot, p2Gun;								// Player class 2
+			sf::IntRect p3Stand, p3Shoot, p3Gun;								// Player class 3
+			sf::IntRect p4Stand, p4Shoot, p4Gun;								// Player class 4
+			sf::IntRect e1UAStand, e1AStand, e1AShoot, e1AGun;					// Runner alien
+			sf::IntRect floor, floorAlt1, floorAlt2;							// Floor
+			sf::IntRect floorGrate, floorGrateAlt1, floorGrateAlt2;				// Floor grate
+			sf::IntRect wallSingle;												// Wall
+			sf::IntRect wallV, wallH;											// Wall vertical/horizontal
+			sf::IntRect wallCornerSW, wallCornerSE, wallCornerNW, wallCornerNE;	// Wall corners
+			sf::IntRect wallVEndS, wallVEndN, wallHEndW, wallHEndE;				// Wall ends
+			sf::IntRect wallTS, wallTN, wallTW, wallTE;							// Wall T
+			sf::IntRect wallCross;												// Wall cross
+			sf::IntRect pit;													// Pit
+			sf::IntRect pjBullet, pjPlasma, pjStar;								// Projectiles
+			sf::IntRect eBall, eBallFlying;										// Ball enemy
+			sf::IntRect eTurret;												// Turret enemy
 
 			// Medium tileset (20x20)
-			sf::IntRect e3Stand;											// Charger alien
-			sf::IntRect e6Stand, e6Shoot, e6Gun;							// ChargerArmed alien
+			sf::IntRect e2UAStand, e2AStand, e2AShoot, e2AGun;					// Charger alien
 
 			// Big tileset (30x30)
-			sf::IntRect e4Stand;											// Juggernaut alien
-			sf::IntRect e7Stand, e7Shoot, e7Gun;							// JuggernautArmed alien
+			sf::IntRect e3UAStand, e3AStand, e3AShoot, e3AGun;					// Juggernaut alien
 
 			// Giant tileset (40x40)
-			sf::IntRect e5Stand;											// Giant alien
+			sf::IntRect e4UAStand;												// Giant alien
 
 			inline OBAssets()
 			{
@@ -58,6 +60,17 @@ namespace ob
 
 				ssvs::loadAssetsFromJson(assetManager, "Data/", ssvuj::readFromFile("Data/assets.json"));
 
+				// Tileset references
+				const auto& tsSmall(assetManager.get<ssvs::Tileset>("tsSmall"));
+				const auto& tsMedium(assetManager.get<ssvs::Tileset>("tsMedium"));
+				const auto& tsBig(assetManager.get<ssvs::Tileset>("tsBig"));
+				const auto& tsGiant(assetManager.get<ssvs::Tileset>("tsGiant"));
+
+				#define T_TSSMALL(x) x = tsSmall(#x)
+				#define T_TSMEDIUM(x) x = tsMedium(#x)
+				#define T_TSBIG(x) x = tsBig(#x)
+				#define T_TSGIANT(x) x = tsGiant(#x)
+
 				// Textures
 				txSmall = &assetManager.get<sf::Texture>("tsSmall.png");
 				txMedium = &assetManager.get<sf::Texture>("tsMedium.png");
@@ -65,34 +78,37 @@ namespace ob
 				txGiant = &assetManager.get<sf::Texture>("tsGiant.png");
 
 				// Small tileset (10x10)
-				const auto& tsSmall(assetManager.get<ssvs::Tileset>("tsSmall"));
-				p1Stand = tsSmall("p1Stand"); p1Shoot = tsSmall("p1Shoot"); p1Gun = tsSmall("p1Gun");
-				p2Stand = tsSmall("p2Stand"); p2Shoot = tsSmall("p2Shoot"); p2Gun = tsSmall("p2Gun");
-				p3Stand = tsSmall("p3Stand"); p3Shoot = tsSmall("p3Shoot"); p3Gun = tsSmall("p3Gun");
-				p4Stand = tsSmall("p4Stand"); p4Shoot = tsSmall("p4Shoot"); p4Gun = tsSmall("p4Gun");
-				e1Stand = tsSmall("e1Stand");
-				e2Stand = tsSmall("e2Stand"); e2Shoot = tsSmall("e2Shoot"); e2Gun = tsSmall("e2Gun");
-				floor = tsSmall("floor"); floorAlt1 = tsSmall("floorAlt1"); floorAlt2 = tsSmall("floorAlt2");
-				floorGrate = tsSmall("floorGrate"); floorGrateAlt1 = tsSmall("floorGrateAlt1"); floorGrateAlt2 = tsSmall("floorGrateAlt2");
-				wallSingle = tsSmall("wallSingle");
-				pit = tsSmall("pit");
-				pjBullet = tsSmall("pjBullet"); pjPlasma = tsSmall("pjPlasma"); pjStar = tsSmall("pjStar");
-				eBall = tsSmall("eBall"); eBallFlying = tsSmall("eBallFlying");
-				eTurret = tsSmall("eTurret");
+				T_TSSMALL(p1Stand); T_TSSMALL(p1Shoot); T_TSSMALL(p1Gun);
+				T_TSSMALL(p2Stand); T_TSSMALL(p2Shoot); T_TSSMALL(p2Gun);
+				T_TSSMALL(p3Stand); T_TSSMALL(p3Shoot); T_TSSMALL(p3Gun);
+				T_TSSMALL(p4Stand); T_TSSMALL(p4Shoot); T_TSSMALL(p4Gun);
+				T_TSSMALL(e1UAStand); T_TSSMALL(e1AStand); T_TSSMALL(e1AShoot); T_TSSMALL(e1AGun);
+				T_TSSMALL(floor); T_TSSMALL(floorAlt1); T_TSSMALL(floorAlt2);
+				T_TSSMALL(floorGrate); T_TSSMALL(floorGrateAlt1); T_TSSMALL(floorGrateAlt2);
+				T_TSSMALL(wallSingle);
+				T_TSSMALL(wallV); T_TSSMALL(wallH);
+				T_TSSMALL(wallCornerSW); T_TSSMALL(wallCornerSE); T_TSSMALL(wallCornerNW); T_TSSMALL(wallCornerNE);
+				T_TSSMALL(wallVEndS); T_TSSMALL(wallVEndN); T_TSSMALL(wallHEndW); T_TSSMALL(wallHEndE);
+				T_TSSMALL(wallTS); T_TSSMALL(wallTN); T_TSSMALL(wallTW); T_TSSMALL(wallTE);
+				T_TSSMALL(wallCross);
+				T_TSSMALL(pit);
+				T_TSSMALL(pjBullet); T_TSSMALL(pjPlasma); T_TSSMALL(pjStar);
+				T_TSSMALL(eBall); T_TSSMALL(eBallFlying);
+				T_TSSMALL(eTurret);
 
 				// Medium tileset (20x20)
-				const auto& tsMedium(assetManager.get<ssvs::Tileset>("tsMedium"));
-				e3Stand = tsMedium("e3Stand");
-				e6Stand = tsMedium("e6Stand"); e6Shoot = tsMedium("e6Shoot"); e6Gun = tsMedium("e6Gun");
+				T_TSMEDIUM(e2UAStand); T_TSMEDIUM(e2AStand); T_TSMEDIUM(e2AShoot); T_TSMEDIUM(e2AGun);
 
 				// Big tileset (30x30)
-				const auto& tsBig(assetManager.get<ssvs::Tileset>("tsBig"));
-				e4Stand = tsBig("e4Stand");
-				e7Stand = tsBig("e7Stand"); e7Shoot = tsBig("e7Shoot"); e7Gun = tsBig("e7Gun");
+				T_TSBIG(e3UAStand); T_TSBIG(e3AStand); T_TSBIG(e3AShoot); T_TSBIG(e3AGun);
 
 				// Giant tileset (40x40)
-				const auto& tsGiant(assetManager.get<ssvs::Tileset>("tsGiant"));
-				e5Stand = tsGiant("e5Stand");
+				T_TSGIANT(e4UAStand);
+
+				#undef T_TSSMALL
+				#undef T_TSMEDIUM
+				#undef T_TSBIG
+				#undef T_TSGIANT
 			}
 
 			inline ssvs::AssetManager& operator()() noexcept { return assetManager; }
@@ -109,6 +125,9 @@ namespace ob
 				musicPlayer.play(get<sf::Music>(mName));
 				musicPlayer.setLoop(true);
 			}
+
+			inline const sf::IntRect& getFloorVariant() const noexcept		{ return ssvu::getRnd(0, 10) < 9 ? floor : (ssvu::getRnd(0, 2) < 1 ? floorAlt1 : floorAlt2); }
+			inline const sf::IntRect& getFloorGrateVariant() const noexcept	{ return ssvu::getRnd(0, 10) < 9 ? floorGrate : (ssvu::getRnd(0, 2) < 1 ? floorGrateAlt1 : floorGrateAlt2); }
 	};
 }
 
