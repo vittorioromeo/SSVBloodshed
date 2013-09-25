@@ -90,7 +90,7 @@ namespace ob
 				}
 				else cWielder.setShooting(false);
 			}
-			inline void draw() override { recalculateTile(assets.e1Stand, assets.e2Stand, assets.e2Shoot); }
+			inline void draw() override { recalculateTile(assets.e1UAStand, assets.e1AStand, assets.e1AShoot); }
 
 			inline void shootGun()
 			{
@@ -145,7 +145,7 @@ namespace ob
 				}
 				else cWielder.setShooting(false);
 			}
-			inline void draw() override { recalculateTile(assets.e3Stand, assets.e6Stand, assets.e6Shoot); }
+			inline void draw() override { recalculateTile(assets.e2UAStand, assets.e2AStand, assets.e2AShoot); }
 
 			inline void shootGun()
 			{
@@ -202,7 +202,7 @@ namespace ob
 				}
 				else cWielder.setShooting(false);
 			}
-			inline void draw() override { recalculateTile(assets.e4Stand, assets.e7Stand, assets.e7Shoot); }
+			inline void draw() override { recalculateTile(assets.e3UAStand, assets.e3AStand, assets.e3AShoot); }
 
 			inline void shootGun()
 			{
