@@ -36,6 +36,8 @@ namespace ob
 			OBGDebugText<OBGame> debugText{*this};
 			sf::Sprite hudSprite{assets.get<sf::Texture>("tempHud.png")};
 
+			ssvs::BitmapText hpText{assets.get<ssvs::BitmapFont>("fontObStroked")};
+
 		public:
 			OBBarCounter testhp{2, 6, 13};
 
@@ -44,15 +46,18 @@ namespace ob
 				gameState.onUpdate += [this](float mFT){ update(mFT); };
 				gameState.onDraw += [this]{ draw(); };
 
-				// Temp hud sprite
+
+				// Testing hud
 				hudSprite.setScale(2.f, 2.f);
 				hudSprite.setPosition(0, 480 - getGlobalHeight(hudSprite));
 
-				//
-				testhp.setTracking(1);
 				testhp.setColor(sf::Color{184, 37, 53, 255});
-				testhp.setScale(2.f, 2.f);
+				testhp.setScale(2.f, 2.f); testhp.setTracking(1);
 				testhp.setPosition(26, (480 - getGlobalHeight(hudSprite) / 2.f) - 2.f);
+
+				hpText.setScale(2.f, 2.f); hpText.setTracking(-3);
+				hpText.setPosition(172, (480 - getGlobalHeight(hudSprite) / 2.f) - 6.f);
+				hpText.setColor(sf::Color{136, 199, 234, 255});
 
 				newGame();
 			}
@@ -69,25 +74,27 @@ namespace ob
 				std::string level = "################################"
 									"#..............................#"
 									"#..P...#.......................#"
-									"#......#.......................#"
-									"#..#####............##.........#"
-									"#...................W#.........#"
-									"#...................#E.........#"
-									"#...................W#.........#"
-									"#...gggggg..........##.........#"
+									"#......#....###................#"
+									"#..#####...#.#.#....##.........#"
+									"#..........#####....W#.....#...#"
+									"#..........#.#.#....#E.....##..#"
+									"#...........###.....W#....#.#..#"
+									"#...gggggg..........##....##...#"
+									"#...goooog.................#...#"
 									"#...goooog.....................#"
-									"#...goooog.....................#"
-									"#...goooog.....gggggggggg......#"
+									"##..goooog.....gggggggggg......#"
 									"#...goooog.....goooooooog......#"
-									"#...goooog.....goooooooog......#"
-									"#...gggggg.....goooooooog......#"
+									"#..#goooog..##.goooooooog......#"
+									"##..gggggg..##.goooooooog......#"
 									"#..............goooooooog......#"
-									"#..............gggggggggg......#"
-									"#....##........................#"
-									"#....##........................#"
-									"#....##........................#"
-									"#...............#N#............#"
+									"#...........##.gggggggggg......#"
+									"#....##......#.................#"
+									"#....##...................#....#"
+									"###..##..................#.#...#"
+									"###.............#N#.......#....#"
 									"################################";
+
+				auto tileIs = [&](int mX, int mY, char mChar){ if(mX < 0 || mY < 0 || mX >= maxX || mY >= maxY) return false; return level[ssvu::get1DIndexFrom2D(mX, mY, maxX)] == mChar; };
 
 				unsigned int idx{0};
 				for(int iY{0}; iY < maxY; ++iY)
@@ -97,7 +104,60 @@ namespace ob
 
 						switch(level[idx++])
 						{
-							case '#': factory.createWall(tp); break;
+							case '#':
+							{
+								sf::IntRect* rect{nullptr};
+
+								auto isWall = [&](int mX, int mY){ return tileIs(mX, mY, '#'); };
+
+								bool neighborN{isWall(iX, iY - 1)}, neighborS{isWall(iX, iY + 1)}, neighborW{isWall(iX - 1, iY)}, neighborE{isWall(iX + 1, iY)};
+								bool neighborsH{neighborW && neighborE}, neighborsV{neighborN && neighborS};
+
+								if(neighborsH && neighborsV) rect = &assets.wallCross;
+								else if(neighborsH && !neighborsV)
+								{
+									if(neighborN) rect = &assets.wallTS;
+									else if(neighborS) rect = &assets.wallTN;
+									else rect = &assets.wallH;
+								}
+								else if(!neighborsH && neighborsV)
+								{
+									if(neighborW) rect = &assets.wallTE;
+									else if(neighborE) rect = &assets.wallTW;
+									else rect = &assets.wallV;
+								}
+								else if(!neighborsH && !neighborsV)
+								{
+									if(neighborN)
+									{
+										if(neighborW) rect = &assets.wallCornerSE;
+										else if(neighborE) rect = &assets.wallCornerSW;
+										else rect = &assets.wallVEndS;
+									}
+									else if(neighborS)
+									{
+										if(neighborW) rect = &assets.wallCornerNE;
+										else if(neighborE) rect = &assets.wallCornerNW;
+										else rect = &assets.wallVEndN;
+									}
+									else if(neighborW)
+									{
+										if(neighborN) rect = &assets.wallCornerSE;
+										else if(neighborS) rect = &assets.wallCornerNE;
+										else rect = &assets.wallHEndE;
+									}
+									else if(neighborE)
+									{
+										if(neighborN) rect = &assets.wallCornerSW;
+										else if(neighborS) rect = &assets.wallCornerNW;
+										else rect = &assets.wallHEndW;
+									}
+									else rect = &assets.wallSingle;
+								}
+
+								factory.createWall(tp, *rect);
+								break;
+							}
 							case '.': factory.createFloor(tp); break;
 							case 'o': factory.createPit(tp); break;
 							case 'g': factory.createFloor(tp, true); break;
@@ -116,6 +176,8 @@ namespace ob
 				world.update(mFT);
 				debugText.update(mFT);
 				camera.update<int>(mFT);
+
+				hpText.setString(ssvu::toStr(testhp.getValue()));
 			}
 			inline void draw()
 			{
@@ -124,7 +186,9 @@ namespace ob
 				camera.unapply();
 				render(hudSprite);
 				debugText.draw();
+
 				render(testhp);
+				render(hpText);
 			}
 
 			inline void render(const sf::Drawable& mDrawable) { gameWindow.draw(mDrawable); }
@@ -151,8 +215,6 @@ namespace ob
 			inline void createPSmoke(unsigned int mCount, const Vec2f& mPos)					{ for(auto i(0u); i < mCount; ++i) ob::createPSmoke(particles.getPSTemp(), mPos); }
 			inline void createPElectric(unsigned int mCount, const Vec2f& mPos)					{ for(auto i(0u); i < mCount; ++i) ob::createPElectric(particles.getPSTemp(), mPos); }
 	};
-
-	// TODO: join walls, hud mockup, color fixes, etc etc etc
 }
 
 #endif
