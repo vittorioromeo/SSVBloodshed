@@ -42,15 +42,17 @@ namespace ob
 
 				gs.addInput({{k::R}}, [this](float){ game.newGame(); }, t::Once);
 
+				gs.addInput({{k::Num0}}, [this](float){ game.factory.createPit(game.getMousePosition()); }, t::Once);
 				gs.addInput({{k::Num1}}, [this](float){ game.factory.createWall(game.getMousePosition()); }, t::Once);
 				gs.addInput({{k::Num2}}, [this](float){ game.factory.createERunner(game.getMousePosition(), false); });
 				gs.addInput({{k::Num3}}, [this](float){ game.factory.createECharger(game.getMousePosition(), false); }, t::Once);
 				gs.addInput({{k::Num4}}, [this](float){ game.factory.createEJuggernaut(game.getMousePosition(), false); }, t::Once);
 				gs.addInput({{k::Num5}}, [this](float){ game.factory.createEGiant(game.getMousePosition()); }, t::Once);
-				gs.addInput({{k::Num6}}, [this](float){ game.factory.createEBall(game.getMousePosition()); }, t::Once);
+				gs.addInput({{k::Num6}}, [this](float){ game.factory.createEBall(game.getMousePosition(), false); }, t::Once);
 				gs.addInput({{k::Num7}}, [this](float){ game.factory.createERunner(game.getMousePosition(), true); });
 				gs.addInput({{k::Num8}}, [this](float){ game.factory.createECharger(game.getMousePosition(), true); }, t::Once);
 				gs.addInput({{k::Num9}}, [this](float){ game.factory.createEJuggernaut(game.getMousePosition(), true); }, t::Once);
+				gs.addInput({{k::P}}, [this](float){ game.factory.createEBall(game.getMousePosition(), true); }, t::Once);
 			}
 
 			inline bool getIShoot() const noexcept		{ return iShoot; }
