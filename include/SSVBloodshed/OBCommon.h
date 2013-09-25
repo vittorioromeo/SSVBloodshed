@@ -31,7 +31,8 @@ namespace ob
 	// Game enums
 	enum OBGroup : unsigned int
 	{
-		GSolid,
+		GSolidGround,
+		GSolidAir,
 		GProjectile,
 		GOrganic,
 		GFloor,
@@ -46,6 +47,7 @@ namespace ob
 		LEnemy,
 		LPSTemp,
 		LProjectile,
+		LPit,
 		LFloorGrate,
 		LPSPerm,
 		LFloor,
@@ -61,12 +63,12 @@ namespace ob
 	// Direction utils
 	constexpr float direction8Step{45.f};
 	enum Direction8 : int {E = 0, SE = 1, S = 2, SW = 3, W = 4, NW = 5, N = 6, NE = 7};
-	template<typename T = float> inline T getDegreesFromDirection8(Direction8 mDirection) noexcept { return T(static_cast<int>(mDirection) * direction8Step); }
+	template<typename T = float> inline T getDegreesFromDirection8(Direction8 mDirection) noexcept { return T(int(mDirection) * direction8Step); }
 	template<typename T> inline Direction8 getDirection8FromDegrees(T mDegrees) noexcept
 	{
 		mDegrees = ssvu::wrapDegrees(mDegrees);
-		int i = static_cast<int>((mDegrees + direction8Step / 2) / direction8Step);
-		return static_cast<Direction8>(i % 8);
+		int i{static_cast<int>((mDegrees + direction8Step / 2) / direction8Step)};
+		return Direction8(i % 8);
 	}
 	template<typename T> inline Direction8 getDirection8FromXY(T mX, T mY) noexcept
 	{
@@ -100,10 +102,14 @@ namespace ob
 	// Timeline shortcuts
 	inline void repeat(ssvu::Timeline& mTimeline, const ssvu::Action& mAction, unsigned int mTimes, float mWait)
 	{
+		assert(mTimes > 0);
 		auto& action(mTimeline.append<ssvu::Do>(mAction));
 		mTimeline.append<ssvu::Wait>(mWait);
-		mTimeline.append<ssvu::Go>(action.getIndex(), mTimes);
+		mTimeline.append<ssvu::Go>(action.getIndex(), mTimes - 1);
 	}
+
+	// Other utils
+	inline Entity& getEntityFromBody(ssvsc::Body& mBody) { return *static_cast<Entity*>(mBody.getUserData()); }
 
 	// SFML shortcuts (TODO: remove? move to ssvs?)
 	template<typename T> float getGlobalLeft(const T& mElement)		{ return mElement.getGlobalBounds().left; }
