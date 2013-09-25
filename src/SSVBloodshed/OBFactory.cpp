@@ -67,17 +67,25 @@ namespace ob
 		result.createComponent<OBCParticleSystem>(mRenderTexture, game.getGameWindow(), mClearOnDraw, mOpacity);
 		return result;
 	}
-	Entity& OBFactory::createFloor(const Vec2i& mPos)
+	Entity& OBFactory::createFloor(const Vec2i& mPos, bool mGrate)
 	{
 		auto tpl(createActorBase(mPos, {1000, 1000}, OBLayer::LFloor));
-		getEntity(tpl).createComponent<OBCFloor>(getCPhys(tpl), getCDraw(tpl));
 		emplaceSpriteFromTile(getCDraw(tpl), assets.txSmall, getRnd(0, 10) < 9 ? assets.floor : (ssvu::getRnd(0, 2) < 1 ? assets.floorAlt1 : assets.floorAlt2));
+		getEntity(tpl).createComponent<OBCFloor>(getCPhys(tpl), getCDraw(tpl), mGrate);
+		return getEntity(tpl);
+	}
+	Entity& OBFactory::createPit(const Vec2i& mPos)
+	{
+		auto tpl(createActorBase(mPos, {1000, 1000}, OBLayer::LPit, true));
+		getCPhys(tpl).getBody().addGroup(OBGroup::GSolidGround);
+		emplaceSpriteFromTile(getCDraw(tpl), assets.txSmall, assets.pit);
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createWall(const Vec2i& mPos)
 	{
 		auto tpl(createActorBase(mPos, {1000, 1000}, OBLayer::LWall, true));
-		getCPhys(tpl).getBody().addGroup(OBGroup::GSolid);
+		getCPhys(tpl).getBody().addGroup(OBGroup::GSolidGround);
+		getCPhys(tpl).getBody().addGroup(OBGroup::GSolidAir);
 		emplaceSpriteFromTile(getCDraw(tpl), assets.txSmall, assets.wallSingle);
 		return getEntity(tpl);
 	}
@@ -93,15 +101,15 @@ namespace ob
 		emplaceSpriteFromTile(getCDraw(tpl), assets.txSmall, assets.p1Gun);
 		return getEntity(tpl);
 	}
-	Entity& OBFactory::createEBall(const Vec2i& mPos)
+	Entity& OBFactory::createEBall(const Vec2i& mPos, bool mFlying, bool mSmall)
 	{
-		auto tpl(createEnemyBase(mPos, {750, 750}, 5));
-		auto& cFloorSmasher(getEntity(tpl).createComponent<OBCFloorSmasher>(getCPhys(tpl)));
-		getEntity(tpl).createComponent<OBCEBall>(getCEnemy(tpl), cFloorSmasher);
-		emplaceSpriteFromTile(getCDraw(tpl), assets.txSmall, assets.eBall);
+		auto tpl(createEnemyBase(mPos, {750, 750}, mSmall ? 2 : 5));
+		if(!mSmall && !mFlying) getEntity(tpl).createComponent<OBCFloorSmasher>(getCPhys(tpl)).setActive(true);
+		getEntity(tpl).createComponent<OBCEBall>(getCEnemy(tpl), mFlying, mSmall);
+		emplaceSpriteFromTile(getCDraw(tpl), assets.txSmall, mFlying ? assets.eBallFlying : assets.eBall);
+		if(mSmall) getCDraw(tpl).setGlobalScale({0.7f, 0.7f});
 		return getEntity(tpl);
 	}
-
 	Entity& OBFactory::createERunner(const Vec2i& mPos, bool mArmed)
 	{
 		auto tpl(createEnemyBase(mPos, {600, 600}, 4));
@@ -139,6 +147,15 @@ namespace ob
 		auto& cFloorSmasher(getEntity(tpl).createComponent<OBCFloorSmasher>(getCPhys(tpl)));
 		getEntity(tpl).createComponent<OBCEGiant>(getCEnemy(tpl), cFloorSmasher);
 		emplaceSpriteFromTile(getCDraw(tpl), assets.txGiant, assets.e5Stand);
+		return getEntity(tpl);
+	}
+	Entity& OBFactory::createETurret(const Vec2i& mPos, Direction8 mDirection)
+	{
+		auto tpl(createActorBase(mPos, {1000, 1000}, OBLayer::LEnemy));
+		auto& cHealth(getEntity(tpl).createComponent<OBCHealth>(20));
+		auto& cKillable(getEntity(tpl).createComponent<OBCKillable>(getCPhys(tpl), cHealth, OBCKillable::Type::Robotic));
+		getEntity(tpl).createComponent<OBCTurret>(getCPhys(tpl), getCDraw(tpl), cKillable, mDirection);
+		emplaceSpriteFromTile(getCDraw(tpl), assets.txSmall, assets.eTurret);
 		return getEntity(tpl);
 	}
 

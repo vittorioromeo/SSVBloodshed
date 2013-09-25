@@ -39,16 +39,18 @@ namespace ob
 
 			Entity& createParticleSystem(sf::RenderTexture& mRenderTexture, bool mClearOnDraw = false, unsigned char mOpacity = 255, int mDrawPriority = 1000);
 
-			Entity& createFloor(const Vec2i& mPos);
+			Entity& createFloor(const Vec2i& mPos, bool mGrate = false);
+			Entity& createPit(const Vec2i& mPos);
 			Entity& createWall(const Vec2i& mPos);
 			Entity& createPlayer(const Vec2i& mPos);
 
 			// Enemies
-			Entity& createEBall(const Vec2i& mPos);
-			Entity& createERunner(const Vec2i& mPos, bool mArmed);
-			Entity& createECharger(const Vec2i& mPos, bool mArmed);
-			Entity& createEJuggernaut(const Vec2i& mPos, bool mArmed);
+			Entity& createEBall(const Vec2i& mPos, bool mFlying, bool mSmall = false);
+			Entity& createERunner(const Vec2i& mPos, bool mArmed = false);
+			Entity& createECharger(const Vec2i& mPos, bool mArmed = false);
+			Entity& createEJuggernaut(const Vec2i& mPos, bool mArmed = false);
 			Entity& createEGiant(const Vec2i& mPos);
+			Entity& createETurret(const Vec2i& mPos, Direction8 mDirection);
 
 			// Projectiles
 			Entity& createPJBullet(const Vec2i& mPos, float mDegrees);
