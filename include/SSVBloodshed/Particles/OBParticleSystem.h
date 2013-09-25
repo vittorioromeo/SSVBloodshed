@@ -24,13 +24,13 @@ namespace ob
 				if(particles.size() >= maxParticles) return;
 				particles.emplace_back(mPosition, mVelocity, mAcceleration, mColor, mSize, mLife, mAlphaMult);
 			}
-			inline void update(float mFrameTime)
+			inline void update(float mFT)
 			{
 				ssvu::eraseRemoveIf(particles, [](const Particle& mParticle){ return mParticle.getLife() <= 0; });
 				vertices.clear();
 				for(auto& p : particles)
 				{
-					p.update(mFrameTime);
+					p.update(mFT);
 					vertices.append({{p.getPosition().x - p.getSize(), p.getPosition().y - p.getSize()}, p.getColor()});
 					vertices.append({{p.getPosition().x + p.getSize(), p.getPosition().y - p.getSize()}, p.getColor()});
 					vertices.append({{p.getPosition().x + p.getSize(), p.getPosition().y + p.getSize()}, p.getColor()});

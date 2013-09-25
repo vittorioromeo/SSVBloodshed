@@ -30,7 +30,7 @@ namespace ob
 				sprite.setTexture(renderTexture.getTexture());
 				sprite.setColor({255, 255, 255, alpha});
 			}
-			inline void update(float mFrameTime) override { particleSystem.update(mFrameTime); }
+			inline void update(float mFT) override { particleSystem.update(mFT); }
 			inline void draw() override
 			{
 				renderTexture.draw(particleSystem);

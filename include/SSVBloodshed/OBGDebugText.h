@@ -22,7 +22,7 @@ namespace ob
 				debugText.setTracking(-3);
 			}
 
-			inline void update(float mFrameTime)
+			inline void update(float mFT)
 			{
 				std::ostringstream s;
 				const auto& entities(game.getManager().getEntities());
@@ -31,18 +31,18 @@ namespace ob
 				for(const auto& e : entities) componentCount += e->getComponents().size();
 				for(const auto& b : bodies) if(!b->isStatic()) ++dynamicBodiesCount;
 
-				s << "FPS: "				<< game.getGameWindow().getFPS() << "\n";
-				s << "FrameTime: "			<< mFrameTime << "\n";
-				s << "Bodies(all): "		<< bodies.size() << "\n";
-				s << "Bodies(static): "		<< bodies.size() - dynamicBodiesCount << "\n";
-				s << "Bodies(dynamic): "	<< dynamicBodiesCount << "\n";
-				s << "Sensors: "			<< game.getWorld().getSensors().size() << "\n";
-				s << "Entities: "			<< entities.size() << "\n";
-				s << "Components: "			<< componentCount << std::endl;
+				s << "FPS: "				<< game.getGameWindow().getFPS() << "\n"
+					<< "FrameTime: "		<< mFT << "\n"
+					<< "Bodies(all): "		<< bodies.size() << "\n"
+					<< "Bodies(static): "	<< bodies.size() - dynamicBodiesCount << "\n"
+					<< "Bodies(dynamic): "	<< dynamicBodiesCount << "\n"
+					<< "Sensors: "			<< game.getWorld().getSensors().size() << "\n"
+					<< "Entities: "			<< entities.size() << "\n"
+					<< "Components: "		<< componentCount << std::endl;
 
 				debugText.setString(s.str());
 			}
-			inline void draw() { game.render(debugText); }
+			inline void draw() const { game.render(debugText); }
 	};
 }
 

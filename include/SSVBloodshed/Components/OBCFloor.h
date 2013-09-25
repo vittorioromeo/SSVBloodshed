@@ -25,9 +25,9 @@ namespace ob
 				if(smashed) return;
 				smashed = true;
 				cDraw[0].setTextureRect(ssvu::getRnd(0, 10) < 9 ? assets.floorGrate : (ssvu::getRnd(0, 2) < 1 ? assets.floorGrateAlt1 : assets.floorGrateAlt2)); // TODO: assets.getRandomFloorGrateIntRectOrSomething
-				game.createPDebris(20, toPixels(body.getPosition()));
-				game.createPDebrisFloor(4, toPixels(body.getPosition()));
-				getEntity().setDrawPriority(OBLayer::PFloorGrate);
+				game.createPDebris(20, cPhys.getPosPixels());
+				game.createPDebrisFloor(4, cPhys.getPosPixels());
+				getEntity().setDrawPriority(OBLayer::LFloorGrate);
 			}
 			inline bool isSmashed() const noexcept { return smashed; }
 	};

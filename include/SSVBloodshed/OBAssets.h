@@ -62,13 +62,8 @@ namespace ob
 				txBig = &assetManager.get<sf::Texture>("tsBig.png");
 				txGiant = &assetManager.get<sf::Texture>("tsGiant.png");
 
-				// Tileset references
-				const auto& tsSmall(assetManager.get<ssvs::Tileset>("tsSmall"));
-				const auto& tsMedium(assetManager.get<ssvs::Tileset>("tsMedium"));
-				const auto& tsBig(assetManager.get<ssvs::Tileset>("tsBig"));
-				const auto& tsGiant(assetManager.get<ssvs::Tileset>("tsGiant"));
-
 				// Small tileset (10x10)
+				const auto& tsSmall(assetManager.get<ssvs::Tileset>("tsSmall"));
 				p1Stand = tsSmall("p1Stand"); p1Shoot = tsSmall("p1Shoot"); p1Gun = tsSmall("p1Gun");
 				p2Stand = tsSmall("p2Stand"); p2Shoot = tsSmall("p2Shoot"); p2Gun = tsSmall("p2Gun");
 				p3Stand = tsSmall("p3Stand"); p3Shoot = tsSmall("p3Shoot"); p3Gun = tsSmall("p3Gun");
@@ -82,14 +77,17 @@ namespace ob
 				eBall = tsSmall("eBall");
 
 				// Medium tileset (20x20)
+				const auto& tsMedium(assetManager.get<ssvs::Tileset>("tsMedium"));
 				e3Stand = tsMedium("e3Stand");
 				e6Stand = tsMedium("e6Stand"); e6Shoot = tsMedium("e6Shoot"); e6Gun = tsMedium("e6Gun");
 
 				// Big tileset (30x30)
+				const auto& tsBig(assetManager.get<ssvs::Tileset>("tsBig"));
 				e4Stand = tsBig("e4Stand");
 				e7Stand = tsBig("e7Stand"); e7Shoot = tsBig("e7Shoot"); e7Gun = tsBig("e7Gun");
 
 				// Giant tileset (40x40)
+				const auto& tsGiant(assetManager.get<ssvs::Tileset>("tsGiant"));
 				e5Stand = tsGiant("e5Stand");
 			}
 

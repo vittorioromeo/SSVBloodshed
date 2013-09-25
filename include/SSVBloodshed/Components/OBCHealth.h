@@ -21,7 +21,7 @@ namespace ob
 
 			OBCHealth(int mHealth) : health{mHealth}, maxHealth{mHealth} { }
 
-			inline void update(float mFrameTime) override { if(cooldown.update(mFrameTime)) cooldown.stop(); }
+			inline void update(float mFT) override { if(cooldown.update(mFT)) cooldown.stop(); }
 
 			inline void heal(int mHealth) noexcept { health += mHealth; ssvu::clampMax(health, maxHealth); onHeal(); }
 			inline bool damage(int mDamage) noexcept

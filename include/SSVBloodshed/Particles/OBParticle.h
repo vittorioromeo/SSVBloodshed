@@ -21,12 +21,12 @@ namespace ob
 			inline Particle(const Vec2f& mPosition, const Vec2f& mVelocity, float mAcceleration, const sf::Color& mColor, float mSize, float mLife, float mAlphaMult)
 				: position{mPosition}, velocity{mVelocity}, acceleration{mAcceleration}, color{mColor}, size{mSize}, life{mLife}, lifeMax{mLife}, alphaMult{mAlphaMult} { }
 
-			inline void update(float mFrameTime)
+			inline void update(float mFT)
 			{
-				life -= mFrameTime;
+				life -= mFT;
 				color.a = static_cast<unsigned char>(ssvu::getClamped(life * (255.f / lifeMax) * alphaMult, 0.f, 255.f));
-				velocity *= acceleration; // TODO: * mFrameTime?
-				position += velocity * mFrameTime;
+				velocity *= acceleration; // TODO: * mFT?
+				position += velocity * mFT;
 			}
 
 			inline void setPosition(const Vec2f& mPosition) noexcept	{ position = mPosition; }

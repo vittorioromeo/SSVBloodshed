@@ -22,6 +22,7 @@ namespace ob
 			OBCDirection8& cDirection8;
 			float walkSpeed{125.f};
 			ssvs::Ticker shootTimer{4.7f};
+			int currentWeapon{0};
 
 		public:
 			OBCPlayer(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCKillable& mCKillable, OBCWielder& mCWielder) : OBCActorBase{mCPhys, mCDraw}, cKillable(mCKillable), cWielder(mCWielder), cDirection8(mCWielder.getCDirection()) { }
@@ -36,9 +37,9 @@ namespace ob
 				body.addGroup(OBGroup::GOrganic);
 				body.addGroupToCheck(OBGroup::GSolid);
 			}
-			inline void update(float mFrameTime) override
+			inline void update(float mFT) override
 			{
-				if(shootTimer.update(mFrameTime)) shootTimer.stop();
+				if(shootTimer.update(mFT)) shootTimer.stop();
 
 				cWielder.setShooting(game.getInput().getIShoot());
 
@@ -48,46 +49,40 @@ namespace ob
 
 				if(!cWielder.isShooting())
 				{
-					if(ix != 0 || iy != 0) cDirection8 = getDirectionFromXY(ix, iy);
+					if(ix != 0 || iy != 0) cDirection8 = getDirection8FromXY(ix, iy);
 				}
-				else if(shootTimer.isStopped()) shoot();
+				else if(shootTimer.isStopped()) shootGun();
 
 				if(game.getInput().getIBomb()) bomb();
+				if(game.getInput().getISwitch()) currentWeapon = (currentWeapon + 1) % 4;
 
 				body.setVelocity(iVec * walkSpeed);
 			}
 			inline void draw() override
 			{
-				cDraw[0].setRotation(45 * cDirection8.getInt());
+				cDraw[0].setRotation(cDirection8.getDegrees());
 				cDraw[0].setTextureRect(cWielder.isShooting() ? assets.p1Shoot : assets.p1Stand);
 			}
 
-			inline void shoot()
+			inline void shootGun()
 			{
-				int weapon{0};
-
-				switch(weapon)
+				switch(currentWeapon)
 				{
 					case 0:
-						assets.playSound("Sounds/machineGun.wav");
-						getFactory().createProjectileBullet(cWielder.getShootingPos(), cDirection8.getDegrees());
-						shootTimer.restart(4.5f);
+						assets.playSound("Sounds/machineGun.wav"); shootTimer.restart(4.5f);
+						getFactory().createPJBullet(cWielder.getShootingPos(), cDirection8.getDegrees());
 						break;
 					case 1:
-						getFactory().createProjectilePlasma(cWielder.getShootingPos(), cDirection8.getDegrees());
-						shootTimer.restart(9.5f);
+						assets.playSound("Sounds/machineGun.wav"); shootTimer.restart(9.5f);
+						getFactory().createPJPlasma(cWielder.getShootingPos(), cDirection8.getDegrees());
 						break;
 					case 2:
-						getFactory().createProjectileTestBomb(cWielder.getShootingPos(), cDirection8.getDegrees());
-						shootTimer.restart(25.f);
+						assets.playSound("Sounds/machineGun.wav"); shootTimer.restart(16.f);
+						getFactory().createPJTestBomb(cWielder.getShootingPos(), cDirection8.getDegrees());
 						break;
 					case 3:
-						getFactory().createProjectileTestShell(cWielder.getShootingPos(), cDirection8.getDegrees() + 5.f);
-						getFactory().createProjectileTestShell(cWielder.getShootingPos(), cDirection8.getDegrees() + 2.5f);
-						getFactory().createProjectileTestShell(cWielder.getShootingPos(), cDirection8.getDegrees());
-						getFactory().createProjectileTestShell(cWielder.getShootingPos(), cDirection8.getDegrees() - 2.5f);
-						getFactory().createProjectileTestShell(cWielder.getShootingPos(), cDirection8.getDegrees() - 5.f);
-						shootTimer.restart(16.f);
+						assets.playSound("Sounds/machineGun.wav"); shootTimer.restart(16.f);
+						for(float i{-5}; i <= 5; i += 2.5f) getFactory().createPJTestShell(cWielder.getShootingPos(), cDirection8.getDegrees() + i);
 						break;
 				}
 
@@ -97,9 +92,7 @@ namespace ob
 			inline void bomb()
 			{
 				for(int k{0}; k < 5; ++k)
-				{
-					for(int i{0}; i < 360; i += 360 / 16) getFactory().createProjectileTestBomb(body.getPosition(), cDirection8.getDegrees() + (i * (360 / 16)), 2.f - k * 0.2f + i * 0.004f, 4.f + k * 0.3f - i * 0.004f);
-				}
+					for(int i{0}; i < 360; i += 360 / 16) getFactory().createPJTestBomb(body.getPosition(), cDirection8.getDegrees() + (i * (360 / 16)), 2.f - k * 0.2f + i * 0.004f, 4.f + k * 0.3f - i * 0.004f);
 			}
 	};
 }

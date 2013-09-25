@@ -29,7 +29,7 @@ namespace ob
 			sf::Sprite getSpriteFromTile(const std::string& mTextureId, const sf::IntRect& mTextureRect) const;
 			void emplaceSpriteFromTile(OBCDraw& mCDraw, sf::Texture* mTexture, const sf::IntRect& mTextureRect) const;
 
-			inline sses::Entity& createEntity(int mDrawPriority = 0) { auto& result(manager.createEntity()); result.setDrawPriority(mDrawPriority); return result; }
+			inline Entity& createEntity(int mDrawPriority = 0) { auto& result(manager.createEntity()); result.setDrawPriority(mDrawPriority); return result; }
 			std::tuple<Entity&, OBCPhys&, OBCDraw&> createActorBase(const Vec2i& mPos, const Vec2i& mSize, int mDrawPriority = 0, bool mStatic = false);
 			std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCHealth&, OBCEnemy&, OBCKillable&> createEnemyBase(const Vec2i& mPos, const Vec2i& mSize, int mHealth);
 			std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCProjectile&> createProjectileBase(const Vec2i& mPos, const Vec2i& mSize, float mSpeed, float mDegrees, const sf::IntRect& mIntRect);
@@ -43,19 +43,19 @@ namespace ob
 			Entity& createWall(const Vec2i& mPos);
 			Entity& createPlayer(const Vec2i& mPos);
 
-			Entity& createTestEnemyBall(const Vec2i& mPos);
+			// Enemies
+			Entity& createEBall(const Vec2i& mPos);
 			Entity& createERunner(const Vec2i& mPos, bool mArmed);
 			Entity& createECharger(const Vec2i& mPos, bool mArmed);
 			Entity& createEJuggernaut(const Vec2i& mPos, bool mArmed);
 			Entity& createEGiant(const Vec2i& mPos);
 
-
-			Entity& createProjectileBullet(const Vec2i& mPos, float mDegrees);
-			Entity& createProjectilePlasma(const Vec2i& mPos, float mDegrees);
-			Entity& createProjectileEnemyBullet(const Vec2i& mPos, float mDegrees);
-
-			Entity& createProjectileTestBomb(const Vec2i& mPos, float mDegrees, float mSpeedMult = 1.f, float mCurveMult = 1.f);
-			Entity& createProjectileTestShell(const Vec2i& mPos, float mDegrees);
+			// Projectiles
+			Entity& createPJBullet(const Vec2i& mPos, float mDegrees);
+			Entity& createPJPlasma(const Vec2i& mPos, float mDegrees);
+			Entity& createPJEnemyStar(const Vec2i& mPos, float mDegrees);
+			Entity& createPJTestBomb(const Vec2i& mPos, float mDegrees, float mSpeedMult = 1.f, float mCurveMult = 1.f);
+			Entity& createPJTestShell(const Vec2i& mPos, float mDegrees);
 	};
 }
 

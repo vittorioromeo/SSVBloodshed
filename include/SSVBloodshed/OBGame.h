@@ -26,19 +26,19 @@ namespace ob
 			ssvs::Camera camera{gameWindow, 2.f};
 			OBFactory factory{assets, *this, manager};
 			ssvs::GameState gameState;
-			ssvsc::World world{ssvsc::Utils::createResolver<ssvsc::Impulse>(), ssvsc::Utils::createSpatial<ssvsc::HashGrid>(1000, 1000, 1000, 500)};
+			ssvsc::World world{ssvsc::createResolver<ssvsc::Impulse>(), ssvsc::createSpatial<ssvsc::HashGrid>(1000, 1000, 1000, 500)};
 			sses::Manager manager;
 
 			OBGInput<OBGame> input{*this};
 			OBGParticles particles;
-			OBGDebugText<OBGame> debugText{*this};
 
+			OBGDebugText<OBGame> debugText{*this};
 			sf::Sprite hudSprite{assets.get<sf::Texture>("tempHud.png")};
 
 		public:
 			inline OBGame(ssvs::GameWindow& mGameWindow, OBAssets& mAssets) : gameWindow(mGameWindow), assets(mAssets)
 			{
-				gameState.onUpdate += [this](float mFrameTime){ update(mFrameTime); };
+				gameState.onUpdate += [this](float mFT){ update(mFT); };
 				gameState.onDraw += [this]{ draw(); };
 
 				// Temp hud sprite
@@ -50,10 +50,10 @@ namespace ob
 
 			inline void newGame()
 			{
-				manager.clear();
-				world.clear();
-				particles.clear(factory);
+				// Cleanup managers
+				manager.clear(); world.clear(); particles.clear(factory);
 
+				// Debug test level
 				auto getTilePos = [](int mX, int mY) -> Vec2i { return toCoords(Vec2i{mX * 10 + 5, mY * 10 + 5}); };
 				constexpr int maxX{320 / 10}, maxY{240 / 10 - 2};
 
@@ -67,12 +67,12 @@ namespace ob
 				factory.createPlayer(getTilePos(5, 5));
 			}
 
-			inline void update(float mFrameTime)
+			inline void update(float mFT)
 			{
-				manager.update(mFrameTime);
-				world.update(mFrameTime);
-				debugText.update(mFrameTime);
-				camera.update<int>(mFrameTime);
+				manager.update(mFT);
+				world.update(mFT);
+				debugText.update(mFT);
+				camera.update<int>(mFT);
 			}
 			inline void draw()
 			{
@@ -85,15 +85,14 @@ namespace ob
 
 			inline void render(const sf::Drawable& mDrawable) { gameWindow.draw(mDrawable); }
 
-			inline Vec2i getMousePosition() const				{ return toCoords(camera.getMousePosition()); }
-			inline ssvs::GameWindow& getGameWindow() noexcept	{ return gameWindow; }
-			inline OBAssets& getAssets() noexcept				{ return assets; }
-			inline OBFactory& getFactory() noexcept				{ return factory; }
-			inline ssvs::GameState& getGameState() noexcept		{ return gameState; }
-			inline ssvsc::World& getWorld() noexcept			{ return world; }
-			inline sses::Manager& getManager() noexcept			{ return manager; }
-
-			inline const decltype(input)& getInput() const noexcept { return input; }
+			inline Vec2i getMousePosition() const					{ return toCoords(camera.getMousePosition()); }
+			inline ssvs::GameWindow& getGameWindow() noexcept		{ return gameWindow; }
+			inline OBAssets& getAssets() noexcept					{ return assets; }
+			inline OBFactory& getFactory() noexcept					{ return factory; }
+			inline ssvs::GameState& getGameState() noexcept			{ return gameState; }
+			inline ssvsc::World& getWorld() noexcept				{ return world; }
+			inline sses::Manager& getManager() noexcept				{ return manager; }
+			inline const decltype(input)& getInput() const noexcept	{ return input; }
 
 			inline void createPBlood(unsigned int mCount, const Vec2f& mPos, float mMult = 1.f)
 			{

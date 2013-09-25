@@ -38,7 +38,7 @@ namespace ob
 					{
 						if(!mDI.body.hasGroup(OBGroup::GOrganic) && mDI.body.hasGroup(OBGroup::GSolid))
 						{
-							game.createPDebris(6, toPixels(body.getPosition()));
+							game.createPDebris(6, cPhys.getPosPixels());
 							assets.playSound("Sounds/bulletHitWall.wav");
 							destroy();
 						}
@@ -53,11 +53,11 @@ namespace ob
 					}
 				};
 			}
-			inline void update(float mFrameTime) override
+			inline void update(float mFT) override
 			{
-				degrees += curveSpeed * mFrameTime;
+				degrees += curveSpeed * mFT;
 				body.setVelocity(ssvs::getVecFromDegrees(degrees, speed));
-				if(life.update(mFrameTime)) destroy();
+				if(life.update(mFT)) destroy();
 			}
 			inline void draw() override { cDraw.setRotation(degrees); }
 

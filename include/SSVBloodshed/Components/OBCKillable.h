@@ -26,12 +26,12 @@ namespace ob
 				switch(type)
 				{
 					case Type::Organic:
-						game.createPBlood(6 * particleMult, toPixels(body.getPosition()));
+						game.createPBlood(6 * particleMult, cPhys.getPosPixels());
 						assets.playSound("Sounds/bulletHitFlesh.wav");
 						break;
 					case Type::Robotic:
-						game.createPDebris(6 * particleMult, toPixels(body.getPosition()));
-						game.createPElectric(24 * particleMult, toPixels(body.getPosition()));
+						game.createPDebris(6 * particleMult, cPhys.getPosPixels());
+						game.createPElectric(24 * particleMult, cPhys.getPosPixels());
 						assets.playSound("Sounds/spark.wav");
 						break;
 				}
@@ -42,13 +42,13 @@ namespace ob
 				switch(type)
 				{
 					case Type::Organic:
-						game.createPBlood(20 * particleMult * particleMult, toPixels(body.getPosition()), particleMult);
-						game.createPGib(35 * particleMult * particleMult, toPixels(body.getPosition()));
+						game.createPBlood(20 * particleMult * particleMult, cPhys.getPosPixels(), particleMult);
+						game.createPGib(35 * particleMult * particleMult, cPhys.getPosPixels());
 						assets.playSound("Sounds/squish.wav");
 						break;
 					case Type::Robotic:
-						game.createPDebris(24 * particleMult, toPixels(body.getPosition()));
-						game.createPElectric(64 * particleMult, toPixels(body.getPosition()));
+						game.createPDebris(24 * particleMult, cPhys.getPosPixels());
+						game.createPElectric(64 * particleMult, cPhys.getPosPixels());
 						assets.playSound("Sounds/spark.wav");
 						break;
 				}

@@ -21,7 +21,7 @@ namespace ob
 			int crushedLeft{0}, crushedRight{0}, crushedTop{0}, crushedBottom{0};
 
 		public:
-			ssvu::Delegate<void(sses::Entity&)> onDetection;
+			ssvu::Delegate<void(Entity&)> onDetection;
 			ssvu::Delegate<void(const Vec2i&)> onResolution;
 
 			OBCPhys(OBGame& mGame, bool mIsStatic, const Vec2i& mPosition, const Vec2i& mSize) : game(mGame), world(mGame.getWorld()), body(world.create(mPosition, mSize, mIsStatic)) { }
@@ -72,6 +72,7 @@ namespace ob
 			inline int getCrushedBottom() const	noexcept			{ return crushedBottom; }
 
 			inline const Vec2i& getPosI() const noexcept			{ return body.getPosition(); }
+			inline Vec2f getPosPixels() const noexcept				{ return toPixels(body.getPosition()); }
 			inline Vec2f getPosF() const noexcept					{ return Vec2f(body.getPosition()); }
 			inline const Vec2f& getVel() const noexcept				{ return body.getVelocity(); }
 			inline float getLeft() const noexcept					{ return body.getShape().getLeft(); }

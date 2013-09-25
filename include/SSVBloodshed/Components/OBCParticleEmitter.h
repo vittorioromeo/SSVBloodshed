@@ -28,8 +28,8 @@ namespace ob
 			{
 				switch(type)
 				{
-					case Type::Smoke: game.createPSmoke(1, toPixels(body.getPosition()) + offset); break;
-					case Type::Plasma: game.createPPlasma(1, toPixels(body.getPosition()) + offset); break;
+					case Type::Smoke: game.createPSmoke(1, cPhys.getPosPixels() + offset); break;
+					case Type::Plasma: game.createPPlasma(1, cPhys.getPosPixels() + offset); break;
 				}
 			}
 

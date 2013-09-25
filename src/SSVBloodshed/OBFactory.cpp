@@ -45,7 +45,7 @@ namespace ob
 	}
 	std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCHealth&, OBCEnemy&, OBCKillable&> OBFactory::createEnemyBase(const Vec2i& mPos, const Vec2i& mSize, int mHealth)
 	{
-		auto tpl(createActorBase(mPos, mSize, OBLayer::PEnemy));
+		auto tpl(createActorBase(mPos, mSize, OBLayer::LEnemy));
 		auto& cHealth(getEntity(tpl).createComponent<OBCHealth>(mHealth));
 		auto& cKillable(getEntity(tpl).createComponent<OBCKillable>(getCPhys(tpl), cHealth, OBCKillable::Type::Organic));
 		auto& cTargeter(getEntity(tpl).createComponent<OBCTargeter>(getCPhys(tpl), OBGroup::GFriendly));
@@ -55,7 +55,7 @@ namespace ob
 	}
 	std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCProjectile&> OBFactory::createProjectileBase(const Vec2i& mPos, const Vec2i& mSize, float mSpeed, float mDegrees, const IntRect& mIntRect)
 	{
-		auto tpl(createActorBase(mPos, mSize, OBLayer::PProjectile));
+		auto tpl(createActorBase(mPos, mSize, OBLayer::LProjectile));
 		auto& cProjectile(getEntity(tpl).createComponent<OBCProjectile>(getCPhys(tpl), getCDraw(tpl), mSpeed, mDegrees));
 		emplaceSpriteFromTile(getCDraw(tpl), assets.txSmall, mIntRect);
 		return std::forward_as_tuple(getEntity(tpl), getCPhys(tpl), getCDraw(tpl), cProjectile);
@@ -69,21 +69,21 @@ namespace ob
 	}
 	Entity& OBFactory::createFloor(const Vec2i& mPos)
 	{
-		auto tpl(createActorBase(mPos, {1000, 1000}, OBLayer::PFloor));
+		auto tpl(createActorBase(mPos, {1000, 1000}, OBLayer::LFloor));
 		getEntity(tpl).createComponent<OBCFloor>(getCPhys(tpl), getCDraw(tpl));
 		emplaceSpriteFromTile(getCDraw(tpl), assets.txSmall, getRnd(0, 10) < 9 ? assets.floor : (ssvu::getRnd(0, 2) < 1 ? assets.floorAlt1 : assets.floorAlt2));
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createWall(const Vec2i& mPos)
 	{
-		auto tpl(createActorBase(mPos, {1000, 1000}, OBLayer::PWall, true));
+		auto tpl(createActorBase(mPos, {1000, 1000}, OBLayer::LWall, true));
 		getCPhys(tpl).getBody().addGroup(OBGroup::GSolid);
 		emplaceSpriteFromTile(getCDraw(tpl), assets.txSmall, assets.wallSingle);
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createPlayer(const Vec2i& mPos)
 	{
-		auto tpl(createActorBase(mPos, {650, 650}, OBLayer::PPlayer));
+		auto tpl(createActorBase(mPos, {650, 650}, OBLayer::LPlayer));
 		auto& cHealth(getEntity(tpl).createComponent<OBCHealth>(10));
 		auto& cKillable(getEntity(tpl).createComponent<OBCKillable>(getCPhys(tpl), cHealth, OBCKillable::Type::Organic));
 		auto& cDirection8(getEntity(tpl).createComponent<OBCDirection8>());
@@ -93,7 +93,7 @@ namespace ob
 		emplaceSpriteFromTile(getCDraw(tpl), assets.txSmall, assets.p1Gun);
 		return getEntity(tpl);
 	}
-	Entity& OBFactory::createTestEnemyBall(const Vec2i& mPos)
+	Entity& OBFactory::createEBall(const Vec2i& mPos)
 	{
 		auto tpl(createEnemyBase(mPos, {750, 750}, 5));
 		auto& cFloorSmasher(getEntity(tpl).createComponent<OBCFloorSmasher>(getCPhys(tpl)));
@@ -142,22 +142,22 @@ namespace ob
 		return getEntity(tpl);
 	}
 
-	Entity& OBFactory::createProjectileBullet(const Vec2i& mPos, float mDegrees) { return getEntity(createProjectileBase(mPos, {150, 150}, 420.f, mDegrees, assets.pjBullet)); }
-	Entity& OBFactory::createProjectilePlasma(const Vec2i& mPos, float mDegrees)
+	Entity& OBFactory::createPJBullet(const Vec2i& mPos, float mDegrees) { return getEntity(createProjectileBase(mPos, {150, 150}, 420.f, mDegrees, assets.pjBullet)); }
+	Entity& OBFactory::createPJPlasma(const Vec2i& mPos, float mDegrees)
 	{
 		auto tpl(createProjectileBase(mPos, {150, 150}, 260.f, mDegrees, assets.pjPlasma));
 		getEntity(tpl).createComponent<OBCParticleEmitter>(getCPhys(tpl), OBCParticleEmitter::Type::Plasma);
 		getCProjectile(tpl).setPierceOrganic(-1);
 		return getEntity(tpl);
 	}
-	Entity& OBFactory::createProjectileEnemyBullet(const Vec2i& mPos, float mDegrees)
+	Entity& OBFactory::createPJEnemyStar(const Vec2i& mPos, float mDegrees)
 	{
 		auto tpl(createProjectileBase(mPos, {150, 150}, 320.f, mDegrees, assets.pjStar));
 		getCProjectile(tpl).setTargetGroup(OBGroup::GFriendly);
 		return getEntity(tpl);
 	}
 
-	Entity& OBFactory::createProjectileTestBomb(const Vec2i& mPos, float mDegrees, float mSpeedMult, float mCurveMult)
+	Entity& OBFactory::createPJTestBomb(const Vec2i& mPos, float mDegrees, float mSpeedMult, float mCurveMult)
 	{
 		auto tpl(createProjectileBase(mPos, {150, 150}, 150.f * mSpeedMult, mDegrees, assets.pjStar));
 		getEntity(tpl).createComponent<OBCFloorSmasher>(getCPhys(tpl)).setActive(true);
@@ -166,11 +166,11 @@ namespace ob
 		getCProjectile(tpl).setDamage(10);
 		getCProjectile(tpl).onDestroy += [this, tpl]
 		{
-			for(int i{0}; i < 360; i += 360 / 10) createProjectilePlasma(getCPhys(tpl).getPosI() + Vec2i(ssvs::getVecFromDegrees<float>(i) * 300.f), i);
+			for(int i{0}; i < 360; i += 360 / 10) createPJPlasma(getCPhys(tpl).getPosI() + Vec2i(ssvs::getVecFromDegrees<float>(i) * 300.f), i);
 		};
 		return getEntity(tpl);
 	}
-	Entity& OBFactory::createProjectileTestShell(const Vec2i& mPos, float mDegrees)
+	Entity& OBFactory::createPJTestShell(const Vec2i& mPos, float mDegrees)
 	{
 		auto tpl(createProjectileBase(mPos, {150, 150}, 320.f, mDegrees, assets.pjBullet));
 		getCProjectile(tpl).setLife(10.f + getRnd(-5, 15));

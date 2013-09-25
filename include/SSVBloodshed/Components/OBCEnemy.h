@@ -20,9 +20,9 @@ namespace ob
 			OBCKillable& cKillable;
 			OBCTargeter& cTargeter;
 			OBCBoid& cBoid;
-			float walkSpeed{100.f}, currentDegrees{0.f}, turnSpeed{7.5f};
-			float snappedDegrees{0.f};
+			float walkSpeed{100.f}, currentDegrees{0.f}, turnSpeed{7.5f}, snappedDegrees{0.f};
 			bool faceDirection{true};
+			int bodyDamage{1};
 
 		public:
 			OBCEnemy(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCKillable& mCKillable, OBCTargeter& mCTargeter, OBCBoid& mCBoid) : OBCActorBase{mCPhys, mCDraw}, cKillable(mCKillable), cTargeter(mCTargeter), cBoid(mCBoid) { }
@@ -39,18 +39,17 @@ namespace ob
 
 				body.onDetection += [this](const ssvsc::DetectionInfo& mDI)
 				{
-					if(mDI.body.hasGroup(OBGroup::GFriendly))
-						static_cast<Entity*>(mDI.body.getUserData())->getComponent<OBCHealth>().damage(1);
+					if(mDI.body.hasGroup(OBGroup::GFriendly)) static_cast<Entity*>(mDI.body.getUserData())->getComponent<OBCHealth>().damage(bodyDamage);
 				};
 			}
 
-			inline void update(float mFrameTime) override
+			inline void update(float mFT) override
 			{
 				if(cTargeter.hasTarget())
 				{
 					float targetDegrees(ssvs::getDegreesTowards(cPhys.getPosF(), cTargeter.getPosF()));
-					currentDegrees = ssvu::getRotatedDegrees(currentDegrees, targetDegrees, turnSpeed * mFrameTime);
-					snappedDegrees = static_cast<int>(ssvu::wrapDegrees(currentDegrees) / 45) * 45;
+					currentDegrees = ssvu::getRotatedDegrees(currentDegrees, targetDegrees, turnSpeed * mFT);
+					snappedDegrees = getDegreesFromDirection8(getDirection8FromDegrees(currentDegrees));
 				}
 			}
 
