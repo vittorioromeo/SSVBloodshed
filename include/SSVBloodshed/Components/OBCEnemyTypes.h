@@ -17,6 +17,26 @@
 
 namespace ob
 {
+	bool raycastToPlayer(OBGame& mGame, ssvsc::Body& mSeeker, ssvsc::Body& mTarget)
+	{
+		const auto& startPosition(mSeeker.getPosition());
+		Vec2f direction(mTarget.getPosition() - startPosition);
+		if(direction.x == 0 && direction.y == 0) return false;
+
+		auto gridQuery(mGame.getWorld().getQuery<ssvsc::HashGrid, ssvsc::QueryType::RayCast>(startPosition, direction));
+
+		ssvsc::Body* body;
+
+		while((body = gridQuery.next()) != nullptr)
+		{
+			if(body == &mSeeker) continue;
+			if(body->hasGroup(OBGroup::GFriendly)) return true;
+			if(body->hasGroup(OBGroup::GSolidAir)) return false;
+		}
+
+		return false;
+	}
+
 	class OBCEBase : public OBCActorBase
 	{
 		protected:
@@ -79,7 +99,8 @@ namespace ob
 				if(cTargeter.hasTarget())
 				{
 					float distance{ssvs::getDistEuclidean(cTargeter.getPosF(), cPhys.getPosF())};
-					cWielder.setShooting(armed && distance < 10000);
+					//cWielder.setShooting(armed && distance < 10000);
+					cWielder.setShooting(raycastToPlayer(game, cPhys.getBody(), cTargeter.getTarget().getBody()));
 
 					if(armed)
 					{
@@ -120,7 +141,7 @@ namespace ob
 				repeat(tlCharge, [this]
 				{
 					body.setVelocity(cPhys.getVel() * 0.8f);
-					game.createPCharge(4, cPhys.getPosPixels());
+					game.createPCharge(4, cPhys.getPosPixels(), 45);
 				}, 10, 2.5f);
 				tlCharge.append<ssvu::Do>([this]{ cFloorSmasher.setActive(true); lastDeg = cEnemy.getCurrentDegrees(); body.applyForce(ssvs::getVecFromDegrees(lastDeg, 1250.f)); });
 				tlCharge.append<ssvu::Wait>(10.f);
@@ -179,7 +200,7 @@ namespace ob
 				cWielder.setWieldDistance(2800.f);
 
 				repeat(tlShoot, [this]{ shootUnarmed(ssvu::getRnd(-10, 10)); }, 8, 1.1f);
-				repeat(tlShoot, [this]{ game.createPCharge(4, cPhys.getPosPixels()); }, 15, 1.f);
+				repeat(tlShoot, [this]{ game.createPCharge(4, cPhys.getPosPixels(), 55); }, 15, 1.f);
 				tlShoot.append<ssvu::Do>([this]{ lastDeg = cEnemy.getCurrentDegrees(); cEnemy.setWalkSpeed(-100.f); });
 				repeat(tlShoot, [this]{ shootUnarmed(lastDeg); lastDeg += 265; }, 45, 0.3f);
 				tlShoot.append<ssvu::Do>([this]{ cEnemy.setWalkSpeed(100.f); });
@@ -289,7 +310,7 @@ namespace ob
 				cFloorSmasher.setActive(true);
 
 				repeat(tlShoot, [this]{ shoot(ssvu::getRnd(-15, 15)); }, 20, 0.4f);
-				repeat(tlShoot, [this]{ game.createPCharge(5, cPhys.getPosPixels()); }, 19, 1.f);
+				repeat(tlShoot, [this]{ game.createPCharge(5, cPhys.getPosPixels(), 65); }, 19, 1.f);
 				tlShoot.append<ssvu::Do>([this]{ lastDeg = cEnemy.getCurrentDegrees(); cEnemy.setWalkSpeed(-50.f); });
 				repeat(tlShoot, [this]{ shoot(lastDeg); lastDeg += 235; }, 150, 0.1f);
 				tlShoot.append<ssvu::Do>([this]{ cEnemy.setWalkSpeed(100.f); });
@@ -297,7 +318,7 @@ namespace ob
 				tlSummon.append<ssvu::Do>([this]{ lastDeg = cEnemy.getCurrentDegrees(); cEnemy.setWalkSpeed(0.f); });
 				repeat(tlSummon, [this]
 				{
-					game.createPCharge(5, cPhys.getPosPixels());
+					game.createPCharge(5, cPhys.getPosPixels(), 65);
 					body.setVelocity(body.getVelocity() * 0.8f);
 					getFactory().createERunner(body.getPosition() + Vec2i(ssvs::getVecFromDegrees<float>(lastDeg) * 1000.f), false);
 					lastDeg += 360 / 16;
