@@ -26,12 +26,13 @@ namespace ob
 			OBGame& game;
 			sses::Manager& manager;
 
-			sf::Sprite getSpriteFromTile(const std::string& mTextureId, const sf::IntRect& mTextureRect) const;
-			void emplaceSpriteFromTile(OBCDraw& mCDraw, sf::Texture* mTexture, const sf::IntRect& mTextureRect) const;
+			sf::Sprite getSpriteByTile(const std::string& mTextureId, const sf::IntRect& mRect) const;
+			void emplaceSpriteByTile(OBCDraw& mCDraw, sf::Texture* mTexture, const sf::IntRect& mRect) const;
 
 			inline Entity& createEntity(int mDrawPriority = 0) { auto& result(manager.createEntity()); result.setDrawPriority(mDrawPriority); return result; }
 			std::tuple<Entity&, OBCPhys&, OBCDraw&> createActorBase(const Vec2i& mPos, const Vec2i& mSize, int mDrawPriority = 0, bool mStatic = false);
-			std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCHealth&, OBCEnemy&, OBCKillable&> createEnemyBase(const Vec2i& mPos, const Vec2i& mSize, int mHealth);
+			std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCHealth&, OBCKillable&> createKillableBase(const Vec2i& mPos, const Vec2i& mSize, int mDrawPriority, int mHealth);
+			std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCHealth&, OBCKillable&, OBCEnemy&> createEnemyBase(const Vec2i& mPos, const Vec2i& mSize, int mHealth);
 			std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCProjectile&> createProjectileBase(const Vec2i& mPos, const Vec2i& mSize, float mSpeed, float mDegrees, const sf::IntRect& mIntRect);
 
 		public:

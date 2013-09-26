@@ -26,38 +26,43 @@ using namespace sses;
 
 namespace ob
 {
-	Sprite OBFactory::getSpriteFromTile(const std::string& mTextureId, const IntRect& mTextureRect) const { return {assets.get<Texture>(mTextureId), mTextureRect}; }
-	void OBFactory::emplaceSpriteFromTile(OBCDraw& mCDraw, sf::Texture* mTexture, const sf::IntRect& mTextureRect) const { mCDraw.emplaceSprite(*mTexture, mTextureRect); }
+	Sprite OBFactory::getSpriteByTile(const std::string& mTextureId, const IntRect& mRect) const					{ return {assets.get<Texture>(mTextureId), mRect}; }
+	void OBFactory::emplaceSpriteByTile(OBCDraw& mCDraw, sf::Texture* mTexture, const sf::IntRect& mRect) const		{ mCDraw.emplaceSprite(*mTexture, mRect); }
+	template<typename... TArgs> constexpr inline Entity& getEntity(const std::tuple<TArgs...>& mTuple)				{ return std::get<0>(mTuple); }
+	template<typename... TArgs> constexpr inline OBCPhys& getCPhys(const std::tuple<TArgs...>& mTuple)				{ return std::get<1>(mTuple); }
+	template<typename... TArgs> constexpr inline OBCDraw& getCDraw(const std::tuple<TArgs...>& mTuple)				{ return std::get<2>(mTuple); }
+	template<typename... TArgs> constexpr inline OBCHealth& getCHealth(const std::tuple<TArgs...>& mTuple)			{ return std::get<3>(mTuple); }
+	template<typename... TArgs> constexpr inline OBCProjectile& getCProjectile(const std::tuple<TArgs...>& mTuple)	{ return std::get<3>(mTuple); }
+	template<typename... TArgs> constexpr inline OBCKillable& getCKillable(const std::tuple<TArgs...>& mTuple)		{ return std::get<4>(mTuple); }
+	template<typename... TArgs> constexpr inline OBCEnemy& getCEnemy(const std::tuple<TArgs...>& mTuple)			{ return std::get<5>(mTuple); }
 
-	template<typename... TArgs> constexpr inline Entity& getEntity(const std::tuple<Entity&, TArgs...>& mTuple) { return std::get<0>(mTuple); }
-	template<typename... TArgs> constexpr inline OBCPhys& getCPhys(const std::tuple<Entity&, OBCPhys&, TArgs...>& mTuple) { return std::get<1>(mTuple); }
-	template<typename T1, typename... TArgs> constexpr inline OBCDraw& getCDraw(const std::tuple<Entity&, T1, OBCDraw&, TArgs...>& mTuple) { return std::get<2>(mTuple); }
-	template<typename T1, typename T2, typename... TArgs> constexpr inline OBCProjectile& getCProjectile(const std::tuple<Entity&, T1, T2, OBCProjectile&, TArgs...>& mTuple) { return std::get<3>(mTuple); }
-	template<typename T1, typename T2, typename T3, typename... TArgs> constexpr inline OBCEnemy& getCEnemy(const std::tuple<Entity&, T1, T2, T3, OBCEnemy&, TArgs...>& mTuple) { return std::get<4>(mTuple); }
-	template<typename T1, typename T2, typename T3, typename T4, typename... TArgs> constexpr inline OBCKillable& getCKillable(const std::tuple<Entity&, T1, T2, T3, T4, OBCKillable&, TArgs...>& mTuple) { return std::get<5>(mTuple); }
 	std::tuple<Entity&, OBCPhys&, OBCDraw&> OBFactory::createActorBase(const Vec2i& mPos, const Vec2i& mSize, int mDrawPriority, bool mStatic)
 	{
 		auto& result(createEntity(mDrawPriority));
 		auto& cPhys(result.createComponent<OBCPhys>(game, mStatic, mPos, mSize));
 		auto& cDraw(result.createComponent<OBCDraw>(game, cPhys.getBody()));
-		cDraw.setScaleWithBody(false);
 		return std::forward_as_tuple(result, cPhys, cDraw);
 	}
-	std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCHealth&, OBCEnemy&, OBCKillable&> OBFactory::createEnemyBase(const Vec2i& mPos, const Vec2i& mSize, int mHealth)
+	std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCHealth&, OBCKillable&> OBFactory::createKillableBase(const Vec2i& mPos, const Vec2i& mSize, int mDrawPriority, int mHealth)
 	{
-		auto tpl(createActorBase(mPos, mSize, OBLayer::LEnemy));
+		auto tpl(createActorBase(mPos, mSize, mDrawPriority));
 		auto& cHealth(getEntity(tpl).createComponent<OBCHealth>(mHealth));
 		auto& cKillable(getEntity(tpl).createComponent<OBCKillable>(getCPhys(tpl), cHealth, OBCKillable::Type::Organic));
+		return std::forward_as_tuple(getEntity(tpl), getCPhys(tpl), getCDraw(tpl), cHealth, cKillable);
+	}
+	std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCHealth&, OBCKillable&, OBCEnemy&> OBFactory::createEnemyBase(const Vec2i& mPos, const Vec2i& mSize, int mHealth)
+	{
+		auto tpl(createKillableBase(mPos, mSize, OBLayer::LEnemy, mHealth));
 		auto& cTargeter(getEntity(tpl).createComponent<OBCTargeter>(getCPhys(tpl), OBGroup::GFriendly));
 		auto& cBoid(getEntity(tpl).createComponent<OBCBoid>(getCPhys(tpl)));
-		auto& cEnemy(getEntity(tpl).createComponent<OBCEnemy>(getCPhys(tpl), getCDraw(tpl), cKillable, cTargeter, cBoid));
-		return std::forward_as_tuple(getEntity(tpl), getCPhys(tpl), getCDraw(tpl), cHealth, cEnemy, cKillable);
+		auto& cEnemy(getEntity(tpl).createComponent<OBCEnemy>(getCPhys(tpl), getCDraw(tpl), getCKillable(tpl), cTargeter, cBoid));
+		return std::forward_as_tuple(getEntity(tpl), getCPhys(tpl), getCDraw(tpl), getCHealth(tpl), getCKillable(tpl), cEnemy);
 	}
 	std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCProjectile&> OBFactory::createProjectileBase(const Vec2i& mPos, const Vec2i& mSize, float mSpeed, float mDegrees, const IntRect& mIntRect)
 	{
 		auto tpl(createActorBase(mPos, mSize, OBLayer::LProjectile));
 		auto& cProjectile(getEntity(tpl).createComponent<OBCProjectile>(getCPhys(tpl), getCDraw(tpl), mSpeed, mDegrees));
-		emplaceSpriteFromTile(getCDraw(tpl), assets.txSmall, mIntRect);
+		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, mIntRect);
 		return std::forward_as_tuple(getEntity(tpl), getCPhys(tpl), getCDraw(tpl), cProjectile);
 	}
 
@@ -70,7 +75,7 @@ namespace ob
 	Entity& OBFactory::createFloor(const Vec2i& mPos, bool mGrate)
 	{
 		auto tpl(createActorBase(mPos, {1000, 1000}, OBLayer::LFloor));
-		emplaceSpriteFromTile(getCDraw(tpl), assets.txSmall, assets.getFloorVariant());
+		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.getFloorVariant());
 		getEntity(tpl).createComponent<OBCFloor>(getCPhys(tpl), getCDraw(tpl), mGrate);
 		return getEntity(tpl);
 	}
@@ -78,7 +83,7 @@ namespace ob
 	{
 		auto tpl(createActorBase(mPos, {1000, 1000}, OBLayer::LPit, true));
 		getCPhys(tpl).getBody().addGroup(OBGroup::GSolidGround);
-		emplaceSpriteFromTile(getCDraw(tpl), assets.txSmall, assets.pit);
+		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.pit);
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createWall(const Vec2i& mPos, const sf::IntRect& mIntRect)
@@ -86,19 +91,17 @@ namespace ob
 		auto tpl(createActorBase(mPos, {1000, 1000}, OBLayer::LWall, true));
 		getCPhys(tpl).getBody().addGroup(OBGroup::GSolidGround);
 		getCPhys(tpl).getBody().addGroup(OBGroup::GSolidAir);
-		emplaceSpriteFromTile(getCDraw(tpl), assets.txSmall, mIntRect);
+		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, mIntRect);
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createPlayer(const Vec2i& mPos)
 	{
-		auto tpl(createActorBase(mPos, {650, 650}, OBLayer::LPlayer));
-		auto& cHealth(getEntity(tpl).createComponent<OBCHealth>(10));
-		auto& cKillable(getEntity(tpl).createComponent<OBCKillable>(getCPhys(tpl), cHealth, OBCKillable::Type::Organic));
+		auto tpl(createKillableBase(mPos, {650, 650}, OBLayer::LPlayer, 10));
 		auto& cDirection8(getEntity(tpl).createComponent<OBCDirection8>());
 		auto& cWielder(getEntity(tpl).createComponent<OBCWielder>(getCPhys(tpl), getCDraw(tpl), cDirection8));
-		getEntity(tpl).createComponent<OBCPlayer>(getCPhys(tpl), getCDraw(tpl), cKillable, cWielder);
-		emplaceSpriteFromTile(getCDraw(tpl), assets.txSmall, assets.p1Stand);
-		emplaceSpriteFromTile(getCDraw(tpl), assets.txSmall, assets.p1Gun);
+		getEntity(tpl).createComponent<OBCPlayer>(getCPhys(tpl), getCDraw(tpl), getCKillable(tpl), cWielder);
+		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.p1Stand);
+		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.p1Gun);
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createEBall(const Vec2i& mPos, bool mFlying, bool mSmall)
@@ -106,7 +109,7 @@ namespace ob
 		auto tpl(createEnemyBase(mPos, {750, 750}, mSmall ? 2 : 5));
 		if(!mSmall && !mFlying) getEntity(tpl).createComponent<OBCFloorSmasher>(getCPhys(tpl)).setActive(true);
 		getEntity(tpl).createComponent<OBCEBall>(getCEnemy(tpl), mFlying, mSmall);
-		emplaceSpriteFromTile(getCDraw(tpl), assets.txSmall, mFlying ? assets.eBallFlying : assets.eBall);
+		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, mFlying ? assets.eBallFlying : assets.eBall);
 		if(mSmall) getCDraw(tpl).setGlobalScale({0.7f, 0.7f});
 		return getEntity(tpl);
 	}
@@ -116,8 +119,8 @@ namespace ob
 		auto& cDirection8(getEntity(tpl).createComponent<OBCDirection8>());
 		auto& cWielder(getEntity(tpl).createComponent<OBCWielder>(getCPhys(tpl), getCDraw(tpl), cDirection8));
 		getEntity(tpl).createComponent<OBCERunner>(getCEnemy(tpl), cWielder, mArmed);
-		emplaceSpriteFromTile(getCDraw(tpl), assets.txSmall, assets.e1AStand);
-		emplaceSpriteFromTile(getCDraw(tpl), assets.txSmall, assets.e1AGun);
+		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.e1AStand);
+		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.e1AGun);
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createECharger(const Vec2i& mPos, bool mArmed)
@@ -127,8 +130,8 @@ namespace ob
 		auto& cDirection8(getEntity(tpl).createComponent<OBCDirection8>());
 		auto& cWielder(getEntity(tpl).createComponent<OBCWielder>(getCPhys(tpl), getCDraw(tpl), cDirection8));
 		getEntity(tpl).createComponent<OBCECharger>(getCEnemy(tpl), cFloorSmasher, cWielder, mArmed);
-		emplaceSpriteFromTile(getCDraw(tpl), assets.txMedium, assets.e2AStand);
-		emplaceSpriteFromTile(getCDraw(tpl), assets.txMedium, assets.e2AGun);
+		emplaceSpriteByTile(getCDraw(tpl), assets.txMedium, assets.e2AStand);
+		emplaceSpriteByTile(getCDraw(tpl), assets.txMedium, assets.e2AGun);
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createEJuggernaut(const Vec2i& mPos, bool mArmed)
@@ -137,8 +140,8 @@ namespace ob
 		auto& cDirection8(getEntity(tpl).createComponent<OBCDirection8>());
 		auto& cWielder(getEntity(tpl).createComponent<OBCWielder>(getCPhys(tpl), getCDraw(tpl), cDirection8));
 		getEntity(tpl).createComponent<OBCEJuggernaut>(getCEnemy(tpl), cWielder, mArmed);
-		emplaceSpriteFromTile(getCDraw(tpl), assets.txBig, assets.e3AStand);
-		emplaceSpriteFromTile(getCDraw(tpl), assets.txBig, assets.e3AGun);
+		emplaceSpriteByTile(getCDraw(tpl), assets.txBig, assets.e3AStand);
+		emplaceSpriteByTile(getCDraw(tpl), assets.txBig, assets.e3AGun);
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createEGiant(const Vec2i& mPos)
@@ -146,16 +149,15 @@ namespace ob
 		auto tpl(createEnemyBase(mPos, {2500, 2500}, 42));
 		auto& cFloorSmasher(getEntity(tpl).createComponent<OBCFloorSmasher>(getCPhys(tpl)));
 		getEntity(tpl).createComponent<OBCEGiant>(getCEnemy(tpl), cFloorSmasher);
-		emplaceSpriteFromTile(getCDraw(tpl), assets.txGiant, assets.e4UAStand);
+		emplaceSpriteByTile(getCDraw(tpl), assets.txGiant, assets.e4UAStand);
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createETurret(const Vec2i& mPos, Direction8 mDirection)
 	{
-		auto tpl(createActorBase(mPos, {1000, 1000}, OBLayer::LEnemy));
-		auto& cHealth(getEntity(tpl).createComponent<OBCHealth>(20));
-		auto& cKillable(getEntity(tpl).createComponent<OBCKillable>(getCPhys(tpl), cHealth, OBCKillable::Type::Robotic));
-		getEntity(tpl).createComponent<OBCTurret>(getCPhys(tpl), getCDraw(tpl), cKillable, mDirection);
-		emplaceSpriteFromTile(getCDraw(tpl), assets.txSmall, assets.eTurret);
+		auto tpl(createKillableBase(mPos, {1000, 1000}, OBLayer::LEnemy, 20));
+		getCKillable(tpl).setType(OBCKillable::Type::Robotic);
+		getEntity(tpl).createComponent<OBCTurret>(getCPhys(tpl), getCDraw(tpl), getCKillable(tpl), mDirection);
+		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.eTurret);
 		return getEntity(tpl);
 	}
 
