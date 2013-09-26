@@ -93,23 +93,6 @@ namespace ob
 
 				auto tileIs = [&](int mX, int mY, char mChar){ if(mX < 0 || mY < 0 || mX >= maxX || mY >= maxY) return false; return level[ssvu::get1DIndexFrom2D(mX, mY, maxX)] == mChar; };
 
-				std::array<sf::IntRect*, 16> bitMask;
-				bitMask[0] = &assets.wallSingle;
-				bitMask[1] = &assets.wallVEndS;
-				bitMask[2] = &assets.wallHEndW;
-				bitMask[3] = &assets.wallCornerSW;
-				bitMask[4] = &assets.wallVEndN;
-				bitMask[5] = &assets.wallV;
-				bitMask[6] = &assets.wallCornerNW;
-				bitMask[7] = &assets.wallSingle;
-				bitMask[8] = &assets.wallSingle;
-				bitMask[9] = &assets.wallSingle;
-				bitMask[10] = &assets.wallSingle;
-				bitMask[11] = &assets.wallSingle;
-				bitMask[12] = &assets.wallSingle;
-				bitMask[13] = &assets.wallSingle;
-				bitMask[14] = &assets.wallSingle;
-				bitMask[15] = &assets.wallSingle;
 
 				unsigned int idx{0};
 				for(int iY{0}; iY < maxY; ++iY)
@@ -121,56 +104,12 @@ namespace ob
 						{
 							case '#':
 							{
-								sf::IntRect* rect{nullptr};
-
-								auto isWall = [&](int mX, int mY){ return tileIs(mX, mY, '#'); };
-
-								bool neighborN{isWall(iX, iY - 1)}, neighborS{isWall(iX, iY + 1)}, neighborW{isWall(iX - 1, iY)}, neighborE{isWall(iX + 1, iY)};
-								bool neighborsH{neighborW && neighborE}, neighborsV{neighborN && neighborS};
-
-								if(neighborsH && neighborsV) rect = &assets.wallCross;
-								else if(neighborsH && !neighborsV)
-								{
-									if(neighborN) rect = &assets.wallTS;
-									else if(neighborS) rect = &assets.wallTN;
-									else rect = &assets.wallH;
-								}
-								else if(!neighborsH && neighborsV)
-								{
-									if(neighborW) rect = &assets.wallTE;
-									else if(neighborE) rect = &assets.wallTW;
-									else rect = &assets.wallV;
-								}
-								else if(!neighborsH && !neighborsV)
-								{
-									if(neighborN)
-									{
-										if(neighborW) rect = &assets.wallCornerSE;
-										else if(neighborE) rect = &assets.wallCornerSW;
-										else rect = &assets.wallVEndS;
-									}
-									else if(neighborS)
-									{
-										if(neighborW) rect = &assets.wallCornerNE;
-										else if(neighborE) rect = &assets.wallCornerNW;
-										else rect = &assets.wallVEndN;
-									}
-									else if(neighborW)
-									{
-										if(neighborN) rect = &assets.wallCornerSE;
-										else if(neighborS) rect = &assets.wallCornerNE;
-										else rect = &assets.wallHEndE;
-									}
-									else if(neighborE)
-									{
-										if(neighborN) rect = &assets.wallCornerSW;
-										else if(neighborS) rect = &assets.wallCornerNW;
-										else rect = &assets.wallHEndW;
-									}
-									else rect = &assets.wallSingle;
-								}
-
-								factory.createWall(tp, *rect);
+								int mask{0};
+								mask += tileIs(iX, iY - 1, '#') << 0;
+								mask += tileIs(iX + 1, iY, '#') << 1;
+								mask += tileIs(iX, iY + 1, '#') << 2;
+								mask += tileIs(iX - 1, iY, '#') << 3;
+								factory.createWall(tp, *assets.wallBitMask[mask]);
 								break;
 							}
 							case '.': factory.createFloor(tp); break;

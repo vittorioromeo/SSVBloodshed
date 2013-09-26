@@ -102,7 +102,7 @@ namespace ob
 					tckShoot.update(mFT);
 					float distance{ssvs::getDistEuclidean(cTargeter.getPosF(), cPhys.getPosF())};
 					//cWielder.setShooting(armed && distance < 10000);
-					cWielder.setShooting(raycastToPlayer(game, cPhys, cTargeter.getTarget()));
+					cWielder.setShooting(armed && raycastToPlayer(game, cPhys, cTargeter.getTarget()));
 
 					if(armed)
 					{
