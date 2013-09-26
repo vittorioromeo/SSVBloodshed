@@ -199,4 +199,6 @@ CMakeLists.txt.user.*
 /_RELEASE/callgrind.out.23833
 /_RELEASE/SSVLD27
 asanlogs
+/_RELEASE/SSVBloodshed/_RELEASE/asanlogss
+/_RELEASE/asanlogss
 /_RELEASE/SSVBloodshed
