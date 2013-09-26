@@ -17,19 +17,19 @@
 
 namespace ob
 {
-	bool raycastToPlayer(OBGame& mGame, ssvsc::Body& mSeeker, ssvsc::Body& mTarget)
+	bool raycastToPlayer(OBGame& mGame, OBCPhys& mSeeker, OBCPhys& mTarget)
 	{
-		const auto& startPosition(mSeeker.getPosition());
-		Vec2f direction(mTarget.getPosition() - startPosition);
+		const auto& startPos(mSeeker.getPosI());
+		Vec2f direction(mTarget.getPosI() - startPos);
 		if(direction.x == 0 && direction.y == 0) return false;
 
-		auto gridQuery(mGame.getWorld().getQuery<ssvsc::HashGrid, ssvsc::QueryType::RayCast>(startPosition, direction));
+		auto gridQuery(mGame.getWorld().getQuery<ssvsc::HashGrid, ssvsc::QueryType::RayCast>(startPos, direction));
 
 		ssvsc::Body* body;
-
 		while((body = gridQuery.next()) != nullptr)
 		{
-			if(body == &mSeeker) continue;
+			if(body == &mSeeker.getBody()) continue;
+			if(body->hasGroup(OBGroup::GEnemy)) continue;
 			if(body->hasGroup(OBGroup::GFriendly)) return true;
 			if(body->hasGroup(OBGroup::GSolidAir)) return false;
 		}
@@ -84,13 +84,14 @@ namespace ob
 	class OBCERunner : public OBCEArmedBase
 	{
 		private:
-			ssvs::Ticker timerShoot{150.f};
+			ssvs::Ticker tckShoot{150.f};
 
 		public:
 			OBCERunner(OBCEnemy& mCEnemy, OBCWielder& mCWielder, bool mArmed) : OBCEArmedBase{mCEnemy, mCWielder, mArmed, 1} { }
 
 			inline void init() override
 			{
+				tckShoot.setLoop(false);
 				cEnemy.setWalkSpeed(150.f); cEnemy.setTurnSpeed(4.5f); cEnemy.setMaxVelocity(200.f);
 				cKillable.setType(OBCKillable::Type::Organic);
 			}
@@ -98,14 +99,15 @@ namespace ob
 			{
 				if(cTargeter.hasTarget())
 				{
+					tckShoot.update(mFT);
 					float distance{ssvs::getDistEuclidean(cTargeter.getPosF(), cPhys.getPosF())};
 					//cWielder.setShooting(armed && distance < 10000);
-					cWielder.setShooting(raycastToPlayer(game, cPhys.getBody(), cTargeter.getTarget().getBody()));
+					cWielder.setShooting(raycastToPlayer(game, cPhys, cTargeter.getTarget()));
 
 					if(armed)
 					{
 						pursuitOrAlign(distance, 9000.f); faceShootingDirection();
-						if(cWielder.isShooting() && timerShoot.update(mFT)) shootGun();
+						if(cWielder.isShooting() && tckShoot.isStopped()) shootGun();
 					}
 					else cBoid.pursuit(cTargeter.getTarget());
 				}
@@ -117,6 +119,7 @@ namespace ob
 			{
 				assets.playSound("Sounds/spark.wav"); game.createPMuzzle(20, cPhys.getPosPixels());
 				getFactory().createPJEnemyStar(cWielder.getShootingPos(), cDirection8.getDegrees());
+				tckShoot.restart();
 			}
 	};
 

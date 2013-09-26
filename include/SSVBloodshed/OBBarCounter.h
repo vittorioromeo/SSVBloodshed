@@ -31,7 +31,7 @@ namespace ob
 
 				float dist{maxValue - minValue};
 				float barValue{dist / barCount};
-				unsigned int barsToDraw(std::floor(value / barValue));
+				unsigned int barsToDraw(barValue == 0 ? 0 : std::floor(value / barValue));
 
 				for(auto i(0u); i < barsToDraw; ++i)
 				{

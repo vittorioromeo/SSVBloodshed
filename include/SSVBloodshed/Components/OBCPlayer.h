@@ -21,7 +21,7 @@ namespace ob
 			OBCWielder& cWielder;
 			OBCDirection8& cDirection8;
 			float walkSpeed{125.f};
-			ssvs::Ticker shootTimer{4.7f};
+			ssvs::Ticker tckShoot{4.5f};
 			int currentWeapon{0};
 
 		public:
@@ -29,6 +29,8 @@ namespace ob
 
 			inline void init() override
 			{
+				tckShoot.setLoop(false);
+
 				cKillable.onDeath += [this]
 				{
 					assets.playSound("Sounds/playerDeath.wav");
@@ -50,7 +52,7 @@ namespace ob
 					game.testhp.setMaxValue(cHealth.getMaxHealth());
 				}
 
-				if(shootTimer.update(mFT)) shootTimer.stop();
+				tckShoot.update(mFT);
 
 				cWielder.setShooting(game.getInput().getIShoot());
 
@@ -62,7 +64,7 @@ namespace ob
 				{
 					if(ix != 0 || iy != 0) cDirection8 = getDirection8FromXY(ix, iy);
 				}
-				else if(shootTimer.isStopped()) shootGun();
+				else if(tckShoot.isStopped()) shootGun();
 
 				if(game.getInput().getIBomb()) bomb();
 				if(game.getInput().getISwitch()) currentWeapon = (currentWeapon + 1) % 4;
@@ -80,19 +82,19 @@ namespace ob
 				switch(currentWeapon)
 				{
 					case 0:
-						assets.playSound("Sounds/machineGun.wav"); shootTimer.restart(4.5f);
+						assets.playSound("Sounds/machineGun.wav"); tckShoot.restart(4.5f);
 						getFactory().createPJBullet(cWielder.getShootingPos(), cDirection8.getDegrees());
 						break;
 					case 1:
-						assets.playSound("Sounds/machineGun.wav"); shootTimer.restart(9.5f);
+						assets.playSound("Sounds/machineGun.wav"); tckShoot.restart(9.5f);
 						getFactory().createPJPlasma(cWielder.getShootingPos(), cDirection8.getDegrees());
 						break;
 					case 2:
-						assets.playSound("Sounds/machineGun.wav"); shootTimer.restart(16.f);
+						assets.playSound("Sounds/machineGun.wav"); tckShoot.restart(16.f);
 						getFactory().createPJTestBomb(cWielder.getShootingPos(), cDirection8.getDegrees());
 						break;
 					case 3:
-						assets.playSound("Sounds/machineGun.wav"); shootTimer.restart(16.f);
+						assets.playSound("Sounds/machineGun.wav"); tckShoot.restart(16.f);
 						for(float i{-5}; i <= 5; i += 2.5f) getFactory().createPJTestShell(cWielder.getShootingPos(), cDirection8.getDegrees() + i);
 						break;
 				}
