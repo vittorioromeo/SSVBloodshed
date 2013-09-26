@@ -15,8 +15,8 @@ namespace ob
 		private:
 			static constexpr int crushedMax{3}, crushedTolerance{1};
 			OBGame& game;
-			ssvsc::World& world;
-			ssvsc::Body& body;
+			World& world;
+			Body& body;
 			Vec2i lastResolution;
 			int crushedLeft{0}, crushedRight{0}, crushedTop{0}, crushedBottom{0};
 
@@ -27,7 +27,7 @@ namespace ob
 			inline void init() override
 			{
 				body.setUserData(&getEntity());
-				body.onResolution += [this](const ssvsc::ResolutionInfo& mResolutionInfo)
+				body.onResolution += [this](const ResolutionInfo& mResolutionInfo)
 				{
 					lastResolution = mResolutionInfo.resolution;
 					if(lastResolution.x > 0) crushedLeft = crushedMax; else if(lastResolution.x < 0) crushedRight = crushedMax;
@@ -48,8 +48,8 @@ namespace ob
 			inline void setVel(const Vec2f& mVel) noexcept			{ body.setVelocity(mVel); }
 
 			inline OBGame& getGame() const noexcept					{ return game; }
-			inline ssvsc::World& getWorld() const noexcept			{ return world; }
-			inline ssvsc::Body& getBody() const noexcept			{ return body; }
+			inline World& getWorld() const noexcept			{ return world; }
+			inline Body& getBody() const noexcept			{ return body; }
 			inline const Vec2i& getLastResolution() const noexcept	{ return lastResolution; }
 			inline bool isCrushedLeft() const noexcept				{ return crushedLeft > crushedTolerance; }
 			inline bool isCrushedRight() const noexcept				{ return crushedRight > crushedTolerance; }

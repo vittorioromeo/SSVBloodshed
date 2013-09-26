@@ -28,6 +28,11 @@ namespace ob
 	using Vec2f = ssvs::Vec2f;
 	using Vec2u = ssvs::Vec2u;
 
+	using World = ssvsc::World;
+	using Body = ssvsc::Body;
+	using DetectionInfo = ssvsc::DetectionInfo;
+	using ResolutionInfo = ssvsc::ResolutionInfo;
+
 	// Game enums
 	enum OBGroup : unsigned int
 	{
@@ -109,7 +114,7 @@ namespace ob
 	}
 
 	// Other utils
-	inline Entity& getEntityFromBody(ssvsc::Body& mBody) { return *static_cast<Entity*>(mBody.getUserData()); }
+	inline Entity& getEntityFromBody(Body& mBody) { return *static_cast<Entity*>(mBody.getUserData()); }
 
 	// SFML shortcuts (TODO: remove? move to ssvs?)
 	template<typename T> float getGlobalLeft(const T& mElement)		{ return mElement.getGlobalBounds().left; }

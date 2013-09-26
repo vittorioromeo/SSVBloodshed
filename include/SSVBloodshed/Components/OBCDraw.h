@@ -14,14 +14,14 @@ namespace ob
 	{
 		private:
 			OBGame& game;
-			ssvsc::Body& body;
+			Body& body;
 			std::vector<sf::Sprite> sprites;
 			std::vector<Vec2f> offsets;
 			bool flippedX{false}, flippedY{false}, scaleWithBody{false};
 			Vec2f globalOffset, globalScale{1.f, 1.f};
 
 		public:
-			inline OBCDraw(OBGame& mGame, ssvsc::Body& mBody) : game(mGame), body(mBody) { }
+			inline OBCDraw(OBGame& mGame, Body& mBody) : game(mGame), body(mBody) { }
 
 			inline void update(float) override
 			{

@@ -15,7 +15,7 @@ namespace ob
 	{
 		private:
 			OBCPhys& cPhys;
-			ssvsc::Body& body;
+			Body& body;
 			bool active{false};
 
 		public:
@@ -24,7 +24,7 @@ namespace ob
 			inline void init() override
 			{
 				body.addGroupNoResolve(OBGroup::GFloor);
-				body.onDetection += [this](const ssvsc::DetectionInfo& mDI)
+				body.onDetection += [this](const DetectionInfo& mDI)
 				{
 					if(active && mDI.body.hasGroup(OBGroup::GFloor) && ssvu::getRnd(0, 10) > 8) getEntityFromBody(mDI.body).getComponent<OBCFloor>().smash();
 				};

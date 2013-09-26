@@ -78,7 +78,7 @@ namespace ob
 				body.setRestitutionX(0.9f);
 				body.setRestitutionY(0.9f);
 
-				body.onDetection += [this](const ssvsc::DetectionInfo& mDI)
+				body.onDetection += [this](const DetectionInfo& mDI)
 				{
 					if(mDI.body.hasGroup(OBGroup::GFriendly)) getEntityFromBody(mDI.body).getComponent<OBCHealth>().damage(bodyDamage);
 				};

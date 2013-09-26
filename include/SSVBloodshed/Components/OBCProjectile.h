@@ -34,7 +34,7 @@ namespace ob
 				body.addGroupToCheck(OBGroup::GSolidGround);
 				body.addGroupToCheck(OBGroup::GSolidAir);
 				body.setResolve(false);
-				body.onDetection += [this](const ssvsc::DetectionInfo& mDI)
+				body.onDetection += [this](const DetectionInfo& mDI)
 				{
 					if(!mDI.body.hasGroup(targetGroup))
 					{

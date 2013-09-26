@@ -18,7 +18,7 @@ namespace ob
 			OBGame& game;
 			OBCPhys& cPhys;
 			OBAssets& assets;
-			ssvsc::Body& body;
+			Body& body;
 
 		public:
 			inline OBCActorNoDrawBase(OBCPhys& mCPhys) : game(mCPhys.getGame()), cPhys(mCPhys), assets(game.getAssets()), body(cPhys.getBody()) { }

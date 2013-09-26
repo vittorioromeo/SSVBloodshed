@@ -25,7 +25,7 @@ namespace ob
 
 		auto gridQuery(mGame.getWorld().getQuery<ssvsc::HashGrid, ssvsc::QueryType::RayCast>(startPos, direction));
 
-		ssvsc::Body* body;
+		Body* body;
 		while((body = gridQuery.next()) != nullptr)
 		{
 			if(body == &mSeeker.getBody()) continue;
@@ -274,7 +274,7 @@ namespace ob
 
 				if(flying)
 				{
-					body.onResolution += [this](const ssvsc::ResolutionInfo& mRI)
+					body.onResolution += [this](const ResolutionInfo& mRI)
 					{
 						if(!mRI.body.hasGroup(OBGroup::GSolidAir) && mRI.body.hasGroup(OBGroup::GSolidGround))
 							mRI.noResolvePosition = mRI.noResolveVelocity = true;

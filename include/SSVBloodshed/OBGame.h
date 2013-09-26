@@ -27,7 +27,7 @@ namespace ob
 			ssvs::Camera gameCamera{gameWindow, 2.f}, overlayCamera{gameWindow, 2.f};
 			OBFactory factory{assets, *this, manager};
 			ssvs::GameState gameState;
-			ssvsc::World world{ssvsc::createResolver<ssvsc::Impulse>(), ssvsc::createSpatial<ssvsc::HashGrid>(1000, 1000, 1000, 500)};
+			World world{ssvsc::createResolver<ssvsc::Impulse>(), ssvsc::createSpatial<ssvsc::HashGrid>(1000, 1000, 1000, 500)};
 			sses::Manager manager;
 
 			OBGInput<OBGame> input{*this};
@@ -156,7 +156,7 @@ namespace ob
 			inline OBAssets& getAssets() noexcept					{ return assets; }
 			inline OBFactory& getFactory() noexcept					{ return factory; }
 			inline ssvs::GameState& getGameState() noexcept			{ return gameState; }
-			inline ssvsc::World& getWorld() noexcept				{ return world; }
+			inline World& getWorld() noexcept				{ return world; }
 			inline sses::Manager& getManager() noexcept				{ return manager; }
 			inline const decltype(input)& getInput() const noexcept	{ return input; }
 
