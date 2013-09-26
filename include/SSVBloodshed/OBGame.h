@@ -90,7 +90,26 @@ namespace ob
 									"###.............#N#.......#....#"
 									"################################";
 
+
 				auto tileIs = [&](int mX, int mY, char mChar){ if(mX < 0 || mY < 0 || mX >= maxX || mY >= maxY) return false; return level[ssvu::get1DIndexFrom2D(mX, mY, maxX)] == mChar; };
+
+				std::array<sf::IntRect*, 16> bitMask;
+				bitMask[0] = &assets.wallSingle;
+				bitMask[1] = &assets.wallVEndS;
+				bitMask[2] = &assets.wallHEndW;
+				bitMask[3] = &assets.wallCornerSW;
+				bitMask[4] = &assets.wallVEndN;
+				bitMask[5] = &assets.wallV;
+				bitMask[6] = &assets.wallCornerNW;
+				bitMask[7] = &assets.wallSingle;
+				bitMask[8] = &assets.wallSingle;
+				bitMask[9] = &assets.wallSingle;
+				bitMask[10] = &assets.wallSingle;
+				bitMask[11] = &assets.wallSingle;
+				bitMask[12] = &assets.wallSingle;
+				bitMask[13] = &assets.wallSingle;
+				bitMask[14] = &assets.wallSingle;
+				bitMask[15] = &assets.wallSingle;
 
 				unsigned int idx{0};
 				for(int iY{0}; iY < maxY; ++iY)
