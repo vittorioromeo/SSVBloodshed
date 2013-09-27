@@ -6,6 +6,7 @@
 #include "SSVBloodshed/OBAssets.h"
 #include "SSVBloodshed/OBConfig.h"
 #include "SSVBloodshed/OBGame.h"
+#include "SSVBloodshed/Weapons/OBWpnTypes.h"
 
 using namespace ob;
 using namespace std;

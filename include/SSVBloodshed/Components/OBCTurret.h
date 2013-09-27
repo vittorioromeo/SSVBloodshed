@@ -45,7 +45,8 @@ namespace ob
 			{
 				assets.playSound("Sounds/spark.wav");
 				Vec2i shootPos{body.getPosition() + getVecFromDirection8<int>(direction) * 600};
-				getFactory().createPJEnemyStar(shootPos, getDegreesFromDirection8(direction));
+				auto& e = getFactory().createPJStar(shootPos, getDegreesFromDirection8(direction));
+				e.getComponent<OBCProjectile>().setTargetGroup(OBGroup::GFriendly);
 				game.createPMuzzle(20, cPhys.getPosPixels());
 			}
 

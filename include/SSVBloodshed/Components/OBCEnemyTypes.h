@@ -14,6 +14,8 @@
 #include "SSVBloodshed/Components/OBCFloorSmasher.h"
 #include "SSVBloodshed/Components/OBCKillable.h"
 #include "SSVBloodshed/Components/OBCWielder.h"
+#include "SSVBloodshed/Components/OBCWpnController.h"
+#include "SSVBloodshed/Weapons/OBWpnTypes.h"
 
 namespace ob
 {
@@ -54,12 +56,13 @@ namespace ob
 		protected:
 			OBCWielder& cWielder;
 			OBCDirection8& cDirection8;
+			OBCWpnController& cWpnController;
 			bool armed{false};
 			int weaponHealth{1};
 
 		public:
-			OBCEArmedBase(OBCEnemy& mCEnemy, OBCWielder& mCWielder, bool mArmed, int mWeaponHealth)
-				: OBCEBase{mCEnemy}, cWielder(mCWielder), cDirection8(mCWielder.getCDirection()), armed{mArmed}, weaponHealth(mWeaponHealth)
+			OBCEArmedBase(OBCEnemy& mCEnemy, OBCWielder& mCWielder, OBCWpnController& mCWpnController, bool mArmed, int mWeaponHealth)
+				: OBCEBase{mCEnemy}, cWielder(mCWielder), cDirection8(mCWielder.getCDirection()), cWpnController(mCWpnController), armed{mArmed}, weaponHealth(mWeaponHealth)
 			{
 				cKillable.getCHealth().onDamage += [this]{ if(armed && weaponHealth-- <= 0) { armed = false; game.createPElectric(10, toPixels(cPhys.getPosF())); } };
 			}
@@ -79,63 +82,58 @@ namespace ob
 				}
 				else cDraw[0].setTextureRect(mUnarmedStand);
 			}
+
+			inline void shootGun()
+			{
+				if(cWpnController.shoot(cWielder.getShootingPos(), cDirection8.getDegrees())) game.createPMuzzle(20, toPixels(cWielder.getShootingPos()));
+			}
 	};
 
 	class OBCERunner : public OBCEArmedBase
 	{
-		private:
-			ssvs::Ticker tckShoot{150.f};
-
 		public:
-			OBCERunner(OBCEnemy& mCEnemy, OBCWielder& mCWielder, bool mArmed) : OBCEArmedBase{mCEnemy, mCWielder, mArmed, 1} { }
+			OBCERunner(OBCEnemy& mCEnemy, OBCWielder& mCWielder, OBCWpnController& mCWpnController, bool mArmed) : OBCEArmedBase{mCEnemy, mCWielder, mCWpnController, mArmed, 1} { }
 
 			inline void init() override
 			{
-				tckShoot.setLoop(false);
+				cWpnController.setWpnType(OBWpnTypes::createEPlasmaStarGun(0));
 				cEnemy.setWalkSpeed(150.f); cEnemy.setTurnSpeed(4.5f); cEnemy.setMaxVelocity(200.f);
 				cKillable.setType(OBCKillable::Type::Organic);
 			}
-			inline void update(float mFT) override
+			inline void update(float) override
 			{
 				if(cTargeter.hasTarget())
 				{
-					tckShoot.update(mFT);
 					float distance{ssvs::getDistEuclidean(cTargeter.getPosF(), cPhys.getPosF())};
-					//cWielder.setShooting(armed && distance < 10000);
 					cWielder.setShooting(armed && raycastToPlayer(game, cPhys, cTargeter.getTarget()));
 
 					if(armed)
 					{
 						pursuitOrAlign(distance, 9000.f); faceShootingDirection();
-						if(cWielder.isShooting() && tckShoot.isStopped()) shootGun();
+						if(cWielder.isShooting()) shootGun();
 					}
 					else cBoid.pursuit(cTargeter.getTarget());
 				}
 				else cWielder.setShooting(false);
 			}
 			inline void draw() override { recalculateTile(assets.e1UAStand, assets.e1AStand, assets.e1AShoot); }
-
-			inline void shootGun()
-			{
-				assets.playSound("Sounds/spark.wav"); game.createPMuzzle(20, cPhys.getPosPixels());
-				getFactory().createPJEnemyStar(cWielder.getShootingPos(), cDirection8.getDegrees());
-				tckShoot.restart();
-			}
 	};
 
 	class OBCECharger : public OBCEArmedBase
 	{
 		private:
 			OBCFloorSmasher& cFloorSmasher;
-			ssvs::Ticker timerGunShoot{35.f}, timerCharge{250.f};
+			ssvs::Ticker tckCharge{250.f};
 			ssvu::Timeline tlCharge{false};
 			float lastDeg{0};
 
 		public:
-			OBCECharger(OBCEnemy& mCEnemy, OBCFloorSmasher& mCFloorSmasher, OBCWielder& mCWielder, bool mArmed) : OBCEArmedBase{mCEnemy, mCWielder, mArmed, 9}, cFloorSmasher(mCFloorSmasher) { }
+			OBCECharger(OBCEnemy& mCEnemy, OBCFloorSmasher& mCFloorSmasher, OBCWielder& mCWielder, OBCWpnController& mCWpnController, bool mArmed)
+				: OBCEArmedBase{mCEnemy, mCWielder, mCWpnController, mArmed, 9}, cFloorSmasher(mCFloorSmasher) { }
 
 			inline void init() override
 			{
+				cWpnController.setWpnType(OBWpnTypes::createEPlasmaStarGun(1));
 				cEnemy.setWalkSpeed(25.f); cEnemy.setTurnSpeed(3.2f); cEnemy.setMaxVelocity(50.f);
 				cWielder.setWieldDistance(2000.f);
 				cKillable.setType(OBCKillable::Type::Organic);
@@ -157,44 +155,38 @@ namespace ob
 				if(cTargeter.hasTarget())
 				{
 					float distance{ssvs::getDistEuclidean(cTargeter.getPosF(), cPhys.getPosF())};
-					cWielder.setShooting(armed && distance < 10000);
+					cWielder.setShooting(armed && raycastToPlayer(game, cPhys, cTargeter.getTarget()));
 
 					if(armed)
 					{
 						pursuitOrAlign(distance, 9000.f); faceShootingDirection();
-						if(cWielder.isShooting() && timerGunShoot.update(mFT)) shootGun();
+						if(cWielder.isShooting()) shootGun();
 					}
 					else
 					{
 						cBoid.pursuit(cTargeter.getTarget());
 						tlCharge.update(mFT);
-						if(timerCharge.update(mFT)) { tlCharge.reset(); tlCharge.start(); }
+						if(tckCharge.update(mFT)) { tlCharge.reset(); tlCharge.start(); }
 					}
 				}
 				else cWielder.setShooting(false);
 			}
 			inline void draw() override { recalculateTile(assets.e2UAStand, assets.e2AStand, assets.e2AShoot); }
-
-			inline void shootGun()
-			{
-				assets.playSound("Sounds/spark.wav"); game.createPMuzzle(20, cPhys.getPosPixels());
-				for(float i{-10}; i <= 10; i += 10.f) getFactory().createPJEnemyStar(cWielder.getShootingPos(), cDirection8.getDegrees() + i);
-			}
 	};
 
 	class OBCEJuggernaut : public OBCEArmedBase
 	{
 		private:
-			ssvs::Ticker timerGunShoot{25.f};
-			ssvs::Ticker timerShoot{150.f};
+			ssvs::Ticker tckShoot{150.f};
 			ssvu::Timeline tlShoot{false};
 			float lastDeg{0};
 
 		public:
-			OBCEJuggernaut(OBCEnemy& mCEnemy, OBCWielder& mCWielder, bool mArmed) : OBCEArmedBase{mCEnemy, mCWielder, mArmed, 18} { }
+			OBCEJuggernaut(OBCEnemy& mCEnemy, OBCWielder& mCWielder, OBCWpnController& mCWpnController, bool mArmed) : OBCEArmedBase{mCEnemy, mCWielder, mCWpnController, mArmed, 18} { }
 
 			inline void init() override
 			{
+				cWpnController.setWpnType(OBWpnTypes::createEPlasmaStarGun(2));
 				cEnemy.setWalkSpeed(25.f); cEnemy.setTurnSpeed(3.2f); cEnemy.setMaxVelocity(50.f);
 				cKillable.setParticleMult(4);
 				cKillable.onDeath += [this]{ assets.playSound("Sounds/alienDeath.wav"); };
@@ -210,37 +202,35 @@ namespace ob
 			}
 			inline void update(float mFT) override
 			{
+				constexpr float distBodySlam{2500.f};
+				constexpr float distEvade{10000.f};
+
 				if(cTargeter.hasTarget())
 				{
 					float distance{ssvs::getDistEuclidean(cTargeter.getPosF(), cPhys.getPosF())};
-					cWielder.setShooting(armed && distance < 10000);
+					cWielder.setShooting(armed && raycastToPlayer(game, cPhys, cTargeter.getTarget()));
 
-					if(armed)
+					if(armed && distance > distBodySlam)
 					{
-						pursuitOrAlign(distance, 9000.f); faceShootingDirection();
-						if(cWielder.isShooting() && timerGunShoot.update(mFT)) shootGun();
+						pursuitOrAlign(distance, distEvade - 1000.f); faceShootingDirection();
+						if(cWielder.isShooting()) shootGun();
 					}
 					else
 					{
-						if(distance > 10000) cBoid.pursuit(cTargeter.getTarget()); else cBoid.evade(cTargeter.getTarget());
+						if(distance > distEvade || distance < distBodySlam) cBoid.pursuit(cTargeter.getTarget()); else cBoid.evade(cTargeter.getTarget());
 
 						tlShoot.update(mFT);
-						if(timerShoot.update(mFT)) { tlShoot.reset(); tlShoot.start(); }
+						if(tckShoot.update(mFT)) { tlShoot.reset(); tlShoot.start(); }
 					}
 				}
 				else cWielder.setShooting(false);
 			}
 			inline void draw() override { recalculateTile(assets.e3UAStand, assets.e3AStand, assets.e3AShoot); }
 
-			inline void shootGun()
-			{
-				assets.playSound("Sounds/spark.wav"); game.createPMuzzle(20, cPhys.getPosPixels());
-				for(float i{-20}; i <= 20; i += 5) getFactory().createPJEnemyStar(cWielder.getShootingPos(), cDirection8.getDegrees() + i);
-			}
 			inline void shootUnarmed(int mDeg)
 			{
 				assets.playSound("Sounds/spark.wav"); game.createPMuzzle(20, cPhys.getPosPixels());
-				getFactory().createPJEnemyStar(cPhys.getPosI(), cEnemy.getCurrentDegrees() + mDeg);
+				getFactory().createPJStar(cPhys.getPosI(), cEnemy.getCurrentDegrees() + mDeg);
 			}
 	};
 
@@ -348,7 +338,7 @@ namespace ob
 			{
 				assets.playSound("Sounds/spark.wav");
 				Vec2i shootPos{body.getPosition() + Vec2i(ssvs::getVecFromDegrees<float>(cEnemy.getCurrentDegrees()) * 100.f)};
-				getFactory().createPJEnemyStar(shootPos, cEnemy.getCurrentDegrees() + mDeg);
+				getFactory().createPJStar(shootPos, cEnemy.getCurrentDegrees() + mDeg);
 				game.createPMuzzle(20, cPhys.getPosPixels());
 			}
 	};

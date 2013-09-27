@@ -11,6 +11,9 @@
 #include "SSVBloodshed/Components/OBCHealth.h"
 #include "SSVBloodshed/Components/OBCKillable.h"
 #include "SSVBloodshed/Components/OBCWielder.h"
+#include "SSVBloodshed/Components/OBCProjectile.h"
+#include "SSVBloodshed/Components/OBCWpnController.h"
+#include "SSVBloodshed/Weapons/OBWpnTypes.h"
 
 namespace ob
 {
@@ -20,16 +23,19 @@ namespace ob
 			OBCKillable& cKillable;
 			OBCWielder& cWielder;
 			OBCDirection8& cDirection8;
+			OBCWpnController& cWpnController;
 			float walkSpeed{125.f};
-			ssvs::Ticker tckShoot{4.5f};
+
 			int currentWeapon{0};
+			std::vector<OBWpn> weaponTypes{OBWpnTypes::createMachineGun(), OBWpnTypes::createPlasmaBolter()};
 
 		public:
-			OBCPlayer(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCKillable& mCKillable, OBCWielder& mCWielder) : OBCActorBase{mCPhys, mCDraw}, cKillable(mCKillable), cWielder(mCWielder), cDirection8(mCWielder.getCDirection()) { }
+			OBCPlayer(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCKillable& mCKillable, OBCWielder& mCWielder, OBCWpnController& mCWpnController)
+				: OBCActorBase{mCPhys, mCDraw}, cKillable(mCKillable), cWielder(mCWielder), cDirection8(mCWielder.getCDirection()), cWpnController(mCWpnController) { }
 
 			inline void init() override
 			{
-				tckShoot.setLoop(false);
+				cWpnController.setWpnType(OBWpnTypes::createMachineGun());
 
 				cKillable.onDeath += [this]
 				{
@@ -55,10 +61,11 @@ namespace ob
 				if(!cWielder.isShooting() && (ix != 0 || iy != 0)) cDirection8 = getDirection8FromXY(ix, iy);
 
 				if(game.getInput().getIBomb()) bomb();
-				if(game.getInput().getISwitch()) currentWeapon = (currentWeapon + 1) % 4;
+
+				if(game.getInput().getISwitch()) cWpnController.setWpnType(weaponTypes[++currentWeapon % weaponTypes.size()]);
 			}
 
-			inline void update(float mFT) override
+			inline void update(float) override
 			{
 				updateInput();
 
@@ -68,38 +75,14 @@ namespace ob
 					game.testhp.setMaxValue(cHealth.getMaxHealth());
 				}
 
-				tckShoot.update(mFT);
-				if(cWielder.isShooting() && tckShoot.isStopped()) shootGun();
+				if(cWielder.isShooting())
+					if(cWpnController.shoot(cWielder.getShootingPos(), cDirection8.getDegrees()))
+						game.createPMuzzle(20, toPixels(cWielder.getShootingPos()));
 			}
 			inline void draw() override
 			{
 				cDraw[0].setRotation(cDirection8.getDegrees());
 				cDraw[0].setTextureRect(cWielder.isShooting() ? assets.p1Shoot : assets.p1Stand);
-			}
-
-			inline void shootGun()
-			{
-				switch(currentWeapon)
-				{
-					case 0:
-						assets.playSound("Sounds/machineGun.wav"); tckShoot.restart(4.5f);
-						getFactory().createPJBullet(cWielder.getShootingPos(), cDirection8.getDegrees());
-						break;
-					case 1:
-						assets.playSound("Sounds/machineGun.wav"); tckShoot.restart(9.5f);
-						getFactory().createPJPlasma(cWielder.getShootingPos(), cDirection8.getDegrees());
-						break;
-					case 2:
-						assets.playSound("Sounds/machineGun.wav"); tckShoot.restart(16.f);
-						getFactory().createPJTestBomb(cWielder.getShootingPos(), cDirection8.getDegrees());
-						break;
-					case 3:
-						assets.playSound("Sounds/machineGun.wav"); tckShoot.restart(16.f);
-						for(float i{-5}; i <= 5; i += 2.5f) getFactory().createPJTestShell(cWielder.getShootingPos(), cDirection8.getDegrees() + i);
-						break;
-				}
-
-				game.createPMuzzle(20, toPixels(cWielder.getShootingPos()));
 			}
 
 			inline void bomb()

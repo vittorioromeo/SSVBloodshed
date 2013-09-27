@@ -55,8 +55,10 @@ namespace ob
 
 			// Projectiles
 			Entity& createPJBullet(const Vec2i& mPos, float mDegrees);
-			Entity& createPJPlasma(const Vec2i& mPos, float mDegrees);
-			Entity& createPJEnemyStar(const Vec2i& mPos, float mDegrees);
+			Entity& createPJBulletPlasma(const Vec2i& mPos, float mDegrees);
+			Entity& createPJBoltPlasma(const Vec2i& mPos, float mDegrees);
+			Entity& createPJStar(const Vec2i& mPos, float mDegrees);
+			Entity& createPJStarPlasma(const Vec2i& mPos, float mDegrees);
 			Entity& createPJTestBomb(const Vec2i& mPos, float mDegrees, float mSpeedMult = 1.f, float mCurveMult = 1.f);
 			Entity& createPJTestShell(const Vec2i& mPos, float mDegrees);
 	};

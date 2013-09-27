@@ -15,6 +15,7 @@
 #include "SSVBloodshed/Components/OBCEnemyTypes.h"
 #include "SSVBloodshed/Components/OBCKillable.h"
 #include "SSVBloodshed/Components/OBCTurret.h"
+#include "SSVBloodshed/Components/OBCWpnController.h"
 
 using namespace std;
 using namespace sf;
@@ -100,7 +101,8 @@ namespace ob
 		auto tpl(createKillableBase(mPos, {650, 650}, OBLayer::LPlayer, 10));
 		auto& cDirection8(getEntity(tpl).createComponent<OBCDirection8>());
 		auto& cWielder(getEntity(tpl).createComponent<OBCWielder>(getCPhys(tpl), getCDraw(tpl), cDirection8));
-		getEntity(tpl).createComponent<OBCPlayer>(getCPhys(tpl), getCDraw(tpl), getCKillable(tpl), cWielder);
+		auto& cWpnController(getEntity(tpl).createComponent<OBCWpnController>(getCPhys(tpl), OBGroup::GEnemy));
+		getEntity(tpl).createComponent<OBCPlayer>(getCPhys(tpl), getCDraw(tpl), getCKillable(tpl), cWielder, cWpnController);
 		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.p1Stand);
 		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.p1Gun);
 		return getEntity(tpl);
@@ -119,7 +121,8 @@ namespace ob
 		auto tpl(createEnemyBase(mPos, {600, 600}, 4));
 		auto& cDirection8(getEntity(tpl).createComponent<OBCDirection8>());
 		auto& cWielder(getEntity(tpl).createComponent<OBCWielder>(getCPhys(tpl), getCDraw(tpl), cDirection8));
-		getEntity(tpl).createComponent<OBCERunner>(getCEnemy(tpl), cWielder, mArmed);
+		auto& cWpnController(getEntity(tpl).createComponent<OBCWpnController>(getCPhys(tpl), OBGroup::GFriendly));
+		getEntity(tpl).createComponent<OBCERunner>(getCEnemy(tpl), cWielder, cWpnController, mArmed);
 		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.e1AStand);
 		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.e1AGun);
 		return getEntity(tpl);
@@ -130,7 +133,8 @@ namespace ob
 		auto& cFloorSmasher(getEntity(tpl).createComponent<OBCFloorSmasher>(getCPhys(tpl)));
 		auto& cDirection8(getEntity(tpl).createComponent<OBCDirection8>());
 		auto& cWielder(getEntity(tpl).createComponent<OBCWielder>(getCPhys(tpl), getCDraw(tpl), cDirection8));
-		getEntity(tpl).createComponent<OBCECharger>(getCEnemy(tpl), cFloorSmasher, cWielder, mArmed);
+		auto& cWpnController(getEntity(tpl).createComponent<OBCWpnController>(getCPhys(tpl), OBGroup::GFriendly));
+		getEntity(tpl).createComponent<OBCECharger>(getCEnemy(tpl), cFloorSmasher, cWielder, cWpnController, mArmed);
 		emplaceSpriteByTile(getCDraw(tpl), assets.txMedium, assets.e2AStand);
 		emplaceSpriteByTile(getCDraw(tpl), assets.txMedium, assets.e2AGun);
 		return getEntity(tpl);
@@ -140,7 +144,8 @@ namespace ob
 		auto tpl(createEnemyBase(mPos, {2100, 2100}, 36));
 		auto& cDirection8(getEntity(tpl).createComponent<OBCDirection8>());
 		auto& cWielder(getEntity(tpl).createComponent<OBCWielder>(getCPhys(tpl), getCDraw(tpl), cDirection8));
-		getEntity(tpl).createComponent<OBCEJuggernaut>(getCEnemy(tpl), cWielder, mArmed);
+		auto& cWpnController(getEntity(tpl).createComponent<OBCWpnController>(getCPhys(tpl), OBGroup::GFriendly));
+		getEntity(tpl).createComponent<OBCEJuggernaut>(getCEnemy(tpl), cWielder, cWpnController, mArmed);
 		emplaceSpriteByTile(getCDraw(tpl), assets.txBig, assets.e3AStand);
 		emplaceSpriteByTile(getCDraw(tpl), assets.txBig, assets.e3AGun);
 		return getEntity(tpl);
@@ -163,18 +168,31 @@ namespace ob
 		return getEntity(tpl);
 	}
 
-	Entity& OBFactory::createPJBullet(const Vec2i& mPos, float mDegrees) { return getEntity(createProjectileBase(mPos, {150, 150}, 420.f, mDegrees, assets.pjBullet)); }
-	Entity& OBFactory::createPJPlasma(const Vec2i& mPos, float mDegrees)
+	Entity& OBFactory::createPJBullet(const Vec2i& mPos, float mDegrees)
+	{
+		auto tpl(createProjectileBase(mPos, {150, 150}, 420.f, mDegrees, assets.pjBullet));
+		return getEntity(tpl);
+	}
+	Entity& OBFactory::createPJBulletPlasma(const Vec2i& mPos, float mDegrees)
+	{
+		auto tpl(createProjectileBase(mPos, {150, 150}, 360.f, mDegrees, assets.pjBulletPlasma));
+		return getEntity(tpl);
+	}
+	Entity& OBFactory::createPJBoltPlasma(const Vec2i& mPos, float mDegrees)
 	{
 		auto tpl(createProjectileBase(mPos, {150, 150}, 260.f, mDegrees, assets.pjPlasma));
 		getEntity(tpl).createComponent<OBCParticleEmitter>(getCPhys(tpl), OBCParticleEmitter::Type::Plasma);
 		getCProjectile(tpl).setPierceOrganic(-1);
 		return getEntity(tpl);
 	}
-	Entity& OBFactory::createPJEnemyStar(const Vec2i& mPos, float mDegrees)
+	Entity& OBFactory::createPJStar(const Vec2i& mPos, float mDegrees)
 	{
 		auto tpl(createProjectileBase(mPos, {150, 150}, 320.f, mDegrees, assets.pjStar));
-		getCProjectile(tpl).setTargetGroup(OBGroup::GFriendly);
+		return getEntity(tpl);
+	}
+	Entity& OBFactory::createPJStarPlasma(const Vec2i& mPos, float mDegrees)
+	{
+		auto tpl(createProjectileBase(mPos, {150, 150}, 270.f, mDegrees, assets.pjStarPlasma));
 		return getEntity(tpl);
 	}
 
@@ -187,7 +205,7 @@ namespace ob
 		getCProjectile(tpl).setDamage(10);
 		getCProjectile(tpl).onDestroy += [this, tpl]
 		{
-			for(int i{0}; i < 360; i += 360 / 10) createPJPlasma(getCPhys(tpl).getPosI() + Vec2i(ssvs::getVecFromDegrees<float>(i) * 300.f), i);
+			for(int i{0}; i < 360; i += 360 / 10) createPJBoltPlasma(getCPhys(tpl).getPosI() + Vec2i(ssvs::getVecFromDegrees<float>(i) * 300.f), i);
 		};
 		return getEntity(tpl);
 	}
