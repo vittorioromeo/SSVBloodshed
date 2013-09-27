@@ -8,7 +8,7 @@
 #include "SSVBloodshed/OBCommon.h"
 #include "SSVBloodshed/OBGame.h"
 #include "SSVBloodshed/Weapons/OBWpn.h"
-#include "SSVBloodshed/Components/OBCWpnController.h"
+#include "SSVBloodshed/Components/OBCProjectile.h"
 
 namespace ob
 {
@@ -16,43 +16,39 @@ namespace ob
 	{
 		inline OBWpn createMachineGun()
 		{
-			OBWpn result{4.5f, 1.f, 420.f, "Sounds/machineGun.wav"};
-			result.onShoot += [](OBCWpnController& mCnt, const Vec2i& mPos, float mDeg)
+			return {4.5f, 1.f, 420.f, "Sounds/machineGun.wav",
+			[](OBWpn& mWpn, OBGame& mGame, const Vec2i& mPos, float mDeg)
 			{
-				mCnt.shotProjectile(mCnt.getFactory().createPJBullet(mPos, mDeg));
-			};
-			return result;
+				mWpn.shotProjectile(mGame.getFactory().createPJBullet(mPos, mDeg));
+			}};
 		}
 		inline OBWpn createPlasmaBolter()
 		{
-			OBWpn result{9.5f, 2.f, 290.f, "Sounds/machineGun.wav"};
-			result.onShoot += [](OBCWpnController& mCnt, const Vec2i& mPos, float mDeg)
+			return {9.5f, 2.f, 290.f, "Sounds/machineGun.wav",
+			[](OBWpn& mWpn, OBGame& mGame, const Vec2i& mPos, float mDeg)
 			{
-				mCnt.shotProjectile(mCnt.getFactory().createPJBoltPlasma(mPos, mDeg));
-			};
-			return result;
+				mWpn.shotProjectile(mGame.getFactory().createPJBoltPlasma(mPos, mDeg));
+			}};
 		}
 		inline OBWpn createEPlasmaBulletGun()
 		{
-			OBWpn result{30.f, 0.5f, 320.f, "Sounds/machineGun.wav"};
-			result.onShoot += [](OBCWpnController& mCnt, const Vec2i& mPos, float mDeg)
+			return {30.f, 0.5f, 320.f, "Sounds/machineGun.wav",
+			[](OBWpn& mWpn, OBGame& mGame, const Vec2i& mPos, float mDeg)
 			{
-				mCnt.shotProjectile(mCnt.getFactory().createPJBulletPlasma(mPos, mDeg));
-			};
-			return result;
+				mWpn.shotProjectile(mGame.getFactory().createPJBulletPlasma(mPos, mDeg));
+			}};
 		}
 		inline OBWpn createEPlasmaStarGun(int mFanCount)
 		{
-			OBWpn result{75.f, 1.f, 260.f, "Sounds/machineGun.wav"};
-			result.onShoot += [mFanCount](OBCWpnController& mCnt, const Vec2i& mPos, float mDeg)
+			return {75.f, 1.f, 260.f, "Sounds/machineGun.wav",
+			[mFanCount](OBWpn& mWpn, OBGame& mGame, const Vec2i& mPos, float mDeg)
 			{
 				for(int i{-mFanCount}; i <= mFanCount; ++i)
 				{
-					auto& e(mCnt.getFactory().createPJStarPlasma(mPos, mDeg + i * 15.f));
-					mCnt.shotProjectile(e).setSpeed(260.f - std::abs(i) * 40.f);
+					auto& e(mGame.getFactory().createPJStarPlasma(mPos, mDeg + i * 15.f));
+					mWpn.shotProjectile(e).setSpeed(260.f - std::abs(i) * 40.f);
 				}
-			};
-			return result;
+			}};
 		}
 	}
 }

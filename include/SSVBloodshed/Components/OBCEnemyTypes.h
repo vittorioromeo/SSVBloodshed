@@ -96,7 +96,7 @@ namespace ob
 
 			inline void init() override
 			{
-				cWpnController.setWpnType(OBWpnTypes::createEPlasmaStarGun(0));
+				cWpnController.setWpn(OBWpnTypes::createEPlasmaStarGun(0));
 				cEnemy.setWalkSpeed(150.f); cEnemy.setTurnSpeed(4.5f); cEnemy.setMaxVelocity(200.f);
 				cKillable.setType(OBCKillable::Type::Organic);
 			}
@@ -133,7 +133,7 @@ namespace ob
 
 			inline void init() override
 			{
-				cWpnController.setWpnType(OBWpnTypes::createEPlasmaStarGun(1));
+				cWpnController.setWpn(OBWpnTypes::createEPlasmaStarGun(1));
 				cEnemy.setWalkSpeed(25.f); cEnemy.setTurnSpeed(3.2f); cEnemy.setMaxVelocity(50.f);
 				cWielder.setWieldDistance(2000.f);
 				cKillable.setType(OBCKillable::Type::Organic);
@@ -186,7 +186,7 @@ namespace ob
 
 			inline void init() override
 			{
-				cWpnController.setWpnType(OBWpnTypes::createEPlasmaStarGun(2));
+				cWpnController.setWpn(OBWpnTypes::createEPlasmaStarGun(2));
 				cEnemy.setWalkSpeed(25.f); cEnemy.setTurnSpeed(3.2f); cEnemy.setMaxVelocity(50.f);
 				cKillable.setParticleMult(4);
 				cKillable.onDeath += [this]{ assets.playSound("Sounds/alienDeath.wav"); };

@@ -9,6 +9,7 @@
 #include "SSVBloodshed/OBGame.h"
 #include "SSVBloodshed/Components/OBCActorBase.h"
 #include "SSVBloodshed/Components/OBCFloor.h"
+#include "SSVBloodshed/Components/OBCHealth.h"
 
 namespace ob
 {

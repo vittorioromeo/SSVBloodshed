@@ -35,7 +35,7 @@ namespace ob
 
 			inline void init() override
 			{
-				cWpnController.setWpnType(OBWpnTypes::createMachineGun());
+				cWpnController.setWpn(OBWpnTypes::createMachineGun());
 
 				cKillable.onDeath += [this]
 				{
@@ -62,7 +62,7 @@ namespace ob
 
 				if(game.getInput().getIBomb()) bomb();
 
-				if(game.getInput().getISwitch()) cWpnController.setWpnType(weaponTypes[++currentWeapon % weaponTypes.size()]);
+				if(game.getInput().getISwitch()) cWpnController.setWpn(weaponTypes[++currentWeapon % weaponTypes.size()]);
 			}
 
 			inline void update(float) override

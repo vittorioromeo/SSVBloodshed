@@ -9,6 +9,9 @@
 #include "SSVBloodshed/OBGame.h"
 #include "SSVBloodshed/Components/OBCActorBase.h"
 #include "SSVBloodshed/Components/OBCKillable.h"
+#include "SSVBloodshed/Components/OBCWpnController.h"
+#include "SSVBloodshed/Weapons/OBWpnTypes.h"
+#include "SSVBloodshed/Weapons/OBWpnDumb.h"
 
 namespace ob
 {
@@ -19,6 +22,7 @@ namespace ob
 			Direction8 direction;
 			ssvs::Ticker timerShoot{125.f};
 			ssvu::Timeline tlShoot{false};
+			OBWpnDumb wpn{game, OBGroup::GFriendly, OBWpnTypes::createEPlasmaStarGun(0)};
 
 		public:
 			OBCTurret(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCKillable& mCKillable, Direction8 mDirection) : OBCActorBase{mCPhys, mCDraw}, cKillable(mCKillable), direction{mDirection} { }
@@ -45,8 +49,7 @@ namespace ob
 			{
 				assets.playSound("Sounds/spark.wav");
 				Vec2i shootPos{body.getPosition() + getVecFromDirection8<int>(direction) * 600};
-				auto& e = getFactory().createPJStar(shootPos, getDegreesFromDirection8(direction));
-				e.getComponent<OBCProjectile>().setTargetGroup(OBGroup::GFriendly);
+				wpn.shoot(shootPos, getDegreesFromDirection8(direction));
 				game.createPMuzzle(20, cPhys.getPosPixels());
 			}
 
