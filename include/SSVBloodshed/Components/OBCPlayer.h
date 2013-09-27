@@ -44,8 +44,24 @@ namespace ob
 				body.addGroup(OBGroup::GOrganic);
 				body.addGroupToCheck(OBGroup::GSolidGround);
 			}
+
+			inline void updateInput()
+			{
+				const auto& ix(game.getInput().getIX());
+				const auto& iy(game.getInput().getIY());
+				body.setVelocity(ssvs::getResized(Vec2f(ix, iy), walkSpeed));
+
+				cWielder.setShooting(game.getInput().getIShoot());
+				if(!cWielder.isShooting() && (ix != 0 || iy != 0)) cDirection8 = getDirection8FromXY(ix, iy);
+
+				if(game.getInput().getIBomb()) bomb();
+				if(game.getInput().getISwitch()) currentWeapon = (currentWeapon + 1) % 4;
+			}
+
 			inline void update(float mFT) override
 			{
+				updateInput();
+
 				{
 					auto& cHealth(getEntity().getComponent<OBCHealth>());
 					game.testhp.setValue(cHealth.getHealth());
@@ -53,23 +69,7 @@ namespace ob
 				}
 
 				tckShoot.update(mFT);
-
-				cWielder.setShooting(game.getInput().getIShoot());
-
-				const auto& ix(game.getInput().getIX());
-				const auto& iy(game.getInput().getIY());
-				const auto& iVec(ssvs::getNormalized(Vec2f(ix, iy)));
-
-				if(!cWielder.isShooting())
-				{
-					if(ix != 0 || iy != 0) cDirection8 = getDirection8FromXY(ix, iy);
-				}
-				else if(tckShoot.isStopped()) shootGun();
-
-				if(game.getInput().getIBomb()) bomb();
-				if(game.getInput().getISwitch()) currentWeapon = (currentWeapon + 1) % 4;
-
-				body.setVelocity(iVec * walkSpeed);
+				if(cWielder.isShooting() && tckShoot.isStopped()) shootGun();
 			}
 			inline void draw() override
 			{

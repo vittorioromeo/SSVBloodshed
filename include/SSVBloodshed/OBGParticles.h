@@ -15,7 +15,7 @@ namespace ob
 	{
 		private:
 			constexpr static unsigned int txWidth{320};
-			constexpr static unsigned int txHeight{320};
+			constexpr static unsigned int txHeight{240};
 			sf::RenderTexture txPSPerm, txPSTemp;
 			ParticleSystem* psPerm{nullptr};
 			ParticleSystem* psTemp{nullptr};

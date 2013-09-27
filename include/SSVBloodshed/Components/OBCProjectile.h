@@ -64,11 +64,17 @@ namespace ob
 			inline void setSpeed(float mValue) noexcept			{ speed = mValue; }
 			inline void setDegrees(float mValue) noexcept		{ degrees = mValue; }
 			inline void setCurveSpeed(float mValue) noexcept	{ curveSpeed = mValue; }
-			inline void setDamage(int mValue) noexcept			{ damage = mValue; }
+			inline void setDamage(float mValue) noexcept		{ damage = mValue; }
 			inline void setPierceOrganic(int mValue) noexcept	{ pierceOrganic = mValue; }
 			inline void setTargetGroup(OBGroup mValue) noexcept	{ targetGroup = mValue; }
 
+			inline float getLife() const noexcept				{ return life.getCurrent(); }
 			inline float getSpeed() const noexcept				{ return speed; }
+			inline float getDegrees() const noexcept			{ return degrees; }
+			inline float getCurveSpeed() const noexcept			{ return curveSpeed; }
+			inline float getDamage() const noexcept				{ return damage; }
+			inline int getPierceOrganic() const noexcept		{ return pierceOrganic; }
+			inline OBGroup getTargetGroup() const noexcept		{ return targetGroup; }
 	};
 }
 

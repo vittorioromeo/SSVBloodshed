@@ -14,6 +14,7 @@
 #include "SSVBloodshed/Components/OBCHealth.h"
 #include "SSVBloodshed/Components/OBCEnemyTypes.h"
 #include "SSVBloodshed/Components/OBCKillable.h"
+#include "SSVBloodshed/Components/OBCTurret.h"
 
 using namespace std;
 using namespace sf;
@@ -156,6 +157,7 @@ namespace ob
 	{
 		auto tpl(createKillableBase(mPos, {1000, 1000}, OBLayer::LEnemy, 20));
 		getCKillable(tpl).setType(OBCKillable::Type::Robotic);
+		getCKillable(tpl).setParticleMult(0.35f);
 		getEntity(tpl).createComponent<OBCTurret>(getCPhys(tpl), getCDraw(tpl), getCKillable(tpl), mDirection);
 		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.eTurret);
 		return getEntity(tpl);

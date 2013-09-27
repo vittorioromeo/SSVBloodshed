@@ -26,7 +26,7 @@ namespace ob
 			{
 				if(shooting)
 				{
-					cDraw[1].setRotation(45 * cDirection8.getInt());
+					cDraw[1].setRotation(cDirection8.getDegrees());
 					cDraw.getOffsets()[1] = cDirection8.getVec(toPixels(wieldDistance));
 					cDraw[1].setColor({255, 255, 255, 255});
 				}

@@ -44,7 +44,6 @@ namespace ob
 		GFriendly,
 		GEnemy
 	};
-
 	enum OBLayer : int
 	{
 		LWall,

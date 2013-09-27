@@ -35,7 +35,7 @@ namespace ob
 				};
 				body.onPreUpdate += [this]
 				{
-					lastResolution = {0, 0};
+					lastResolution = ssvs::zeroVec2i;
 					if(crushedLeft > 0) --crushedLeft;
 					if(crushedRight > 0) --crushedRight;
 					if(crushedTop > 0) --crushedTop;
@@ -48,8 +48,8 @@ namespace ob
 			inline void setVel(const Vec2f& mVel) noexcept			{ body.setVelocity(mVel); }
 
 			inline OBGame& getGame() const noexcept					{ return game; }
-			inline World& getWorld() const noexcept			{ return world; }
-			inline Body& getBody() const noexcept			{ return body; }
+			inline World& getWorld() const noexcept					{ return world; }
+			inline Body& getBody() const noexcept					{ return body; }
 			inline const Vec2i& getLastResolution() const noexcept	{ return lastResolution; }
 			inline bool isCrushedLeft() const noexcept				{ return crushedLeft > crushedTolerance; }
 			inline bool isCrushedRight() const noexcept				{ return crushedRight > crushedTolerance; }
@@ -68,7 +68,6 @@ namespace ob
 			inline float getRight() const noexcept					{ return body.getShape().getRight(); }
 			inline float getTop() const noexcept					{ return body.getShape().getTop(); }
 			inline float getBottom() const noexcept					{ return body.getShape().getBottom(); }
-
 	};
 }
 

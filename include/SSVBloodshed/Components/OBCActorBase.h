@@ -22,9 +22,10 @@ namespace ob
 
 		public:
 			inline OBCActorNoDrawBase(OBCPhys& mCPhys) : game(mCPhys.getGame()), cPhys(mCPhys), assets(game.getAssets()), body(cPhys.getBody()) { }
-			inline OBGame& getGame() const noexcept			{ return game; }
-			inline OBFactory& getFactory() const noexcept	{ return game.getFactory(); }
-			inline OBCPhys& getCPhys() const noexcept		{ return cPhys; }
+			inline OBGame& getGame() const noexcept				{ return game; }
+			inline sses::Manager& getManager() const noexcept	{ return game.getManager(); }
+			inline OBFactory& getFactory() const noexcept		{ return game.getFactory(); }
+			inline OBCPhys& getCPhys() const noexcept			{ return cPhys; }
 	};
 
 	class OBCActorBase : public OBCActorNoDrawBase

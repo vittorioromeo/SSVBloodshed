@@ -146,7 +146,6 @@ namespace ob
 				overlayCamera.unapply();
 
 				debugText.draw();
-
 			}
 
 			inline void render(const sf::Drawable& mDrawable) { gameWindow.draw(mDrawable); }
@@ -156,7 +155,7 @@ namespace ob
 			inline OBAssets& getAssets() noexcept					{ return assets; }
 			inline OBFactory& getFactory() noexcept					{ return factory; }
 			inline ssvs::GameState& getGameState() noexcept			{ return gameState; }
-			inline World& getWorld() noexcept				{ return world; }
+			inline World& getWorld() noexcept						{ return world; }
 			inline sses::Manager& getManager() noexcept				{ return manager; }
 			inline const decltype(input)& getInput() const noexcept	{ return input; }
 

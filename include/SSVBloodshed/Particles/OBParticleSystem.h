@@ -14,15 +14,15 @@ namespace ob
 	{
 		private:
 			unsigned int maxParticles{10000};
-			sf::VertexArray vertices{sf::PrimitiveType::Quads};
+			std::vector<sf::Vertex> vertices; // TODO: wrap this in ssvs::VertexVector that supports emplacement
 			std::vector<Particle> particles;
 
 		public:
-			inline ParticleSystem() { particles.reserve(maxParticles); }
-			inline void emplace(const Vec2f& mPosition, const Vec2f& mVelocity, float mAcceleration, const sf::Color& mColor, float mSize, float mLife, float mAlphaMult = 1.f)
+			inline ParticleSystem() { vertices.reserve(maxParticles * 4); particles.reserve(maxParticles); }
+			template<typename... TArgs> inline void emplace(TArgs&&... mArgs)
 			{
 				if(particles.size() >= maxParticles) return;
-				particles.emplace_back(mPosition, mVelocity, mAcceleration, mColor, mSize, mLife, mAlphaMult);
+				particles.emplace_back(std::forward<TArgs>(mArgs)...);
 			}
 			inline void update(float mFT)
 			{
@@ -31,14 +31,14 @@ namespace ob
 				for(auto& p : particles)
 				{
 					p.update(mFT);
-					vertices.append({{p.getPosition().x - p.getSize(), p.getPosition().y - p.getSize()}, p.getColor()});
-					vertices.append({{p.getPosition().x + p.getSize(), p.getPosition().y - p.getSize()}, p.getColor()});
-					vertices.append({{p.getPosition().x + p.getSize(), p.getPosition().y + p.getSize()}, p.getColor()});
-					vertices.append({{p.getPosition().x - p.getSize(), p.getPosition().y + p.getSize()}, p.getColor()});
+					vertices.emplace_back(Vec2f{p.getPosition().x - p.getSize(), p.getPosition().y - p.getSize()}, p.getColor());
+					vertices.emplace_back(Vec2f{p.getPosition().x + p.getSize(), p.getPosition().y - p.getSize()}, p.getColor());
+					vertices.emplace_back(Vec2f{p.getPosition().x + p.getSize(), p.getPosition().y + p.getSize()}, p.getColor());
+					vertices.emplace_back(Vec2f{p.getPosition().x - p.getSize(), p.getPosition().y + p.getSize()}, p.getColor());
 				}
 			}
-			inline void draw(sf::RenderTarget& mRenderTarget, sf::RenderStates mRenderStates) const override { mRenderTarget.draw(vertices, mRenderStates); }
-			inline void clear() { particles.clear(); }
+			inline void draw(sf::RenderTarget& mRenderTarget, sf::RenderStates mRenderStates) const override { mRenderTarget.draw(&vertices[0], vertices.size(), sf::PrimitiveType::Quads, mRenderStates); }
+			inline void clear() { vertices.clear(); particles.clear(); }
 	};
 }
 

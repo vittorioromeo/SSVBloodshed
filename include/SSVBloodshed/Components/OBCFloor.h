@@ -16,7 +16,7 @@ namespace ob
 		private:
 			bool smashed{false}, grate{false};
 
-			inline void makeGrate()
+			inline void becomeFloorGrate()
 			{
 				grate = true;
 				cDraw[0].setTextureRect(assets.getFloorGrateVariant());
@@ -26,14 +26,14 @@ namespace ob
 		public:
 			OBCFloor(OBCPhys& mCPhys, OBCDraw& mCDraw, bool mGrate) : OBCActorBase{mCPhys, mCDraw}, grate{mGrate} { }
 
-			inline void init() override { body.addGroup(OBGroup::GFloor); if(grate) makeGrate(); }
+			inline void init() override { body.addGroup(OBGroup::GFloor); if(grate) becomeFloorGrate(); }
 			inline void smash() noexcept
 			{
 				if(smashed || grate) return;
 				smashed = true;
 				game.createPDebris(20, cPhys.getPosPixels());
 				game.createPDebrisFloor(4, cPhys.getPosPixels());
-				makeGrate();
+				becomeFloorGrate();
 			}
 			inline bool isSmashed() const noexcept { return smashed; }
 	};

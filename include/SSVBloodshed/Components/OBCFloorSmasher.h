@@ -33,7 +33,6 @@ namespace ob
 			inline void setActive(bool mValue) noexcept
 			{
 				active = mValue;
-
 				if(mValue) body.addGroupToCheck(OBGroup::GFloor);
 				else body.delGroupToCheck(OBGroup::GFloor);
 			}

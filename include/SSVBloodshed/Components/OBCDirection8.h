@@ -20,7 +20,6 @@ namespace ob
 			inline void setDirection(Direction8 mValue) noexcept		{ direction = mValue; }
 
 			inline operator Direction8() const noexcept					{ return direction; }
-			inline Direction8 getDirection() const noexcept				{ return direction; }
 			inline int getInt() const noexcept							{ return int(direction); }
 			inline float getDegrees() const noexcept					{ return getDegreesFromDirection8(direction); }
 			inline Vec2f getVec(float mMagnitude = 1.f) const noexcept	{ return ssvs::getVecFromDegrees(getDegrees(), mMagnitude); }

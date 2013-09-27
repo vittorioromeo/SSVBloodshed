@@ -33,7 +33,7 @@ namespace ob
 				if(!game.getManager().isAlive(targetStat)) target = nullptr;
 			}
 
-			inline bool hasTarget() const noexcept			{ return target != nullptr && game.getManager().isAlive(targetStat); }
+			inline bool hasTarget() const noexcept			{ return target != nullptr && getManager().isAlive(targetStat); }
 			inline OBCPhys& getTarget() const noexcept		{ return *target; }
 			inline Vec2f getPosF() const noexcept			{ return target->getPosF(); }
 			inline const Vec2i& getPosI() const noexcept	{ return target->getPosI(); }
