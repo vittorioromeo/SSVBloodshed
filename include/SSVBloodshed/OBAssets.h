@@ -41,7 +41,7 @@ namespace ob
 			sf::IntRect wallCross;															// Wall cross
 			sf::IntRect pit;																// Pit
 			sf::IntRect pjBullet,		pjPlasma,		pjStar,			pjBulletPlasma;		// Projectiles
-			sf::IntRect pjStarPlasma;														// Projectiles
+			sf::IntRect pjStarPlasma,	pjCannonPlasma;										// Projectiles
 			sf::IntRect eBall,			eBallFlying;										// Ball enemy
 			sf::IntRect eTurret;															// Turret enemy
 
@@ -97,7 +97,7 @@ namespace ob
 				T_TSSMALL(wallCross);
 				T_TSSMALL(pit);
 				T_TSSMALL(pjBullet);		T_TSSMALL(pjPlasma);		T_TSSMALL(pjStar);			T_TSSMALL(pjBulletPlasma);
-				T_TSSMALL(pjStarPlasma);
+				T_TSSMALL(pjStarPlasma);	T_TSSMALL(pjCannonPlasma);
 				T_TSSMALL(eBall);			T_TSSMALL(eBallFlying);
 				T_TSSMALL(eTurret);
 

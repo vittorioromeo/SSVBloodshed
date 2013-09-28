@@ -17,7 +17,7 @@ namespace ob
 	class OBCEnemy;
 	class OBCProjectile;
 	class OBCKillable;
-	class ParticleSystem;
+	class OBParticleSystem;
 
 	class OBFactory
 	{
@@ -59,6 +59,7 @@ namespace ob
 			Entity& createPJBoltPlasma(const Vec2i& mPos, float mDegrees);
 			Entity& createPJStar(const Vec2i& mPos, float mDegrees);
 			Entity& createPJStarPlasma(const Vec2i& mPos, float mDegrees);
+			Entity& createPJCannonPlasma(const Vec2i& mPos, float mDegrees);
 			Entity& createPJTestBomb(const Vec2i& mPos, float mDegrees, float mSpeedMult = 1.f, float mCurveMult = 1.f);
 			Entity& createPJTestShell(const Vec2i& mPos, float mDegrees);
 	};

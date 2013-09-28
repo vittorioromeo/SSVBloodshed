@@ -6,51 +6,38 @@
 #define SSVOB_WEAPONS_WPN
 
 #include "SSVBloodshed/OBCommon.h"
+#include "SSVBloodshed/OBGame.h"
 #include "SSVBloodshed/Components/OBCProjectile.h"
+#include "SSVBloodshed/Weapons/OBWpnType.h"
 
 namespace ob
 {
-	class OBGame;
-
 	class OBWpn
 	{
-		protected:
-			float delay{1000.f}, pjDamage{0.f}, pjSpeed{0.f};
-			std::string soundId{""};
+		private:
+			OBGame& game;
+			OBWpnType wpnType;
+			OBGroup targetGroup;
 
 		public:
-			ssvu::Delegate<void(OBWpn&, OBGame&, const Vec2i&, float)> onShoot;
-			ssvu::Delegate<void(OBCProjectile&)> onShotProjectile;
+			inline OBWpn(OBGame& mGame, OBGroup mTargetGroup) : game(mGame), targetGroup{mTargetGroup} { }
+			inline OBWpn(OBGame& mGame, OBGroup mTargetGroup, const OBWpnType& mWpn) : game(mGame), targetGroup{mTargetGroup} { setWpn(mWpn); }
 
-			inline OBWpn() = default;
-			inline OBWpn(float mDelay, float mDamage, float mPjSpeed, std::string mSoundId) : delay{mDelay}, pjDamage{mDamage}, pjSpeed{mPjSpeed}, soundId{std::move(mSoundId)} { }
-			template<typename T> inline OBWpn(float mDelay, float mDamage, float mPjSpeed, std::string mSoundId, T mOnShoot) : delay{mDelay}, pjDamage{mDamage}, pjSpeed{mPjSpeed}, soundId{std::move(mSoundId)}
+			inline void shoot(const Vec2i& mPos, float mDeg)	{ wpnType.shoot(game, mPos, mDeg); }
+			inline void playSound()								{ wpnType.playSound(game); }
+
+			inline void setWpn(const OBWpnType& mWpnType)
 			{
-				onShoot += mOnShoot;
+				wpnType = mWpnType;
+				wpnType.onShotProjectile += [this](OBCProjectile& mPj){ mPj.setTargetGroup(targetGroup); };
 			}
 
-			inline void shoot(OBGame& mGame, const Vec2i& mPos, float mDeg)
-			{
-				mGame.getAssets().playSound(soundId);
-				onShoot(*this, mGame, mPos, mDeg);
-			}
-			inline OBCProjectile& shotProjectile(Entity& mEntity)
-			{
-				auto& pj(mEntity.getComponent<OBCProjectile>());
-				pj.setDamage(pjDamage);
-				pj.setSpeed(pjSpeed);
-				onShotProjectile(pj);
-				return pj;
-			}
-
-			inline void setDelay(float mValue) noexcept				{ delay = mValue; }
-			inline void setPjDamage(float mValue) noexcept			{ pjDamage = mValue; }
-			inline void setPjSpeed(float mValue) noexcept			{ pjSpeed = mValue; }
-
-			inline float getDelay() const noexcept					{ return delay; }
-			inline float getPjDamage() const noexcept				{ return pjDamage; }
-			inline float getPjSpeed() const noexcept				{ return pjSpeed; }
-			inline const std::string& getSoundId() const noexcept	{ return soundId; }
+			inline OBGame& getGame() noexcept					{ return game; }
+			inline const OBWpnType& getWpnType() const noexcept	{ return wpnType; }
+			inline OBWpnType& getWpnType() noexcept				{ return wpnType; }
+			inline float getDelay() const noexcept				{ return wpnType.getDelay(); }
+			inline float getPjDamage() const noexcept			{ return wpnType.getPjDamage(); }
+			inline float getPjSpeed() const noexcept			{ return wpnType.getPjSpeed(); }
 	};
 }
 

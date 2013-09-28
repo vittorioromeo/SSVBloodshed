@@ -11,8 +11,8 @@
 #include "SSVBloodshed/Components/OBCHealth.h"
 #include "SSVBloodshed/Components/OBCKillable.h"
 #include "SSVBloodshed/Components/OBCWielder.h"
+#include "SSVBloodshed/Weapons/OBWpnType.h"
 #include "SSVBloodshed/Weapons/OBWpn.h"
-#include "SSVBloodshed/Weapons/OBWpnDumb.h"
 #include "SSVBloodshed/Components/OBCProjectile.h"
 
 namespace ob
@@ -20,7 +20,7 @@ namespace ob
 	class OBCWpnController : public OBCActorNoDrawBase
 	{
 		private:
-			OBWpnDumb wpn;
+			OBWpn wpn;
 			ssvs::Ticker tckShoot{0.f};
 
 		public:
@@ -32,13 +32,14 @@ namespace ob
 			inline bool shoot(const Vec2i& mPos, float mDeg)
 			{
 				if(tckShoot.isRunning()) return false;
-				tckShoot.restart(wpn.getWpn().getDelay());
-				wpn.shoot(mPos, mDeg);
+				tckShoot.restart(wpn.getDelay());
+				wpn.shoot(mPos, mDeg); wpn.playSound();
 				return true;
 			}
-			inline void setWpn(const OBWpn& mWpn) noexcept { wpn.setWpn(mWpn); }
 
-			inline OBWpn& getWpn() noexcept							{ return wpn.getWpn(); }
+			inline void setWpn(const OBWpnType& mWpn) noexcept { wpn.setWpn(mWpn); }
+
+			inline OBWpnType& getWpn() noexcept						{ return wpn.getWpnType(); }
 			inline const ssvs::Ticker& getTicker() const noexcept	{ return tckShoot; }
 			inline ssvs::Ticker& getTicker() noexcept				{ return tckShoot; }
 	};

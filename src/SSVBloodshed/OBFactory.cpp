@@ -152,7 +152,7 @@ namespace ob
 	}
 	Entity& OBFactory::createEGiant(const Vec2i& mPos)
 	{
-		auto tpl(createEnemyBase(mPos, {2500, 2500}, 42));
+		auto tpl(createEnemyBase(mPos, {2500, 2500}, 100));
 		auto& cFloorSmasher(getEntity(tpl).createComponent<OBCFloorSmasher>(getCPhys(tpl)));
 		getEntity(tpl).createComponent<OBCEGiant>(getCEnemy(tpl), cFloorSmasher);
 		emplaceSpriteByTile(getCDraw(tpl), assets.txGiant, assets.e4UAStand);
@@ -176,6 +176,8 @@ namespace ob
 	Entity& OBFactory::createPJBulletPlasma(const Vec2i& mPos, float mDegrees)
 	{
 		auto tpl(createProjectileBase(mPos, {150, 150}, 360.f, mDegrees, assets.pjBulletPlasma));
+		getEntity(tpl).createComponent<OBCParticleEmitter>(getCPhys(tpl), OBCParticleEmitter::Type::Plasma);
+		getCDraw(tpl).setBlendMode(sf::BlendMode::BlendAdd);
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createPJBoltPlasma(const Vec2i& mPos, float mDegrees)
@@ -183,6 +185,7 @@ namespace ob
 		auto tpl(createProjectileBase(mPos, {150, 150}, 260.f, mDegrees, assets.pjPlasma));
 		getEntity(tpl).createComponent<OBCParticleEmitter>(getCPhys(tpl), OBCParticleEmitter::Type::Plasma);
 		getCProjectile(tpl).setPierceOrganic(-1);
+		getCDraw(tpl).setBlendMode(sf::BlendMode::BlendAdd);
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createPJStar(const Vec2i& mPos, float mDegrees)
@@ -193,8 +196,28 @@ namespace ob
 	Entity& OBFactory::createPJStarPlasma(const Vec2i& mPos, float mDegrees)
 	{
 		auto tpl(createProjectileBase(mPos, {150, 150}, 270.f, mDegrees, assets.pjStarPlasma));
+		getEntity(tpl).createComponent<OBCParticleEmitter>(getCPhys(tpl), OBCParticleEmitter::Type::Plasma);
+		getCDraw(tpl).setBlendMode(sf::BlendMode::BlendAdd);
 		return getEntity(tpl);
 	}
+	Entity& OBFactory::createPJCannonPlasma(const Vec2i& mPos, float mDegrees)
+	{
+		auto tpl(createProjectileBase(mPos, {150, 150}, 120.f, mDegrees, assets.pjCannonPlasma));
+		getEntity(tpl).createComponent<OBCFloorSmasher>(getCPhys(tpl)).setActive(true);
+		getEntity(tpl).createComponent<OBCParticleEmitter>(getCPhys(tpl), OBCParticleEmitter::Type::Plasma, 5);
+		getCProjectile(tpl).setPierceOrganic(-1);
+		getCProjectile(tpl).setDamage(5);
+		getCProjectile(tpl).onDestroy += [this, tpl]
+		{
+			for(int i{0}; i < 360; i += 360 / 10)
+			{
+				getCProjectile(tpl).createChild(createPJBoltPlasma(getCPhys(tpl).getPosI() + Vec2i(ssvs::getVecFromDegrees<float>(i) * 300.f), i));
+			}
+		};
+		getCDraw(tpl).setBlendMode(sf::BlendMode::BlendAdd);
+		return getEntity(tpl);
+	}
+
 
 	Entity& OBFactory::createPJTestBomb(const Vec2i& mPos, float mDegrees, float mSpeedMult, float mCurveMult)
 	{
@@ -205,7 +228,10 @@ namespace ob
 		getCProjectile(tpl).setDamage(10);
 		getCProjectile(tpl).onDestroy += [this, tpl]
 		{
-			for(int i{0}; i < 360; i += 360 / 10) createPJBoltPlasma(getCPhys(tpl).getPosI() + Vec2i(ssvs::getVecFromDegrees<float>(i) * 300.f), i);
+			for(int i{0}; i < 360; i += 360 / 10)
+			{
+				getCProjectile(tpl).createChild(createPJBoltPlasma(getCPhys(tpl).getPosI() + Vec2i(ssvs::getVecFromDegrees<float>(i) * 300.f), i));
+			}
 		};
 		return getEntity(tpl);
 	}

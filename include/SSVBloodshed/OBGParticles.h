@@ -16,25 +16,32 @@ namespace ob
 		private:
 			constexpr static unsigned int txWidth{320};
 			constexpr static unsigned int txHeight{240};
-			sf::RenderTexture txPSPerm, txPSTemp;
-			ParticleSystem* psPerm{nullptr};
-			ParticleSystem* psTemp{nullptr};
+			sf::RenderTexture txPSPerm, txPSTemp, txPSTempAdd;
+			OBParticleSystem* psPerm{nullptr};
+			OBParticleSystem* psTemp{nullptr};
+			OBParticleSystem* psTempAdd{nullptr};
 
 		public:
 			inline OBGParticles()
 			{
 				txPSPerm.create(txWidth, txHeight);
 				txPSTemp.create(txWidth, txHeight);
+				txPSTempAdd.create(txWidth, txHeight);
 			}
 
 			inline void clear(OBFactory& mFactory)
 			{
 				psPerm = &mFactory.createParticleSystem(txPSPerm, false, 175, OBLayer::LPSPerm).getComponent<OBCParticleSystem>().getParticleSystem();
 				psTemp = &mFactory.createParticleSystem(txPSTemp, true, 255, OBLayer::LPSTemp).getComponent<OBCParticleSystem>().getParticleSystem();
+
+				auto& pstaC(mFactory.createParticleSystem(txPSTempAdd, true, 255, OBLayer::LPSTemp).getComponent<OBCParticleSystem>());
+				pstaC.setBlendMode(sf::BlendMode::BlendAdd);
+				psTempAdd = &pstaC.getParticleSystem();
 			}
 
-			inline ParticleSystem& getPSPerm() noexcept	{ return *psPerm; }
-			inline ParticleSystem& getPSTemp() noexcept	{ return *psTemp; }
+			inline OBParticleSystem& getPSPerm() noexcept		{ return *psPerm; }
+			inline OBParticleSystem& getPSTemp() noexcept		{ return *psTemp; }
+			inline OBParticleSystem& getPSTempAdd() noexcept	{ return *psTempAdd; }
 	};
 }
 

@@ -17,9 +17,9 @@ namespace ob
 			sf::RenderTarget& renderTarget;
 			bool clearOnDraw{false};
 			unsigned char alpha{255};
-			ParticleSystem particleSystem;
+			OBParticleSystem particleSystem;
 			sf::Sprite sprite;
-
+			sf::BlendMode blendMode{sf::BlendMode::BlendAlpha};
 		public:
 			OBCParticleSystem(sf::RenderTexture& mRenderTexture, sf::RenderTarget& mRenderTarget, bool mClearOnDraw = false, unsigned char mAlpha = 255)
 				: renderTexture(mRenderTexture), renderTarget(mRenderTarget), clearOnDraw{mClearOnDraw}, alpha{mAlpha} { }
@@ -35,12 +35,15 @@ namespace ob
 			{
 				renderTexture.draw(particleSystem);
 				renderTexture.display();
-				renderTarget.draw(sprite);
+				renderTarget.draw(sprite, blendMode);
 				if(clearOnDraw) renderTexture.clear(sf::Color::Transparent);
 			}
 
-			inline ParticleSystem& getParticleSystem() noexcept				{ return particleSystem; }
-			inline const ParticleSystem& getParticleSystem() const noexcept	{ return particleSystem; }
+			inline void setBlendMode(sf::BlendMode mMode) noexcept				{ blendMode = mMode; }
+
+			inline sf::BlendMode getBlendMode() const noexcept					{ return blendMode; }
+			inline OBParticleSystem& getParticleSystem() noexcept				{ return particleSystem; }
+			inline const OBParticleSystem& getParticleSystem() const noexcept	{ return particleSystem; }
 	};
 }
 

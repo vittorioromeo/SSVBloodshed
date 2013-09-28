@@ -20,16 +20,17 @@ namespace ob
 		private:
 			Vec2f offset;
 			Type type;
+			unsigned int count;
 
 		public:
-			OBCParticleEmitter(OBCPhys& mCPhys, Type mType) : OBCActorNoDrawBase{mCPhys}, type{mType} { }
+			OBCParticleEmitter(OBCPhys& mCPhys, Type mType, unsigned int mCount = 1) : OBCActorNoDrawBase{mCPhys}, type{mType}, count{mCount} { }
 
 			inline void update(float) override
 			{
 				switch(type)
 				{
-					case Type::Smoke: game.createPSmoke(1, cPhys.getPosPixels() + offset); break;
-					case Type::Plasma: game.createPPlasma(1, cPhys.getPosPixels() + offset); break;
+					case Type::Smoke: game.createPSmoke(count, cPhys.getPosPixels() + offset); break;
+					case Type::Plasma: game.createPPlasma(count, cPhys.getPosPixels() + offset); break;
 				}
 			}
 

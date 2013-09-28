@@ -27,7 +27,7 @@ namespace ob
 			float walkSpeed{125.f};
 
 			int currentWeapon{0};
-			std::vector<OBWpn> weaponTypes{OBWpnTypes::createMachineGun(), OBWpnTypes::createPlasmaBolter()};
+			std::vector<OBWpnType> weaponTypes{OBWpnTypes::createMachineGun(), OBWpnTypes::createPlasmaBolter()};
 
 		public:
 			OBCPlayer(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCKillable& mCKillable, OBCWielder& mCWielder, OBCWpnController& mCWpnController)

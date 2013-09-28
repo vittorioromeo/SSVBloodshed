@@ -10,7 +10,7 @@
 
 namespace ob
 {
-	inline void createPBlood(ParticleSystem& mPS, const Vec2f& mPosition, float mMult)
+	inline void createPBlood(OBParticleSystem& mPS, const Vec2f& mPosition, float mMult)
 	{
 		mPS.emplace(mPosition,
 				ssvs::getVecFromDegrees(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(0.f, 13.f * mMult)),
@@ -20,7 +20,7 @@ namespace ob
 				75 + ssvu::getRnd(-65, 65),
 				0.42f);
 	}
-	inline void createPGib(ParticleSystem& mPS, const Vec2f& mPosition)
+	inline void createPGib(OBParticleSystem& mPS, const Vec2f& mPosition)
 	{
 		mPS.emplace(mPosition,
 				ssvs::getVecFromDegrees(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(0.1f, 13.f)),
@@ -30,7 +30,7 @@ namespace ob
 				150 + ssvu::getRnd(-50, 50),
 				1.5f);
 	}
-	inline void createPDebris(ParticleSystem& mPS, const Vec2f& mPosition)
+	inline void createPDebris(OBParticleSystem& mPS, const Vec2f& mPosition)
 	{
 		mPS.emplace(mPosition,
 				ssvs::getVecFromDegrees(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(1.f, 9.f)),
@@ -40,7 +40,7 @@ namespace ob
 				65 + ssvu::getRnd(-50, 50),
 				0.8f);
 	}
-	inline void createPDebrisFloor(ParticleSystem& mPS, const Vec2f& mPosition)
+	inline void createPDebrisFloor(OBParticleSystem& mPS, const Vec2f& mPosition)
 	{
 		mPS.emplace(mPosition,
 				ssvs::getVecFromDegrees(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(0.5f, 3.4f)),
@@ -50,7 +50,7 @@ namespace ob
 				65 + ssvu::getRnd(-50, 50),
 				0.8f);
 	}
-	inline void createPMuzzle(ParticleSystem& mPS, const Vec2f& mPosition)
+	inline void createPMuzzle(OBParticleSystem& mPS, const Vec2f& mPosition)
 	{
 		mPS.emplace(mPosition,
 				ssvs::getVecFromDegrees(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(1.f, 4.5f)),
@@ -60,7 +60,7 @@ namespace ob
 				6 + ssvu::getRnd(-5, 5),
 				1.5f);
 	}
-	inline void createPPlasma(ParticleSystem& mPS, const Vec2f& mPosition)
+	inline void createPPlasma(OBParticleSystem& mPS, const Vec2f& mPosition)
 	{
 		mPS.emplace(mPosition,
 				ssvs::getVecFromDegrees(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(0.3f, 1.5f)),
@@ -70,7 +70,7 @@ namespace ob
 				5 + ssvu::getRnd(-4, 4),
 				1.5f);
 	}
-	inline void createPSmoke(ParticleSystem& mPS, const Vec2f& mPosition)
+	inline void createPSmoke(OBParticleSystem& mPS, const Vec2f& mPosition)
 	{
 		mPS.emplace(mPosition,
 				ssvs::getVecFromDegrees(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(0.3f, 1.5f)),
@@ -80,7 +80,7 @@ namespace ob
 				5 + ssvu::getRnd(-4, 4),
 				1.5f);
 	}
-	inline void createPElectric(ParticleSystem& mPS, const Vec2f& mPosition)
+	inline void createPElectric(OBParticleSystem& mPS, const Vec2f& mPosition)
 	{
 		mPS.emplace(mPosition,
 				ssvs::getVecFromDegrees(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(0.3f, 7.4f)),
@@ -91,7 +91,7 @@ namespace ob
 				1.5f,
 				ssvu::getRndR(-2.5f, 2.5f));
 	}
-	inline void createPCharge(ParticleSystem& mPS, const Vec2f& mPosition, float mDist)
+	inline void createPCharge(OBParticleSystem& mPS, const Vec2f& mPosition, float mDist)
 	{
 		Vec2f pos{ssvs::getOrbitFromDegrees(mPosition, ssvu::getRndR<float>(0.f, 360.f), mDist)};
 

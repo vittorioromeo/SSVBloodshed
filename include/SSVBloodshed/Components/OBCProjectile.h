@@ -61,6 +61,13 @@ namespace ob
 			}
 			inline void draw() override { cDraw.setRotation(degrees); }
 
+			inline OBCProjectile& createChild(Entity& mEntity)
+			{
+				auto& pj(mEntity.getComponent<OBCProjectile>());
+				pj.setTargetGroup(targetGroup);
+				return pj;
+			}
+
 			inline void setLife(float mValue) noexcept			{ life.restart(mValue); }
 			inline void setSpeed(float mValue) noexcept			{ speed = mValue; }
 			inline void setDegrees(float mValue) noexcept		{ degrees = mValue; }

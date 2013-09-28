@@ -67,6 +67,29 @@ namespace ob
 				auto getTilePos = [](int mX, int mY) -> Vec2i { return toCoords(Vec2i{mX * 10 + 5, mY * 10 + 5}); };
 				constexpr int maxX{320 / 10}, maxY{240 / 10 - 2};
 
+				std::string level2= "################################"
+									"#..............................#"
+									"#..............................#"
+									"#..............................#"
+									"#..............................#"
+									"#..............................#"
+									"#..............................#"
+									"#..............................#"
+									"#..............................#"
+									"#..............................#"
+									"#..............................#"
+									"#..............................#"
+									"#..............................#"
+									"#.................P............#"
+									"#..............................#"
+									"#..............................#"
+									"#..............................#"
+									"#..............................#"
+									"#..............................#"
+									"#..............................#"
+									"#..............................#"
+									"################################";
+
 				std::string level = "################################"
 									"#..............................#"
 									"#..P...#.......................#"
@@ -148,7 +171,8 @@ namespace ob
 				debugText.draw();
 			}
 
-			inline void render(const sf::Drawable& mDrawable) { gameWindow.draw(mDrawable); }
+			inline void render(const sf::Drawable& mDrawable)									{ gameWindow.draw(mDrawable); }
+			inline void render(const sf::Drawable& mDrawable, sf::RenderStates mRenderStates)	{ gameWindow.draw(mDrawable, mRenderStates); }
 
 			inline Vec2i getMousePosition() const					{ return toCoords(gameCamera.getMousePosition()); }
 			inline ssvs::GameWindow& getGameWindow() noexcept		{ return gameWindow; }
@@ -167,11 +191,11 @@ namespace ob
 			inline void createPGib(unsigned int mCount, const Vec2f& mPos)						{ for(auto i(0u); i < mCount; ++i) ob::createPGib(particles.getPSTemp(), mPos); }
 			inline void createPDebris(unsigned int mCount, const Vec2f& mPos)					{ for(auto i(0u); i < mCount; ++i) ob::createPDebris(particles.getPSTemp(), mPos); }
 			inline void createPDebrisFloor(unsigned int mCount, const Vec2f& mPos)				{ for(auto i(0u); i < mCount; ++i) ob::createPDebrisFloor(particles.getPSTemp(), mPos); }
-			inline void createPMuzzle(unsigned int mCount, const Vec2f& mPos)					{ for(auto i(0u); i < mCount; ++i) ob::createPMuzzle(particles.getPSTemp(), mPos); }
-			inline void createPPlasma(unsigned int mCount, const Vec2f& mPos)					{ for(auto i(0u); i < mCount; ++i) ob::createPPlasma(particles.getPSTemp(), mPos); }
+			inline void createPMuzzle(unsigned int mCount, const Vec2f& mPos)					{ for(auto i(0u); i < mCount; ++i) ob::createPMuzzle(particles.getPSTempAdd(), mPos); }
+			inline void createPPlasma(unsigned int mCount, const Vec2f& mPos)					{ for(auto i(0u); i < mCount; ++i) ob::createPPlasma(particles.getPSTempAdd(), mPos); }
 			inline void createPSmoke(unsigned int mCount, const Vec2f& mPos)					{ for(auto i(0u); i < mCount; ++i) ob::createPSmoke(particles.getPSTemp(), mPos); }
-			inline void createPElectric(unsigned int mCount, const Vec2f& mPos)					{ for(auto i(0u); i < mCount; ++i) ob::createPElectric(particles.getPSTemp(), mPos); }
-			inline void createPCharge(unsigned int mCount, const Vec2f& mPos, float mDist)		{ for(auto i(0u); i < mCount; ++i) ob::createPCharge(particles.getPSTemp(), mPos, mDist); }
+			inline void createPElectric(unsigned int mCount, const Vec2f& mPos)					{ for(auto i(0u); i < mCount; ++i) ob::createPElectric(particles.getPSTempAdd(), mPos); }
+			inline void createPCharge(unsigned int mCount, const Vec2f& mPos, float mDist)		{ for(auto i(0u); i < mCount; ++i) ob::createPCharge(particles.getPSTempAdd(), mPos, mDist); }
 	};
 }
 

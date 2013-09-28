@@ -11,7 +11,7 @@
 #include "SSVBloodshed/Components/OBCKillable.h"
 #include "SSVBloodshed/Components/OBCWpnController.h"
 #include "SSVBloodshed/Weapons/OBWpnTypes.h"
-#include "SSVBloodshed/Weapons/OBWpnDumb.h"
+#include "SSVBloodshed/Weapons/OBWpn.h"
 
 namespace ob
 {
@@ -22,7 +22,7 @@ namespace ob
 			Direction8 direction;
 			ssvs::Ticker timerShoot{125.f};
 			ssvu::Timeline tlShoot{false};
-			OBWpnDumb wpn{game, OBGroup::GFriendly, OBWpnTypes::createEPlasmaStarGun(0)};
+			OBWpn wpn{game, OBGroup::GFriendly, OBWpnTypes::createEPlasmaStarGun(0)};
 
 		public:
 			OBCTurret(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCKillable& mCKillable, Direction8 mDirection) : OBCActorBase{mCPhys, mCDraw}, cKillable(mCKillable), direction{mDirection} { }

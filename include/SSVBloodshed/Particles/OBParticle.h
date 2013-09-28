@@ -9,7 +9,7 @@
 
 namespace ob
 {
-	class Particle
+	class OBParticle
 	{
 		private:
 			Vec2f position, velocity;
@@ -18,7 +18,7 @@ namespace ob
 			float size{1.f}, life{100.f}, lifeMax{100.f}, alphaMult{1.f}, curveSpeed{0.f};
 
 		public:
-			inline Particle(const Vec2f& mPosition, const Vec2f& mVelocity, float mAcceleration, const sf::Color& mColor, float mSize, float mLife, float mAlphaMult = 1.f, float mCurveSpeed = 0.f)
+			inline OBParticle(const Vec2f& mPosition, const Vec2f& mVelocity, float mAcceleration, const sf::Color& mColor, float mSize, float mLife, float mAlphaMult = 1.f, float mCurveSpeed = 0.f)
 				: position{mPosition}, velocity{mVelocity}, acceleration{mAcceleration}, color{mColor}, size{mSize}, life{mLife}, lifeMax{mLife}, alphaMult{mAlphaMult}, curveSpeed{mCurveSpeed} { }
 
 			inline void update(float mFT)

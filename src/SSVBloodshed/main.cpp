@@ -7,6 +7,7 @@
 #include "SSVBloodshed/OBConfig.h"
 #include "SSVBloodshed/OBGame.h"
 #include "SSVBloodshed/Weapons/OBWpnTypes.h"
+#include "SSVBloodshed/LevelEditor/OBLEGame.h"
 
 using namespace ob;
 using namespace std;
@@ -31,7 +32,8 @@ int main()
 	gameWindow.setFPSLimited(true);
 	gameWindow.setMaxFPS(200);
 
-	OBGame game{gameWindow, assets};
+//	OBGame game{gameWindow, assets};
+	OBLEGame game{gameWindow, assets};
 
 	gameWindow.setGameState(game.getGameState());
 	gameWindow.run();

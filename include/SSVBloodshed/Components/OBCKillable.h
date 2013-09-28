@@ -64,9 +64,11 @@ namespace ob
 				cHealth.onDamage += [this]
 				{
 					effectHit();
-					if(cHealth.isDead()) { effectDeath(); onDeath(); getEntity().destroy(); }
+					if(cHealth.isDead()) kill();
 				};
 			}
+
+			inline void kill() { effectDeath(); onDeath(); getEntity().destroy(); }
 
 			inline void setType(Type mType) noexcept			{ type = mType; }
 			inline void setParticleMult(float mMult) noexcept	{ particleMult = mMult; }

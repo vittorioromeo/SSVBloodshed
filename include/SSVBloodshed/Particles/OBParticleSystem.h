@@ -10,23 +10,28 @@
 
 namespace ob
 {
-	class ParticleSystem : public sf::Drawable
+	template<sf::PrimitiveType TPrimitive> struct VertexVector : public std::vector<sf::Vertex>
+	{
+		using std::vector<sf::Vertex>::vector;
+		inline void draw(sf::RenderTarget& mRenderTarget, sf::RenderStates mRenderStates) const
+		{
+			mRenderTarget.draw(&this->operator [](0), this->size(), TPrimitive, mRenderStates);
+		}
+	};
+
+	class OBParticleSystem : public sf::Drawable
 	{
 		private:
 			unsigned int maxParticles{10000};
-			std::vector<sf::Vertex> vertices; // TODO: wrap this in ssvs::VertexVector that supports emplacement
-			std::vector<Particle> particles;
+			VertexVector<sf::PrimitiveType::Quads> vertices;
+			std::vector<OBParticle> particles;
 
 		public:
-			inline ParticleSystem() { vertices.reserve(maxParticles * 4); particles.reserve(maxParticles); }
-			template<typename... TArgs> inline void emplace(TArgs&&... mArgs)
-			{
-				if(particles.size() >= maxParticles) return;
-				particles.emplace_back(std::forward<TArgs>(mArgs)...);
-			}
+			inline OBParticleSystem() { vertices.reserve(maxParticles * 4); particles.reserve(maxParticles); }
+			template<typename... TArgs> inline void emplace(TArgs&&... mArgs) { if(particles.size() < maxParticles) particles.emplace_back(std::forward<TArgs>(mArgs)...); }
 			inline void update(float mFT)
 			{
-				ssvu::eraseRemoveIf(particles, [](const Particle& mParticle){ return mParticle.getLife() <= 0; });
+				ssvu::eraseRemoveIf(particles, [](const OBParticle& mParticle){ return mParticle.getLife() <= 0; });
 				vertices.clear();
 				for(auto& p : particles)
 				{
@@ -37,8 +42,9 @@ namespace ob
 					vertices.emplace_back(Vec2f{p.getPosition().x - p.getSize(), p.getPosition().y + p.getSize()}, p.getColor());
 				}
 			}
-			inline void draw(sf::RenderTarget& mRenderTarget, sf::RenderStates mRenderStates) const override { mRenderTarget.draw(&vertices[0], vertices.size(), sf::PrimitiveType::Quads, mRenderStates); }
+			inline void draw(sf::RenderTarget& mRenderTarget, sf::RenderStates mRenderStates) const override { vertices.draw(mRenderTarget, mRenderStates); }
 			inline void clear() { vertices.clear(); particles.clear(); }
+
 	};
 }
 

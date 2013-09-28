@@ -35,8 +35,8 @@ namespace ob
 				body.addGroup(OBGroup::GEnemy);
 				body.addGroup(OBGroup::GOrganic);
 				body.addGroupToCheck(OBGroup::GSolidGround);
-				body.setRestitutionX(0.9f);
-				body.setRestitutionY(0.9f);
+				body.setRestitutionX(1.f);
+				body.setRestitutionY(1.f);
 
 				body.onDetection += [this](const DetectionInfo& mDI)
 				{
