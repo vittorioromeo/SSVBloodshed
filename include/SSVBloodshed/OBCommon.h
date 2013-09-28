@@ -58,6 +58,17 @@ namespace ob
 		LBackground
 	};
 
+	// Level editor enums
+	enum OBLETType : unsigned int
+	{
+		LETFloor,
+		LETWall,
+		LETGrate,
+		LETPit,
+		LETTurret,
+		LETSpawner,
+	};
+
 	// Pixel <-> coords utils
 	template<typename T> inline constexpr float toPixels(T mValue) noexcept		{ return mValue / 100; }
 	template<typename T> inline constexpr int toCoords(T mValue) noexcept		{ return mValue * 100; }
