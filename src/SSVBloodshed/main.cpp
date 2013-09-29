@@ -32,8 +32,8 @@ int main()
 	gameWindow.setFPSLimited(true);
 	gameWindow.setMaxFPS(200);
 
-//	OBGame game{gameWindow, assets};
-	OBLEGame game{gameWindow, assets};
+	OBGame game{gameWindow, assets};
+	//OBLEGame game{gameWindow, assets};
 
 	gameWindow.setGameState(game.getGameState());
 	gameWindow.run();
