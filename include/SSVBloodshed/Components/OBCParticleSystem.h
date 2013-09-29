@@ -15,14 +15,15 @@ namespace ob
 		private:
 			sf::RenderTexture& renderTexture;
 			sf::RenderTarget& renderTarget;
-			bool clearOnDraw{false};
-			unsigned char alpha{255};
+			bool clearOnDraw;
+			unsigned char alpha;
 			OBParticleSystem particleSystem;
 			sf::Sprite sprite;
-			sf::BlendMode blendMode{sf::BlendMode::BlendAlpha};
+			sf::BlendMode blendMode;
+
 		public:
-			OBCParticleSystem(sf::RenderTexture& mRenderTexture, sf::RenderTarget& mRenderTarget, bool mClearOnDraw = false, unsigned char mAlpha = 255)
-				: renderTexture(mRenderTexture), renderTarget(mRenderTarget), clearOnDraw{mClearOnDraw}, alpha{mAlpha} { }
+			OBCParticleSystem(sf::RenderTexture& mRenderTexture, sf::RenderTarget& mRenderTarget, bool mClearOnDraw = false, unsigned char mAlpha = 255, sf::BlendMode mBlendMode = sf::BlendMode::BlendAlpha)
+				: renderTexture(mRenderTexture), renderTarget(mRenderTarget), clearOnDraw{mClearOnDraw}, alpha{mAlpha}, blendMode{mBlendMode} { }
 
 			inline void init() override
 			{
