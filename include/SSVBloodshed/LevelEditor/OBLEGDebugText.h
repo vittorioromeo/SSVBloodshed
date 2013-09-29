@@ -17,7 +17,7 @@ namespace ob
 			ssvs::BitmapText debugText;
 
 		public:
-			OBLEGDebugText(TGame& mGame) : game(mGame), debugText{game.getAssets().template get<ssvs::BitmapFont>("fontObStroked")}
+			OBLEGDebugText(TGame& mGame) : game(mGame), debugText{*game.getAssets().obStroked}
 			{
 				debugText.setTracking(-3);
 			}

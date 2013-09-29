@@ -17,10 +17,7 @@ namespace ob
 			ssvs::BitmapText debugText;
 
 		public:
-			OBGDebugText(TGame& mGame) : game(mGame), debugText{game.getAssets().template get<ssvs::BitmapFont>("fontObStroked")}
-			{
-				debugText.setTracking(-3);
-			}
+			inline OBGDebugText(TGame& mGame) : game(mGame), debugText{*game.getAssets().obStroked} { debugText.setTracking(-3); }
 
 			inline void update(float mFT)
 			{

@@ -24,9 +24,9 @@ namespace ob
 		private:
 			ssvs::GameWindow& gameWindow;
 			OBAssets& assets;
+			ssvs::GameState gameState;
 			ssvs::Camera gameCamera{gameWindow, 2.f}, overlayCamera{gameWindow, 2.f};
 			OBFactory factory{assets, *this, manager};
-			ssvs::GameState gameState;
 			World world{ssvsc::createResolver<ssvsc::Impulse>(), ssvsc::createSpatial<ssvsc::HashGrid>(1000, 1000, 1000, 500)};
 			sses::Manager manager;
 
@@ -36,7 +36,7 @@ namespace ob
 			OBGDebugText<OBGame> debugText{*this};
 			sf::Sprite hudSprite{assets.get<sf::Texture>("tempHud.png")};
 
-			ssvs::BitmapText testAmmoTxt{assets.get<ssvs::BitmapFont>("fontObStroked")};
+			ssvs::BitmapText testAmmoTxt{*assets.obStroked};
 
 		public:
 			OBBarCounter testhp{2, 6, 13};
@@ -48,10 +48,8 @@ namespace ob
 
 				// Testing hud
 				hudSprite.setPosition(0, 240 - getGlobalHeight(hudSprite));
-
 				testhp.setColor(sf::Color{184, 37, 53, 255}); testhp.setTracking(1);
 				testhp.setPosition(13, (240 - getGlobalHeight(hudSprite) / 2.f) - 1.f);
-
 				testAmmoTxt.setColor(sf::Color{136, 199, 234, 255}); testAmmoTxt.setTracking(-3);
 				testAmmoTxt.setPosition(86, (240 - getGlobalHeight(hudSprite) / 2.f) - 3.f);
 

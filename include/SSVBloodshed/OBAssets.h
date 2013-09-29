@@ -19,6 +19,9 @@ namespace ob
 			ssvs::SoundPlayer soundPlayer;
 			ssvs::MusicPlayer musicPlayer;
 
+			// BitmapFonts
+			ssvs::BitmapFont* obStroked;
+
 			// Textures
 			sf::Texture* txSmall{nullptr};
 			sf::Texture* txMedium{nullptr};
@@ -74,6 +77,9 @@ namespace ob
 				#define T_TSMEDIUM(x)	x = tsMedium(#x)
 				#define T_TSBIG(x)		x = tsBig(#x)
 				#define T_TSGIANT(x)	x = tsGiant(#x)
+
+				// BitmapFonts
+				obStroked = &assetManager.get<ssvs::BitmapFont>("fontObStroked");
 
 				// Textures
 				txSmall = 	&assetManager.get<sf::Texture>("tsSmall.png");
