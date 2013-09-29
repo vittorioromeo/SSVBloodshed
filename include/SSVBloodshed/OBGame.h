@@ -53,11 +53,11 @@ namespace ob
 				gameState.onDraw += [this]{ draw(); };
 
 				// Testing hud
-				hudSprite.setPosition(0, 240 - getGlobalHeight(hudSprite));
+				hudSprite.setPosition(0, 240 - ssvs::getGlobalHeight(hudSprite));
 				testhp.setColor(sf::Color{184, 37, 53, 255}); testhp.setTracking(1);
-				testhp.setPosition(13, (240 - getGlobalHeight(hudSprite) / 2.f) - 1.f);
+				testhp.setPosition(13, (240 - ssvs::getGlobalHeight(hudSprite) / 2.f) - 1.f);
 				testAmmoTxt.setColor(sf::Color{136, 199, 234, 255}); testAmmoTxt.setTracking(-3);
-				testAmmoTxt.setPosition(86, (240 - getGlobalHeight(hudSprite) / 2.f) - 3.f);
+				testAmmoTxt.setPosition(86, (240 - ssvs::getGlobalHeight(hudSprite) / 2.f) - 3.f);
 
 				newGame();
 			}

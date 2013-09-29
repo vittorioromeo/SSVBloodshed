@@ -10,12 +10,7 @@
 
 namespace ob
 {
-	class OBGame;
-	class OBFactory;
-	class OBLELevel;
-	class OBLETile;
-
-	template<typename TGame = OBGame, typename TLevel = OBLELevel, typename TTile = OBLETile, typename TFactory = OBFactory> class OBLEDatabaseImpl
+	template<typename TGame , typename TLevel, typename TTile, typename TFactory> class OBLEDatabaseImpl
 	{
 		public:
 			struct Entry
@@ -90,6 +85,11 @@ namespace ob
 	};
 
 	// Template magic to temporarily avoid creating .cpp source files
+	class OBGame;
+	class OBFactory;
+	class OBLELevel;
+	class OBLETile;
+
 	using OBLEDatabase = OBLEDatabaseImpl<OBGame, OBLELevel, OBLETile, OBFactory>;
 	using OBLEDatabaseEntry = OBLEDatabase::Entry;
 }
