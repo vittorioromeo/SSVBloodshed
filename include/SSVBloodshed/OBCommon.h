@@ -27,7 +27,6 @@ namespace ob
 	using Vec2i = ssvs::Vec2i;
 	using Vec2f = ssvs::Vec2f;
 	using Vec2u = ssvs::Vec2u;
-
 	using World = ssvsc::World;
 	using Body = ssvsc::Body;
 	using DetectionInfo = ssvsc::DetectionInfo;
