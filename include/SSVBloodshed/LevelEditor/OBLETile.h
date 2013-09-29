@@ -47,30 +47,19 @@ namespace ob
 			inline void update()
 			{
 				if(params.count("rot") > 0) getSprite().setRotation(ssvuj::as<int>(params["rot"]));
-				getSprite().setColor(sf::Color::White);
 				sprite.setPosition(x * 10.f, y * 10.f);
 			}
 
-			inline void initFromData(const OBLETileData& mData)
-			{
-				null = false;
-				type = mData.type;
-				params = mData.defaultParams;
-			}
-			inline void initFromDataDrawable(const OBLETileDataDrawable& mData)
-			{
-				initFromData(mData);
-				sprite.setTexture(*mData.texture);
-				sprite.setTextureRect(mData.intRect);
-				sprite.setOrigin(5, 5);
-			}
+			inline void initFromData(const OBLETileData& mData)					{ null = false; type = mData.type; params = mData.defaultParams; }
+			inline void initFromDataDrawable(const OBLETileDataDrawable& mData)	{ initFromData(mData); sprite.setTexture(*mData.texture); sprite.setTextureRect(mData.intRect); sprite.setOrigin(5, 5); }
 
-			inline bool isNull() const noexcept							{ return null; }
-			inline void setX(int mX) noexcept							{ x = mX; }
-			inline void setY(int mY) noexcept							{ y = mY; }
-			inline void setZ(int mZ) noexcept							{ z = mZ; }
-			inline void setType(OBLETType mType) noexcept				{ type = mType; null = false; }
-			inline void setParams(const decltype(params)& mParams)		{ params = mParams; }
+			inline bool isNull() const noexcept								{ return null; }
+			inline void setX(int mX) noexcept								{ x = mX; }
+			inline void setY(int mY) noexcept								{ y = mY; }
+			inline void setZ(int mZ) noexcept								{ z = mZ; }
+			inline void setType(OBLETType mType) noexcept					{ type = mType; null = false; }
+			inline void setParams(const decltype(params)& mParams)			{ params = mParams; }
+			template<typename T> inline T getParam(const std::string& mKey)	{ return ssvuj::as<T>(params[mKey]); }
 
 			inline OBLETType getType() const noexcept					{ return type; }
 			inline int getX() const noexcept							{ return x; }

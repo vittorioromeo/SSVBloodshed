@@ -37,13 +37,13 @@ namespace ob
 				{LETGrate,		{LETGrate,		assets.txSmall,		assets.floorGrate								}},
 				{LETPit,		{LETPit,		assets.txSmall,		assets.pit										}},
 				{LETTurret,		{LETTurret,		assets.txSmall,		assets.eTurret,				{{"rot", 0}}		}},
-				{LETSpawner,	{LETSpawner,	assets.txSmall,		assets.pjCannonPlasma,		{{"spawns", {}}}	}}
+				{LETSpawner,	{LETSpawner,	assets.txSmall,		assets.pjCannonPlasma,		{{"spawns", {}}}	}},
+				{LETPlayer,		{LETPlayer,		assets.txSmall,		assets.p1Stand									}}
 			};
 
 			OBLELevel level{320 / 10, 240 / 10 - 2, tileMap[OBLETType::LETFloor]};
 			OBLETile* currentTile{nullptr};
-			int currentBrushIdx{0};
-			int currentX{0}, currentY{0}, currentZ{0};
+			int currentBrushIdx{0}, currentX{0}, currentY{0}, currentZ{0};
 
 			OBGame* game{nullptr};
 
@@ -66,6 +66,8 @@ namespace ob
 
 			inline const OBLETileDataDrawable& getCurrentData() { return tileMap[static_cast<OBLETType>(currentBrushIdx)]; }
 
+			inline bool isValid() { return currentTile != nullptr; }
+
 			inline void updateXY()
 			{
 				const auto& tileVec((gameCamera.getMousePosition() + Vec2f(5, 5)) / 10.f);
@@ -76,39 +78,19 @@ namespace ob
 				if(level.isValid(currentX, currentY, currentZ)) currentTile = &level.getTile(currentX, currentY, currentZ);
 				else currentTile = nullptr;
 			}
-			inline void highlight()
-			{
-				if(currentTile == nullptr) return;
-				currentTile->getSprite().setColor(sf::Color::Red);
-			}
-			inline void paint()
-			{
-				if(currentTile == nullptr) return;
-				currentTile->initFromDataDrawable(getCurrentData());
-			}
-			inline void del()
-			{
-				if(currentTile == nullptr) return;
-				level.del(currentX, currentY, currentZ);
-			}
-			inline void cycle(int mDir)
-			{
-				currentBrushIdx += mDir;
-				currentBrushIdx = ssvu::getSIMod(currentBrushIdx, (int)tileMap.size());
-			}
-			inline void rotate(int mDeg)
-			{
-				if(currentTile == nullptr) return;
-				currentTile->rotate(mDeg);
-			}
+
+			inline void paint()				{ if(!isValid()) return; currentTile->initFromDataDrawable(getCurrentData()); }
+			inline void del()				{ if(!isValid()) return; level.del(currentX, currentY, currentZ); }
+			inline void rotate(int mDeg)	{ if(!isValid()) return; currentTile->rotate(mDeg); }
+
+			inline void cycleBrush(int mDir)	{ currentBrushIdx = ssvu::getSIMod(currentBrushIdx + mDir, (int)tileMap.size()); }
+			inline void cycleZ(int mDir)		{ currentZ = ssvu::getSIMod(currentZ + 2 + mDir, 5) - 2; }
 
 			inline void update(float mFT)
 			{
 				level.update();
 
-				updateXY();
-				grabTile();
-				highlight();
+				updateXY(); grabTile();
 				if(input.painting) paint();
 				if(input.deleting) del();
 
@@ -119,14 +101,24 @@ namespace ob
 			inline void draw()
 			{
 				gameCamera.apply<int>();
-				manager.draw();
-				level.draw(gameWindow, true, currentZ);
+				{
+					manager.draw();
+					level.draw(gameWindow, true, currentZ);
+
+					sf::RectangleShape hr({10.f, 10.f});
+					hr.setFillColor({255, 0, 0, 125});
+					hr.setOutlineColor({255, 255, 0, 125});
+					hr.setOutlineThickness(0.5f);
+					hr.setPosition(currentX * 10.f, currentY * 10.f);
+					hr.setOrigin(5.f, 5.f);
+					render(hr);
+				}
 				gameCamera.unapply();
 
 				overlayCamera.apply<int>();
-
-				sf::Sprite s{*getCurrentData().texture, getCurrentData().intRect}; s.setPosition(5, 240 - 15); render(s);
-
+				{
+					sf::Sprite s{*getCurrentData().texture, getCurrentData().intRect}; s.setPosition(5, 240 - 15); render(s);
+				}
 				overlayCamera.unapply();
 
 				debugText.draw();

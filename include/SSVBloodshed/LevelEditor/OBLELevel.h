@@ -19,47 +19,31 @@ namespace ob
 			std::unordered_map<int, OBLETile> tiles;
 
 		public:
-			inline OBLELevel(int mColumns, int mRows) : columns{mColumns}, rows{mRows}
-			{
-
-			}
+			inline OBLELevel(int mColumns, int mRows) : columns{mColumns}, rows{mRows} { }
 			inline OBLELevel(int mColumns, int mRows, const OBLETileDataDrawable& mDefaultTileData) : OBLELevel{mColumns, mRows}
 			{
-				for(int iY{0}; iY < mRows; ++iY)
-					for(int iX{0}; iX < mColumns; ++iX)
-						getTile(iX, iY, 0).initFromDataDrawable(mDefaultTileData);
+				for(int iY{0}; iY < mRows; ++iY) for(int iX{0}; iX < mColumns; ++iX) getTile(iX, iY, 0).initFromDataDrawable(mDefaultTileData);
 			}
 
-			inline decltype(tiles)& getTiles() { return tiles; }
-			inline OBLETile& getTile(int mX, int mY, int mZ)
-			{
-				auto& t(tiles[ssvu::get1DIndexFrom3D(mX, mY, mZ, columns, rows)]);
-				t.setX(mX); t.setY(mY); t.setZ(mZ); return t;
-			}
 			inline void del(int mX, int mY, int mZ) { tiles.erase(ssvu::get1DIndexFrom3D(mX, mY, mZ, columns, rows)); }
 
 			inline bool isValid(int mX, int mY, int mZ)			{ return mX >= 0 && mY >= 0 && mZ >= -depth && mX < columns && mY < rows && mZ < depth; }
+			inline decltype(tiles)& getTiles()					{ return tiles; }
+			inline OBLETile& getTile(int mX, int mY, int mZ)	{ auto& t(tiles[ssvu::get1DIndexFrom3D(mX, mY, mZ, columns, rows)]); t.setX(mX); t.setY(mY); t.setZ(mZ); return t; }
 
-			inline void update()								{ for(auto& t : tiles) t.second.update(); }
+			inline void update() { for(auto& t : tiles) t.second.update(); }
 			inline void draw(sf::RenderTarget& mRenderTarget, bool mOnion = false, int mCurrentZ = 0)
 			{
 				std::vector<std::pair<int, sf::Sprite>> toDraw;
 				for(auto& t : tiles)
 				{
 					sf::Sprite s{t.second.getSprite()};
-					if(mOnion)
-					{
-						int dist{std::abs(t.second.getZ() - mCurrentZ)};
-						s.setColor(sf::Color(255, 255, 255, 255 - dist * 40));
-					}
+					if(mOnion) s.setColor({255, 255, 255, ssvu::getClamped<unsigned char>(255 - std::abs(t.second.getZ() - mCurrentZ) * 50, 0, 255)});
 					toDraw.emplace_back(t.second.getZ(), s);
 				}
 
 				ssvu::sort(toDraw, [](const std::pair<int, sf::Sprite>& mA, const std::pair<int, sf::Sprite>& mB){ return mA.first > mB.first; });
-				for(auto& td : toDraw)
-				{
-					mRenderTarget.draw(td.second);
-				}
+				for(auto& td : toDraw) mRenderTarget.draw(td.second);
 			}
 
 			inline void saveToFile(const ssvu::FileSystem::Path& mPath)
@@ -81,8 +65,6 @@ namespace ob
 				{
 					int x, y, z, type; std::map<std::string, ssvuj::Obj> params;
 					ssvuj::extrArray(*itr, x, y, z, type, params);
-
-					ssvu::lo << x << " " << y << " " << z << " " << type << std::endl;
 
 					auto& t(getTile(x, y, z));
 					if(mTileMap != nullptr) t.initFromDataDrawable((*mTileMap)[OBLETType(type)]);

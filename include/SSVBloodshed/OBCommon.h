@@ -66,6 +66,7 @@ namespace ob
 		LETPit,
 		LETTurret,
 		LETSpawner,
+		LETPlayer,
 	};
 
 	// Pixel <-> coords utils

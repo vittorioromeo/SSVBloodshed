@@ -100,16 +100,13 @@ namespace ob
 							}
 							case OBLETType::LETGrate: factory.createFloor(tp, true); break;
 							case OBLETType::LETPit: factory.createPit(tp); break;
-							case OBLETType::LETTurret:
-								factory.createETurret(tp, getDirection8FromDegrees(ssvuj::as<float>(tile.getParams()["rot"])));
-								break;
-							case OBLETType::LETSpawner:
-								factory.createPlayer(tp);
-								break;
+							case OBLETType::LETTurret: factory.createETurret(tp, getDirection8FromDegrees(tile.getParam<float>("rot"))); break;
+							case OBLETType::LETPlayer: factory.createPlayer(tp); break;
+							case OBLETType::LETSpawner: break;
 						}
 					}
 				}
-				catch(...) { ssvu::lo<<"fuck"<<std::endl; }
+				catch(...) { ssvu::lo << "Failed to load level" << std::endl; }
 			}
 
 			inline void update(float mFT)

@@ -40,8 +40,8 @@ namespace ob
 
 				gs.addInput({{k::R}}, [this](float){ editor.newGame(); }, t::Once);
 
-				gs.addInput({{k::Z}}, [this](float){ editor.cycle(-1); }, t::Once);
-				gs.addInput({{k::X}}, [this](float){ editor.cycle(1); }, t::Once);
+				gs.addInput({{k::Z}}, [this](float){ editor.cycleBrush(-1); }, t::Once);
+				gs.addInput({{k::X}}, [this](float){ editor.cycleBrush(1); }, t::Once);
 
 				gs.addInput({{k::C}}, [this](float){ editor.level.saveToFile("./level.txt"); }, t::Once);
 				gs.addInput({{k::V}}, [this](float){ editor.level.loadFromFile("./level.txt", &editor.tileMap); }, t::Once);
@@ -49,8 +49,14 @@ namespace ob
 				gs.addInput({{k::B}}, [this](float){ editor.rotate(-45); }, t::Once);
 				gs.addInput({{k::N}}, [this](float){ editor.rotate(45); }, t::Once);
 
-				gs.addInput({{k::I}}, [this](float){ --editor.currentZ; }, t::Once);
-				gs.addInput({{k::K}}, [this](float){ ++editor.currentZ; }, t::Once);
+				gs.addInput({{k::I}}, [this](float){ editor.cycleZ(-1); }, t::Once);
+				gs.addInput({{k::K}}, [this](float){ editor.cycleZ(1); }, t::Once);
+
+				gs.onEvent(sf::Event::EventType::MouseWheelMoved) += [this](const sf::Event& mEvent)
+				{
+					if(mEvent.mouseWheel.y < 440) editor.cycleZ(ssvu::getSign(mEvent.mouseWheel.delta));
+					else editor.cycleBrush(ssvu::getSign(mEvent.mouseWheel.delta));
+				};
 
 				gs.addInput({{k::F1}}, [this](float){ editor.getGameWindow().setGameState(editor.game->getGameState()); }, t::Once);
 			}
