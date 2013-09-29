@@ -38,7 +38,7 @@ namespace ob
 		public:
 			OBFactory(OBAssets& mAssets, OBGame& mGame, sses::Manager& mManager) : assets(mAssets), game(mGame), manager(mManager) { }
 
-			Entity& createParticleSystem(sf::RenderTexture& mRenderTexture, bool mClearOnDraw = false, unsigned char mOpacity = 255, int mDrawPriority = 1000);
+			Entity& createParticleSystem(sf::RenderTexture& mRenderTexture, bool mClearOnDraw = false, unsigned char mOpacity = 255, int mDrawPriority = 1000, sf::BlendMode mBlendMode = sf::BlendMode::BlendAlpha);
 
 			Entity& createFloor(const Vec2i& mPos, bool mGrate = false);
 			Entity& createPit(const Vec2i& mPos);
