@@ -11,6 +11,7 @@
 #include "SSVBloodshed/LevelEditor/OBLEGInput.h"
 #include "SSVBloodshed/LevelEditor/OBLETile.h"
 #include "SSVBloodshed/LevelEditor/OBLELevel.h"
+#include "SSVBloodshed/LevelEditor/OBLEDatabase.h"
 
 #include "SSVBloodshed/OBGame.h"
 
@@ -30,25 +31,17 @@ namespace ob
 			OBLEGInput<OBLEEditor> input{*this};
 			OBLEGDebugText<OBLEEditor> debugText{*this};
 
-			std::map<OBLETType, OBLETileDataDrawable> tileMap
-			{
-				{LETFloor,		{LETFloor,		assets.txSmall,		assets.floor									}},
-				{LETWall,		{LETWall,		assets.txSmall,		assets.wallSingle								}},
-				{LETGrate,		{LETGrate,		assets.txSmall,		assets.floorGrate								}},
-				{LETPit,		{LETPit,		assets.txSmall,		assets.pit										}},
-				{LETTurret,		{LETTurret,		assets.txSmall,		assets.eTurret,				{{"rot", 0}}		}},
-				{LETSpawner,	{LETSpawner,	assets.txSmall,		assets.pjCannonPlasma,		{{"spawns", {}}}	}},
-				{LETPlayer,		{LETPlayer,		assets.txSmall,		assets.p1Stand									}}
-			};
+			OBLEDatabase database;
 
-			OBLELevel level{320 / 10, 240 / 10 - 2, tileMap[OBLETType::LETFloor]};
-			OBLETile* currentTile{nullptr};
-			int currentBrushIdx{0}, currentX{0}, currentY{0}, currentZ{0};
+			OBLELevel level{320 / 10, 240 / 10 - 2, database.get(OBLETType::LETFloor)};
+			std::vector<OBLETile*> currentTiles;
+			int brushIdx{0}, currentX{0}, currentY{0}, currentZ{0}, currentRot{0};
+			int brushSize{1};
 
 			OBGame* game{nullptr};
 
 		public:
-			inline OBLEEditor(ssvs::GameWindow& mGameWindow, OBAssets& mAssets) : gameWindow(mGameWindow), assets(mAssets)
+			inline OBLEEditor(ssvs::GameWindow& mGameWindow, OBAssets& mAssets) : gameWindow(mGameWindow), assets(mAssets), database{assets}
 			{
 				gameCamera.pan(-5, -5);
 
@@ -61,36 +54,39 @@ namespace ob
 			inline void newGame()
 			{
 				manager.clear();
-				level = {320 / 10, 240 / 10 - 2, tileMap[OBLETType::LETFloor]};
+				level = {320 / 10, 240 / 10 - 2, database.get(OBLETType::LETFloor)};
 			}
 
-			inline const OBLETileDataDrawable& getCurrentData() { return tileMap[static_cast<OBLETType>(currentBrushIdx)]; }
-
-			inline bool isValid() { return currentTile != nullptr; }
+			inline const OBLEDatabaseEntry& getCurrentEntry() { return database.get(OBLETType(brushIdx)); }
 
 			inline void updateXY()
 			{
 				const auto& tileVec((gameCamera.getMousePosition() + Vec2f(5, 5)) / 10.f);
 				currentX = tileVec.x; currentY = tileVec.y;
 			}
-			inline void grabTile()
+			inline void grabTiles()
 			{
-				if(level.isValid(currentX, currentY, currentZ)) currentTile = &level.getTile(currentX, currentY, currentZ);
-				else currentTile = nullptr;
+				currentTiles.clear();
+
+				for(int iY{0}; iY < brushSize; ++iY)
+					for(int iX{0}; iX < brushSize; ++iX)
+						if(level.isValid(currentX + iX, currentY + iY, currentZ))
+							currentTiles.push_back(&level.getTile(currentX + iX, currentY + iY, currentZ));
 			}
 
-			inline void paint()				{ if(!isValid()) return; currentTile->initFromDataDrawable(getCurrentData()); }
-			inline void del()				{ if(!isValid()) return; level.del(currentX, currentY, currentZ); }
-			inline void rotate(int mDeg)	{ if(!isValid()) return; currentTile->rotate(mDeg); }
+			inline void paint()	{ for(auto& t : currentTiles) { t->initFromEntry(getCurrentEntry()); t->setRot(currentRot); } }
+			inline void del()	{ for(auto& t : currentTiles) { level.del(*t); } }
 
-			inline void cycleBrush(int mDir)	{ currentBrushIdx = ssvu::getSIMod(currentBrushIdx + mDir, (int)tileMap.size()); }
-			inline void cycleZ(int mDir)		{ currentZ = ssvu::getSIMod(currentZ + 2 + mDir, 5) - 2; }
+			inline void cycleRot(int mDeg)			{ currentRot = ssvu::wrapDegrees(currentRot + mDeg); }
+			inline void cycleBrush(int mDir)		{ brushIdx = ssvu::getSIMod(brushIdx + mDir, database.getSize()); }
+			inline void cycleZ(int mDir)			{ currentZ = -ssvu::getSIMod(-currentZ + mDir, 3); }
+			inline void cycleBrushSize(int mDir)	{ brushSize = ssvu::getClamped(brushSize + mDir, 1, 20); }
 
 			inline void update(float mFT)
 			{
 				level.update();
 
-				updateXY(); grabTile();
+				updateXY(); grabTiles();
 				if(input.painting) paint();
 				if(input.deleting) del();
 
@@ -105,7 +101,7 @@ namespace ob
 					manager.draw();
 					level.draw(gameWindow, true, currentZ);
 
-					sf::RectangleShape hr({10.f, 10.f});
+					sf::RectangleShape hr({10.f * brushSize, 10.f * brushSize});
 					hr.setFillColor({255, 0, 0, 125});
 					hr.setOutlineColor({255, 255, 0, 125});
 					hr.setOutlineThickness(0.5f);
@@ -117,7 +113,12 @@ namespace ob
 
 				overlayCamera.apply<int>();
 				{
-					sf::Sprite s{*getCurrentData().texture, getCurrentData().intRect}; s.setPosition(5, 240 - 15); render(s);
+					sf::Sprite s{*getCurrentEntry().texture, getCurrentEntry().intRect};
+					Vec2f origin{s.getTextureRect().width / 2.f, s.getTextureRect().height / 2.f};
+					s.setOrigin(origin);
+					s.setPosition(5 + origin.x, 240 - 15 + origin.x);
+					if(getCurrentEntry().defaultParams.count("rot") > 0) s.setRotation(currentRot);
+					render(s);
 				}
 				overlayCamera.unapply();
 

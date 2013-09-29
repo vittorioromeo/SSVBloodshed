@@ -19,13 +19,13 @@ namespace ob
 	{
 		private:
 			OBCKillable& cKillable;
-			Direction8 direction;
+			Dir8 direction;
 			ssvs::Ticker timerShoot{125.f};
 			ssvu::Timeline tlShoot{false};
 			OBWpn wpn{game, OBGroup::GFriendly, OBWpnTypes::createEPlasmaStarGun(0)};
 
 		public:
-			OBCTurret(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCKillable& mCKillable, Direction8 mDirection) : OBCActorBase{mCPhys, mCDraw}, cKillable(mCKillable), direction{mDirection} { }
+			OBCTurret(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCKillable& mCKillable, Dir8 mDir) : OBCActorBase{mCPhys, mCDraw}, cKillable(mCKillable), direction{mDir} { }
 
 			inline void init() override
 			{
@@ -43,13 +43,13 @@ namespace ob
 				if(timerShoot.getCurrent() > 90.f && timerShoot.getCurrent() < 115.f) { game.createPCharge(1, cPhys.getPosPixels(), 20); }
 				if(timerShoot.update(mFT)) { tlShoot.reset(); tlShoot.start(); }
 			}
-			inline void draw() override { cDraw.setRotation(getDegreesFromDirection8(direction)); }
+			inline void draw() override { cDraw.setRotation(getDegFromDir8(direction)); }
 
 			inline void shoot()
 			{
 				assets.playSound("Sounds/spark.wav");
-				Vec2i shootPos{body.getPosition() + getVecFromDirection8<int>(direction) * 600};
-				wpn.shoot(shootPos, getDegreesFromDirection8(direction));
+				Vec2i shootPos{body.getPosition() + getVecFromDir8<int>(direction) * 600};
+				wpn.shoot(shootPos, getDegFromDir8(direction));
 				game.createPMuzzle(20, cPhys.getPosPixels());
 			}
 

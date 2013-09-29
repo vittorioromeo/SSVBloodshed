@@ -72,7 +72,7 @@ namespace ob
 				if(mDist > mPursuitDist) cBoid.pursuit(cTargeter.getTarget());
 				else cBoid.seek(ssvs::getOrbitFromDegrees(cTargeter.getPosF(), cDirection8.getDegrees() + 180, mPursuitDist), 0.018f, 1250.f);
 			}
-			inline void faceShootingDirection() { cDirection8 = getDirection8FromDegrees(cEnemy.getCurrentDegrees()); }
+			inline void faceShootingDirection() { cDirection8 = getDir8FromDeg(cEnemy.getCurrentDegrees()); }
 			inline void recalculateTile(const sf::IntRect& mUnarmedStand, const sf::IntRect& mArmedStand, const sf::IntRect& mArmedShoot)
 			{
 				if(armed)

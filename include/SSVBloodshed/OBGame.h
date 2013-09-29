@@ -17,6 +17,7 @@
 
 #include "SSVBloodshed/LevelEditor/OBLELevel.h"
 #include "SSVBloodshed/LevelEditor/OBLEEditor.h"
+#include "SSVBloodshed/LevelEditor/OBLEDatabase.h"
 
 namespace ob
 {
@@ -72,39 +73,10 @@ namespace ob
 					auto getTilePos = [](int mX, int mY) -> Vec2i { return toCoords(Vec2i{mX * 10 + 5, mY * 10 + 5}); };
 					constexpr int maxX{320 / 10}, maxY{240 / 10 - 2};
 
+					OBLEDatabase database{assets, this};
 					OBLELevel level{maxX, maxY};
 					level.loadFromFile("./level.txt", nullptr);
-
-					auto tileIs = [&](int mX, int mY, OBLETType mType){ if(mX < 0 || mY < 0 || mX >= maxX || mY >= maxY) return false; return level.getTile(mX, mY, 0).getType() == mType; };
-
-					for(auto& p : level.getTiles())
-					{
-						auto& tile(p.second);
-
-						const auto& x(tile.getX());
-						const auto& y(tile.getY());
-						const auto& tp(getTilePos(x, y));
-
-						switch(tile.getType())
-						{
-							case OBLETType::LETFloor: factory.createFloor(tp); break;
-							case OBLETType::LETWall:
-							{
-								int mask{0};
-								mask += tileIs(x, y - 1, OBLETType::LETWall) << 0;
-								mask += tileIs(x + 1, y, OBLETType::LETWall) << 1;
-								mask += tileIs(x, y + 1, OBLETType::LETWall) << 2;
-								mask += tileIs(x - 1, y, OBLETType::LETWall) << 3;
-								factory.createWall(tp, *assets.wallBitMask[mask]);
-								break;
-							}
-							case OBLETType::LETGrate: factory.createFloor(tp, true); break;
-							case OBLETType::LETPit: factory.createPit(tp); break;
-							case OBLETType::LETTurret: factory.createETurret(tp, getDirection8FromDegrees(tile.getParam<float>("rot"))); break;
-							case OBLETType::LETPlayer: factory.createPlayer(tp); break;
-							case OBLETType::LETSpawner: break;
-						}
-					}
+					for(auto& p : level.getTiles()) database.spawn(level, p.second, getTilePos(p.second.getX(), p.second.getY()));
 				}
 				catch(...) { ssvu::lo << "Failed to load level" << std::endl; }
 			}

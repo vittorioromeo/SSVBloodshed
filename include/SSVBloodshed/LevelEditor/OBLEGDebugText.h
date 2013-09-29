@@ -30,7 +30,6 @@ namespace ob
 				for(const auto& e : entities) componentCount += e->getComponents().size();
 
 				s	<< "Z: "				<< editor.currentZ << "\t"
-					<< "Has tile: "			<< std::boolalpha << (editor.currentTile != nullptr) << "\n"
 					<< "FPS: "				<< static_cast<int>(editor.getGameWindow().getFPS()) << "\t"
 					<< "FT: "				<< mFT << "\n"
 					<< "Entities: "			<< entities.size() << "\n"

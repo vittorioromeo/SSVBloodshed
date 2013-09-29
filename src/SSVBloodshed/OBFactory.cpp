@@ -158,12 +158,12 @@ namespace ob
 		emplaceSpriteByTile(getCDraw(tpl), assets.txGiant, assets.e4UAStand);
 		return getEntity(tpl);
 	}
-	Entity& OBFactory::createETurret(const Vec2i& mPos, Direction8 mDirection)
+	Entity& OBFactory::createETurret(const Vec2i& mPos, Dir8 mDir)
 	{
 		auto tpl(createKillableBase(mPos, {1000, 1000}, OBLayer::LEnemy, 20));
 		getCKillable(tpl).setType(OBCKillable::Type::Robotic);
 		getCKillable(tpl).setParticleMult(0.35f);
-		getEntity(tpl).createComponent<OBCTurret>(getCPhys(tpl), getCDraw(tpl), getCKillable(tpl), mDirection);
+		getEntity(tpl).createComponent<OBCTurret>(getCPhys(tpl), getCDraw(tpl), getCKillable(tpl), mDir);
 		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.eTurret);
 		return getEntity(tpl);
 	}

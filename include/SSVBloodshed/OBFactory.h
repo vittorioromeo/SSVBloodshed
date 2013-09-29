@@ -51,7 +51,7 @@ namespace ob
 			Entity& createECharger(const Vec2i& mPos, bool mArmed = false);
 			Entity& createEJuggernaut(const Vec2i& mPos, bool mArmed = false);
 			Entity& createEGiant(const Vec2i& mPos);
-			Entity& createETurret(const Vec2i& mPos, Direction8 mDirection);
+			Entity& createETurret(const Vec2i& mPos, Dir8 mDir);
 
 			// Projectiles
 			Entity& createPJBullet(const Vec2i& mPos, float mDegrees);

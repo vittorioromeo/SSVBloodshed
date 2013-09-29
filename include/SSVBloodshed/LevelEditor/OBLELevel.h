@@ -9,6 +9,7 @@
 #include "SSVBloodshed/OBCommon.h"
 #include "SSVBloodshed/OBAssets.h"
 #include "SSVBloodshed/LevelEditor/OBLETile.h"
+#include "SSVBloodshed/LevelEditor/OBLEDatabase.h"
 
 namespace ob
 {
@@ -20,12 +21,13 @@ namespace ob
 
 		public:
 			inline OBLELevel(int mColumns, int mRows) : columns{mColumns}, rows{mRows} { }
-			inline OBLELevel(int mColumns, int mRows, const OBLETileDataDrawable& mDefaultTileData) : OBLELevel{mColumns, mRows}
+			inline OBLELevel(int mColumns, int mRows, const OBLEDatabaseEntry& mDefaultEntry) : OBLELevel{mColumns, mRows}
 			{
-				for(int iY{0}; iY < mRows; ++iY) for(int iX{0}; iX < mColumns; ++iX) getTile(iX, iY, 0).initFromDataDrawable(mDefaultTileData);
+				for(int iY{0}; iY < mRows; ++iY) for(int iX{0}; iX < mColumns; ++iX) getTile(iX, iY, 0).initFromEntry(mDefaultEntry);
 			}
 
 			inline void del(int mX, int mY, int mZ) { tiles.erase(ssvu::get1DIndexFrom3D(mX, mY, mZ, columns, rows)); }
+			inline void del(OBLETile& mTile) { del(mTile.getX(), mTile.getY(), mTile.getZ()); }
 
 			inline bool isValid(int mX, int mY, int mZ)			{ return mX >= 0 && mY >= 0 && mZ >= -depth && mX < columns && mY < rows && mZ < depth; }
 			inline decltype(tiles)& getTiles()					{ return tiles; }
@@ -42,7 +44,7 @@ namespace ob
 					toDraw.emplace_back(t.second.getZ(), s);
 				}
 
-				ssvu::sort(toDraw, [](const std::pair<int, sf::Sprite>& mA, const std::pair<int, sf::Sprite>& mB){ return mA.first > mB.first; });
+				ssvu::sortStable(toDraw, [](const std::pair<int, sf::Sprite>& mA, const std::pair<int, sf::Sprite>& mB){ return mA.first > mB.first; });
 				for(auto& td : toDraw) mRenderTarget.draw(td.second);
 			}
 
@@ -56,7 +58,7 @@ namespace ob
 				}
 				ssvuj::writeToFile(root, mPath);
 			}
-			inline void loadFromFile(const ssvu::FileSystem::Path& mPath, std::map<OBLETType, OBLETileDataDrawable>* mTileMap = nullptr)
+			inline void loadFromFile(const ssvu::FileSystem::Path& mPath, OBLEDatabase* mDatabase = nullptr)
 			{
 				tiles.clear();
 
@@ -67,7 +69,7 @@ namespace ob
 					ssvuj::extrArray(*itr, x, y, z, type, params);
 
 					auto& t(getTile(x, y, z));
-					if(mTileMap != nullptr) t.initFromDataDrawable((*mTileMap)[OBLETType(type)]);
+					if(mDatabase != nullptr) t.initFromEntry(mDatabase->get(OBLETType(type)));
 					t.setX(x); t.setY(y); t.setZ(z); t.setType(OBLETType(type)); t.setParams(params);
 				}
 			}

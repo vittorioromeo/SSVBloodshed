@@ -7,26 +7,11 @@
 
 #include "SSVBloodshed/OBCommon.h"
 #include "SSVBloodshed/OBAssets.h"
+#include "SSVBloodshed/LevelEditor/OBLEDatabase.h"
 
 namespace ob
 {
-	struct OBLETileData
-	{
-		OBLETType type;
-		std::map<std::string, ssvuj::Obj> defaultParams;
-		inline OBLETileData() : type{OBLETType::LETFloor} { }
-		inline OBLETileData(OBLETType mType, const std::map<std::string, ssvuj::Obj>& mParams = {}) : type{mType}, defaultParams{mParams} { }
-	};
-
-	struct OBLETileDataDrawable : public OBLETileData
-	{
-		sf::Texture* texture;
-		sf::IntRect intRect;
-		inline OBLETileDataDrawable() = default;
-		inline OBLETileDataDrawable(OBLETType mType, sf::Texture* mTexture, const sf::IntRect& mIntRect, const std::map<std::string, ssvuj::Obj>& mParams = {}) : OBLETileData{mType, mParams}, texture{mTexture}, intRect{mIntRect} { }
-	};
-
-	struct OBLETile
+	class OBLETile
 	{
 		private:
 			bool null{true};
@@ -43,15 +28,30 @@ namespace ob
 				currentRot += mDeg;
 				params["rot"] = currentRot;
 			}
+			inline void setRot(int mDeg)
+			{
+				if(params.count("rot") == 0) return;
+				params["rot"] = mDeg;
+			}
 
 			inline void update()
 			{
 				if(params.count("rot") > 0) getSprite().setRotation(ssvuj::as<int>(params["rot"]));
+				else getSprite().setRotation(0);
+
+				Vec2f origin{sprite.getTextureRect().width / 2.f, sprite.getTextureRect().height / 2.f};
+				sprite.setOrigin(origin);
 				sprite.setPosition(x * 10.f, y * 10.f);
 			}
 
-			inline void initFromData(const OBLETileData& mData)					{ null = false; type = mData.type; params = mData.defaultParams; }
-			inline void initFromDataDrawable(const OBLETileDataDrawable& mData)	{ initFromData(mData); sprite.setTexture(*mData.texture); sprite.setTextureRect(mData.intRect); sprite.setOrigin(5, 5); }
+			inline void initFromEntry(const OBLEDatabaseEntry& mEntry)
+			{
+				null = false;
+				type = mEntry.type;
+				params = mEntry.defaultParams;
+				sprite.setTexture(*mEntry.texture);
+				sprite.setTextureRect(mEntry.intRect);
+			}
 
 			inline bool isNull() const noexcept								{ return null; }
 			inline void setX(int mX) noexcept								{ x = mX; }

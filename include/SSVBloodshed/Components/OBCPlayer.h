@@ -58,7 +58,7 @@ namespace ob
 				body.setVelocity(ssvs::getResized(Vec2f(ix, iy), walkSpeed));
 
 				cWielder.setShooting(game.getInput().getIShoot());
-				if(!cWielder.isShooting() && (ix != 0 || iy != 0)) cDirection8 = getDirection8FromXY(ix, iy);
+				if(!cWielder.isShooting() && (ix != 0 || iy != 0)) cDirection8 = getDir8FromXY(ix, iy);
 
 				if(game.getInput().getIBomb()) bomb();
 

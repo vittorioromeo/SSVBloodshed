@@ -50,7 +50,7 @@ namespace ob
 				{
 					float targetDegrees(ssvs::getDegreesTowards(cPhys.getPosF(), cTargeter.getPosF()));
 					currentDegrees = ssvu::getRotatedDegrees(currentDegrees, targetDegrees, turnSpeed * mFT);
-					snappedDegrees = getDegreesFromDirection8(getDirection8FromDegrees(currentDegrees));
+					snappedDegrees = getDegFromDir8(getDir8FromDeg(currentDegrees));
 				}
 			}
 

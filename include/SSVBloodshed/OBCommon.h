@@ -67,6 +67,15 @@ namespace ob
 		LETTurret,
 		LETSpawner,
 		LETPlayer,
+		LETRunner,
+		LETRunnerArmed,
+		LETCharger,
+		LETChargerArmed,
+		LETJuggernaut,
+		LETJuggernautArmed,
+		LETGiant,
+		LETBall,
+		LETBallFlying
 	};
 
 	// Pixel <-> coords utils
@@ -76,43 +85,43 @@ namespace ob
 	template<typename T> inline Vec2i toCoords(const Vec2<T>& mValue) noexcept	{ return {toCoords(mValue.x), toCoords(mValue.y)}; }
 
 	// Direction utils
-	constexpr float direction8Step{45.f};
-	enum Direction8 : int {E = 0, SE = 1, S = 2, SW = 3, W = 4, NW = 5, N = 6, NE = 7};
-	template<typename T = float> inline T getDegreesFromDirection8(Direction8 mDirection) noexcept { return T(int(mDirection) * direction8Step); }
-	template<typename T> inline Direction8 getDirection8FromDegrees(T mDegrees) noexcept
+	constexpr float dir8Step{45.f};
+	enum Dir8 : int {E = 0, SE = 1, S = 2, SW = 3, W = 4, NW = 5, N = 6, NE = 7};
+	template<typename T = float> inline T getDegFromDir8(Dir8 mDir) noexcept { return T(int(mDir) * dir8Step); }
+	template<typename T> inline Dir8 getDir8FromDeg(T mDegrees) noexcept
 	{
 		mDegrees = ssvu::wrapDegrees(mDegrees);
-		int i{static_cast<int>((mDegrees + direction8Step / 2) / direction8Step)};
-		return Direction8(i % 8);
+		int i{static_cast<int>((mDegrees + dir8Step / 2) / dir8Step)};
+		return Dir8(i % 8);
 	}
-	template<typename T> inline Direction8 getDirection8FromXY(T mX, T mY) noexcept
+	template<typename T> inline Dir8 getDir8FromXY(T mX, T mY) noexcept
 	{
-		if(mX < 0 && mY == 0)		return Direction8::W;
-		else if(mX > 0 && mY == 0)	return Direction8::E;
-		else if(mX == 0 && mY < 0)	return Direction8::N;
-		else if(mX == 0 && mY > 0)	return Direction8::S;
-		else if(mX < 0 && mY < 0)	return Direction8::NW;
-		else if(mX < 0 && mY > 0)	return Direction8::SW;
-		else if(mX > 0 && mY < 0)	return Direction8::NE;
-		return Direction8::SE;
+		if(mX < 0 && mY == 0)		return Dir8::W;
+		else if(mX > 0 && mY == 0)	return Dir8::E;
+		else if(mX == 0 && mY < 0)	return Dir8::N;
+		else if(mX == 0 && mY > 0)	return Dir8::S;
+		else if(mX < 0 && mY < 0)	return Dir8::NW;
+		else if(mX < 0 && mY > 0)	return Dir8::SW;
+		else if(mX > 0 && mY < 0)	return Dir8::NE;
+		return Dir8::SE;
 	}
-	template<typename T = int> inline std::array<T, 2> getXYFromDirection8(Direction8 mDirection) noexcept
+	template<typename T = int> inline std::array<T, 2> getXYFromDir8(Dir8 mDir) noexcept
 	{
-		switch(mDirection)
+		switch(mDir)
 		{
-			case Direction8::E:		return {{1, 0}};
-			case Direction8::SE:	return {{1, 1}};
-			case Direction8::S:		return {{0, 1}};
-			case Direction8::SW:	return {{-1, 1}};
-			case Direction8::W:		return {{-1, 0}};
-			case Direction8::NW:	return {{-1, -1}};
-			case Direction8::N:		return {{0, -1}};
-			case Direction8::NE:	return {{1, -1}};
+			case Dir8::E:	return {{1, 0}};
+			case Dir8::SE:	return {{1, 1}};
+			case Dir8::S:	return {{0, 1}};
+			case Dir8::SW:	return {{-1, 1}};
+			case Dir8::W:	return {{-1, 0}};
+			case Dir8::NW:	return {{-1, -1}};
+			case Dir8::N:	return {{0, -1}};
+			case Dir8::NE:	return {{1, -1}};
 		}
 		return {{0, 0}};
 	}
-	template<typename T> inline Direction8 getDirection8FromVec(const Vec2<T>& mVec) noexcept		{ return getDirection8FromXY(mVec.x, mVec.y); }
-	template<typename T = int> inline Vec2<T> getVecFromDirection8(Direction8 mDirection) noexcept	{ const auto& xy(getXYFromDirection8<T>(mDirection)); return {xy[0], xy[1]}; }
+	template<typename T> inline Dir8 getDir8FromVec(const Vec2<T>& mVec) noexcept		{ return getDir8FromXY(mVec.x, mVec.y); }
+	template<typename T = int> inline Vec2<T> getVecFromDir8(Dir8 mDir) noexcept	{ const auto& xy(getXYFromDir8<T>(mDir)); return {xy[0], xy[1]}; }
 
 	// Timeline shortcuts
 	inline void repeat(ssvu::Timeline& mTimeline, const ssvu::Action& mAction, unsigned int mTimes, float mWait)
