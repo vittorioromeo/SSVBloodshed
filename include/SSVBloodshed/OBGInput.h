@@ -54,6 +54,8 @@ namespace ob
 				gs.addInput({{k::Num8}},	[this](float){ game.factory.createECharger(game.getMousePosition(), true); }, t::Once);
 				gs.addInput({{k::Num9}},	[this](float){ game.factory.createEJuggernaut(game.getMousePosition(), true); }, t::Once);
 				gs.addInput({{k::P}},		[this](float){ game.factory.createEBall(game.getMousePosition(), true); }, t::Once);
+
+				gs.addInput({{k::F1}},		[this](float){ game.getGameWindow().setGameState(game.editor->getGameState()); }, t::Once);
 			}
 
 			inline bool getIShoot() const noexcept	{ return iShoot; }

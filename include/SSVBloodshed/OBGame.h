@@ -15,6 +15,9 @@
 #include "SSVBloodshed/Particles/OBParticleTypes.h"
 #include "SSVBloodshed/OBBarCounter.h"
 
+#include "SSVBloodshed/LevelEditor/OBLELevel.h"
+#include "SSVBloodshed/LevelEditor/OBLEEditor.h"
+
 namespace ob
 {
 	class OBGame
@@ -37,6 +40,8 @@ namespace ob
 			sf::Sprite hudSprite{assets.get<sf::Texture>("tempHud.png")};
 
 			ssvs::BitmapText testAmmoTxt{*assets.obStroked};
+
+			OBLEEditor* editor{nullptr};
 
 		public:
 			OBBarCounter testhp{2, 6, 13};
@@ -62,87 +67,49 @@ namespace ob
 				manager.clear(); world.clear(); particles.clear(factory);
 
 				// Debug test level
-				auto getTilePos = [](int mX, int mY) -> Vec2i { return toCoords(Vec2i{mX * 10 + 5, mY * 10 + 5}); };
-				constexpr int maxX{320 / 10}, maxY{240 / 10 - 2};
+				try
+				{
+					auto getTilePos = [](int mX, int mY) -> Vec2i { return toCoords(Vec2i{mX * 10 + 5, mY * 10 + 5}); };
+					constexpr int maxX{320 / 10}, maxY{240 / 10 - 2};
 
-				std::string level2= "################################"
-									"#..............................#"
-									"#..............................#"
-									"#..............................#"
-									"#..............................#"
-									"#..............................#"
-									"#..............................#"
-									"#..............................#"
-									"#..............................#"
-									"#..............................#"
-									"#..............................#"
-									"#..............................#"
-									"#..............................#"
-									"#.................P............#"
-									"#..............................#"
-									"#..............................#"
-									"#..............................#"
-									"#..............................#"
-									"#..............................#"
-									"#..............................#"
-									"#..............................#"
-									"################################";
+					OBLELevel level{maxX, maxY};
+					level.loadFromFile("./level.txt", nullptr);
 
-				std::string level = "################################"
-									"#..............................#"
-									"#..P...#.......................#"
-									"#......#....###................#"
-									"#..#####...#.#.#....##.........#"
-									"#..........#####....W#.....#...#"
-									"#..........#.#.#....#E.....##..#"
-									"#...........###.....W#....#.#..#"
-									"#...gggggg..........##....##...#"
-									"#...goooog.................#...#"
-									"#...goooog.....................#"
-									"##..goooog.....gggggggggg......#"
-									"#...goooog.....goooooooog......#"
-									"#..#goooog..##.goooooooog......#"
-									"##..gggggg..##.goooooooog......#"
-									"#..............goooooooog......#"
-									"#...........##.gggggggggg......#"
-									"#....##......#.................#"
-									"#....##...................#....#"
-									"###..##..................#.#...#"
-									"###.............#N#.......#....#"
-									"################################";
+					auto tileIs = [&](int mX, int mY, OBLETType mType){ if(mX < 0 || mY < 0 || mX >= maxX || mY >= maxY) return false; return level.getTile(mX, mY, 0).getType() == mType; };
 
-
-				auto tileIs = [&](int mX, int mY, char mChar){ if(mX < 0 || mY < 0 || mX >= maxX || mY >= maxY) return false; return level[ssvu::get1DIndexFrom2D(mX, mY, maxX)] == mChar; };
-
-
-				unsigned int idx{0};
-				for(int iY{0}; iY < maxY; ++iY)
-					for(int iX{0}; iX < maxX; ++iX)
+					for(auto& p : level.getTiles())
 					{
-						const auto& tp(getTilePos(iX, iY));
+						auto& tile(p.second);
 
-						switch(level[idx++])
+						const auto& x(tile.getX());
+						const auto& y(tile.getY());
+						const auto& tp(getTilePos(x, y));
+
+						switch(tile.getType())
 						{
-							case '#':
+							case OBLETType::LETFloor: factory.createFloor(tp); break;
+							case OBLETType::LETWall:
 							{
 								int mask{0};
-								mask += tileIs(iX, iY - 1, '#') << 0;
-								mask += tileIs(iX + 1, iY, '#') << 1;
-								mask += tileIs(iX, iY + 1, '#') << 2;
-								mask += tileIs(iX - 1, iY, '#') << 3;
+								mask += tileIs(x, y - 1, OBLETType::LETWall) << 0;
+								mask += tileIs(x + 1, y, OBLETType::LETWall) << 1;
+								mask += tileIs(x, y + 1, OBLETType::LETWall) << 2;
+								mask += tileIs(x - 1, y, OBLETType::LETWall) << 3;
 								factory.createWall(tp, *assets.wallBitMask[mask]);
 								break;
 							}
-							case '.': factory.createFloor(tp); break;
-							case 'o': factory.createPit(tp); break;
-							case 'g': factory.createFloor(tp, true); break;
-							case 'P': factory.createFloor(tp); factory.createPlayer(tp); break;
-							case 'N': factory.createFloor(tp); factory.createETurret(tp, Direction8::N); break;
-							case 'S': factory.createFloor(tp); factory.createETurret(tp, Direction8::S); break;
-							case 'W': factory.createFloor(tp); factory.createETurret(tp, Direction8::W); break;
-							case 'E': factory.createFloor(tp); factory.createETurret(tp, Direction8::E); break;
+							case OBLETType::LETGrate: factory.createFloor(tp, true); break;
+							case OBLETType::LETPit: factory.createPit(tp); break;
+							case OBLETType::LETTurret:
+								factory.createETurret(tp, getDirection8FromDegrees(ssvuj::as<float>(tile.getParams()["rot"])));
+								break;
+							case OBLETType::LETSpawner:
+								factory.createPlayer(tp);
+								break;
 						}
 					}
+				}
+				catch(...) { ssvu::lo<<"fuck"<<std::endl; }
 			}
 
 			inline void update(float mFT)
@@ -171,6 +138,8 @@ namespace ob
 
 			inline void render(const sf::Drawable& mDrawable)									{ gameWindow.draw(mDrawable); }
 			inline void render(const sf::Drawable& mDrawable, sf::RenderStates mRenderStates)	{ gameWindow.draw(mDrawable, mRenderStates); }
+
+			inline void setEditor(OBLEEditor& mEditor)				{ editor = &mEditor; }
 
 			inline Vec2i getMousePosition() const					{ return toCoords(gameCamera.getMousePosition()); }
 			inline ssvs::GameWindow& getGameWindow() noexcept		{ return gameWindow; }

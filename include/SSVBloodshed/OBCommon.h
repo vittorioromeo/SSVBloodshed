@@ -58,7 +58,7 @@ namespace ob
 	};
 
 	// Level editor enums
-	enum OBLETType : unsigned int
+	enum OBLETType : int
 	{
 		LETFloor,
 		LETWall,

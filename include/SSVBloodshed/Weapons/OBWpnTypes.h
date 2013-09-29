@@ -14,6 +14,19 @@ namespace ob
 {
 	namespace OBWpnTypes
 	{
+		using FactoryMemPtr = Entity&(OBFactory::*)(const Vec2i& mPos, float mDeg);
+		//template<typename... TArgs> using FactoryMemPtr = Entity&(OBFactory::*)(TArgs...);
+
+		template<typename T> inline void fanShoot(T mFactoryAction, OBWpnType& mWpn, OBGame& mGame, const Vec2i& mPos, float mDeg, int mCount, float mStep, float mSpeedChange)
+		{
+			for(int i{-mCount}; i <= mCount; ++i)
+			{
+				auto& e((mGame.getFactory().*mFactoryAction)(mPos, mDeg + i * mStep));
+				auto& cProjectile(mWpn.shotProjectile(e));
+				cProjectile.setSpeed(cProjectile.getSpeed() - std::abs(i) * mSpeedChange);
+			}
+		}
+
 		inline OBWpnType createMachineGun()
 		{
 			return {4.5f, 1.f, 420.f, "Sounds/machineGun.wav",
@@ -35,12 +48,7 @@ namespace ob
 			return {45.f, 0.5f, 320.f, "Sounds/machineGun.wav",
 			[mFanCount, mStep](OBWpnType& mWpn, OBGame& mGame, const Vec2i& mPos, float mDeg)
 			{
-					for(int i{-mFanCount}; i <= mFanCount; ++i)
-					{
-						auto& e(mGame.getFactory().createPJBulletPlasma(mPos, mDeg + i * mStep));
-						auto& cProjectile(mWpn.shotProjectile(e));
-						cProjectile.setSpeed(cProjectile.getSpeed() - std::abs(i) * 40.f);
-					}
+				fanShoot(&OBFactory::createPJBulletPlasma, mWpn, mGame, mPos, mDeg, mFanCount, mStep, 40.f);
 			}};
 		}
 		inline OBWpnType createEPlasmaStarGun(int mFanCount = 0, float mStep = 12.f)
@@ -48,12 +56,7 @@ namespace ob
 			return {75.f, 1.f, 260.f, "Sounds/machineGun.wav",
 			[mFanCount, mStep](OBWpnType& mWpn, OBGame& mGame, const Vec2i& mPos, float mDeg)
 			{
-				for(int i{-mFanCount}; i <= mFanCount; ++i)
-				{
-					auto& e(mGame.getFactory().createPJStarPlasma(mPos, mDeg + i * mStep));
-					auto& cProjectile(mWpn.shotProjectile(e));
-					cProjectile.setSpeed(cProjectile.getSpeed() - std::abs(i) * 40.f);
-				}
+				fanShoot(&OBFactory::createPJStarPlasma, mWpn, mGame, mPos, mDeg, mFanCount, mStep, 40.f);
 			}};
 		}
 		inline OBWpnType createPlasmaCannon()
