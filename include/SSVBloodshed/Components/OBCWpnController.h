@@ -37,7 +37,7 @@ namespace ob
 				return true;
 			}
 
-			inline void setWpn(const OBWpnType& mWpn) noexcept { wpn.setWpn(mWpn); }
+			inline void setWpn(const OBWpnType& mWpn) noexcept		{ wpn.setWpn(mWpn); }
 
 			inline OBWpnType& getWpn() noexcept						{ return wpn.getWpnType(); }
 			inline const ssvs::Ticker& getTicker() const noexcept	{ return tckShoot; }

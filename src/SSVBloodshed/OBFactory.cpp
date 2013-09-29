@@ -99,8 +99,8 @@ namespace ob
 	Entity& OBFactory::createPlayer(const Vec2i& mPos)
 	{
 		auto tpl(createKillableBase(mPos, {650, 650}, OBLayer::LPlayer, 10));
-		auto& cDirection8(getEntity(tpl).createComponent<OBCDirection8>());
-		auto& cWielder(getEntity(tpl).createComponent<OBCWielder>(getCPhys(tpl), getCDraw(tpl), cDirection8));
+		auto& cDir8(getEntity(tpl).createComponent<OBCDir8>());
+		auto& cWielder(getEntity(tpl).createComponent<OBCWielder>(getCPhys(tpl), getCDraw(tpl), cDir8));
 		auto& cWpnController(getEntity(tpl).createComponent<OBCWpnController>(getCPhys(tpl), OBGroup::GEnemy));
 		getEntity(tpl).createComponent<OBCPlayer>(getCPhys(tpl), getCDraw(tpl), getCKillable(tpl), cWielder, cWpnController);
 		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.p1Stand);
@@ -119,8 +119,8 @@ namespace ob
 	Entity& OBFactory::createERunner(const Vec2i& mPos, bool mArmed)
 	{
 		auto tpl(createEnemyBase(mPos, {600, 600}, 4));
-		auto& cDirection8(getEntity(tpl).createComponent<OBCDirection8>());
-		auto& cWielder(getEntity(tpl).createComponent<OBCWielder>(getCPhys(tpl), getCDraw(tpl), cDirection8));
+		auto& cDir8(getEntity(tpl).createComponent<OBCDir8>());
+		auto& cWielder(getEntity(tpl).createComponent<OBCWielder>(getCPhys(tpl), getCDraw(tpl), cDir8));
 		auto& cWpnController(getEntity(tpl).createComponent<OBCWpnController>(getCPhys(tpl), OBGroup::GFriendly));
 		getEntity(tpl).createComponent<OBCERunner>(getCEnemy(tpl), cWielder, cWpnController, mArmed);
 		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.e1AStand);
@@ -131,8 +131,8 @@ namespace ob
 	{
 		auto tpl(createEnemyBase(mPos, {1100, 1100}, 18));
 		auto& cFloorSmasher(getEntity(tpl).createComponent<OBCFloorSmasher>(getCPhys(tpl)));
-		auto& cDirection8(getEntity(tpl).createComponent<OBCDirection8>());
-		auto& cWielder(getEntity(tpl).createComponent<OBCWielder>(getCPhys(tpl), getCDraw(tpl), cDirection8));
+		auto& cDir8(getEntity(tpl).createComponent<OBCDir8>());
+		auto& cWielder(getEntity(tpl).createComponent<OBCWielder>(getCPhys(tpl), getCDraw(tpl), cDir8));
 		auto& cWpnController(getEntity(tpl).createComponent<OBCWpnController>(getCPhys(tpl), OBGroup::GFriendly));
 		getEntity(tpl).createComponent<OBCECharger>(getCEnemy(tpl), cFloorSmasher, cWielder, cWpnController, mArmed);
 		emplaceSpriteByTile(getCDraw(tpl), assets.txMedium, assets.e2AStand);
@@ -142,8 +142,8 @@ namespace ob
 	Entity& OBFactory::createEJuggernaut(const Vec2i& mPos, bool mArmed)
 	{
 		auto tpl(createEnemyBase(mPos, {2100, 2100}, 36));
-		auto& cDirection8(getEntity(tpl).createComponent<OBCDirection8>());
-		auto& cWielder(getEntity(tpl).createComponent<OBCWielder>(getCPhys(tpl), getCDraw(tpl), cDirection8));
+		auto& cDir8(getEntity(tpl).createComponent<OBCDir8>());
+		auto& cWielder(getEntity(tpl).createComponent<OBCWielder>(getCPhys(tpl), getCDraw(tpl), cDir8));
 		auto& cWpnController(getEntity(tpl).createComponent<OBCWpnController>(getCPhys(tpl), OBGroup::GFriendly));
 		getEntity(tpl).createComponent<OBCEJuggernaut>(getCEnemy(tpl), cWielder, cWpnController, mArmed);
 		emplaceSpriteByTile(getCDraw(tpl), assets.txBig, assets.e3AStand);

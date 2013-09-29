@@ -16,10 +16,11 @@ namespace ob
 	class OBLELevel
 	{
 		private:
-			int columns, rows, depth{5};
+			int columns{0}, rows{0}, depth{5};
 			std::unordered_map<int, OBLETile> tiles;
 
 		public:
+			inline OBLELevel() = default;
 			inline OBLELevel(int mColumns, int mRows) : columns{mColumns}, rows{mRows} { }
 			inline OBLELevel(int mColumns, int mRows, const OBLEDatabaseEntry& mDefaultEntry) : OBLELevel{mColumns, mRows}
 			{
@@ -27,11 +28,7 @@ namespace ob
 			}
 
 			inline void del(int mX, int mY, int mZ) { tiles.erase(ssvu::get1DIndexFrom3D(mX, mY, mZ, columns, rows)); }
-			inline void del(OBLETile& mTile) { del(mTile.getX(), mTile.getY(), mTile.getZ()); }
-
-			inline bool isValid(int mX, int mY, int mZ)			{ return mX >= 0 && mY >= 0 && mZ >= -depth && mX < columns && mY < rows && mZ < depth; }
-			inline decltype(tiles)& getTiles()					{ return tiles; }
-			inline OBLETile& getTile(int mX, int mY, int mZ)	{ auto& t(tiles[ssvu::get1DIndexFrom3D(mX, mY, mZ, columns, rows)]); t.setX(mX); t.setY(mY); t.setZ(mZ); return t; }
+			inline void del(OBLETile& mTile)		{ del(mTile.getX(), mTile.getY(), mTile.getZ()); }
 
 			inline void update() { for(auto& t : tiles) t.second.update(); }
 			inline void draw(sf::RenderTarget& mRenderTarget, bool mOnion = false, int mCurrentZ = 0)
@@ -73,6 +70,11 @@ namespace ob
 					t.setX(x); t.setY(y); t.setZ(z); t.setType(OBLETType(type)); t.setParams(params);
 				}
 			}
+
+			inline bool isValid(int mX, int mY, int mZ) const noexcept	{ return mX >= 0 && mY >= 0 && mZ >= -depth && mX < columns && mY < rows && mZ < depth; }
+			inline const decltype(tiles)& getTiles() const noexcept		{ return tiles; }
+			inline decltype(tiles)& getTiles() noexcept					{ return tiles; }
+			inline OBLETile& getTile(int mX, int mY, int mZ) noexcept	{ auto& t(tiles[ssvu::get1DIndexFrom3D(mX, mY, mZ, columns, rows)]); t.setX(mX); t.setY(mY); t.setZ(mZ); return t; }
 	};
 }
 

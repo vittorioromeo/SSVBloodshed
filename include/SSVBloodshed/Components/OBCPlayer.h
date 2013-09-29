@@ -22,16 +22,16 @@ namespace ob
 		private:
 			OBCKillable& cKillable;
 			OBCWielder& cWielder;
-			OBCDirection8& cDirection8;
+			OBCDir8& cDir8;
 			OBCWpnController& cWpnController;
 			float walkSpeed{125.f};
 
-			int currentWeapon{0};
-			std::vector<OBWpnType> weaponTypes{OBWpnTypes::createMachineGun(), OBWpnTypes::createPlasmaBolter()};
+			int currentWpn{0};
+			std::vector<OBWpnType> weaponTypes{OBWpnTypes::createMachineGun(), OBWpnTypes::createPlasmaBolter(), OBWpnTypes::createPlasmaCannon()};
 
 		public:
 			OBCPlayer(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCKillable& mCKillable, OBCWielder& mCWielder, OBCWpnController& mCWpnController)
-				: OBCActorBase{mCPhys, mCDraw}, cKillable(mCKillable), cWielder(mCWielder), cDirection8(mCWielder.getCDirection()), cWpnController(mCWpnController) { }
+				: OBCActorBase{mCPhys, mCDraw}, cKillable(mCKillable), cWielder(mCWielder), cDir8(mCWielder.getCDir8()), cWpnController(mCWpnController) { }
 
 			inline void init() override
 			{
@@ -58,37 +58,37 @@ namespace ob
 				body.setVelocity(ssvs::getResized(Vec2f(ix, iy), walkSpeed));
 
 				cWielder.setShooting(game.getInput().getIShoot());
-				if(!cWielder.isShooting() && (ix != 0 || iy != 0)) cDirection8 = getDir8FromXY(ix, iy);
+				if(!cWielder.isShooting() && (ix != 0 || iy != 0)) cDir8 = getDir8FromXY(ix, iy);
 
 				if(game.getInput().getIBomb()) bomb();
 
-				if(game.getInput().getISwitch()) cWpnController.setWpn(weaponTypes[++currentWeapon % weaponTypes.size()]);
+				if(game.getInput().getISwitch()) cWpnController.setWpn(weaponTypes[++currentWpn % weaponTypes.size()]);
 			}
 
 			inline void update(float) override
 			{
 				updateInput();
 
-				{
+				{ // TODO:
 					auto& cHealth(getEntity().getComponent<OBCHealth>());
 					game.testhp.setValue(cHealth.getHealth());
 					game.testhp.setMaxValue(cHealth.getMaxHealth());
 				}
 
 				if(cWielder.isShooting())
-					if(cWpnController.shoot(cWielder.getShootingPos(), cDirection8.getDegrees()))
+					if(cWpnController.shoot(cWielder.getShootingPos(), cDir8.getDeg()))
 						game.createPMuzzle(20, toPixels(cWielder.getShootingPos()));
 			}
 			inline void draw() override
 			{
-				cDraw[0].setRotation(cDirection8.getDegrees());
+				cDraw[0].setRotation(cDir8.getDeg());
 				cDraw[0].setTextureRect(cWielder.isShooting() ? assets.p1Shoot : assets.p1Stand);
 			}
 
 			inline void bomb()
 			{
 				for(int k{0}; k < 5; ++k)
-					for(int i{0}; i < 360; i += 360 / 16) getFactory().createPJTestBomb(body.getPosition(), cDirection8.getDegrees() + (i * (360 / 16)), 2.f - k * 0.2f + i * 0.004f, 4.f + k * 0.3f - i * 0.004f);
+					for(int i{0}; i < 360; i += 360 / 16) getFactory().createPJTestBomb(body.getPosition(), cDir8.getDeg() + (i * (360 / 16)), 2.f - k * 0.2f + i * 0.004f, 4.f + k * 0.3f - i * 0.004f);
 			}
 	};
 }

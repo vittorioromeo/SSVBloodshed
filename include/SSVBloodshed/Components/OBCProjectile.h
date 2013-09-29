@@ -16,10 +16,9 @@ namespace ob
 	class OBCProjectile : public OBCActorBase
 	{
 		private:
-			ssvs::Ticker life{150.f};
-			float speed{125.f}, degrees{0.f}, curveSpeed{0.f};
+			ssvs::Ticker tckLife{150.f};
+			float speed{125.f}, degrees{0.f}, curveSpeed{0.f}, damage{1};
 			int pierceOrganic{0};
-			float damage{1};
 			OBGroup targetGroup{OBGroup::GEnemy};
 
 			inline void destroy() { getEntity().destroy(); onDestroy(); }
@@ -46,18 +45,14 @@ namespace ob
 							destroy();
 						}
 					}
-					else
-					{
-						if(getEntityFromBody(mDI.body).getComponent<OBCHealth>().damage(damage))
-							if(pierceOrganic-- == 0) destroy();
-					}
+					else if(getEntityFromBody(mDI.body).getComponent<OBCHealth>().damage(damage) && pierceOrganic-- == 0) destroy();
 				};
 			}
 			inline void update(float mFT) override
 			{
 				degrees += curveSpeed * mFT;
 				body.setVelocity(ssvs::getVecFromDegrees(degrees, speed));
-				if(life.update(mFT)) destroy();
+				if(tckLife.update(mFT)) destroy();
 			}
 			inline void draw() override { cDraw.setRotation(degrees); }
 
@@ -68,7 +63,7 @@ namespace ob
 				return pj;
 			}
 
-			inline void setLife(float mValue) noexcept			{ life.restart(mValue); }
+			inline void setLife(float mValue) noexcept			{ tckLife.restart(mValue); }
 			inline void setSpeed(float mValue) noexcept			{ speed = mValue; }
 			inline void setDegrees(float mValue) noexcept		{ degrees = mValue; }
 			inline void setCurveSpeed(float mValue) noexcept	{ curveSpeed = mValue; }
@@ -76,9 +71,9 @@ namespace ob
 			inline void setPierceOrganic(int mValue) noexcept	{ pierceOrganic = mValue; }
 			inline void setTargetGroup(OBGroup mValue) noexcept	{ targetGroup = mValue; }
 
-			inline float getLife() const noexcept				{ return life.getCurrent(); }
+			inline float getLife() const noexcept				{ return tckLife.getCurrent(); }
 			inline float getSpeed() const noexcept				{ return speed; }
-			inline float getDegrees() const noexcept			{ return degrees; }
+			inline float getDeg() const noexcept				{ return degrees; }
 			inline float getCurveSpeed() const noexcept			{ return curveSpeed; }
 			inline float getDamage() const noexcept				{ return damage; }
 			inline int getPierceOrganic() const noexcept		{ return pierceOrganic; }

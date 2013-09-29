@@ -14,28 +14,26 @@ namespace ob
 	{
 		private:
 			float health, maxHealth;
-			ssvs::Ticker cooldown{1.f};
+			ssvs::Ticker tckCooldown{1.f};
 
 		public:
 			ssvu::Delegate<void()> onDamage, onHeal;
 
 			OBCHealth(float mHealth) : health{mHealth}, maxHealth{mHealth} { }
 
-			inline void update(float mFT) override { if(cooldown.update(mFT)) cooldown.stop(); }
+			inline void update(float mFT) override { if(tckCooldown.update(mFT)) tckCooldown.stop(); }
 
 			inline void heal(float mHealth) noexcept { health += mHealth; ssvu::clampMax(health, maxHealth); onHeal(); }
 			inline bool damage(float mDamage) noexcept
 			{
-				if(cooldown.isRunning()) return false;
+				if(tckCooldown.isRunning()) return false;
 
-				cooldown.restart();
 				health = ssvu::getClampedMin(health - mDamage, 0.f);
-				onDamage();
-				return true;
+				tckCooldown.restart(); onDamage(); return true;
 			}
 			inline void setHealth(float mHealth) noexcept	{ health = ssvu::getClamped(mHealth, 0.f, maxHealth); }
 			inline void setMaxHealth(float mValue) noexcept	{ maxHealth = mValue; }
-			inline void setCooldown(float mValue) noexcept	{ cooldown.restart(mValue); }
+			inline void setCooldown(float mValue) noexcept	{ tckCooldown.restart(mValue); }
 
 			inline bool isDead() const noexcept			{ return health <= 0; }
 			inline int getHealth() const noexcept		{ return health; }

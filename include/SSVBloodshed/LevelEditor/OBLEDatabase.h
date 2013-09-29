@@ -20,6 +20,10 @@ namespace ob
 				sf::IntRect intRect;
 				std::map<std::string, ssvuj::Obj> defaultParams;
 				ssvu::Func<void(TLevel&, TTile&, const Vec2i&)> spawn;
+
+				Entry() = default;
+				Entry(OBLETType mType, sf::Texture* mTexture, const sf::IntRect& mIntRect, const decltype(defaultParams)& mDefaultParams, decltype(spawn) mSpawn)
+					: type{mType}, texture{mTexture}, intRect{mIntRect}, defaultParams{mDefaultParams}, spawn{mSpawn} { }
 			};
 
 		private:
@@ -52,9 +56,8 @@ namespace ob
 				add(OBLETType::LETWall,				a.txSmall,		a.wallSingle,			{},
 				[this](TLevel& mL, TTile& mT, const Vec2i& mP)
 				{
-					constexpr int maxX{320 / 10}, maxY{240 / 10 - 2};
-					const auto& x(mT.getX());
-					const auto& y(mT.getY());
+					constexpr int maxX{320 / 10}, maxY{240 / 10 - 2}; // TODO: get level size from mL
+					int x{mT.getX()}, y{mT.getY()};
 					auto tileIs = [&](int mX, int mY, OBLETType mType){ if(mX < 0 || mY < 0 || mX >= maxX || mY >= maxY) return false; return mL.getTile(mX, mY, 0).getType() == mType; };
 
 					int mask{0};
@@ -66,22 +69,14 @@ namespace ob
 				});
 			}
 
-			template<typename T> inline void add(OBLETType mType, sf::Texture* mTexture, const sf::IntRect& mIntRect, std::map<std::string, ssvuj::Obj> mDefaultParams, T mSpawn)
+			template<typename T> inline void add(OBLETType mType, sf::Texture* mTexture, const sf::IntRect& mIntRect, const std::map<std::string, ssvuj::Obj>& mDefaultParams, T mSpawn)
 			{
-				Entry toAdd;
-				toAdd.type = mType;
-				toAdd.texture = mTexture;
-				toAdd.intRect = mIntRect;
-				toAdd.defaultParams = mDefaultParams;
-				toAdd.spawn = mSpawn;
-
-				entries[mType] = toAdd;
+				entries[mType] = Entry{mType, mTexture, mIntRect, mDefaultParams, mSpawn};
 			}
-
-			inline const Entry& get(OBLETType mType) { return entries.at(mType); }
-
 			inline void spawn(TLevel& mLevel, TTile& mTile, const Vec2i& mPos) { get(mTile.getType()).spawn(mLevel, mTile, mPos); }
-			inline int getSize() const noexcept { return entries.size(); }
+
+			inline const Entry& get(OBLETType mType) const	{ return entries.at(mType); }
+			inline int getSize() const noexcept				{ return entries.size(); }
 	};
 
 	// Template magic to temporarily avoid creating .cpp source files

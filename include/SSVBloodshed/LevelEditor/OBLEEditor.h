@@ -27,37 +27,26 @@ namespace ob
 			OBAssets& assets;
 			ssvs::Camera gameCamera{gameWindow, 2.f}, overlayCamera{gameWindow, 2.f};
 			ssvs::GameState gameState;
-			sses::Manager manager;
 			OBLEGInput<OBLEEditor> input{*this};
 			OBLEGDebugText<OBLEEditor> debugText{*this};
-
 			OBLEDatabase database;
-
-			OBLELevel level{320 / 10, 240 / 10 - 2, database.get(OBLETType::LETFloor)};
+			OBLELevel level;
 			std::vector<OBLETile*> currentTiles;
-			int brushIdx{0}, currentX{0}, currentY{0}, currentZ{0}, currentRot{0};
-			int brushSize{1};
-
+			int brushIdx{0}, brushSize{1}, currentX{0}, currentY{0}, currentZ{0}, currentRot{0};
 			OBGame* game{nullptr};
 
 		public:
 			inline OBLEEditor(ssvs::GameWindow& mGameWindow, OBAssets& mAssets) : gameWindow(mGameWindow), assets(mAssets), database{assets}
 			{
 				gameCamera.pan(-5, -5);
-
 				gameState.onUpdate += [this](float mFT){ update(mFT); };
 				gameState.onDraw += [this]{ draw(); };
-
 				newGame();
 			}
 
-			inline void newGame()
-			{
-				manager.clear();
-				level = {320 / 10, 240 / 10 - 2, database.get(OBLETType::LETFloor)};
-			}
+			inline void newGame() { level = {320 / 10, 240 / 10 - 2, database.get(OBLETType::LETFloor)}; }
 
-			inline const OBLEDatabaseEntry& getCurrentEntry() { return database.get(OBLETType(brushIdx)); }
+
 
 			inline void updateXY()
 			{
@@ -76,6 +65,7 @@ namespace ob
 
 			inline void paint()	{ for(auto& t : currentTiles) { t->initFromEntry(getCurrentEntry()); t->setRot(currentRot); } }
 			inline void del()	{ for(auto& t : currentTiles) { level.del(*t); } }
+			inline void pick()	{ for(auto& t : currentTiles) { brushIdx = int(t->getType()); return; } }
 
 			inline void cycleRot(int mDeg)			{ currentRot = ssvu::wrapDegrees(currentRot + mDeg); }
 			inline void cycleBrush(int mDir)		{ brushIdx = ssvu::getSIMod(brushIdx + mDir, database.getSize()); }
@@ -90,7 +80,6 @@ namespace ob
 				if(input.painting) paint();
 				if(input.deleting) del();
 
-				manager.update(mFT);
 				debugText.update(mFT);
 				gameCamera.update<int>(mFT);
 			}
@@ -98,7 +87,6 @@ namespace ob
 			{
 				gameCamera.apply<int>();
 				{
-					manager.draw();
 					level.draw(gameWindow, true, currentZ);
 
 					sf::RectangleShape hr({10.f * brushSize, 10.f * brushSize});
@@ -133,8 +121,8 @@ namespace ob
 			inline ssvs::GameWindow& getGameWindow() noexcept		{ return gameWindow; }
 			inline OBAssets& getAssets() noexcept					{ return assets; }
 			inline ssvs::GameState& getGameState() noexcept			{ return gameState; }
-			inline sses::Manager& getManager() noexcept				{ return manager; }
 			inline const decltype(input)& getInput() const noexcept	{ return input; }
+			inline const OBLEDatabaseEntry& getCurrentEntry() const	{ return database.get(OBLETType(brushIdx)); }
 	};
 }
 

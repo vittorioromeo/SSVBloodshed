@@ -20,7 +20,7 @@ namespace ob
 			OBCKillable& cKillable;
 			OBCTargeter& cTargeter;
 			OBCBoid& cBoid;
-			float walkSpeed{100.f}, currentDegrees{0.f}, turnSpeed{7.5f}, snappedDegrees{0.f};
+			float currentDeg{0.f}, snappedDeg{0.f}, turnSpeed{5.f};
 			bool faceDirection{true};
 			float bodyDamage{1};
 
@@ -48,24 +48,24 @@ namespace ob
 			{
 				if(cTargeter.hasTarget())
 				{
-					float targetDegrees(ssvs::getDegreesTowards(cPhys.getPosF(), cTargeter.getPosF()));
-					currentDegrees = ssvu::getRotatedDegrees(currentDegrees, targetDegrees, turnSpeed * mFT);
-					snappedDegrees = getDegFromDir8(getDir8FromDeg(currentDegrees));
+					float targetDeg(ssvs::getDegreesTowards(cPhys.getPosF(), cTargeter.getPosF()));
+					currentDeg = ssvu::getRotatedDegrees(currentDeg, targetDeg, turnSpeed * mFT);
+					snappedDeg = getDegFromDir8(getDir8FromDeg(currentDeg));
 				}
 			}
 
-			inline void draw() override { if(faceDirection) cDraw.setRotation(snappedDegrees); }
+			inline void draw() override { if(faceDirection) cDraw.setRotation(snappedDeg); }
 
 			inline void setFaceDirection(bool mValue) noexcept	{ faceDirection = mValue; }
-			inline void setWalkSpeed(float mValue) noexcept		{ walkSpeed = mValue; }
-			inline void setTurnSpeed(float mValue) noexcept		{ turnSpeed = mValue; }
 			inline void setMaxVelocity(float mMax) noexcept		{ cBoid.setMaxVelocity(mMax); }
+			inline void setTurnSpeed(float mValue) noexcept		{ turnSpeed = mValue; }
 
 			inline OBCKillable& getCKillable() const noexcept	{ return cKillable; }
 			inline OBCBoid& getCBoid() const noexcept			{ return cBoid; }
 			inline OBCTargeter& getCTargeter() const noexcept	{ return cTargeter; }
-			inline float getCurrentDegrees() const noexcept		{ return currentDegrees; }
-			inline float getSnappedDegrees() const noexcept		{ return snappedDegrees; }
+			inline float getCurrentDeg() const noexcept			{ return currentDeg; }
+			inline float getSnappedDeg() const noexcept			{ return snappedDeg; }
+			inline float getTurnSpeed() const noexcept			{ return turnSpeed; }
 	};
 }
 

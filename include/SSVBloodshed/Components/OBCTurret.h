@@ -20,7 +20,7 @@ namespace ob
 		private:
 			OBCKillable& cKillable;
 			Dir8 direction;
-			ssvs::Ticker timerShoot{125.f};
+			ssvs::Ticker tckShoot{125.f};
 			ssvu::Timeline tlShoot{false};
 			OBWpn wpn{game, OBGroup::GFriendly, OBWpnTypes::createEPlasmaStarGun(0)};
 
@@ -40,8 +40,8 @@ namespace ob
 			inline void update(float mFT) override
 			{
 				tlShoot.update(mFT);
-				if(timerShoot.getCurrent() > 90.f && timerShoot.getCurrent() < 115.f) { game.createPCharge(1, cPhys.getPosPixels(), 20); }
-				if(timerShoot.update(mFT)) { tlShoot.reset(); tlShoot.start(); }
+				if(tckShoot.getCurrent() > 90.f && tckShoot.getCurrent() < 115.f) { game.createPCharge(1, cPhys.getPosPixels(), 20); }
+				if(tckShoot.update(mFT)) { tlShoot.reset(); tlShoot.start(); }
 			}
 			inline void draw() override { cDraw.setRotation(getDegFromDir8(direction)); }
 

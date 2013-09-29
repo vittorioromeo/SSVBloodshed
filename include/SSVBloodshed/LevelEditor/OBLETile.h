@@ -21,34 +21,19 @@ namespace ob
 			std::map<std::string, ssvuj::Obj> params;
 
 		public:
-			inline void rotate(int mDeg)
-			{
-				if(params.count("rot") == 0) return;
-				int currentRot(ssvuj::as<int>(params["rot"]));
-				currentRot += mDeg;
-				params["rot"] = currentRot;
-			}
-			inline void setRot(int mDeg)
-			{
-				if(params.count("rot") == 0) return;
-				params["rot"] = mDeg;
-			}
+			inline void rotate(int mDeg) { if(params.count("rot") > 0) params["rot"] = ssvuj::as<int>(params["rot"]) + mDeg; }
+			inline void setRot(int mDeg) { if(params.count("rot") > 0) params["rot"] = mDeg; }
 
 			inline void update()
 			{
-				if(params.count("rot") > 0) getSprite().setRotation(ssvuj::as<int>(params["rot"]));
-				else getSprite().setRotation(0);
-
-				Vec2f origin{sprite.getTextureRect().width / 2.f, sprite.getTextureRect().height / 2.f};
-				sprite.setOrigin(origin);
+				sprite.setOrigin(sprite.getTextureRect().width / 2.f, sprite.getTextureRect().height / 2.f);
+				sprite.setRotation(params.count("rot") > 0 ? ssvuj::as<int>(params["rot"]) : 0);
 				sprite.setPosition(x * 10.f, y * 10.f);
 			}
 
 			inline void initFromEntry(const OBLEDatabaseEntry& mEntry)
 			{
-				null = false;
-				type = mEntry.type;
-				params = mEntry.defaultParams;
+				null = false; type = mEntry.type; params = mEntry.defaultParams;
 				sprite.setTexture(*mEntry.texture);
 				sprite.setTextureRect(mEntry.intRect);
 			}

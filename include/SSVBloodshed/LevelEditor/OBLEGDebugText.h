@@ -25,15 +25,10 @@ namespace ob
 			inline void update(float mFT)
 			{
 				std::ostringstream s;
-				const auto& entities(editor.getManager().getEntities());
-				std::size_t componentCount{0};
-				for(const auto& e : entities) componentCount += e->getComponents().size();
 
 				s	<< "Z: "				<< editor.currentZ << "\t"
 					<< "FPS: "				<< static_cast<int>(editor.getGameWindow().getFPS()) << "\t"
-					<< "FT: "				<< mFT << "\n"
-					<< "Entities: "			<< entities.size() << "\n"
-					<< "Components: "		<< componentCount << std::endl;
+					<< "FT: "				<< mFT << std::endl;
 
 				debugText.setString(s.str());
 			}

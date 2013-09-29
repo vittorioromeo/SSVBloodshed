@@ -44,7 +44,7 @@ namespace ob
 			}
 
 		public:
-			OBCBoid(OBCPhys& mCPhys) : OBCActorNoDrawBase{mCPhys} { }
+			inline OBCBoid(OBCPhys& mCPhys) : OBCActorNoDrawBase{mCPhys} { }
 
 			inline void seek(const Vec2f& mTargetPos, float mForceMult = 0.02f, float mSlowRadius = 1500.f) noexcept
 			{
@@ -59,7 +59,8 @@ namespace ob
 				body.applyForce(getEvadeForce(mTarget.getPosF(), mTarget.getVel()) * mForceMult);
 			}
 
-			inline void setMaxVelocity(float mValue) noexcept { maxVelocity = mValue; }
+			inline void setMaxVelocity(float mValue) noexcept	{ maxVelocity = mValue; }
+			inline float getMaxVelocity() const noexcept		{ return maxVelocity; }
 	};
 }
 
