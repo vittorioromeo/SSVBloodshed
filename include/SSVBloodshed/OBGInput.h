@@ -6,6 +6,7 @@
 #define SSVOB_GAME_INPUT
 
 #include "SSVBloodshed/OBCommon.h"
+#include "SSVBloodshed/OBConfig.h"
 
 namespace ob
 {
@@ -25,11 +26,11 @@ namespace ob
 
 				auto& gs(game.getGameState());
 
-				ssvs::add2StateInput(gs, {{k::Z}}, iShoot);
-				ssvs::add2StateInput(gs, {{k::X}}, iSwitch, t::Once);
-				ssvs::add2StateInput(gs, {{k::Space}}, iBomb, t::Once);
-				ssvs::add3StateInput(gs, {{k::Left}}, {{k::Right}}, iX);
-				ssvs::add3StateInput(gs, {{k::Up}}, {{k::Down}}, iY);
+				ssvs::add2StateInput(gs, OBConfig::getTShoot(), iShoot);
+				ssvs::add2StateInput(gs, OBConfig::getTSwitch(), iSwitch, t::Once);
+				ssvs::add2StateInput(gs, OBConfig::getTBomb(), iBomb, t::Once);
+				ssvs::add3StateInput(gs, OBConfig::getTLeft(), OBConfig::getTRight(), iX);
+				ssvs::add3StateInput(gs, OBConfig::getTUp(), OBConfig::getTDown(), iY);
 
 				gs.addInput({{k::Escape}}, [this](float){ game.assets.musicPlayer.stop(); std::terminate(); });
 
@@ -42,17 +43,17 @@ namespace ob
 
 				gs.addInput({{k::R}}, [this](float){ game.newGame(); }, t::Once);
 
-				gs.addInput({{k::Num0}}, [this](float){ game.factory.createPit(game.getMousePosition()); }, t::Once);
-				gs.addInput({{k::Num1}}, [this](float){ game.factory.createWall(game.getMousePosition(), game.getAssets().wallSingle); }, t::Once);
-				gs.addInput({{k::Num2}}, [this](float){ game.factory.createERunner(game.getMousePosition(), false); });
-				gs.addInput({{k::Num3}}, [this](float){ game.factory.createECharger(game.getMousePosition(), false); }, t::Once);
-				gs.addInput({{k::Num4}}, [this](float){ game.factory.createEJuggernaut(game.getMousePosition(), false); }, t::Once);
-				gs.addInput({{k::Num5}}, [this](float){ game.factory.createEGiant(game.getMousePosition()); }, t::Once);
-				gs.addInput({{k::Num6}}, [this](float){ game.factory.createEBall(game.getMousePosition(), false); }, t::Once);
-				gs.addInput({{k::Num7}}, [this](float){ game.factory.createERunner(game.getMousePosition(), true); });
-				gs.addInput({{k::Num8}}, [this](float){ game.factory.createECharger(game.getMousePosition(), true); }, t::Once);
-				gs.addInput({{k::Num9}}, [this](float){ game.factory.createEJuggernaut(game.getMousePosition(), true); }, t::Once);
-				gs.addInput({{k::P}}, [this](float){ game.factory.createEBall(game.getMousePosition(), true); }, t::Once);
+				gs.addInput({{k::Num0}},	[this](float){ game.factory.createPit(game.getMousePosition()); }, t::Once);
+				gs.addInput({{k::Num1}},	[this](float){ game.factory.createWall(game.getMousePosition(), game.getAssets().wallSingle); }, t::Once);
+				gs.addInput({{k::Num2}},	[this](float){ game.factory.createERunner(game.getMousePosition(), false); });
+				gs.addInput({{k::Num3}},	[this](float){ game.factory.createECharger(game.getMousePosition(), false); }, t::Once);
+				gs.addInput({{k::Num4}},	[this](float){ game.factory.createEJuggernaut(game.getMousePosition(), false); }, t::Once);
+				gs.addInput({{k::Num5}},	[this](float){ game.factory.createEGiant(game.getMousePosition()); }, t::Once);
+				gs.addInput({{k::Num6}},	[this](float){ game.factory.createEBall(game.getMousePosition(), false); }, t::Once);
+				gs.addInput({{k::Num7}},	[this](float){ game.factory.createERunner(game.getMousePosition(), true); });
+				gs.addInput({{k::Num8}},	[this](float){ game.factory.createECharger(game.getMousePosition(), true); }, t::Once);
+				gs.addInput({{k::Num9}},	[this](float){ game.factory.createEJuggernaut(game.getMousePosition(), true); }, t::Once);
+				gs.addInput({{k::P}},		[this](float){ game.factory.createEBall(game.getMousePosition(), true); }, t::Once);
 			}
 
 			inline bool getIShoot() const noexcept	{ return iShoot; }

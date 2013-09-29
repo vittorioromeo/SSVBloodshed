@@ -13,11 +13,39 @@ namespace ob
 	{
 		private:
 			bool soundEnabled{true}, musicEnabled{true};
-			inline static OBConfig& getInstance() noexcept { static OBConfig instance; return instance; }
+			ssvs::Input::Trigger tLeft, tRight, tUp, tDown;	// Movement triggers
+			ssvs::Input::Trigger tShoot, tSwitch, tBomb;	// Action triggers
+
+			inline static OBConfig& get() noexcept { static OBConfig instance; return instance; }
+
+			inline OBConfig()
+			{
+				using k = sf::Keyboard::Key;
+				using b = sf::Mouse::Button;
+				using t = ssvs::Input::Trigger::Type;
+
+				tLeft = {{k::Left}};
+				tRight = {{k::Right}};
+				tUp = {{k::Up}};
+				tDown = {{k::Down}};
+
+				tShoot = {{k::Z}};
+				tSwitch = {{k::X}};
+				tBomb = {{k::Space}};
+			}
 
 		public:
-			inline static bool isSoundEnabled() noexcept { return getInstance().soundEnabled; }
-			inline static bool isMusicEnabled() noexcept { return getInstance().musicEnabled; }
+			inline static bool isSoundEnabled() noexcept					{ return get().soundEnabled; }
+			inline static bool isMusicEnabled() noexcept					{ return get().musicEnabled; }
+
+			inline static const ssvs::Input::Trigger& getTLeft() noexcept	{ return get().tLeft; }
+			inline static const ssvs::Input::Trigger& getTRight() noexcept	{ return get().tRight; }
+			inline static const ssvs::Input::Trigger& getTUp() noexcept		{ return get().tUp; }
+			inline static const ssvs::Input::Trigger& getTDown() noexcept	{ return get().tDown; }
+
+			inline static const ssvs::Input::Trigger& getTShoot() noexcept	{ return get().tShoot; }
+			inline static const ssvs::Input::Trigger& getTSwitch() noexcept	{ return get().tSwitch; }
+			inline static const ssvs::Input::Trigger& getTBomb() noexcept	{ return get().tBomb; }
 	};
 }
 
