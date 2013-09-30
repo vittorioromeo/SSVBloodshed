@@ -212,7 +212,7 @@ namespace ob
 	}
 	Entity& OBFactory::createETurretBulletPlasma(const Vec2i& mPos, Dir8 mDir)
 	{
-		return createETurretBase(mPos, mDir, assets.eTurret2, OBWpnTypes::createEPlasmaBulletGun(1, 5.f), 125.f, 1.f, 8);
+		return createETurretBase(mPos, mDir, assets.eTurret2, OBWpnTypes::createEPlasmaBulletGun(1, 5.f), 125.f, 2.f, 4);
 	}
 
 

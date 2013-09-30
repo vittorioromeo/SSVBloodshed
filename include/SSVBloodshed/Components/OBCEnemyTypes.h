@@ -147,6 +147,7 @@ namespace ob
 					body.setVelocity(cPhys.getVel() * 0.8f);
 					game.createPCharge(4, cPhys.getPosPixels(), 45);
 				}, 10, 2.5f);
+				tlCharge.append<ssvu::WaitUntil>([this]{ return raycastToPlayer(cPhys, cTargeter.getTarget()); });
 				tlCharge.append<ssvu::Do>([this]{ cFloorSmasher.setActive(true); lastDeg = cEnemy.getCurrentDeg(); body.applyForce(ssvs::getVecFromDegrees(lastDeg, 1250.f)); });
 				tlCharge.append<ssvu::Wait>(10.f);
 				tlCharge.append<ssvu::Do>([this]{ body.applyForce(ssvs::getVecFromDegrees(lastDeg, -150.f)); });
