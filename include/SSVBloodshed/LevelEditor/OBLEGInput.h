@@ -33,9 +33,11 @@ namespace ob
 				gs.addInput({{k::Escape}},	[this](float){ editor.assets.musicPlayer.stop(); std::terminate(); });
 				gs.addInput({{k::R}},		[this](float){ editor.newGame(); }, t::Once);
 				gs.addInput({{k::C}},		[this](float){ editor.level.saveToFile("./level.txt"); }, t::Once);
-				gs.addInput({{k::V}},		[this](float){ editor.level.loadFromFile("./level.txt", &editor.database); }, t::Once);
+				gs.addInput({{k::V}},		[this](float){ editor.level.loadFromFile("./level.txt", &editor.database); editor.refresh(); }, t::Once);
 				gs.addInput({{k::Z}},		[this](float){ editor.cycleZ(-1); }, t::Once);
 				gs.addInput({{k::X}},		[this](float){ editor.cycleZ(1); }, t::Once);
+				gs.addInput({{k::A}},		[this](float){ editor.cycleId(-1); }, t::Once);
+				gs.addInput({{k::S}},		[this](float){ editor.cycleId(1); }, t::Once);
 				gs.addInput({{k::LShift}},	[this](float){ editor.pick(); }, t::Once);
 				gs.addInput({{k::F1}},		[this](float){ editor.getGameWindow().setGameState(editor.game->getGameState()); }, t::Once);
 

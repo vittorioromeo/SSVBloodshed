@@ -117,6 +117,21 @@ namespace ob
 		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, mIntRect);
 		return getEntity(tpl);
 	}
+	Entity& OBFactory::createDoor(const Vec2i& mPos, const sf::IntRect& mIntRect, int mId)
+	{
+		auto tpl(createActorBase(mPos, {1000, 1000}, OBLayer::LWall, true));
+		auto& cIdReceiver(getEntity(tpl).createComponent<OBCIdReceiver>(mId));
+		getEntity(tpl).createComponent<OBCDoor>(getCPhys(tpl), getCDraw(tpl), cIdReceiver, false);
+		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, mIntRect);
+		return getEntity(tpl);
+	}
+	Entity& OBFactory::createPPlateSingle(const Vec2i& mPos, int mId)
+	{
+		auto tpl(createActorBase(mPos, {1000, 1000}, OBLayer::LFloor));
+		getEntity(tpl).createComponent<OBCPPlate>(getCPhys(tpl), getCDraw(tpl), mId, OBCPPlate::Type::Single);
+		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.pPlateOn);
+		return getEntity(tpl);
+	}
 	Entity& OBFactory::createPlayer(const Vec2i& mPos)
 	{
 		auto tpl(createKillableBase(mPos, {650, 650}, OBLayer::LPlayer, 10));

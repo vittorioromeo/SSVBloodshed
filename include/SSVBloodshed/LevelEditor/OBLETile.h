@@ -17,22 +17,38 @@ namespace ob
 			bool null{true};
 			int x, y, z;
 			OBLETType type;
-			sf::Sprite sprite;
 			std::map<std::string, ssvuj::Obj> params;
 
+			sf::Sprite sprite;
+			ssvu::Uptr<ssvs::BitmapText> idText{nullptr};
+
 		public:
-			inline void rotate(int mDeg) { if(params.count("rot") > 0) params["rot"] = ssvuj::as<int>(params["rot"]) + mDeg; }
-			inline void setRot(int mDeg) { if(params.count("rot") > 0) params["rot"] = mDeg; }
+			inline void setRot(int mDeg) { if(hasParam("rot")) params["rot"] = mDeg; }
+			inline void setId(OBAssets& mAssets, int mId)
+			{
+				if(hasParam("id"))
+				{
+					if(idText == nullptr) idText.reset(new ssvs::BitmapText(*mAssets.obStroked));
+					params["id"] = mId;
+				}
+			}
 
 			inline void update()
 			{
 				sprite.setOrigin(sprite.getTextureRect().width / 2.f, sprite.getTextureRect().height / 2.f);
 				sprite.setRotation(params.count("rot") > 0 ? ssvuj::as<int>(params["rot"]) : 0);
 				sprite.setPosition(x * 10.f, y * 10.f);
+
+				if(idText != nullptr)
+				{
+					idText->setPosition(x * 10.f - 4, y * 10.f - 5);
+					idText->setString(ssvu::toStr(getParam<int>("id")));
+				}
 			}
 
 			inline void initFromEntry(const OBLEDatabaseEntry& mEntry)
 			{
+				idText.reset(nullptr);
 				null = false; type = mEntry.type; params = mEntry.defaultParams;
 				sprite.setTexture(*mEntry.texture);
 				sprite.setTextureRect(mEntry.intRect);
@@ -45,6 +61,7 @@ namespace ob
 			inline void setType(OBLETType mType) noexcept					{ type = mType; null = false; }
 			inline void setParams(const decltype(params)& mParams)			{ params = mParams; }
 			template<typename T> inline T getParam(const std::string& mKey)	{ return ssvuj::as<T>(params[mKey]); }
+			inline bool hasParam(const std::string& mKey) const noexcept	{ return params.count(mKey) > 0; }
 
 			inline OBLETType getType() const noexcept					{ return type; }
 			inline int getX() const noexcept							{ return x; }
@@ -54,6 +71,7 @@ namespace ob
 			inline sf::Sprite& getSprite() noexcept						{ return sprite; }
 			inline const decltype(params)& getParams() const noexcept	{ return params; }
 			inline decltype(params)& getParams() noexcept				{ return params; }
+			inline ssvs::BitmapText* getIdText()						{ return idText.get(); }
 	};
 }
 

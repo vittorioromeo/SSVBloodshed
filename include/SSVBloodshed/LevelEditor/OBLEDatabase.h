@@ -55,6 +55,7 @@ namespace ob
 				add(OBLETType::LETBall,				a.txSmall,		a.eBall,				{},						[this](TLevel&, TTile&, const Vec2i& mP){ f->createEBall(mP, false, false); });
 				add(OBLETType::LETBallFlying,		a.txSmall,		a.eBallFlying,			{},						[this](TLevel&, TTile&, const Vec2i& mP){ f->createEBall(mP, true, false); });
 				add(OBLETType::LETEnforcer,			a.txMedium,		a.e5UAStand,			{{"rot", 0}},			[this](TLevel&, TTile&, const Vec2i& mP){ f->createEEnforcer(mP); });
+				add(OBLETType::LETPPlateSingle,		a.txSmall,		a.pPlateOn,				{{"id", 0}},			[this](TLevel&, TTile& mT, const Vec2i& mP){ f->createPPlateSingle(mP, mT.template getParam<int>("id")); });
 
 				add(OBLETType::LETWall,				a.txSmall,		a.wallSingle,			{},
 				[this](TLevel& mL, TTile& mT, const Vec2i& mP)
@@ -86,6 +87,23 @@ namespace ob
 
 					f->createFloor(mP, true);
 					f->createWallDestructible(mP, *a.wallDBitMask[mask]);
+				});
+
+				add(OBLETType::LETDoor,				a.txSmall,		a.doorSingle,			{{"id", 0}},
+				[this](TLevel& mL, TTile& mT, const Vec2i& mP)
+				{
+					constexpr int maxX{320 / 10}, maxY{240 / 10 - 2}; // TODO: get level size from mL
+					int x{mT.getX()}, y{mT.getY()};
+					auto tileIs = [&](int mX, int mY, OBLETType mType){ if(mX < 0 || mY < 0 || mX >= maxX || mY >= maxY) return false; return mL.getTile(mX, mY, 0).getType() == mType; };
+
+					int mask{0};
+					mask += tileIs(x, y - 1, OBLETType::LETDoor) << 0;
+					mask += tileIs(x + 1, y, OBLETType::LETDoor) << 1;
+					mask += tileIs(x, y + 1, OBLETType::LETDoor) << 2;
+					mask += tileIs(x - 1, y, OBLETType::LETDoor) << 3;
+
+					f->createFloor(mP, true);
+					f->createDoor(mP, *a.doorBitMask[mask], mT.template getParam<int>("id"));
 				});
 			}
 

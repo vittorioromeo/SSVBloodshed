@@ -41,7 +41,9 @@ namespace ob
 		GOrganic,
 		GFloor,
 		GFriendly,
-		GEnemy
+		GEnemy,
+		GIdReceiver,
+		GPPlate
 	};
 	enum OBLayer : int
 	{
@@ -79,7 +81,9 @@ namespace ob
 		LETBall,
 		LETBallFlying,
 		LETEnforcer,
-		LETWallD
+		LETWallD,
+		LETDoor,
+		LETPPlateSingle
 	};
 
 	// Pixel <-> coords utils

@@ -32,7 +32,7 @@ namespace ob
 			OBLEDatabase database;
 			OBLELevel level;
 			std::vector<OBLETile*> currentTiles;
-			int brushIdx{0}, brushSize{1}, currentX{0}, currentY{0}, currentZ{0}, currentRot{0};
+			int brushIdx{0}, brushSize{1}, currentX{0}, currentY{0}, currentZ{0}, currentRot{0}, currentId{0};
 			OBGame* game{nullptr};
 
 		public:
@@ -44,9 +44,13 @@ namespace ob
 				newGame();
 			}
 
-			inline void newGame() { level = {320 / 10, 240 / 10 - 2, database.get(OBLETType::LETFloor)}; }
+			inline void newGame()
+			{
+				level = {320 / 10, 240 / 10 - 2, database.get(OBLETType::LETFloor)};
+				refresh();
+			}
 
-
+			inline void refresh() { for(auto& t : level.getTiles()) if(t.second.hasParam("id")) t.second.setId(assets, t.second.getParam<int>("id")); }
 
 			inline void updateXY()
 			{
@@ -63,11 +67,12 @@ namespace ob
 							currentTiles.push_back(&level.getTile(currentX + iX, currentY + iY, currentZ));
 			}
 
-			inline void paint()	{ for(auto& t : currentTiles) { t->initFromEntry(getCurrentEntry()); t->setRot(currentRot); } }
+			inline void paint()	{ for(auto& t : currentTiles) { t->initFromEntry(getCurrentEntry()); t->setRot(currentRot); t->setId(assets, currentId); } }
 			inline void del()	{ for(auto& t : currentTiles) { level.del(*t); } }
 			inline void pick()	{ for(auto& t : currentTiles) { brushIdx = int(t->getType()); return; } }
 
 			inline void cycleRot(int mDeg)			{ currentRot = ssvu::wrapDegrees(currentRot + mDeg); }
+			inline void cycleId(int mDir)			{ currentId += mDir; }
 			inline void cycleBrush(int mDir)		{ brushIdx = ssvu::getSIMod(brushIdx + mDir, database.getSize()); }
 			inline void cycleZ(int mDir)			{ currentZ = -ssvu::getSIMod(-currentZ + mDir, 3); }
 			inline void cycleBrushSize(int mDir)	{ brushSize = ssvu::getClamped(brushSize + mDir, 1, 20); }

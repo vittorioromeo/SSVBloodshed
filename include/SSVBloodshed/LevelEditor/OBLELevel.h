@@ -43,6 +43,7 @@ namespace ob
 
 				ssvu::sortStable(toDraw, [](const std::pair<int, sf::Sprite>& mA, const std::pair<int, sf::Sprite>& mB){ return mA.first > mB.first; });
 				for(auto& td : toDraw) mRenderTarget.draw(td.second);
+				for(auto& t : tiles) if(t.second.getIdText() != nullptr) mRenderTarget.draw(*t.second.getIdText());
 			}
 
 			inline void saveToFile(const ssvu::FileSystem::Path& mPath)
