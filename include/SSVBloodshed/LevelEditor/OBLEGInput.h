@@ -38,6 +38,10 @@ namespace ob
 				gs.addInput({{k::X}},		[this](float){ editor.cycleZ(1); }, t::Once);
 				gs.addInput({{k::A}},		[this](float){ editor.cycleId(-1); }, t::Once);
 				gs.addInput({{k::S}},		[this](float){ editor.cycleId(1); }, t::Once);
+				gs.addInput({{k::Q}},		[this](float){ editor.cycleParam(-1); }, t::Once);
+				gs.addInput({{k::W}},		[this](float){ editor.cycleParam(1); }, t::Once);
+				gs.addInput({{k::N}},		[this](float){ editor.copyParams(); });
+				gs.addInput({{k::M}},		[this](float){ editor.pasteParams(); });
 				gs.addInput({{k::LShift}},	[this](float){ editor.pick(); }, t::Once);
 				gs.addInput({{k::F1}},		[this](float){ editor.getGameWindow().setGameState(editor.game->getGameState()); }, t::Once);
 
@@ -45,8 +49,9 @@ namespace ob
 				{
 					int dir{ssvu::getSign(mEvent.mouseWheel.delta)};
 
-					if(modShift) editor.cycleBrush(dir);
-					else if(modCtrl) editor.cycleBrushSize(dir);
+					if(modShift && modCtrl)	editor.cycleCurrentParam(dir);
+					else if(modShift && !modCtrl) editor.cycleBrush(dir);
+					else if(modCtrl && !modShift) editor.cycleBrushSize(dir);
 					else editor.cycleRot(dir * 45);
 				};
 

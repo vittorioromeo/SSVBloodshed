@@ -46,8 +46,8 @@ namespace ob
 			Entity& createPit(const Vec2i& mPos);
 			Entity& createWall(const Vec2i& mPos, const sf::IntRect& mIntRect);
 			Entity& createWallDestructible(const Vec2i& mPos, const sf::IntRect& mIntRect);
-			Entity& createDoor(const Vec2i& mPos, const sf::IntRect& mIntRect, int mId);
-			Entity& createPPlateSingle(const Vec2i& mPos, int mId);
+			Entity& createDoor(const Vec2i& mPos, const sf::IntRect& mIntRect, int mId, bool mOpen);
+			Entity& createPPlate(const Vec2i& mPos, int mId, PPlateType mType, OBIdAction mIdAction);
 			Entity& createPlayer(const Vec2i& mPos);
 
 			// Enemies

@@ -32,8 +32,10 @@ namespace ob
 			OBLEDatabase database;
 			OBLELevel level;
 			std::vector<OBLETile*> currentTiles;
-			int brushIdx{0}, brushSize{1}, currentX{0}, currentY{0}, currentZ{0}, currentRot{0}, currentId{0};
+			int brushIdx{0}, brushSize{1}, currentX{0}, currentY{0}, currentZ{0}, currentRot{0}, currentId{0}, currentParamIdx{0};
 			OBGame* game{nullptr};
+			ssvs::BitmapText paramsText{*assets.obStroked};
+			std::pair<OBLETType, std::map<std::string, ssvuj::Obj>> copiedParams{OBLETType::LETFloor, {}};
 
 		public:
 			inline OBLEEditor(ssvs::GameWindow& mGameWindow, OBAssets& mAssets) : gameWindow(mGameWindow), assets(mAssets), database{assets}
@@ -41,6 +43,8 @@ namespace ob
 				gameCamera.pan(-5, -5);
 				gameState.onUpdate += [this](float mFT){ update(mFT); };
 				gameState.onDraw += [this]{ draw(); };
+				paramsText.setTracking(-3);
+				paramsText.setPosition(35, 240 - 15);
 				newGame();
 			}
 
@@ -71,17 +75,58 @@ namespace ob
 			inline void del()	{ for(auto& t : currentTiles) { level.del(*t); } }
 			inline void pick()	{ for(auto& t : currentTiles) { brushIdx = int(t->getType()); return; } }
 
+			inline void copyParams()	{ for(auto& t : currentTiles) { copiedParams = std::make_pair(t->getType(), t->getParams()); return; } }
+			inline void pasteParams()	{ for(auto& t : currentTiles) { if(t->getType() == copiedParams.first) t->setParams(copiedParams.second); } }
+
 			inline void cycleRot(int mDeg)			{ currentRot = ssvu::wrapDegrees(currentRot + mDeg); }
 			inline void cycleId(int mDir)			{ currentId += mDir; }
+			inline void cycleParam(int mDir)		{ currentParamIdx += mDir; }
+			inline void cycleCurrentParam(int mDir)
+			{
+				for(auto& t : currentTiles)
+				{
+					int idx{0};
+					for(auto& p : t->getParams())
+					{
+						if(ssvu::getSIMod(currentParamIdx, (int)t->getParams().size()) == idx) p.second = ssvuj::as<int>(p.second) + mDir;
+						++idx;
+					}
+
+					return;
+				}
+			}
 			inline void cycleBrush(int mDir)		{ brushIdx = ssvu::getSIMod(brushIdx + mDir, database.getSize()); }
 			inline void cycleZ(int mDir)			{ currentZ = -ssvu::getSIMod(-currentZ + mDir, 3); }
 			inline void cycleBrushSize(int mDir)	{ brushSize = ssvu::getClamped(brushSize + mDir, 1, 20); }
+
+			inline void updateParamsText()
+			{
+				for(auto& t : currentTiles)
+				{
+					std::string str;
+
+					int idx{0};
+					for(const auto& p : t->getParams())
+					{
+						bool cp{ssvu::getSIMod(currentParamIdx, (int)t->getParams().size()) == idx};
+
+						if(cp) str += " >";
+						str += p.first + "(" + ssvu::getReplacedAll(ssvu::toStr(p.second), "\n", "") + ")";
+						if(cp) str += "< ";
+						++idx;
+					}
+
+					paramsText.setString(str);
+					break;
+				}
+			}
 
 			inline void update(float mFT)
 			{
 				level.update();
 
 				updateXY(); grabTiles();
+				updateParamsText();
 				if(input.painting) paint();
 				if(input.deleting) del();
 
@@ -108,10 +153,9 @@ namespace ob
 				{
 					sf::Sprite s{*getCurrentEntry().texture, getCurrentEntry().intRect};
 					Vec2f origin{s.getTextureRect().width / 2.f, s.getTextureRect().height / 2.f};
-					s.setOrigin(origin);
-					s.setPosition(5 + origin.x, 240 - 15 + origin.x);
+					s.setOrigin(origin); s.setPosition(5 + origin.x, 240 - 15 + origin.x);
 					if(getCurrentEntry().defaultParams.count("rot") > 0) s.setRotation(currentRot);
-					render(s);
+					render(s); render(paramsText);
 				}
 				overlayCamera.unapply();
 

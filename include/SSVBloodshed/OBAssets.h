@@ -49,7 +49,7 @@ namespace ob
 			sf::IntRect wallDCornerSW,	wallDCornerSE,	wallDCornerNW,	wallDCornerNE;		// Destructible wall corners
 			sf::IntRect wallDVEndS,		wallDVEndN,		wallDHEndW,		wallDHEndE;			// Destructible wall ends
 			sf::IntRect wallDTS,		wallDTN,		wallDTW,		wallDTE;			// Destructible wall T
-			sf::IntRect pPlateOn,		pPlateOff;											// Pressure plates
+			sf::IntRect pPlateSingle,	pPlateMulti;										// Pressure plates
 			sf::IntRect doorSingle,		doorCross,		doorV,			doorH;				// Door
 			sf::IntRect doorCornerSW,	doorCornerSE,	doorCornerNW,	doorCornerNE;		// Door corners
 			sf::IntRect doorVEndS,		doorVEndN,		doorHEndW,		doorHEndE;			// Door ends
@@ -118,7 +118,7 @@ namespace ob
 				T_TSSMALL(wallDCornerSW);	T_TSSMALL(wallDCornerSE);	T_TSSMALL(wallDCornerNW);	T_TSSMALL(wallDCornerNE);
 				T_TSSMALL(wallDVEndS);		T_TSSMALL(wallDVEndN);		T_TSSMALL(wallDHEndW);		T_TSSMALL(wallDHEndE);
 				T_TSSMALL(wallDTS);			T_TSSMALL(wallDTN);			T_TSSMALL(wallDTW);			T_TSSMALL(wallDTE);
-				T_TSSMALL(pPlateOn);		T_TSSMALL(pPlateOff);
+				T_TSSMALL(pPlateSingle);		T_TSSMALL(pPlateMulti);
 				T_TSSMALL(doorSingle);		T_TSSMALL(doorCross);		T_TSSMALL(doorV);			T_TSSMALL(doorH);
 				T_TSSMALL(doorCornerSW);	T_TSSMALL(doorCornerSE);	T_TSSMALL(doorCornerNW);	T_TSSMALL(doorCornerNE);
 				T_TSSMALL(doorVEndS);		T_TSSMALL(doorVEndN);		T_TSSMALL(doorHEndW);		T_TSSMALL(doorHEndE);

@@ -17,13 +17,15 @@
 
 namespace ob
 {
+
+
 	class OBCIdReceiver : public sses::Component
 	{
 		private:
 			int id;
 
 		public:
-			ssvu::Delegate<void()> onActivate;
+			ssvu::Delegate<void(OBIdAction)> onActivate;
 
 			inline OBCIdReceiver(int mId) : id{mId} { }
 			inline void init() override { getEntity().addGroup(OBGroup::GIdReceiver); }
@@ -37,16 +39,6 @@ namespace ob
 		private:
 			OBCIdReceiver& cIdReceiver;
 			bool open{false};
-
-		public:
-			OBCDoor(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCIdReceiver& mCIdReceiver, bool mOpen = false) : OBCActorBase{mCPhys, mCDraw}, cIdReceiver(mCIdReceiver), open{mOpen} { }
-
-			inline void init() override
-			{
-				cIdReceiver.onActivate += [this]{ setOpen(!open); };
-				setOpen(open);
-			}
-			inline void draw() override { cDraw[0].setColor(sf::Color(255, 255, 255, open ? 100 : 255)); }
 
 			inline void setOpen(bool mOpen) noexcept
 			{
@@ -62,28 +54,44 @@ namespace ob
 					cPhys.getBody().addGroup(OBGroup::GSolidAir);
 				}
 			}
+
+		public:
+			OBCDoor(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCIdReceiver& mCIdReceiver, bool mOpen = false) : OBCActorBase{mCPhys, mCDraw}, cIdReceiver(mCIdReceiver), open{mOpen} { }
+
+			inline void init() override
+			{
+				setOpen(open);
+				cIdReceiver.onActivate += [this](OBIdAction mIdAction)
+				{
+					switch(mIdAction)
+					{
+						case OBIdAction::Toggle: setOpen(!open); break;
+						case OBIdAction::Open: setOpen(true); break;
+						case OBIdAction::Close: setOpen(false); break;
+					}
+				};
+			}
+			inline void draw() override { cDraw[0].setColor(sf::Color(255, 255, 255, open ? 100 : 255)); }
 	};
 
 	class OBCPPlate : public OBCActorBase
 	{
-		public:
-			enum class Type{Single};
-
 		private:
 			int id;
-			Type type{Type::Single};
-			bool canBeUsed{true};
+			PPlateType type;
+			OBIdAction idAction;
+			bool triggered{false}, wasWeighted{false}, weighted{false};
 
 			inline void activate()
 			{
 				for(auto& e : getManager().getEntities(OBGroup::GIdReceiver))
 				{
 					auto& c(e->getComponent<OBCIdReceiver>());
-					if(c.getId() == id) c.onActivate();
+					if(c.getId() == id) c.onActivate(idAction);
 				}
 			}
 
-			inline void triggerNeighbors()
+			inline void triggerNeighbors(bool mTrigger)
 			{
 				auto gridQuery(cPhys.getWorld().getQuery<ssvsc::HashGrid, ssvsc::QueryType::Distance>(cPhys.getPosI(), 1000));
 
@@ -94,38 +102,50 @@ namespace ob
 					{
 						auto& cPPlate(getEntityFromBody(*body).getComponent<OBCPPlate>());
 						if(cPPlate.cPhys.getPosI().x == cPhys.getPosI().x || cPPlate.cPhys.getPosI().y == cPhys.getPosI().y)
-							if(cPPlate.getId() == id) cPPlate.trigger();
+							if(cPPlate.id == id && cPPlate.type == type)
+							{
+								if(mTrigger) cPPlate.trigger(); else cPPlate.unTrigger();
+							}
 					}
 				}
 			}
 
-			inline void trigger()
-			{
-				if(!canBeUsed) return;
-
-				if(type == Type::Single) canBeUsed = false;
-				triggerNeighbors();
-			}
+			inline void trigger()	{ if(!triggered) { triggered = true; triggerNeighbors(true); } }
+			inline void unTrigger()	{ if(triggered) { triggered = false; triggerNeighbors(false); } }
 
 		public:
-			OBCPPlate(OBCPhys& mCPhys, OBCDraw& mCDraw, int mId, Type mType) : OBCActorBase{mCPhys, mCDraw}, id{mId}, type{mType} { }
+			OBCPPlate(OBCPhys& mCPhys, OBCDraw& mCDraw, int mId, PPlateType mType, OBIdAction mIdAction) : OBCActorBase{mCPhys, mCDraw}, id{mId}, type{mType}, idAction{mIdAction} { }
 
 			inline void init() override
 			{
-				if(type == Type::Single) canBeUsed = true;
+				if(type == PPlateType::Single) triggered = false;
 
 				body.setResolve(false);
 				body.addGroup(OBGroup::GPPlate);
 				body.addGroupToCheck(OBGroup::GFriendly);
 				body.addGroupToCheck(OBGroup::GEnemy);
 
+				body.onPreUpdate += [this]{ weighted = false; };
 				body.onDetection += [this](DetectionInfo& mDI)
 				{
-					if(!canBeUsed) return;
-					if(mDI.body.hasGroup(OBGroup::GFriendly) || mDI.body.hasGroup(OBGroup::GEnemy)) { trigger(); activate(); }
+					if(mDI.body.hasGroup(OBGroup::GFriendly) || mDI.body.hasGroup(OBGroup::GEnemy)) weighted = true;
 				};
 			}
-			inline void draw() override { cDraw[0].setTextureRect(canBeUsed ? assets.pPlateOn : assets.pPlateOff); }
+			inline void update(float) override
+			{
+				if(!wasWeighted && weighted && !triggered)
+				{
+					if(type == PPlateType::Single || type == PPlateType::Multi) { trigger(); activate(); }
+				}
+
+				if(wasWeighted && !weighted)
+				{
+					if(type == PPlateType::Multi) unTrigger();
+				}
+
+				wasWeighted = weighted;
+			}
+			inline void draw() override { cDraw[0].setColor(triggered ? sf::Color(100, 100, 100, 255) : sf::Color::White); }
 
 			inline void setId(int mId) noexcept	{ id = mId; }
 			inline int getId() const noexcept	{ return id; }

@@ -22,13 +22,17 @@ namespace ob
 				debugText.setTracking(-3);
 			}
 
-			inline void update(float mFT)
+			inline void update(float)
 			{
-				std::ostringstream s;
+				std::string copiedParamsStr;
+				for(const auto& p : editor.copiedParams.second) copiedParamsStr += p.first + "(" + ssvu::getReplacedAll(ssvu::toStr(p.second), "\n", "") + ")" + "\n";
 
-				s	<< "Z: "				<< editor.currentZ << "\t"
-					<< "FPS: "				<< static_cast<int>(editor.getGameWindow().getFPS()) << "\t"
-					<< "FT: "				<< mFT << std::endl;
+				std::ostringstream s;
+				s	<< "Z: "				<< editor.currentZ << "\n"
+					<< "C/V: save/load" << "\t" << "Z/X: cycle Z" << "\n"
+					<< "A/S: cycle id" << "\t" << "Q/W: cycle param" << "\n"
+					<< "LShift: pick" << "\n" << "N/M: copy/paste params" << "\n\n"
+					<< copiedParamsStr << std::endl;
 
 				debugText.setString(s.str());
 			}

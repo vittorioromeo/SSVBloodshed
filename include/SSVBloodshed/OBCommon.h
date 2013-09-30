@@ -58,6 +58,8 @@ namespace ob
 		LFloor,
 		LBackground
 	};
+	enum class PPlateType{Single, Multi};
+	enum OBIdAction : int {Toggle, Open, Close};
 
 	// Level editor enums
 	enum OBLETType : int
@@ -83,7 +85,8 @@ namespace ob
 		LETEnforcer,
 		LETWallD,
 		LETDoor,
-		LETPPlateSingle
+		LETPPlateSingle,
+		LETPPlateMulti
 	};
 
 	// Pixel <-> coords utils

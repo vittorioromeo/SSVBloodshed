@@ -117,19 +117,20 @@ namespace ob
 		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, mIntRect);
 		return getEntity(tpl);
 	}
-	Entity& OBFactory::createDoor(const Vec2i& mPos, const sf::IntRect& mIntRect, int mId)
+	Entity& OBFactory::createDoor(const Vec2i& mPos, const sf::IntRect& mIntRect, int mId, bool mOpen)
 	{
 		auto tpl(createActorBase(mPos, {1000, 1000}, OBLayer::LWall, true));
 		auto& cIdReceiver(getEntity(tpl).createComponent<OBCIdReceiver>(mId));
-		getEntity(tpl).createComponent<OBCDoor>(getCPhys(tpl), getCDraw(tpl), cIdReceiver, false);
+		getEntity(tpl).createComponent<OBCDoor>(getCPhys(tpl), getCDraw(tpl), cIdReceiver, mOpen);
 		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, mIntRect);
 		return getEntity(tpl);
 	}
-	Entity& OBFactory::createPPlateSingle(const Vec2i& mPos, int mId)
+	Entity& OBFactory::createPPlate(const Vec2i& mPos, int mId, PPlateType mType, OBIdAction mIdAction)
 	{
 		auto tpl(createActorBase(mPos, {1000, 1000}, OBLayer::LFloor));
-		getEntity(tpl).createComponent<OBCPPlate>(getCPhys(tpl), getCDraw(tpl), mId, OBCPPlate::Type::Single);
-		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.pPlateOn);
+		getEntity(tpl).createComponent<OBCPPlate>(getCPhys(tpl), getCDraw(tpl), mId, mType, mIdAction);
+		const auto& intRect(mType == PPlateType::Single ? assets.pPlateSingle : assets.pPlateMulti);
+		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, intRect);
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createPlayer(const Vec2i& mPos)

@@ -326,9 +326,7 @@ namespace ob
 				{
 					if(ssvs::getDistEuclidean(cTargeter.getPosF(), cPhys.getPosF()) > 10000) cBoid.pursuit(cTargeter.getTarget()); else cBoid.evade(cTargeter.getTarget());
 
-					tlCannon.update(mFT);
-					tlShoot.update(mFT);
-					tlSummon.update(mFT);
+					tlCannon.update(mFT); tlShoot.update(mFT); tlSummon.update(mFT);
 					if(tckShoot.update(mFT))
 					{
 						if(ssvu::getRnd(0, 2) > 0) { tlShoot.reset(); tlShoot.start(); }
@@ -358,7 +356,7 @@ namespace ob
 	class OBCEEnforcer : public OBCEBase
 	{
 		private:
-			ssvu::Timeline tlCannon{true};
+			ssvs::Ticker tckShoot{100.f};
 			OBWpn wpn{game, OBGroup::GFriendly, OBWpnTypes::createPlasmaCannon()};
 
 		public:
@@ -368,20 +366,22 @@ namespace ob
 			{
 				cKillable.setParticleMult(3);
 				cEnemy.setMaxVelocity(115.f);
-
-				repeat(tlCannon, [this]{ shootCannon(0); }, -1, 100.f);
-
+				tckShoot.setLoop(false);
 			}
 			inline void update(float mFT) override
 			{
 				if(cTargeter.hasTarget())
 				{
+					tckShoot.update(mFT);
 					if(ssvs::getDistEuclidean(cTargeter.getPosF(), cPhys.getPosF()) > 10000) cBoid.pursuit(cTargeter.getTarget()); else cBoid.evade(cTargeter.getTarget());
-					tlCannon.update(mFT);
+					if(raycastToPlayer(cPhys, cTargeter.getTarget())) shootCannon(0);
 				}
 			}
 			inline void shootCannon(int mDeg)
 			{
+				if(tckShoot.isRunning()) return;
+				tckShoot.restart(100.f);
+
 				assets.playSound("Sounds/spark.wav");
 				Vec2i shootPos{body.getPosition() + Vec2i(ssvs::getVecFromDegrees<float>(cEnemy.getSnappedDeg() - 40) * 700.f)};
 				wpn.shoot(shootPos, cEnemy.getCurrentDeg() + mDeg);
