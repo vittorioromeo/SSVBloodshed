@@ -35,9 +35,7 @@ namespace ob
 			{
 				getEntity().addGroup(OBGroup::GEnemy);
 				body.setResolve(false);
-				body.addGroup(OBGroup::GSolidGround);
-				body.addGroup(OBGroup::GSolidAir);
-				body.addGroup(OBGroup::GEnemy);
+				body.addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir, OBGroup::GEnemy);
 
 				tckShoot.restart(shootDelay);
 				repeat(tlShoot, [this]{ shoot(); }, shootCount, pjDelay);

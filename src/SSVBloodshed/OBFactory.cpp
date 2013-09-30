@@ -16,6 +16,9 @@
 #include "SSVBloodshed/Components/OBCKillable.h"
 #include "SSVBloodshed/Components/OBCTurret.h"
 #include "SSVBloodshed/Components/OBCWpnController.h"
+#include "SSVBloodshed/Components/OBCIdReceiver.h"
+#include "SSVBloodshed/Components/OBCDoor.h"
+#include "SSVBloodshed/Components/OBCPPlate.h"
 
 using namespace std;
 using namespace sf;
@@ -100,18 +103,14 @@ namespace ob
 	Entity& OBFactory::createWall(const Vec2i& mPos, const sf::IntRect& mIntRect)
 	{
 		auto tpl(createActorBase(mPos, {1000, 1000}, OBLayer::LWall, true));
-		getCPhys(tpl).getBody().addGroup(OBGroup::GSolidGround);
-		getCPhys(tpl).getBody().addGroup(OBGroup::GSolidAir);
+		getCPhys(tpl).getBody().addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir);
 		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, mIntRect);
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createWallDestructible(const Vec2i& mPos, const sf::IntRect& mIntRect)
 	{
 		auto tpl(createKillableBase(mPos, {1000, 1000}, OBLayer::LWall, 20));
-		getCPhys(tpl).getBody().addGroup(OBGroup::GSolidGround);
-		getCPhys(tpl).getBody().addGroup(OBGroup::GSolidAir);
-		getCPhys(tpl).getBody().addGroup(OBGroup::GFriendly);
-		getCPhys(tpl).getBody().addGroup(OBGroup::GEnemy);
+		getCPhys(tpl).getBody().addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir, OBGroup::GFriendly, OBGroup::GEnemy);
 		getCPhys(tpl).getBody().setStatic(true);
 		getCKillable(tpl).setType(OBCKillable::Type::Wall);
 		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, mIntRect);
@@ -292,4 +291,3 @@ namespace ob
 		return getEntity(tpl);
 	}
 }
-

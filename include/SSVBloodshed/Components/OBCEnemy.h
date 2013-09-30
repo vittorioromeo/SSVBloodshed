@@ -30,10 +30,7 @@ namespace ob
 			inline void init() override
 			{
 				getEntity().addGroup(OBGroup::GEnemy);
-				body.addGroup(OBGroup::GSolidGround);
-				body.addGroup(OBGroup::GSolidAir);
-				body.addGroup(OBGroup::GEnemy);
-				body.addGroup(OBGroup::GOrganic);
+				body.addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir, OBGroup::GEnemy, OBGroup::GOrganic);
 				body.addGroupToCheck(OBGroup::GSolidGround);
 				body.setRestitutionX(1.f);
 				body.setRestitutionY(1.f);
