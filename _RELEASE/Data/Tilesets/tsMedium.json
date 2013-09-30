@@ -4,6 +4,7 @@
 	"labels": 
 	[
 		["e2UAStand"],
-		["e2AStand", "e2AShoot", "e2AGun"]
+		["e2AStand", "e2AShoot", "e2AGun"],
+		["e5UAStand"]
 	]
 }

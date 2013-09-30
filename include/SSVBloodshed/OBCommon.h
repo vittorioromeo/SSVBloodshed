@@ -45,11 +45,11 @@ namespace ob
 	};
 	enum OBLayer : int
 	{
-		LWall,
 		LPlayer,
 		LEnemy,
-		LPSTemp,
+		LWall,
 		LProjectile,
+		LPSTemp,
 		LPit,
 		LFloorGrate,
 		LPSPerm,
@@ -64,7 +64,9 @@ namespace ob
 		LETWall,
 		LETGrate,
 		LETPit,
-		LETTurret,
+		LETTurretSP,
+		LETTurretCP,
+		LETTurretBP,
 		LETSpawner,
 		LETPlayer,
 		LETRunner,
@@ -75,7 +77,9 @@ namespace ob
 		LETJuggernautArmed,
 		LETGiant,
 		LETBall,
-		LETBallFlying
+		LETBallFlying,
+		LETEnforcer,
+		LETWallD
 	};
 
 	// Pixel <-> coords utils

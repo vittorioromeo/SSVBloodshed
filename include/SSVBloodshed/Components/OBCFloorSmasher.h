@@ -19,7 +19,7 @@ namespace ob
 			bool active{false};
 
 		public:
-			OBCFloorSmasher(OBCPhys& mCPhys) : cPhys(mCPhys), body(cPhys.getBody()) { }
+			OBCFloorSmasher(OBCPhys& mCPhys, bool mActive = false) : cPhys(mCPhys), body(cPhys.getBody()) { setActive(mActive); }
 
 			inline void init() override
 			{

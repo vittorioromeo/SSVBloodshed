@@ -41,7 +41,9 @@ namespace ob
 				add(OBLETType::LETGrate,			a.txSmall,		a.floorGrate,			{},						[this](TLevel&, TTile&, const Vec2i& mP){ f->createFloor(mP, true); });
 				add(OBLETType::LETPit,				a.txSmall,		a.pit,					{},						[this](TLevel&, TTile&, const Vec2i& mP){ f->createPit(mP); });
 				add(OBLETType::LETSpawner,			a.txSmall,		a.pjCannonPlasma,		{{"spawns", {}}},		[this](TLevel&, TTile&, const Vec2i&){ /* TODO: */ });
-				add(OBLETType::LETTurret,			a.txSmall,		a.eTurret,				{{"rot", 0}},			[this](TLevel&, TTile& mT, const Vec2i& mP){ f->createETurret(mP, getDir8FromDeg(mT.template getParam<float>("rot"))); });
+				add(OBLETType::LETTurretSP,			a.txSmall,		a.eTurret0,				{{"rot", 0}},			[this](TLevel&, TTile& mT, const Vec2i& mP){ f->createETurretStarPlasma(mP, getDir8FromDeg(mT.template getParam<float>("rot"))); });
+				add(OBLETType::LETTurretCP,			a.txSmall,		a.eTurret1,				{{"rot", 0}},			[this](TLevel&, TTile& mT, const Vec2i& mP){ f->createETurretCannonPlasma(mP, getDir8FromDeg(mT.template getParam<float>("rot"))); });
+				add(OBLETType::LETTurretBP,			a.txSmall,		a.eTurret2,				{{"rot", 0}},			[this](TLevel&, TTile& mT, const Vec2i& mP){ f->createETurretBulletPlasma(mP, getDir8FromDeg(mT.template getParam<float>("rot"))); });
 				add(OBLETType::LETPlayer,			a.txSmall,		a.p1Stand,				{{"rot", 0}},			[this](TLevel&, TTile&, const Vec2i& mP){ f->createPlayer(mP); });
 				add(OBLETType::LETRunner,			a.txSmall,		a.e1UAStand,			{{"rot", 0}},			[this](TLevel&, TTile&, const Vec2i& mP){ f->createERunner(mP, false); });
 				add(OBLETType::LETRunnerArmed,		a.txSmall,		a.e1AStand,				{{"rot", 0}},			[this](TLevel&, TTile&, const Vec2i& mP){ f->createERunner(mP, true); });
@@ -52,6 +54,7 @@ namespace ob
 				add(OBLETType::LETGiant,			a.txGiant,		a.e4UAStand,			{{"rot", 0}},			[this](TLevel&, TTile&, const Vec2i& mP){ f->createEGiant(mP); });
 				add(OBLETType::LETBall,				a.txSmall,		a.eBall,				{},						[this](TLevel&, TTile&, const Vec2i& mP){ f->createEBall(mP, false, false); });
 				add(OBLETType::LETBallFlying,		a.txSmall,		a.eBallFlying,			{},						[this](TLevel&, TTile&, const Vec2i& mP){ f->createEBall(mP, true, false); });
+				add(OBLETType::LETEnforcer,			a.txMedium,		a.e5UAStand,			{{"rot", 0}},			[this](TLevel&, TTile&, const Vec2i& mP){ f->createEEnforcer(mP); });
 
 				add(OBLETType::LETWall,				a.txSmall,		a.wallSingle,			{},
 				[this](TLevel& mL, TTile& mT, const Vec2i& mP)
@@ -66,6 +69,23 @@ namespace ob
 					mask += tileIs(x, y + 1, OBLETType::LETWall) << 2;
 					mask += tileIs(x - 1, y, OBLETType::LETWall) << 3;
 					f->createWall(mP, *a.wallBitMask[mask]);
+				});
+
+				add(OBLETType::LETWallD,			a.txSmall,		a.wallDSingle,			{},
+				[this](TLevel& mL, TTile& mT, const Vec2i& mP)
+				{
+					constexpr int maxX{320 / 10}, maxY{240 / 10 - 2}; // TODO: get level size from mL
+					int x{mT.getX()}, y{mT.getY()};
+					auto tileIs = [&](int mX, int mY, OBLETType mType){ if(mX < 0 || mY < 0 || mX >= maxX || mY >= maxY) return false; return mL.getTile(mX, mY, 0).getType() == mType; };
+
+					int mask{0};
+					mask += tileIs(x, y - 1, OBLETType::LETWallD) << 0;
+					mask += tileIs(x + 1, y, OBLETType::LETWallD) << 1;
+					mask += tileIs(x, y + 1, OBLETType::LETWallD) << 2;
+					mask += tileIs(x - 1, y, OBLETType::LETWallD) << 3;
+
+					f->createFloor(mP, true);
+					f->createWallDestructible(mP, *a.wallDBitMask[mask]);
 				});
 			}
 

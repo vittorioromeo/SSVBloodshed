@@ -20,12 +20,16 @@ namespace ob
 		private:
 			OBCKillable& cKillable;
 			Dir8 direction;
-			ssvs::Ticker tckShoot{125.f};
+			ssvs::Ticker tckShoot{0.f};
 			ssvu::Timeline tlShoot{false};
-			OBWpn wpn{game, OBGroup::GFriendly, OBWpnTypes::createEPlasmaStarGun(0)};
+
+			OBWpn wpn;
+			float shootDelay, pjDelay;
+			int shootCount;
 
 		public:
-			OBCTurret(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCKillable& mCKillable, Dir8 mDir) : OBCActorBase{mCPhys, mCDraw}, cKillable(mCKillable), direction{mDir} { }
+			OBCTurret(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCKillable& mCKillable, Dir8 mDir, const OBWpnType& mWpn, float mShootDelay, float mPJDelay, int mShootCount)
+				: OBCActorBase{mCPhys, mCDraw}, cKillable(mCKillable), direction{mDir}, wpn{game, OBGroup::GFriendly, mWpn}, shootDelay{mShootDelay}, pjDelay{mPJDelay}, shootCount{mShootCount} { }
 
 			inline void init() override
 			{
@@ -35,7 +39,8 @@ namespace ob
 				body.addGroup(OBGroup::GSolidAir);
 				body.addGroup(OBGroup::GEnemy);
 
-				repeat(tlShoot, [this]{ shoot(); }, 3, 5.2f);
+				tckShoot.restart(shootDelay);
+				repeat(tlShoot, [this]{ shoot(); }, shootCount, pjDelay);
 			}
 			inline void update(float mFT) override
 			{

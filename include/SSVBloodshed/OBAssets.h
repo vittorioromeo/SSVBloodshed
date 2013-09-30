@@ -46,10 +46,17 @@ namespace ob
 			sf::IntRect pjBullet,		pjPlasma,		pjStar,			pjBulletPlasma;		// Projectiles
 			sf::IntRect pjStarPlasma,	pjCannonPlasma;										// Projectiles
 			sf::IntRect eBall,			eBallFlying;										// Ball enemy
-			sf::IntRect eTurret;															// Turret enemy
+			sf::IntRect eTurret0,		eTurret1,		eTurret2;							// Turret enemy
+			sf::IntRect wallDSingle;														// Destructible wall
+			sf::IntRect wallDV,			wallDH;												// Destructible wall vertical/horizontal
+			sf::IntRect wallDCornerSW,	wallDCornerSE,	wallDCornerNW,	wallDCornerNE;		// Destructible wall corners
+			sf::IntRect wallDVEndS,		wallDVEndN,		wallDHEndW,		wallDHEndE;			// Destructible wall ends
+			sf::IntRect wallDTS,		wallDTN,		wallDTW,		wallDTE;			// Destructible wall T
+			sf::IntRect wallDCross;															// Destructible wall cross
 
 			// Medium tileset (20x20)
 			sf::IntRect e2UAStand,		e2AStand,		e2AShoot,		e2AGun;				// Charger alien
+			sf::IntRect e5UAStand;															// Enforcer alien
 
 			// Big tileset (30x30)
 			sf::IntRect e3UAStand,		e3AStand,		e3AShoot,		e3AGun;				// Juggernaut alien
@@ -59,6 +66,7 @@ namespace ob
 
 			// Bitmasks
 			std::array<sf::IntRect*, 16> wallBitMask;
+			std::array<sf::IntRect*, 16> wallDBitMask;
 
 			inline OBAssets()
 			{
@@ -105,10 +113,17 @@ namespace ob
 				T_TSSMALL(pjBullet);		T_TSSMALL(pjPlasma);		T_TSSMALL(pjStar);			T_TSSMALL(pjBulletPlasma);
 				T_TSSMALL(pjStarPlasma);	T_TSSMALL(pjCannonPlasma);
 				T_TSSMALL(eBall);			T_TSSMALL(eBallFlying);
-				T_TSSMALL(eTurret);
+				T_TSSMALL(eTurret0);		T_TSSMALL(eTurret1);		T_TSSMALL(eTurret2);
+				T_TSSMALL(wallDSingle);
+				T_TSSMALL(wallDV);			T_TSSMALL(wallDH);
+				T_TSSMALL(wallDCornerSW);	T_TSSMALL(wallDCornerSE);	T_TSSMALL(wallDCornerNW);	T_TSSMALL(wallDCornerNE);
+				T_TSSMALL(wallDVEndS);		T_TSSMALL(wallDVEndN);		T_TSSMALL(wallDHEndW);		T_TSSMALL(wallDHEndE);
+				T_TSSMALL(wallDTS);			T_TSSMALL(wallDTN);			T_TSSMALL(wallDTW);			T_TSSMALL(wallDTE);
+				T_TSSMALL(wallDCross);
 
 				// Medium tileset (20x20)
 				T_TSMEDIUM(e2UAStand); 		T_TSMEDIUM(e2AStand);		T_TSMEDIUM(e2AShoot);		T_TSMEDIUM(e2AGun);
+				T_TSMEDIUM(e5UAStand);
 
 				// Big tileset (30x30)
 				T_TSBIG(e3UAStand);			T_TSBIG(e3AStand);			T_TSBIG(e3AShoot);			T_TSBIG(e3AGun);
@@ -128,6 +143,14 @@ namespace ob
 				wallBitMask[9] = &wallCornerSE;		wallBitMask[10] = &wallH;		wallBitMask[11] = &wallTS;
 				wallBitMask[12] = &wallCornerNE;	wallBitMask[13] = &wallTE;		wallBitMask[14] = &wallTN;
 				wallBitMask[15] = &wallCross;
+
+				// Destructible bitmask
+				wallDBitMask[0] = &wallDSingle;		wallDBitMask[1] = &wallDVEndS;	wallDBitMask[2] = &wallDHEndW;
+				wallDBitMask[3] = &wallDCornerSW;	wallDBitMask[4] = &wallDVEndN;	wallDBitMask[5] = &wallDV;
+				wallDBitMask[6] = &wallDCornerNW;	wallDBitMask[7] = &wallDTW;		wallDBitMask[8] = &wallDHEndE;
+				wallDBitMask[9] = &wallDCornerSE;	wallDBitMask[10] = &wallDH;		wallDBitMask[11] = &wallDTS;
+				wallDBitMask[12] = &wallDCornerNE;	wallDBitMask[13] = &wallDTE;	wallDBitMask[14] = &wallDTN;
+				wallDBitMask[15] = &wallDCross;
 			}
 
 			inline ssvs::AssetManager& operator()() noexcept { return assetManager; }

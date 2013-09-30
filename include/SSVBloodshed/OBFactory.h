@@ -18,6 +18,7 @@ namespace ob
 	class OBCProjectile;
 	class OBCKillable;
 	class OBParticleSystem;
+	class OBWpnType;
 
 	class OBFactory
 	{
@@ -34,6 +35,7 @@ namespace ob
 			std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCHealth&, OBCKillable&> createKillableBase(const Vec2i& mPos, const Vec2i& mSize, int mDrawPriority, int mHealth);
 			std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCHealth&, OBCKillable&, OBCEnemy&> createEnemyBase(const Vec2i& mPos, const Vec2i& mSize, int mHealth);
 			std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCProjectile&> createProjectileBase(const Vec2i& mPos, const Vec2i& mSize, float mSpeed, float mDegrees, const sf::IntRect& mIntRect);
+			Entity& createETurretBase(const Vec2i& mPos, Dir8 mDir, const sf::IntRect& mIntRect, const OBWpnType& mWpn, float mShootDelay, float mPJDelay, int mShootCount);
 
 		public:
 			OBFactory(OBAssets& mAssets, OBGame& mGame, sses::Manager& mManager) : assets(mAssets), game(mGame), manager(mManager) { }
@@ -43,6 +45,7 @@ namespace ob
 			Entity& createFloor(const Vec2i& mPos, bool mGrate = false);
 			Entity& createPit(const Vec2i& mPos);
 			Entity& createWall(const Vec2i& mPos, const sf::IntRect& mIntRect);
+			Entity& createWallDestructible(const Vec2i& mPos, const sf::IntRect& mIntRect);
 			Entity& createPlayer(const Vec2i& mPos);
 
 			// Enemies
@@ -51,7 +54,10 @@ namespace ob
 			Entity& createECharger(const Vec2i& mPos, bool mArmed = false);
 			Entity& createEJuggernaut(const Vec2i& mPos, bool mArmed = false);
 			Entity& createEGiant(const Vec2i& mPos);
-			Entity& createETurret(const Vec2i& mPos, Dir8 mDir);
+			Entity& createEEnforcer(const Vec2i& mPos);
+			Entity& createETurretStarPlasma(const Vec2i& mPos, Dir8 mDir);
+			Entity& createETurretCannonPlasma(const Vec2i& mPos, Dir8 mDir);
+			Entity& createETurretBulletPlasma(const Vec2i& mPos, Dir8 mDir);
 
 			// Projectiles
 			Entity& createPJBullet(const Vec2i& mPos, float mDegrees);

@@ -135,6 +135,6 @@ namespace ob
 	};
 }
 
-// TODO: fix bounces, destructible walls, doors, other turret types, decouple weapon sprite from enemy sprite, explosives, room transitions, enemy orientation, templatize ssvsc, organic group?,  etc
+// TODO: fix bounces, doors, decouple weapon sprite from enemy sprite, explosives, room transitions, enemy orientation, templatize ssvsc, organic group?,  etc
 
 #endif

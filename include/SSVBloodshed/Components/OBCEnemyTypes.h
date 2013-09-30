@@ -287,7 +287,6 @@ namespace ob
 	class OBCEGiant : public OBCEBase
 	{
 		private:
-			OBCFloorSmasher& cFloorSmasher;
 			ssvs::Ticker tckShoot{185.f};
 			ssvu::Timeline tlShoot{false}, tlSummon{false}, tlCannon{true};
 			OBWpn wpn{game, OBGroup::GFriendly, OBWpnTypes::createEPlasmaStarGun()};
@@ -295,16 +294,14 @@ namespace ob
 			float lastDeg{0};
 
 		public:
-			OBCEGiant(OBCEnemy& mCEnemy, OBCFloorSmasher& mCFloorSmasher) : OBCEBase{mCEnemy}, cFloorSmasher(mCFloorSmasher) { }
+			OBCEGiant(OBCEnemy& mCEnemy) : OBCEBase{mCEnemy} { }
 
 			inline void init() override
 			{
 				cKillable.setParticleMult(8);
 				cKillable.onDeath += [this]{ assets.playSound("Sounds/alienDeath.wav"); };
 
-				cEnemy.setMaxVelocity(125.f);
-
-				cFloorSmasher.setActive(true);
+				cEnemy.setMaxVelocity(100.f);
 
 				repeat(tlCannon, [this]{ shootCannon(0); }, -1, 100.f);
 
@@ -355,6 +352,40 @@ namespace ob
 				wpnC.shoot(shootPos2, cEnemy.getCurrentDeg() + mDeg);
 				game.createPMuzzle(35, toPixels(shootPos1));
 				game.createPMuzzle(35, toPixels(shootPos2));
+			}
+	};
+
+	class OBCEEnforcer : public OBCEBase
+	{
+		private:
+			ssvu::Timeline tlCannon{true};
+			OBWpn wpn{game, OBGroup::GFriendly, OBWpnTypes::createPlasmaCannon()};
+
+		public:
+			OBCEEnforcer(OBCEnemy& mCEnemy) : OBCEBase{mCEnemy} { }
+
+			inline void init() override
+			{
+				cKillable.setParticleMult(3);
+				cEnemy.setMaxVelocity(115.f);
+
+				repeat(tlCannon, [this]{ shootCannon(0); }, -1, 100.f);
+
+			}
+			inline void update(float mFT) override
+			{
+				if(cTargeter.hasTarget())
+				{
+					if(ssvs::getDistEuclidean(cTargeter.getPosF(), cPhys.getPosF()) > 10000) cBoid.pursuit(cTargeter.getTarget()); else cBoid.evade(cTargeter.getTarget());
+					tlCannon.update(mFT);
+				}
+			}
+			inline void shootCannon(int mDeg)
+			{
+				assets.playSound("Sounds/spark.wav");
+				Vec2i shootPos{body.getPosition() + Vec2i(ssvs::getVecFromDegrees<float>(cEnemy.getSnappedDeg() - 40) * 700.f)};
+				wpn.shoot(shootPos, cEnemy.getCurrentDeg() + mDeg);
+				game.createPMuzzle(35, toPixels(shootPos));
 			}
 	};
 }
