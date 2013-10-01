@@ -25,7 +25,7 @@ namespace ob
 		Vec2f direction(mTarget.getPosI() - startPos);
 		if(direction.x == 0 && direction.y == 0) return false;
 
-		auto gridQuery(mSeeker.getWorld().getQuery<ssvsc::HashGrid, ssvsc::QueryType::RayCast>(startPos, direction));
+		auto gridQuery(mSeeker.getWorld().getQuery<ssvsc::QueryType::RayCast>(startPos, direction));
 
 		Body* body;
 		while((body = gridQuery.next()) != nullptr)

@@ -23,14 +23,15 @@ namespace ob
 	// Typedefs
 	template<typename T> using Vec2 = ssvs::Vec2<T>;
 	template<typename T, typename TDeleter = std::default_delete<T>> using Uptr = ssvs::Uptr<T, TDeleter>;
-	using Entity = sses::Entity;
 	using Vec2i = ssvs::Vec2i;
 	using Vec2f = ssvs::Vec2f;
 	using Vec2u = ssvs::Vec2u;
-	using World = ssvsc::World;
-	using Body = ssvsc::Body;
-	using DetectionInfo = ssvsc::DetectionInfo;
-	using ResolutionInfo = ssvsc::ResolutionInfo;
+	using Entity = sses::Entity;
+	using World = ssvsc::World<ssvsc::HashGrid, ssvsc::Impulse>;
+	using Body = World::BodyType;
+	using Sensor = World::SensorType;
+	using DetectionInfo = World::DetectionInfoType;
+	using ResolutionInfo = World::ResolutionInfoType;
 
 	// Game enums
 	enum OBGroup : unsigned int

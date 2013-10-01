@@ -31,7 +31,7 @@ namespace ob
 			ssvs::GameState gameState;
 			ssvs::Camera gameCamera{gameWindow, 2.f}, overlayCamera{gameWindow, 2.f};
 			OBFactory factory{assets, *this, manager};
-			World world{ssvsc::createResolver<ssvsc::Impulse>(), ssvsc::createSpatial<ssvsc::HashGrid>(1000, 1000, 1000, 500)};
+			World world{1000, 1000, 1000, 500};
 			sses::Manager manager;
 
 			OBGInput<OBGame> input{*this};
@@ -135,6 +135,7 @@ namespace ob
 	};
 }
 
+// TODO: URGENT: BUG: FIX: SSVSCollision!
 // TODO: fix bounces, decouple weapon sprite from enemy sprite, explosives, room transitions, enemy orientation, templatize ssvsc, organic group?, do not pierce breakable wall etc
 
 #endif
