@@ -94,6 +94,14 @@ namespace ob
 					f->createFloor(mP, true);
 					f->createDoor(mP, *a.doorBitMask[mask], getP<int>(mT, "id"), bool(getP<int>(mT, "open")));
 				});
+
+				add(OBLETType::LETDoorG,			a.txSmall,		a.doorGSingle,			{{"open", 0}},
+				[this](TLevel& mL, TTile& mT, const Vec2i& mP)
+				{
+					int mask{getWallMask(mL, OBLETType::LETDoorG, mT.getX(), mT.getY())};
+					f->createFloor(mP, true);
+					f->createDoorG(mP, *a.doorGBitMask[mask], bool(getP<int>(mT, "open")));
+				});
 			}
 
 			template<typename T> inline void add(OBLETType mType, sf::Texture* mTexture, const sf::IntRect& mIntRect, const std::map<std::string, ssvuj::Obj>& mDefaultParams, T mSpawn)

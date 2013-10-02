@@ -6,6 +6,7 @@
 #define SSVOB_COMMON
 
 #include <array>
+#include <unordered_map>
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
@@ -87,7 +88,8 @@ namespace ob
 		LETWallD,
 		LETDoor,
 		LETPPlateSingle,
-		LETPPlateMulti
+		LETPPlateMulti,
+		LETDoorG
 	};
 
 	// Pixel <-> coords utils

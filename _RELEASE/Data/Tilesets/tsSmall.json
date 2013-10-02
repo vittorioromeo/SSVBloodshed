@@ -3,16 +3,20 @@
 
 	"labels": 
 	[
-		["p1Stand",		"p1Shoot",			"p1Gun",		"wallVEndN",		"wallCornerNW",		"wallTN",			"wallCornerNE",		"pjBullet"],
-		["p2Stand",		"p2Shoot",			"p2Gun",		"wallV",			"wallTW",			"wallCross",		"wallTE",			"pjPlasma"],
-		["p3Stand",		"p3Shoot",			"p3Gun",		"wallVEndS",		"wallCornerSW",		"wallTS",			"wallCornerSE",		"pjStar"],
-		["p4Stand",		"p4Shoot",			"p4Gun",		"wallSingle",		"wallHEndW",		"wallH",			"wallHEndE",		"pjBulletPlasma"],
-		["e1UAStand",	"null1",			"null2",		"floor",			"floorGrate",		"pit",	 			"floorAlt2",		"pjStarPlasma"],
-		["e1AStand",	"e1AShoot",			"e1AGun",		"floorAlt1",		"floorGrateAlt1",	"floorGrateAlt2",	"null",				"pjCannonPlasma"],
-		["eBall",		"eBallFlying",		"eTurret0", 	"eTurret1",			"eTurret2",			"pPlateSingle",		"pPlateMulti"],
-		["wallDVEndN",	"wallDCornerNW",	"wallDTN",		"wallDCornerNE",	"doorVEndN",		"doorCornerNW",		"doorTN",			"doorCornerNE"],
-		["wallDV",		"wallDTW",			"wallDCross",	"wallDTE",			"doorV",			"doorTW",			"doorCross",		"doorTE"],
-		["wallDVEndS",	"wallDCornerSW",	"wallDTS",		"wallDCornerSE",	"doorVEndS",		"doorCornerSW",		"doorTS",			"doorCornerSE"],
-		["wallDSingle",	"wallDHEndW",		"wallDH",		"wallDHEndE", 		"doorSingle",		"doorHEndW",		"doorH",			"doorHEndE"]
+		["p1Stand",			"p1Shoot",			"p1Gun",			"wallVEndN",		"wallCornerNW",		"wallTN",			"wallCornerNE",		"pjBullet"],
+		["p2Stand",			"p2Shoot",			"p2Gun",			"wallV",			"wallTW",			"wallCross",		"wallTE",			"pjPlasma"],
+		["p3Stand",			"p3Shoot",			"p3Gun",			"wallVEndS",		"wallCornerSW",		"wallTS",			"wallCornerSE",		"pjStar"],
+		["p4Stand",			"p4Shoot",			"p4Gun",			"wallSingle",		"wallHEndW",		"wallH",			"wallHEndE",		"pjBulletPlasma"],
+		["e1UAStand",		"null1",			"null2",			"floor",			"floorGrate",		"pit",	 			"floorAlt2",		"pjStarPlasma"],
+		["e1AStand",		"e1AShoot",			"e1AGun",			"floorAlt1",		"floorGrateAlt1",	"floorGrateAlt2",	"null",				"pjCannonPlasma"],
+		["eBall",			"eBallFlying",		"eTurret0", 		"eTurret1",			"eTurret2",			"pPlateSingle",		"pPlateMulti"],
+		["wallDVEndN",		"wallDCornerNW",	"wallDTN",			"wallDCornerNE",	"doorVEndN",		"doorCornerNW",		"doorTN",			"doorCornerNE"],
+		["wallDV",			"wallDTW",			"wallDCross",		"wallDTE",			"doorV",			"doorTW",			"doorCross",		"doorTE"],
+		["wallDVEndS",		"wallDCornerSW",	"wallDTS",			"wallDCornerSE",	"doorVEndS",		"doorCornerSW",		"doorTS",			"doorCornerSE"],
+		["wallDSingle",		"wallDHEndW",		"wallDH",			"wallDHEndE", 		"doorSingle",		"doorHEndW",		"doorH",			"doorHEndE"],
+		["doorGVEndN",		"doorGCornerNW",	"doorGTN",			"doorGCornerNE"],
+		["doorGV",			"doorGTW",			"doorGCross",		"doorGTE"],
+		["doorGVEndS",		"doorGCornerSW",	"doorGTS",			"doorGCornerSE"],
+		["doorGSingle",		"doorGHEndW",		"doorGH",			"doorGHEndE"]
 	]
 } 

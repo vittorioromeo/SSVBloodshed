@@ -11,8 +11,9 @@
 #include "SSVBloodshed/LevelEditor/OBLEGInput.h"
 #include "SSVBloodshed/LevelEditor/OBLETile.h"
 #include "SSVBloodshed/LevelEditor/OBLELevel.h"
+#include "SSVBloodshed/LevelEditor/OBLESector.h"
 #include "SSVBloodshed/LevelEditor/OBLEDatabase.h"
-
+#include "SSVBloodshed/LevelEditor/OBLEJson.h"
 #include "SSVBloodshed/OBGame.h"
 
 namespace ob

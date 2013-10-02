@@ -19,6 +19,16 @@ namespace ob
 {
 	class OBCPlayer : public OBCActorBase
 	{
+		public:
+			struct Data
+			{
+				Vec2i pos;
+				int currentWpn;
+				float health;
+				Dir8 dir;
+				// Ammo and other stuff
+			};
+
 		private:
 			OBCKillable& cKillable;
 			OBCWielder& cWielder;
@@ -29,13 +39,15 @@ namespace ob
 			int currentWpn{0};
 			std::vector<OBWpnType> weaponTypes{OBWpnTypes::createMachineGun(), OBWpnTypes::createPlasmaBolter(), OBWpnTypes::createPlasmaCannon()};
 
+			inline void cycleWeapons(int mDir) noexcept { currentWpn += mDir; cWpnController.setWpn(weaponTypes[currentWpn % weaponTypes.size()]); }
+
 		public:
 			OBCPlayer(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCKillable& mCKillable, OBCWielder& mCWielder, OBCWpnController& mCWpnController)
 				: OBCActorBase{mCPhys, mCDraw}, cKillable(mCKillable), cWielder(mCWielder), cDir8(mCWielder.getCDir8()), cWpnController(mCWpnController) { }
 
 			inline void init() override
 			{
-				cWpnController.setWpn(OBWpnTypes::createMachineGun());
+				cycleWeapons(0);
 
 				cKillable.onDeath += [this]
 				{
@@ -59,7 +71,7 @@ namespace ob
 
 				if(game.getInput().getIBomb()) bomb();
 
-				if(game.getInput().getISwitch()) cWpnController.setWpn(weaponTypes[++currentWpn % weaponTypes.size()]);
+				if(game.getInput().getISwitch()) cycleWeapons(1);
 			}
 
 			inline void update(float) override
@@ -70,6 +82,13 @@ namespace ob
 					auto& cHealth(getEntity().getComponent<OBCHealth>());
 					game.testhp.setValue(cHealth.getHealth());
 					game.testhp.setMaxValue(cHealth.getMaxHealth());
+				}
+
+				{
+					if(cPhys.getPosI().x < toCoords(0))		game.changeLevel(*this, -1, 0);
+					if(cPhys.getPosI().x > toCoords(320))	game.changeLevel(*this, 1, 0);
+					if(cPhys.getPosI().y < toCoords(0))		game.changeLevel(*this, 0, -1);
+					if(cPhys.getPosI().y > toCoords(240))	game.changeLevel(*this, 0, 1);
 				}
 
 				if(cWielder.isShooting())
@@ -86,6 +105,23 @@ namespace ob
 			{
 				for(int k{0}; k < 5; ++k)
 					for(int i{0}; i < 360; i += 360 / 16) getFactory().createPJTestBomb(body.getPosition(), cDir8.getDeg() + (i * (360 / 16)), 2.f - k * 0.2f + i * 0.004f, 4.f + k * 0.3f - i * 0.004f);
+			}
+
+			inline void initFromData(const Data& mData) noexcept
+			{
+				cPhys.setPos(mData.pos);
+				currentWpn = mData.currentWpn; cycleWeapons(0);
+				cKillable.getCHealth().setHealth(mData.health);
+				cDir8.setDir(mData.dir);
+			}
+			inline Data getData() const noexcept
+			{
+				Data result;
+				result.pos = cPhys.getPosI();
+				result.currentWpn = currentWpn;
+				result.health = cKillable.getCHealth().getHealth();
+				result.dir = cDir8;
+				return result;
 			}
 	};
 }

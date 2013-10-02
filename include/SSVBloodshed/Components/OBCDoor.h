@@ -12,36 +12,57 @@
 
 namespace ob
 {
-	class OBCDoor : public OBCActorBase
+	class OBCDoorBase : public OBCActorBase
 	{
-		private:
-			OBCIdReceiver& cIdReceiver;
-			bool open{false};
+		protected:
+			bool openStatus{false};
 
 			inline void setOpen(bool mOpen) noexcept
 			{
-				open = mOpen;
-				if(open)	cPhys.getBody().delGroups(OBGroup::GSolidGround, OBGroup::GSolidAir);
-				else		cPhys.getBody().addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir);
+				openStatus = mOpen;
+				if(openStatus)	cPhys.getBody().delGroups(OBGroup::GSolidGround, OBGroup::GSolidAir);
+				else			cPhys.getBody().addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir);
 			}
 
 		public:
-			OBCDoor(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCIdReceiver& mCIdReceiver, bool mOpen = false) : OBCActorBase{mCPhys, mCDraw}, cIdReceiver(mCIdReceiver), open{mOpen} { }
+			OBCDoorBase(OBCPhys& mCPhys, OBCDraw& mCDraw, bool mOpen = false) : OBCActorBase{mCPhys, mCDraw}, openStatus{mOpen} { }
 
-			inline void init() override
+			inline void init() override { setOpen(openStatus); }
+			inline void draw() override { cDraw[0].setColor(sf::Color(255, 255, 255, openStatus ? 100 : 255)); }
+
+			inline void toggle() noexcept	{ setOpen(!openStatus); }
+			inline void open() noexcept		{ setOpen(true); }
+			inline void close() noexcept	{ setOpen(false); }
+	};
+
+	class OBCDoor : public OBCDoorBase
+	{
+		private:
+			OBCIdReceiver& cIdReceiver;
+
+		public:
+			OBCDoor(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCIdReceiver& mCIdReceiver, bool mOpen = false) : OBCDoorBase{mCPhys, mCDraw, mOpen}, cIdReceiver(mCIdReceiver)
 			{
-				setOpen(open);
 				cIdReceiver.onActivate += [this](OBIdAction mIdAction)
 				{
 					switch(mIdAction)
 					{
-						case OBIdAction::Toggle: setOpen(!open); break;
-						case OBIdAction::Open: setOpen(true); break;
-						case OBIdAction::Close: setOpen(false); break;
+						case OBIdAction::Toggle: toggle(); break;
+						case OBIdAction::Open: open(); break;
+						case OBIdAction::Close: close(); break;
 					}
 				};
 			}
-			inline void draw() override { cDraw[0].setColor(sf::Color(255, 255, 255, open ? 100 : 255)); }
+	};
+
+	class OBCDoorG : public OBCDoorBase
+	{
+		private:
+			bool triggered{false};
+
+		public:
+			OBCDoorG(OBCPhys& mCPhys, OBCDraw& mCDraw, bool mOpen = false) : OBCDoorBase{mCPhys, mCDraw, mOpen} { }
+			inline void update(float) override { if(!triggered && getManager().getEntityCount(OBGroup::GEnemy) == 0) { toggle(); triggered = true; } }
 	};
 }
 

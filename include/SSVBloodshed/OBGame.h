@@ -44,6 +44,12 @@ namespace ob
 
 			OBLEEditor* editor{nullptr};
 
+			OBLEDatabase database{assets, this};
+			OBLESector sector; OBLELevel* currentLevel{nullptr};
+			int currentLevelX{0}, currentLevelY{0};
+
+			ssvu::Delegate<void()> onPostUpdate;
+
 		public:
 			OBBarCounter testhp{2, 6, 13};
 
@@ -59,24 +65,59 @@ namespace ob
 				testAmmoTxt.setColor(sf::Color{136, 199, 234, 255}); testAmmoTxt.setTracking(-3);
 				testAmmoTxt.setPosition(86, (240 - ssvs::getGlobalHeight(hudSprite) / 2.f) - 3.f);
 
+				loadSector("./level.txt");
 				newGame();
 			}
 
-			inline void newGame()
+			inline void newGame() { currentLevelX = currentLevelY = 0; loadLevel(); }
+
+			inline void loadSector(const ssvu::FileSystem::Path& mPath)
 			{
-				// Cleanup managers
+				try { sector = ssvuj::as<OBLESector>(ssvuj::readFromFile(mPath)); }
+				catch(...) { ssvu::lo("Fatal error") << "Failed to load sector" << std::endl; }
+			}
+			inline void loadLevel()
+			{
+				auto getTilePos = [](int mX, int mY) -> Vec2i { return toCoords(Vec2i{mX * 10 + 5, mY * 10 + 5}); };
 				manager.clear(); world.clear(); particles.clear(factory);
 
-				// Debug test level
 				try
 				{
-					auto getTilePos = [](int mX, int mY) -> Vec2i { return toCoords(Vec2i{mX * 10 + 5, mY * 10 + 5}); };
-					OBLEDatabase database{assets, this};
-					OBLESector sector{ssvuj::as<OBLESector>(ssvuj::readFromFile("./level.txt"))};
-					auto& level(sector.getLevel(0, 0));
-					for(auto& p : level.getTiles()) database.spawn(level, p.second, getTilePos(p.second.getX(), p.second.getY()));
+					currentLevel = &sector.getLevel(currentLevelX, currentLevelY);
+					for(auto& p : currentLevel->getTiles()) database.spawn(*currentLevel, p.second, getTilePos(p.second.getX(), p.second.getY()));
 				}
-				catch(...) { ssvu::lo << "Failed to load level" << std::endl; }
+				catch(...) { ssvu::lo("Fatal error") << "Failed to load level" << std::endl; }
+			}
+
+			template<typename TPlayer> inline void changeLevel(const TPlayer& mPlayer, int mDirX, int mDirY)
+			{
+				auto playerData(mPlayer.getData());
+
+				int nextLevelX = currentLevelX + mDirX;
+				int nextLevelY = currentLevelY + mDirY;
+
+				if(mDirX == 1) playerData.pos.x = toCoords(0) + 1000;
+				else if(mDirX == -1) playerData.pos.x = toCoords(320) - 1000;
+
+				if(mDirY == 1) playerData.pos.y = toCoords(0) + 1000;
+				else if(mDirY == -1) playerData.pos.y = toCoords(240) - 1000;
+
+				onPostUpdate += [this, nextLevelX, nextLevelY, playerData]
+				{
+					if(currentLevelX != nextLevelX || currentLevelY != nextLevelY)
+					{
+						if(sector.isValid(nextLevelX, nextLevelY))
+						{
+							currentLevelX = nextLevelX;
+							currentLevelY = nextLevelY;
+							loadLevel();
+
+							for(auto& e : manager.getEntities(OBGroup::GFriendly)) e->destroy();
+							for(auto& e : manager.getEntities(OBGroup::GEnemy)) e->destroy();
+							factory.createPlayer(playerData.pos).template getComponent<TPlayer>().initFromData(playerData);
+						}
+					}
+				};
 			}
 
 			inline void update(float mFT)
@@ -85,6 +126,9 @@ namespace ob
 				world.update(mFT);
 				debugText.update(mFT);
 				gameCamera.update<int>(mFT);
+
+				onPostUpdate();
+				onPostUpdate.clear();
 
 				testAmmoTxt.setString(ssvu::toStr(testhp.getValue()));
 			}
@@ -108,14 +152,18 @@ namespace ob
 
 			inline void setEditor(OBLEEditor& mEditor)				{ editor = &mEditor; }
 
-			inline Vec2i getMousePosition() const					{ return toCoords(gameCamera.getMousePosition()); }
-			inline ssvs::GameWindow& getGameWindow() noexcept		{ return gameWindow; }
-			inline OBAssets& getAssets() noexcept					{ return assets; }
-			inline OBFactory& getFactory() noexcept					{ return factory; }
-			inline ssvs::GameState& getGameState() noexcept			{ return gameState; }
-			inline World& getWorld() noexcept						{ return world; }
-			inline sses::Manager& getManager() noexcept				{ return manager; }
-			inline const decltype(input)& getInput() const noexcept	{ return input; }
+			inline Vec2i getMousePosition() const						{ return toCoords(gameCamera.getMousePosition()); }
+			inline ssvs::GameWindow& getGameWindow() noexcept			{ return gameWindow; }
+			inline OBAssets& getAssets() noexcept						{ return assets; }
+			inline OBFactory& getFactory() noexcept						{ return factory; }
+			inline ssvs::GameState& getGameState() noexcept				{ return gameState; }
+			inline World& getWorld() noexcept							{ return world; }
+			inline sses::Manager& getManager() noexcept					{ return manager; }
+			inline const decltype(input)& getInput() const noexcept		{ return input; }
+			inline const OBLESector& getSector() const noexcept			{ return sector; }
+			inline const OBLELevel* getCurrentLevel() const noexcept	{ return currentLevel; }
+			inline int getCurrentLevelX() const noexcept				{ return currentLevelX; }
+			inline int getCurrentLevelY() const noexcept				{ return currentLevelY; }
 
 			inline void createPBlood(unsigned int mCount, const Vec2f& mPos, float mMult = 1.f)
 			{
@@ -133,7 +181,7 @@ namespace ob
 	};
 }
 
-// TODO: bullet sensor pressure plates, SSVSC refactoring/optimization
+// TODO: bullet sensor pressure plates, SSVSC refactoring/optimization, trapdoors, red doors
 // TODO: fix bounces, decouple weapon sprite from enemy sprite, explosives, room transitions, enemy orientation, templatize ssvsc, organic group?, do not pierce breakable wall etc
 
 #endif
