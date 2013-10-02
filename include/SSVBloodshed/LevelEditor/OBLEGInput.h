@@ -31,9 +31,9 @@ namespace ob
 				ssvs::add2StateInput(gs, {{k::LShift}}, modShift);
 
 				gs.addInput({{k::Escape}},	[this](float){ editor.assets.musicPlayer.stop(); std::terminate(); });
-				gs.addInput({{k::R}},		[this](float){ editor.newGame(); }, t::Once);
-				gs.addInput({{k::C}},		[this](float){ editor.level.saveToFile("./level.txt"); }, t::Once);
-				gs.addInput({{k::V}},		[this](float){ editor.level.loadFromFile("./level.txt", &editor.database); editor.refresh(); }, t::Once);
+				gs.addInput({{k::R}},		[this](float){ editor.clearCurrentLevel(); }, t::Once);
+				gs.addInput({{k::C}},		[this](float){ editor.saveToFile("./level.txt"); }, t::Once);
+				gs.addInput({{k::V}},		[this](float){ editor.loadFromFile("./level.txt"); }, t::Once);
 				gs.addInput({{k::Z}},		[this](float){ editor.cycleZ(-1); }, t::Once);
 				gs.addInput({{k::X}},		[this](float){ editor.cycleZ(1); }, t::Once);
 				gs.addInput({{k::A}},		[this](float){ editor.cycleId(-1); }, t::Once);
@@ -44,6 +44,11 @@ namespace ob
 				gs.addInput({{k::M}},		[this](float){ editor.pasteParams(); });
 				gs.addInput({{k::LShift}},	[this](float){ editor.pick(); }, t::Once);
 				gs.addInput({{k::F1}},		[this](float){ editor.getGameWindow().setGameState(editor.game->getGameState()); }, t::Once);
+
+				gs.addInput({{k::Numpad4}},	[this](float){ editor.cycleLevel(-1, 0); }, t::Once);
+				gs.addInput({{k::Numpad6}},	[this](float){ editor.cycleLevel(1, 0); }, t::Once);
+				gs.addInput({{k::Numpad8}},	[this](float){ editor.cycleLevel(0, -1); }, t::Once);
+				gs.addInput({{k::Numpad2}},	[this](float){ editor.cycleLevel(0, 1); }, t::Once);
 
 				gs.onEvent(sf::Event::EventType::MouseWheelMoved) += [this](const sf::Event& mEvent)
 				{

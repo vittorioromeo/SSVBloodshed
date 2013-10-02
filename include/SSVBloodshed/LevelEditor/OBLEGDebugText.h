@@ -29,6 +29,7 @@ namespace ob
 
 				std::ostringstream s;
 				s	<< "Z: "				<< editor.currentZ << "\n"
+					<< "Level XY: "	<< editor.currentLevelX << ";" << editor.currentLevelY << "\n"
 					<< "C/V: save/load" << "\t" << "Z/X: cycle Z" << "\n"
 					<< "A/S: cycle id" << "\t" << "Q/W: cycle param" << "\n"
 					<< "LShift: pick" << "\n" << "N/M: copy/paste params" << "\n\n"

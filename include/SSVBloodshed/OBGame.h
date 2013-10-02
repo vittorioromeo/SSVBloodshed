@@ -71,11 +71,9 @@ namespace ob
 				try
 				{
 					auto getTilePos = [](int mX, int mY) -> Vec2i { return toCoords(Vec2i{mX * 10 + 5, mY * 10 + 5}); };
-					constexpr int maxX{320 / 10}, maxY{240 / 10 - 2};
-
 					OBLEDatabase database{assets, this};
-					OBLELevel level{maxX, maxY};
-					level.loadFromFile("./level.txt", nullptr);
+					OBLESector sector{ssvuj::as<OBLESector>(ssvuj::readFromFile("./level.txt"))};
+					auto& level(sector.getLevel(0, 0));
 					for(auto& p : level.getTiles()) database.spawn(level, p.second, getTilePos(p.second.getX(), p.second.getY()));
 				}
 				catch(...) { ssvu::lo << "Failed to load level" << std::endl; }
@@ -135,7 +133,7 @@ namespace ob
 	};
 }
 
-// TODO: URGENT: BUG: FIX: SSVSCollision!
+// TODO: bullet sensor pressure plates, SSVSC refactoring/optimization
 // TODO: fix bounces, decouple weapon sprite from enemy sprite, explosives, room transitions, enemy orientation, templatize ssvsc, organic group?, do not pierce breakable wall etc
 
 #endif

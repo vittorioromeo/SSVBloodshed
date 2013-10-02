@@ -13,6 +13,8 @@ namespace ob
 {
 	class OBLETile
 	{
+		template<typename> friend struct ssvuj::Internal::Converter;
+
 		private:
 			bool null{true};
 			int x, y, z;
@@ -23,6 +25,13 @@ namespace ob
 			ssvu::Uptr<ssvs::BitmapText> idText{nullptr};
 
 		public:
+			inline OBLETile() = default;
+			inline OBLETile(const OBLETile& mTile)
+			{
+				x = mTile.x; y = mTile.y; z = mTile.z;
+				type = mTile.type; params = mTile.params;
+			}
+
 			inline void setRot(int mDeg) { if(hasParam("rot")) params["rot"] = mDeg; }
 			inline void setId(OBAssets& mAssets, int mId)
 			{
@@ -54,6 +63,13 @@ namespace ob
 				sprite.setTextureRect(mEntry.intRect);
 			}
 
+			inline OBLETile& operator=(const OBLETile& mTile)
+			{
+				x = mTile.x; y = mTile.y; z = mTile.z;
+				type = mTile.type; params = mTile.params;
+				return *this;
+			}
+
 			inline bool isNull() const noexcept								{ return null; }
 			inline void setX(int mX) noexcept								{ x = mX; }
 			inline void setY(int mY) noexcept								{ y = mY; }
@@ -76,3 +92,4 @@ namespace ob
 }
 
 #endif
+

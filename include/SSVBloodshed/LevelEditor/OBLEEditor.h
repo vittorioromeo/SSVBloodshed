@@ -30,7 +30,11 @@ namespace ob
 			OBLEGInput<OBLEEditor> input{*this};
 			OBLEGDebugText<OBLEEditor> debugText{*this};
 			OBLEDatabase database;
-			OBLELevel level;
+
+			OBLESector sector;
+			OBLELevel* currentLevel{nullptr};
+			int currentLevelX{0}, currentLevelY{0};
+
 			std::vector<OBLETile*> currentTiles;
 			int brushIdx{0}, brushSize{1}, currentX{0}, currentY{0}, currentZ{0}, currentRot{0}, currentId{0}, currentParamIdx{0};
 			OBGame* game{nullptr};
@@ -45,16 +49,15 @@ namespace ob
 				gameState.onDraw += [this]{ draw(); };
 				paramsText.setTracking(-3);
 				paramsText.setPosition(35, 240 - 15);
-				newGame();
+
+				newSector();
 			}
 
-			inline void newGame()
-			{
-				level = {320 / 10, 240 / 10 - 2, database.get(OBLETType::LETFloor)};
-				refresh();
-			}
+			inline void newSector() { sector.clear(); sector.init(database); refreshCurrentLevel(); clearCurrentLevel(); }
 
-			inline void refresh() { for(auto& t : level.getTiles()) if(t.second.hasParam("id")) t.second.setId(assets, t.second.getParam<int>("id")); }
+			inline void refreshCurrentLevel()	{ currentLevel = &sector.getLevel(currentLevelX, currentLevelY); }
+			inline void clearCurrentLevel()		{ *currentLevel = {320 / 10, 240 / 10 - 2, database.get(OBLETType::LETFloor)}; refreshCurrentTiles(); }
+			inline void refreshCurrentTiles()	{ for(auto& t : currentLevel->getTiles()) if(t.second.hasParam("id")) t.second.setId(assets, t.second.getParam<int>("id")); }
 
 			inline void updateXY()
 			{
@@ -67,12 +70,12 @@ namespace ob
 
 				for(int iY{0}; iY < brushSize; ++iY)
 					for(int iX{0}; iX < brushSize; ++iX)
-						if(level.isValid(currentX + iX, currentY + iY, currentZ))
-							currentTiles.push_back(&level.getTile(currentX + iX, currentY + iY, currentZ));
+						if(currentLevel->isValid(currentX + iX, currentY + iY, currentZ))
+							currentTiles.push_back(&currentLevel->getTile(currentX + iX, currentY + iY, currentZ));
 			}
 
 			inline void paint()	{ for(auto& t : currentTiles) { t->initFromEntry(getCurrentEntry()); t->setRot(currentRot); t->setId(assets, currentId); } }
-			inline void del()	{ for(auto& t : currentTiles) { level.del(*t); } }
+			inline void del()	{ for(auto& t : currentTiles) { currentLevel->del(*t); } }
 			inline void pick()	{ for(auto& t : currentTiles) { brushIdx = int(t->getType()); return; } }
 
 			inline void copyParams()	{ for(auto& t : currentTiles) { copiedParams = std::make_pair(t->getType(), t->getParams()); return; } }
@@ -86,18 +89,22 @@ namespace ob
 				for(auto& t : currentTiles)
 				{
 					int idx{0};
-					for(auto& p : t->getParams())
-					{
-						if(ssvu::getSIMod(currentParamIdx, (int)t->getParams().size()) == idx) p.second = ssvuj::as<int>(p.second) + mDir;
-						++idx;
-					}
-
+					for(auto& p : t->getParams()) if(ssvu::getSIMod(currentParamIdx, static_cast<int>(t->getParams().size())) == idx++) p.second = ssvuj::as<int>(p.second) + mDir;
 					return;
 				}
 			}
-			inline void cycleBrush(int mDir)		{ brushIdx = ssvu::getSIMod(brushIdx + mDir, database.getSize()); }
-			inline void cycleZ(int mDir)			{ currentZ = -ssvu::getSIMod(-currentZ + mDir, 3); }
-			inline void cycleBrushSize(int mDir)	{ brushSize = ssvu::getClamped(brushSize + mDir, 1, 20); }
+			inline void cycleBrush(int mDir)				{ brushIdx = ssvu::getSIMod(brushIdx + mDir, database.getSize()); }
+			inline void cycleZ(int mDir)					{ currentZ = -ssvu::getSIMod(-currentZ + mDir, 3); }
+			inline void cycleBrushSize(int mDir)			{ brushSize = ssvu::getClamped(brushSize + mDir, 1, 20); }
+			inline void cycleLevel(int mDirX, int mDirY)	{ currentLevelX += mDirX; currentLevelY += mDirY; refreshCurrentLevel(); refreshCurrentTiles(); }
+
+			inline void saveToFile(const ssvu::FileSystem::Path& mPath) { ssvuj::writeToFile(ssvuj::getArch(sector), mPath); }
+			inline void loadFromFile(const ssvu::FileSystem::Path& mPath)
+			{
+				sector.clear();
+				sector = ssvuj::as<OBLESector>(ssvuj::readFromFile(mPath));
+				sector.init(database); refreshCurrentLevel(); refreshCurrentTiles();
+			}
 
 			inline void updateParamsText()
 			{
@@ -108,12 +115,10 @@ namespace ob
 					int idx{0};
 					for(const auto& p : t->getParams())
 					{
-						bool cp{ssvu::getSIMod(currentParamIdx, (int)t->getParams().size()) == idx};
-
+						bool cp{ssvu::getSIMod(currentParamIdx, (int)t->getParams().size()) == idx++};
 						if(cp) str += " >";
 						str += p.first + "(" + ssvu::getReplacedAll(ssvu::toStr(p.second), "\n", "") + ")";
 						if(cp) str += "< ";
-						++idx;
 					}
 
 					paramsText.setString(str);
@@ -123,10 +128,8 @@ namespace ob
 
 			inline void update(float mFT)
 			{
-				level.update();
-
-				updateXY(); grabTiles();
-				updateParamsText();
+				currentLevel->update();
+				updateXY(); grabTiles(); updateParamsText();
 				if(input.painting) paint();
 				if(input.deleting) del();
 
@@ -137,7 +140,7 @@ namespace ob
 			{
 				gameCamera.apply<int>();
 				{
-					level.draw(gameWindow, true, currentZ);
+					currentLevel->draw(gameWindow, true, currentZ);
 
 					sf::RectangleShape hr({10.f * brushSize, 10.f * brushSize});
 					hr.setFillColor({255, 0, 0, 125});
