@@ -22,7 +22,7 @@ namespace ob
 			inline operator Dir8() const noexcept						{ return direction; }
 			inline int getInt() const noexcept							{ return int(direction); }
 			inline float getDeg() const noexcept						{ return getDegFromDir8(direction); }
-			inline Vec2f getVec(float mMagnitude = 1.f) const noexcept	{ return ssvs::getVecFromDegrees(getDeg(), mMagnitude); }
+			inline Vec2f getVec(float mMagnitude = 1.f) const noexcept	{ return ssvs::getVecFromDeg(getDeg(), mMagnitude); }
 	};
 }
 

@@ -82,7 +82,7 @@ namespace ob
 			inline void copyParams()	{ for(auto& t : currentTiles) { copiedParams = std::make_pair(t->getType(), t->getParams()); return; } }
 			inline void pasteParams()	{ for(auto& t : currentTiles) { if(t->getType() == copiedParams.first) t->setParams(copiedParams.second); } }
 
-			inline void cycleRot(int mDeg)			{ currentRot = ssvu::wrapDegrees(currentRot + mDeg); }
+			inline void cycleRot(int mDeg)			{ currentRot = ssvu::wrapDeg(currentRot + mDeg); }
 			inline void cycleId(int mDir)			{ currentId += mDir; }
 			inline void cycleParam(int mDir)		{ currentParamIdx += mDir; }
 			inline void cycleCurrentParam(int mDir)

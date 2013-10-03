@@ -36,28 +36,13 @@ namespace ob
 			sf::IntRect e1UAStand, 		e1AStand,		e1AShoot,		e1AGun;				// Runner alien
 			sf::IntRect floor,			floorAlt1,		floorAlt2;							// Floor
 			sf::IntRect floorGrate,		floorGrateAlt1,	floorGrateAlt2;						// Floor grate
-			sf::IntRect wallSingle,		wallCross,		wallV,			wallH;				// Wall
-			sf::IntRect wallCornerSW,	wallCornerSE,	wallCornerNW,	wallCornerNE;		// Wall corners
-			sf::IntRect wallVEndS,		wallVEndN,		wallHEndW,		wallHEndE;			// Wall ends
-			sf::IntRect wallTS,			wallTN,			wallTW,			wallTE;				// Wall T
-			sf::IntRect pit;																// Pit
+			sf::IntRect pit,			trapdoor;											// Pit and trapdoor
 			sf::IntRect pjBullet,		pjPlasma,		pjStar,			pjBulletPlasma;		// Projectiles
 			sf::IntRect pjStarPlasma,	pjCannonPlasma;										// Projectiles
 			sf::IntRect eBall,			eBallFlying;										// Ball enemy
 			sf::IntRect eTurret0,		eTurret1,		eTurret2;							// Turret enemy
-			sf::IntRect wallDSingle,	wallDCross,		wallDV,			wallDH;				// Destructible wall
-			sf::IntRect wallDCornerSW,	wallDCornerSE,	wallDCornerNW,	wallDCornerNE;		// Destructible wall corners
-			sf::IntRect wallDVEndS,		wallDVEndN,		wallDHEndW,		wallDHEndE;			// Destructible wall ends
-			sf::IntRect wallDTS,		wallDTN,		wallDTW,		wallDTE;			// Destructible wall T
 			sf::IntRect pPlateSingle,	pPlateMulti;										// Pressure plates
-			sf::IntRect doorSingle,		doorCross,		doorV,			doorH;				// Door
-			sf::IntRect doorCornerSW,	doorCornerSE,	doorCornerNW,	doorCornerNE;		// Door corners
-			sf::IntRect doorVEndS,		doorVEndN,		doorHEndW,		doorHEndE;			// Door ends
-			sf::IntRect doorTS,			doorTN,			doorTW,			doorTE;				// Door T
-			sf::IntRect doorGSingle,	doorGCross,		doorGV,			doorGH;				// Green door
-			sf::IntRect doorGCornerSW,	doorGCornerSE,	doorGCornerNW,	doorGCornerNE;		// Green door corners
-			sf::IntRect doorGVEndS,		doorGVEndN,		doorGHEndW,		doorGHEndE;			// Green door ends
-			sf::IntRect doorGTS,		doorGTN,		doorGTW,		doorGTE;			// Green door T
+			sf::IntRect shard;																// Shard
 
 			// Medium tileset (20x20)
 			sf::IntRect e2UAStand,		e2AStand,		e2AShoot,		e2AGun;				// Charger alien
@@ -69,8 +54,14 @@ namespace ob
 			// Giant tileset (40x40)
 			sf::IntRect e4UAStand;															// Giant alien
 
-			// Bitmasks
-			std::array<sf::IntRect*, 16> wallBitMask, wallDBitMask, doorBitMask, doorGBitMask;
+			#define WALLTSDECL(x)	sf::IntRect x ## Single,	x ## Cross,		x ## V,			x ## H, \
+												x ## CornerSW,	x ## CornerSE,	x ## CornerNW,	x ## CornerNE, \
+												x ## VEndS,		x ## VEndN,		x ## HEndW,		x ## HEndE, \
+												x ## TS,		x ## TN,		x ## TW,		x ## TE; \
+									std::array<sf::IntRect*, 16> x ## BitMask
+
+			WALLTSDECL(wall); WALLTSDECL(wallD); WALLTSDECL(door); WALLTSDECL(doorG); WALLTSDECL(doorR);
+			#undef WALLTSDECL
 
 			inline OBAssets()
 			{
@@ -90,6 +81,19 @@ namespace ob
 				#define T_TSBIG(x)		x = tsBig(#x)
 				#define T_TSGIANT(x)	x = tsGiant(#x)
 
+				#define WALLTS(x)	do { \
+									T_TSSMALL(x ## Single);		T_TSSMALL(x ## Cross);		T_TSSMALL(x ## V);			T_TSSMALL(x ## H); \
+									T_TSSMALL(x ## CornerSW);	T_TSSMALL(x ## CornerSE);	T_TSSMALL(x ## CornerNW);	T_TSSMALL(x ## CornerNE); \
+									T_TSSMALL(x ## VEndS);		T_TSSMALL(x ## VEndN);		T_TSSMALL(x ## HEndW);		T_TSSMALL(x ## HEndE); \
+									T_TSSMALL(x ## TS);			T_TSSMALL(x ## TN);			T_TSSMALL(x ## TW);			T_TSSMALL(x ## TE); \
+									x ## BitMask[0] = &x ## Single;		x ## BitMask[1] = &x ## VEndS;	x ## BitMask[2] = &x ## HEndW; \
+									x ## BitMask[3] = &x ## CornerSW;	x ## BitMask[4] = &x ## VEndN;	x ## BitMask[5] = &x ## V; \
+									x ## BitMask[6] = &x ## CornerNW;	x ## BitMask[7] = &x ## TW;		x ## BitMask[8] = &x ## HEndE; \
+									x ## BitMask[9] = &x ## CornerSE;	x ## BitMask[10] = &x ## H;		x ## BitMask[11] = &x ## TS; \
+									x ## BitMask[12] = &x ## CornerNE;	x ## BitMask[13] = &x ## TE;	x ## BitMask[14] = &x ## TN; \
+									x ## BitMask[15] = &x ## Cross; } while(false);
+
+
 				// BitmapFonts
 				obStroked = &assetManager.get<ssvs::BitmapFont>("fontObStroked");
 
@@ -107,28 +111,14 @@ namespace ob
 				T_TSSMALL(e1UAStand); 		T_TSSMALL(e1AStand);		T_TSSMALL(e1AShoot);		T_TSSMALL(e1AGun);
 				T_TSSMALL(floor);			T_TSSMALL(floorAlt1);		T_TSSMALL(floorAlt2);
 				T_TSSMALL(floorGrate);		T_TSSMALL(floorGrateAlt1);	T_TSSMALL(floorGrateAlt2);
-				T_TSSMALL(wallSingle);		T_TSSMALL(wallCross);		T_TSSMALL(wallV);			T_TSSMALL(wallH);
-				T_TSSMALL(wallCornerSW);	T_TSSMALL(wallCornerSE);	T_TSSMALL(wallCornerNW);	T_TSSMALL(wallCornerNE);
-				T_TSSMALL(wallVEndS);		T_TSSMALL(wallVEndN);		T_TSSMALL(wallHEndW);		T_TSSMALL(wallHEndE);
-				T_TSSMALL(wallTS);			T_TSSMALL(wallTN);			T_TSSMALL(wallTW);			T_TSSMALL(wallTE);
-				T_TSSMALL(pit);
+				T_TSSMALL(pit);				T_TSSMALL(trapdoor);
 				T_TSSMALL(pjBullet);		T_TSSMALL(pjPlasma);		T_TSSMALL(pjStar);			T_TSSMALL(pjBulletPlasma);
 				T_TSSMALL(pjStarPlasma);	T_TSSMALL(pjCannonPlasma);
 				T_TSSMALL(eBall);			T_TSSMALL(eBallFlying);
 				T_TSSMALL(eTurret0);		T_TSSMALL(eTurret1);		T_TSSMALL(eTurret2);
-				T_TSSMALL(wallDSingle);		T_TSSMALL(wallDCross);		T_TSSMALL(wallDV);			T_TSSMALL(wallDH);
-				T_TSSMALL(wallDCornerSW);	T_TSSMALL(wallDCornerSE);	T_TSSMALL(wallDCornerNW);	T_TSSMALL(wallDCornerNE);
-				T_TSSMALL(wallDVEndS);		T_TSSMALL(wallDVEndN);		T_TSSMALL(wallDHEndW);		T_TSSMALL(wallDHEndE);
-				T_TSSMALL(wallDTS);			T_TSSMALL(wallDTN);			T_TSSMALL(wallDTW);			T_TSSMALL(wallDTE);
 				T_TSSMALL(pPlateSingle);	T_TSSMALL(pPlateMulti);
-				T_TSSMALL(doorSingle);		T_TSSMALL(doorCross);		T_TSSMALL(doorV);			T_TSSMALL(doorH);
-				T_TSSMALL(doorCornerSW);	T_TSSMALL(doorCornerSE);	T_TSSMALL(doorCornerNW);	T_TSSMALL(doorCornerNE);
-				T_TSSMALL(doorVEndS);		T_TSSMALL(doorVEndN);		T_TSSMALL(doorHEndW);		T_TSSMALL(doorHEndE);
-				T_TSSMALL(doorTS);			T_TSSMALL(doorTN);			T_TSSMALL(doorTW);			T_TSSMALL(doorTE);
-				T_TSSMALL(doorGSingle);		T_TSSMALL(doorGCross);		T_TSSMALL(doorGV);			T_TSSMALL(doorGH);
-				T_TSSMALL(doorGCornerSW);	T_TSSMALL(doorGCornerSE);	T_TSSMALL(doorGCornerNW);	T_TSSMALL(doorGCornerNE);
-				T_TSSMALL(doorGVEndS);		T_TSSMALL(doorGVEndN);		T_TSSMALL(doorGHEndW);		T_TSSMALL(doorGHEndE);
-				T_TSSMALL(doorGTS);			T_TSSMALL(doorGTN);			T_TSSMALL(doorGTW);			T_TSSMALL(doorGTE);
+				T_TSSMALL(shard);
+				WALLTS(wall); WALLTS(wallD); WALLTS(door); WALLTS(doorG); WALLTS(doorR);
 
 				// Medium tileset (20x20)
 				T_TSMEDIUM(e2UAStand); 		T_TSMEDIUM(e2AStand);		T_TSMEDIUM(e2AShoot);		T_TSMEDIUM(e2AGun);
@@ -144,38 +134,7 @@ namespace ob
 				#undef T_TSMEDIUM
 				#undef T_TSBIG
 				#undef T_TSGIANT
-
-				// Wall bitmask
-				wallBitMask[0] = &wallSingle;		wallBitMask[1] = &wallVEndS;	wallBitMask[2] = &wallHEndW;
-				wallBitMask[3] = &wallCornerSW;		wallBitMask[4] = &wallVEndN;	wallBitMask[5] = &wallV;
-				wallBitMask[6] = &wallCornerNW;		wallBitMask[7] = &wallTW;		wallBitMask[8] = &wallHEndE;
-				wallBitMask[9] = &wallCornerSE;		wallBitMask[10] = &wallH;		wallBitMask[11] = &wallTS;
-				wallBitMask[12] = &wallCornerNE;	wallBitMask[13] = &wallTE;		wallBitMask[14] = &wallTN;
-				wallBitMask[15] = &wallCross;
-
-				// Destructible wall bitmask
-				wallDBitMask[0] = &wallDSingle;		wallDBitMask[1] = &wallDVEndS;	wallDBitMask[2] = &wallDHEndW;
-				wallDBitMask[3] = &wallDCornerSW;	wallDBitMask[4] = &wallDVEndN;	wallDBitMask[5] = &wallDV;
-				wallDBitMask[6] = &wallDCornerNW;	wallDBitMask[7] = &wallDTW;		wallDBitMask[8] = &wallDHEndE;
-				wallDBitMask[9] = &wallDCornerSE;	wallDBitMask[10] = &wallDH;		wallDBitMask[11] = &wallDTS;
-				wallDBitMask[12] = &wallDCornerNE;	wallDBitMask[13] = &wallDTE;	wallDBitMask[14] = &wallDTN;
-				wallDBitMask[15] = &wallDCross;
-
-				// Door bitmask
-				doorBitMask[0] = &doorSingle;		doorBitMask[1] = &doorVEndS;	doorBitMask[2] = &doorHEndW;
-				doorBitMask[3] = &doorCornerSW;		doorBitMask[4] = &doorVEndN;	doorBitMask[5] = &doorV;
-				doorBitMask[6] = &doorCornerNW;		doorBitMask[7] = &doorTW;		doorBitMask[8] = &doorHEndE;
-				doorBitMask[9] = &doorCornerSE;		doorBitMask[10] = &doorH;		doorBitMask[11] = &doorTS;
-				doorBitMask[12] = &doorCornerNE;	doorBitMask[13] = &doorTE;		doorBitMask[14] = &doorTN;
-				doorBitMask[15] = &doorCross;
-
-				// Green bitmask
-				doorGBitMask[0] = &doorGSingle;		doorGBitMask[1] = &doorGVEndS;	doorGBitMask[2] = &doorGHEndW;
-				doorGBitMask[3] = &doorGCornerSW;	doorGBitMask[4] = &doorGVEndN;	doorGBitMask[5] = &doorGV;
-				doorGBitMask[6] = &doorGCornerNW;	doorGBitMask[7] = &doorGTW;		doorGBitMask[8] = &doorGHEndE;
-				doorGBitMask[9] = &doorGCornerSE;	doorGBitMask[10] = &doorGH;		doorGBitMask[11] = &doorGTS;
-				doorGBitMask[12] = &doorGCornerNE;	doorGBitMask[13] = &doorGTE;	doorGBitMask[14] = &doorGTN;
-				doorGBitMask[15] = &doorGCross;
+				#undef WALLTS
 			}
 
 			inline ssvs::AssetManager& operator()() noexcept { return assetManager; }

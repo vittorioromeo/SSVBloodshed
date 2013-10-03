@@ -25,7 +25,7 @@ namespace ob
 			{
 				life -= mFT;
 				color.a = static_cast<unsigned char>(ssvu::getClamped(life * (255.f / lifeMax) * alphaMult, 0.f, 255.f));
-				if(curveSpeed != 0) ssvs::rotateDegreesAroundCenter(velocity, ssvs::zeroVec2f, curveSpeed);
+				if(curveSpeed != 0) ssvs::rotateDegAroundCenter(velocity, ssvs::zeroVec2f, curveSpeed);
 				velocity *= acceleration;
 				position += velocity * mFT;
 			}

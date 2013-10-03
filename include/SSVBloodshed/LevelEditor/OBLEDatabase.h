@@ -34,11 +34,11 @@ namespace ob
 
 			template<typename T> inline T getP(TTile& mT, const std::string& mKey) { return mT.template getParam<T>(mKey); }
 
-			inline int getWallMask(TLevel& mL, OBLETType mType, int mX, int mY)
+			inline int getWallMask(TLevel& mL, OBLETType mType, int mX, int mY, int mZ)
 			{
 				int mask{0};
 				constexpr int maxX{320 / 10}, maxY{240 / 10 - 2}; // TODO: get level size from mL
-				auto tileIs = [&](int mTX, int mTY, OBLETType mType){ if(mTX < 0 || mTY < 0 || mTX >= maxX || mTY >= maxY) return false; return mL.getTile(mTX, mTY, 0).getType() == mType; };
+				auto tileIs = [&](int mTX, int mTY, OBLETType mType){ if(mTX < 0 || mTY < 0 || mTX >= maxX || mTY >= maxY) return false; return mL.getTile(mTX, mTY, mZ).getType() == mType; };
 				mask += tileIs(mX, mY - 1, mType) << 0;
 				mask += tileIs(mX + 1, mY, mType) << 1;
 				mask += tileIs(mX, mY + 1, mType) << 2;
@@ -71,36 +71,41 @@ namespace ob
 				add(OBLETType::LETEnforcer,			a.txMedium,		a.e5UAStand,			{{"rot", 0}},				[this](TLevel&, TTile&, const Vec2i& mP){ f->createEEnforcer(mP); });
 				add(OBLETType::LETPPlateSingle,		a.txSmall,		a.pPlateSingle,			{{"id", 0}, {"action", 0}},	[this](TLevel&, TTile& mT, const Vec2i& mP){ f->createPPlate(mP, getP<int>(mT, "id"), PPlateType::Single, OBIdAction(getP<int>(mT, "action"))); });
 				add(OBLETType::LETPPlateMulti,		a.txSmall,		a.pPlateMulti,			{{"id", 0}, {"action", 0}},	[this](TLevel&, TTile& mT, const Vec2i& mP){ f->createPPlate(mP, getP<int>(mT, "id"), PPlateType::Multi, OBIdAction(getP<int>(mT, "action"))); });
+				add(OBLETType::LETTrapdoor,			a.txSmall,		a.trapdoor,				{},							[this](TLevel&, TTile&, const Vec2i& mP){ f->createTrapdoor(mP); });
 
 				add(OBLETType::LETWall,				a.txSmall,		a.wallSingle,			{},
 				[this](TLevel& mL, TTile& mT, const Vec2i& mP)
 				{
-					int mask{getWallMask(mL, OBLETType::LETWall, mT.getX(), mT.getY())};
+					int mask{getWallMask(mL, OBLETType::LETWall, mT.getX(), mT.getY(), mT.getZ())};
 					f->createWall(mP, *a.wallBitMask[mask]);
 				});
 
 				add(OBLETType::LETWallD,			a.txSmall,		a.wallDSingle,			{},
 				[this](TLevel& mL, TTile& mT, const Vec2i& mP)
 				{
-					int mask{getWallMask(mL, OBLETType::LETWallD, mT.getX(), mT.getY())};
-					f->createFloor(mP, true);
-					f->createWallDestructible(mP, *a.wallDBitMask[mask]);
+					int mask{getWallMask(mL, OBLETType::LETWallD, mT.getX(), mT.getY(), mT.getZ())};
+					f->createFloor(mP, true); f->createWallDestructible(mP, *a.wallDBitMask[mask]);
 				});
 
 				add(OBLETType::LETDoor,				a.txSmall,		a.doorSingle,			{{"id", 0}, {"open", 0}},
 				[this](TLevel& mL, TTile& mT, const Vec2i& mP)
 				{
-					int mask{getWallMask(mL, OBLETType::LETDoor, mT.getX(), mT.getY())};
-					f->createFloor(mP, true);
-					f->createDoor(mP, *a.doorBitMask[mask], getP<int>(mT, "id"), bool(getP<int>(mT, "open")));
+					int mask{getWallMask(mL, OBLETType::LETDoor, mT.getX(), mT.getY(), mT.getZ())};
+					f->createFloor(mP, true); f->createDoor(mP, *a.doorBitMask[mask], getP<int>(mT, "id"), bool(getP<int>(mT, "open")));
 				});
 
 				add(OBLETType::LETDoorG,			a.txSmall,		a.doorGSingle,			{{"open", 0}},
 				[this](TLevel& mL, TTile& mT, const Vec2i& mP)
 				{
-					int mask{getWallMask(mL, OBLETType::LETDoorG, mT.getX(), mT.getY())};
-					f->createFloor(mP, true);
-					f->createDoorG(mP, *a.doorGBitMask[mask], bool(getP<int>(mT, "open")));
+					int mask{getWallMask(mL, OBLETType::LETDoorG, mT.getX(), mT.getY(), mT.getZ())};
+					f->createFloor(mP, true); f->createDoorG(mP, *a.doorGBitMask[mask], bool(getP<int>(mT, "open")));
+				});
+
+				add(OBLETType::LETDoorR,			a.txSmall,		a.doorRSingle,			{{"open", 0}},
+				[this](TLevel& mL, TTile& mT, const Vec2i& mP)
+				{
+					int mask{getWallMask(mL, OBLETType::LETDoorR, mT.getX(), mT.getY(), mT.getZ())};
+					f->createFloor(mP, true); f->createDoorR(mP, *a.doorRBitMask[mask], bool(getP<int>(mT, "open")));
 				});
 			}
 

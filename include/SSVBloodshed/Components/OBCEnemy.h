@@ -39,14 +39,16 @@ namespace ob
 				{
 					if(mDI.body.hasGroup(OBGroup::GFriendly)) getEntityFromBody(mDI.body).getComponent<OBCHealth>().damage(bodyDamage);
 				};
+
+				cKillable.onDeath += [this]{ for(int i{0}; i < 1; ++i) getFactory().createShard(cPhys.getPosI()); };
 			}
 
 			inline void update(float mFT) override
 			{
 				if(cTargeter.hasTarget())
 				{
-					float targetDeg(ssvs::getDegreesTowards(cPhys.getPosF(), cTargeter.getPosF()));
-					currentDeg = ssvu::getRotatedDegrees(currentDeg, targetDeg, turnSpeed * mFT);
+					float targetDeg(ssvs::getDegTowards(cPhys.getPosF(), cTargeter.getPosF()));
+					currentDeg = ssvu::getRotatedDeg(currentDeg, targetDeg, turnSpeed * mFT);
 					snappedDeg = getDegFromDir8(getDir8FromDeg(currentDeg));
 				}
 			}

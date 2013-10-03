@@ -26,6 +26,7 @@ namespace ob
 				int currentWpn;
 				float health;
 				Dir8 dir;
+				int shards;
 				// Ammo and other stuff
 			};
 
@@ -36,7 +37,7 @@ namespace ob
 			OBCWpnController& cWpnController;
 			float walkSpeed{125.f};
 
-			int currentWpn{0};
+			int currentWpn{0}, currentShards{0}, shards{0};
 			std::vector<OBWpnType> weaponTypes{OBWpnTypes::createMachineGun(), OBWpnTypes::createPlasmaBolter(), OBWpnTypes::createPlasmaCannon()};
 
 			inline void cycleWeapons(int mDir) noexcept { currentWpn += mDir; cWpnController.setWpn(weaponTypes[currentWpn % weaponTypes.size()]); }
@@ -55,8 +56,8 @@ namespace ob
 					game.testhp.setValue(0.f);
 				};
 
-				getEntity().addGroup(OBGroup::GFriendly);
-				body.addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir, OBGroup::GFriendly, OBGroup::GOrganic);
+				getEntity().addGroups(OBGroup::GFriendly, OBGroup::GPlayer);
+				body.addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir, OBGroup::GFriendly, OBGroup::GOrganic, OBGroup::GPlayer);
 				body.addGroupToCheck(OBGroup::GSolidGround);
 			}
 
@@ -74,6 +75,26 @@ namespace ob
 				if(game.getInput().getISwitch()) cycleWeapons(1);
 			}
 
+			inline void attractShards()
+			{
+				if(!game.isLevelClear())
+				{
+					auto query(cPhys.getWorld().getQuery<ssvsc::QueryType::Distance>(cPhys.getPosI(), 3500));
+
+					Body* body;
+					while((body = query.next()) != nullptr) if(body->hasGroup(OBGroup::GShard)) body->applyForce(Vec2f(cPhys.getPosI() - body->getPosition()) * 0.004f);
+				}
+				else
+				{
+					for(auto& e : getManager().getEntities(OBGroup::GShard))
+					{
+						auto& c(e->getComponent<OBCPhys>());
+						if(ssvs::getMagnitude(c.getVel()) < 650.f) c.getBody().applyForce(Vec2f(cPhys.getPosI() - c.getPosI()) * 0.002f);
+						c.getBody().addGroupNoResolve(OBGroup::GSolidGround);
+					}
+				}
+			}
+
 			inline void update(float) override
 			{
 				updateInput();
@@ -83,6 +104,13 @@ namespace ob
 					game.testhp.setValue(cHealth.getHealth());
 					game.testhp.setMaxValue(cHealth.getMaxHealth());
 				}
+
+				{ // TODO:
+					game.txtShards.setString(ssvu::toStr(shards + currentShards));
+				}
+
+				attractShards();
+				if(game.isLevelClear()) { shards += currentShards; currentShards = 0; }
 
 				{
 					if(cPhys.getPosI().x < toCoords(0))		game.changeLevel(*this, -1, 0);
@@ -107,12 +135,15 @@ namespace ob
 					for(int i{0}; i < 360; i += 360 / 16) getFactory().createPJTestBomb(body.getPosition(), cDir8.getDeg() + (i * (360 / 16)), 2.f - k * 0.2f + i * 0.004f, 4.f + k * 0.3f - i * 0.004f);
 			}
 
+			inline void shardGrabbed() noexcept { ++currentShards; }
+
 			inline void initFromData(const Data& mData) noexcept
 			{
 				cPhys.setPos(mData.pos);
 				currentWpn = mData.currentWpn; cycleWeapons(0);
 				cKillable.getCHealth().setHealth(mData.health);
 				cDir8.setDir(mData.dir);
+				shards = mData.shards;
 			}
 			inline Data getData() const noexcept
 			{
@@ -121,7 +152,41 @@ namespace ob
 				result.currentWpn = currentWpn;
 				result.health = cKillable.getCHealth().getHealth();
 				result.dir = cDir8;
+				result.shards = shards;
 				return result;
+			}
+	};
+
+	class OBCShard : public OBCActorBase
+	{
+		public:
+			OBCShard(OBCPhys& mCPhys, OBCDraw& mCDraw) : OBCActorBase{mCPhys, mCDraw} { }
+
+			inline void init() override
+			{
+				getEntity().addGroup(OBGroup::GShard);
+				body.addGroup(OBGroup::GShard);
+				body.addGroupsToCheck(OBGroup::GSolidGround, OBGroup::GFriendly);
+				body.addGroupNoResolve(OBGroup::GOrganic);
+				body.setRestitutionX(0.8f);
+				body.setRestitutionY(0.8f);
+				body.onDetection += [this](const DetectionInfo& mDI)
+				{
+					if(mDI.body.hasGroup(OBGroup::GPlayer))
+					{
+						getEntityFromBody(mDI.body).getComponent<OBCPlayer>().shardGrabbed();
+						getEntity().destroy();
+						// TODO: particle
+					}
+				};
+
+				body.setVelocity(ssvs::getVecFromDeg(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(100.f, 370.f)));
+			}
+
+			inline void update(float) override
+			{
+				body.setVelocity(body.getVelocity() * 0.99f);
+				cDraw[0].rotate(ssvs::getMagnitude(body.getVelocity()) * 0.01f);
 			}
 	};
 }

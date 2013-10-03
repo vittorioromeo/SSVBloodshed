@@ -62,7 +62,17 @@ namespace ob
 
 		public:
 			OBCDoorG(OBCPhys& mCPhys, OBCDraw& mCDraw, bool mOpen = false) : OBCDoorBase{mCPhys, mCDraw, mOpen} { }
-			inline void update(float) override { if(!triggered && getManager().getEntityCount(OBGroup::GEnemy) == 0) { toggle(); triggered = true; } }
+			inline void update(float) override { if(!triggered && game.isLevelClear()) { toggle(); triggered = true; } }
+	};
+
+	class OBCDoorR : public OBCDoorBase
+	{
+		private:
+			bool triggered{false};
+
+		public:
+			OBCDoorR(OBCPhys& mCPhys, OBCDraw& mCDraw, bool mOpen = false) : OBCDoorBase{mCPhys, mCDraw, mOpen} { }
+			inline void update(float) override { if(!triggered && getManager().getEntityCount(OBGroup::GTrapdoor) <= 0 ) { toggle(); triggered = true; } }
 	};
 }
 

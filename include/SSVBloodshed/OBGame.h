@@ -21,6 +21,11 @@
 
 namespace ob
 {
+	struct OBGLevelStat
+	{
+		bool clear{false};
+	};
+
 	class OBGame
 	{
 		template<typename> friend class OBGInput;
@@ -45,13 +50,16 @@ namespace ob
 			OBLEEditor* editor{nullptr};
 
 			OBLEDatabase database{assets, this};
-			OBLESector sector; OBLELevel* currentLevel{nullptr};
+			OBLESector sector;
+			std::unordered_map<OBLELevel*, OBGLevelStat> levelStats;
+			OBLELevel* currentLevel{nullptr};
 			int currentLevelX{0}, currentLevelY{0};
 
 			ssvu::Delegate<void()> onPostUpdate;
 
 		public:
 			OBBarCounter testhp{2, 6, 13};
+			ssvs::BitmapText txtShards{*assets.obStroked};
 
 			inline OBGame(ssvs::GameWindow& mGameWindow, OBAssets& mAssets) : gameWindow(mGameWindow), assets(mAssets)
 			{
@@ -64,12 +72,14 @@ namespace ob
 				testhp.setPosition(13, (240 - ssvs::getGlobalHeight(hudSprite) / 2.f) - 1.f);
 				testAmmoTxt.setColor(sf::Color{136, 199, 234, 255}); testAmmoTxt.setTracking(-3);
 				testAmmoTxt.setPosition(86, (240 - ssvs::getGlobalHeight(hudSprite) / 2.f) - 3.f);
+				txtShards.setColor(sf::Color{195, 90, 10, 255}); txtShards.setTracking(-3);
+				txtShards.setPosition(235, (240 - ssvs::getGlobalHeight(hudSprite) / 2.f) - 3.f);
 
-				loadSector("./level.txt");
-				newGame();
+				reloadSector();
 			}
 
-			inline void newGame() { currentLevelX = currentLevelY = 0; loadLevel(); }
+			inline void reloadSector()	{ loadSector("./level.txt"); newGame(); }
+			inline void newGame()		{ currentLevelX = currentLevelY = 0; loadLevel(); }
 
 			inline void loadSector(const ssvu::FileSystem::Path& mPath)
 			{
@@ -93,8 +103,8 @@ namespace ob
 			{
 				auto playerData(mPlayer.getData());
 
-				int nextLevelX = currentLevelX + mDirX;
-				int nextLevelY = currentLevelY + mDirY;
+				int nextLevelX{currentLevelX + mDirX};
+				int nextLevelY{currentLevelY + mDirY};
 
 				if(mDirX == 1) playerData.pos.x = toCoords(0) + 1000;
 				else if(mDirX == -1) playerData.pos.x = toCoords(320) - 1000;
@@ -112,13 +122,20 @@ namespace ob
 							currentLevelY = nextLevelY;
 							loadLevel();
 
+							// Remove existing players (TODO: change)
 							for(auto& e : manager.getEntities(OBGroup::GFriendly)) e->destroy();
-							for(auto& e : manager.getEntities(OBGroup::GEnemy)) e->destroy();
+
+							// If the level was cleared, remove all enemies (TODO: change not spawn)
+							if(levelStats[currentLevel].clear) for(auto& e : manager.getEntities(OBGroup::GEnemy)) e->destroy();
+
 							factory.createPlayer(playerData.pos).template getComponent<TPlayer>().initFromData(playerData);
 						}
 					}
 				};
 			}
+
+			inline bool isLevelClear() noexcept		{ return manager.getEntityCount(OBGroup::GEnemy) <= 0; }
+			inline void updateLevelStat() noexcept	{ if(isLevelClear()) levelStats[currentLevel].clear = true; }
 
 			inline void update(float mFT)
 			{
@@ -126,6 +143,8 @@ namespace ob
 				world.update(mFT);
 				debugText.update(mFT);
 				gameCamera.update<int>(mFT);
+
+				updateLevelStat();
 
 				onPostUpdate();
 				onPostUpdate.clear();
@@ -142,6 +161,7 @@ namespace ob
 				render(hudSprite);
 				render(testhp);
 				render(testAmmoTxt);
+				render(txtShards);
 				overlayCamera.unapply();
 
 				debugText.draw();
@@ -150,7 +170,7 @@ namespace ob
 			inline void render(const sf::Drawable& mDrawable)									{ gameWindow.draw(mDrawable); }
 			inline void render(const sf::Drawable& mDrawable, sf::RenderStates mRenderStates)	{ gameWindow.draw(mDrawable, mRenderStates); }
 
-			inline void setEditor(OBLEEditor& mEditor)				{ editor = &mEditor; }
+			inline void setEditor(OBLEEditor& mEditor) { editor = &mEditor; }
 
 			inline Vec2i getMousePosition() const						{ return toCoords(gameCamera.getMousePosition()); }
 			inline ssvs::GameWindow& getGameWindow() noexcept			{ return gameWindow; }
@@ -181,7 +201,7 @@ namespace ob
 	};
 }
 
-// TODO: bullet sensor pressure plates, SSVSC refactoring/optimization, trapdoors, red doors
-// TODO: fix bounces, decouple weapon sprite from enemy sprite, explosives, room transitions, enemy orientation, templatize ssvsc, organic group?, do not pierce breakable wall etc
+// TODO: bullet sensor pressure plates, SSVSC refactoring/optimization, red doors
+// TODO: fix bounces, decouple weapon sprite from enemy sprite, explosives, enemy orientation, organic group?, do not pierce breakable wall etc
 
 #endif

@@ -50,7 +50,7 @@ namespace ob
 			inline void update(float mFT) override
 			{
 				degrees += curveSpeed * mFT;
-				body.setVelocity(ssvs::getVecFromDegrees(degrees, speed));
+				body.setVelocity(ssvs::getVecFromDeg(degrees, speed));
 				if(tckLife.update(mFT)) destroy();
 			}
 			inline void draw() override { cDraw.setRotation(degrees); }

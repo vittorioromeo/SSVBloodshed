@@ -42,6 +42,7 @@ namespace ob
 				gs.addInput({{k::E}}, [=](float){ game.gameCamera.zoomIn(1.1f); });
 
 				gs.addInput({{k::R}}, [this](float){ game.newGame(); }, t::Once);
+				gs.addInput({{k::T}}, [this](float){ game.reloadSector(); }, t::Once);
 
 				gs.addInput({{k::Num0}},	[this](float){ game.factory.createPit(game.getMousePosition()); }, t::Once);
 				gs.addInput({{k::Num1}},	[this](float){ game.factory.createWall(game.getMousePosition(), game.getAssets().wallSingle); }, t::Once);

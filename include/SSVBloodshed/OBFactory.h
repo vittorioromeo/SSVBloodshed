@@ -44,12 +44,15 @@ namespace ob
 
 			Entity& createFloor(const Vec2i& mPos, bool mGrate = false);
 			Entity& createPit(const Vec2i& mPos);
+			Entity& createTrapdoor(const Vec2i& mPos);
 			Entity& createWall(const Vec2i& mPos, const sf::IntRect& mIntRect);
 			Entity& createWallDestructible(const Vec2i& mPos, const sf::IntRect& mIntRect);
 			Entity& createDoor(const Vec2i& mPos, const sf::IntRect& mIntRect, int mId, bool mOpen);
 			Entity& createDoorG(const Vec2i& mPos, const sf::IntRect& mIntRect, bool mOpen);
+			Entity& createDoorR(const Vec2i& mPos, const sf::IntRect& mIntRect, bool mOpen);
 			Entity& createPPlate(const Vec2i& mPos, int mId, PPlateType mType, OBIdAction mIdAction);
 			Entity& createPlayer(const Vec2i& mPos);
+			Entity& createShard(const Vec2i& mPos);
 
 			// Enemies
 			Entity& createEBall(const Vec2i& mPos, bool mFlying, bool mSmall = false);

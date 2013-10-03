@@ -30,10 +30,10 @@ namespace ob
 
 			inline void triggerNeighbors(bool mTrigger)
 			{
-				auto gridQuery(cPhys.getWorld().getQuery<ssvsc::QueryType::Distance>(cPhys.getPosI(), 1000));
+				auto query(cPhys.getWorld().getQuery<ssvsc::QueryType::Distance>(cPhys.getPosI(), 1000));
 
 				Body* body;
-				while((body = gridQuery.next()) != nullptr)
+				while((body = query.next()) != nullptr)
 				{
 					if(body->hasGroup(OBGroup::GPPlate))
 					{

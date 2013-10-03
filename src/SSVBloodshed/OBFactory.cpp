@@ -19,6 +19,7 @@
 #include "SSVBloodshed/Components/OBCIdReceiver.h"
 #include "SSVBloodshed/Components/OBCDoor.h"
 #include "SSVBloodshed/Components/OBCPPlate.h"
+#include "SSVBloodshed/Components/OBCTrapdoor.h"
 
 using namespace std;
 using namespace sf;
@@ -100,6 +101,13 @@ namespace ob
 		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.pit);
 		return getEntity(tpl);
 	}
+	Entity& OBFactory::createTrapdoor(const Vec2i& mPos)
+	{
+		auto tpl(createActorBase(mPos, {1000, 1000}, OBLayer::LTrapdoor));
+		getEntity(tpl).createComponent<OBCTrapdoor>(getCPhys(tpl), getCDraw(tpl));
+		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.trapdoor);
+		return getEntity(tpl);
+	}
 	Entity& OBFactory::createWall(const Vec2i& mPos, const sf::IntRect& mIntRect)
 	{
 		auto tpl(createActorBase(mPos, {1000, 1000}, OBLayer::LWall, true));
@@ -131,6 +139,13 @@ namespace ob
 		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, mIntRect);
 		return getEntity(tpl);
 	}
+	Entity& OBFactory::createDoorR(const Vec2i& mPos, const sf::IntRect& mIntRect, bool mOpen)
+	{
+		auto tpl(createActorBase(mPos, {1000, 1000}, OBLayer::LWall, true));
+		getEntity(tpl).createComponent<OBCDoorR>(getCPhys(tpl), getCDraw(tpl), mOpen);
+		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, mIntRect);
+		return getEntity(tpl);
+	}
 	Entity& OBFactory::createPPlate(const Vec2i& mPos, int mId, PPlateType mType, OBIdAction mIdAction)
 	{
 		auto tpl(createActorBase(mPos, {1000, 1000}, OBLayer::LFloor));
@@ -150,6 +165,14 @@ namespace ob
 		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.p1Gun);
 		return getEntity(tpl);
 	}
+	Entity& OBFactory::createShard(const Vec2i& mPos)
+	{
+		auto tpl(createActorBase(mPos, {400, 400}, OBLayer::LShard));
+		getEntity(tpl).createComponent<OBCShard>(getCPhys(tpl), getCDraw(tpl));
+		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.shard);
+		return getEntity(tpl);
+	}
+
 	Entity& OBFactory::createEBall(const Vec2i& mPos, bool mFlying, bool mSmall)
 	{
 		auto tpl(createEnemyBase(mPos, {750, 750}, mSmall ? 2 : 5));
@@ -265,7 +288,7 @@ namespace ob
 		{
 			for(int i{0}; i < 360; i += 360 / 10)
 			{
-				getCProjectile(tpl).createChild(createPJBoltPlasma(getCPhys(tpl).getPosI() + Vec2i(ssvs::getVecFromDegrees<float>(i) * 300.f), i));
+				getCProjectile(tpl).createChild(createPJBoltPlasma(getCPhys(tpl).getPosI() + Vec2i(ssvs::getVecFromDeg<float>(i) * 300.f), i));
 			}
 		};
 		getCDraw(tpl).setBlendMode(sf::BlendMode::BlendAdd);
@@ -284,7 +307,7 @@ namespace ob
 		{
 			for(int i{0}; i < 360; i += 360 / 10)
 			{
-				getCProjectile(tpl).createChild(createPJBoltPlasma(getCPhys(tpl).getPosI() + Vec2i(ssvs::getVecFromDegrees<float>(i) * 300.f), i));
+				getCProjectile(tpl).createChild(createPJBoltPlasma(getCPhys(tpl).getPosI() + Vec2i(ssvs::getVecFromDeg<float>(i) * 300.f), i));
 			}
 		};
 		return getEntity(tpl);

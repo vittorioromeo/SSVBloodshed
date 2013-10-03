@@ -45,15 +45,20 @@ namespace ob
 		GFriendly,
 		GEnemy,
 		GIdReceiver,
-		GPPlate
+		GPPlate,
+		GTrapdoor,
+		GPlayer,
+		GShard
 	};
 	enum OBLayer : int
 	{
 		LPlayer,
 		LEnemy,
-		LWall,
 		LProjectile,
+		LShard,
+		LWall,
 		LPSTemp,
+		LTrapdoor,
 		LPit,
 		LFloorGrate,
 		LPSPerm,
@@ -89,7 +94,9 @@ namespace ob
 		LETDoor,
 		LETPPlateSingle,
 		LETPPlateMulti,
-		LETDoorG
+		LETDoorG,
+		LETTrapdoor,
+		LETDoorR
 	};
 
 	// Pixel <-> coords utils
@@ -104,7 +111,7 @@ namespace ob
 	template<typename T = float> inline T getDegFromDir8(Dir8 mDir) noexcept { return T(int(mDir) * dir8Step); }
 	template<typename T> inline Dir8 getDir8FromDeg(T mDegrees) noexcept
 	{
-		mDegrees = ssvu::wrapDegrees(mDegrees);
+		mDegrees = ssvu::wrapDeg(mDegrees);
 		int i{static_cast<int>((mDegrees + dir8Step / 2) / dir8Step)};
 		return Dir8(i % 8);
 	}
@@ -143,7 +150,7 @@ namespace ob
 		assert(mTimes > 0);
 		auto& action(mTimeline.append<ssvu::Do>(mAction));
 		mTimeline.append<ssvu::Wait>(mWait);
-		mTimeline.append<ssvu::Go>(action.getIndex(), mTimes - 1);
+		mTimeline.append<ssvu::Go>(action.getIdx(), mTimes - 1);
 	}
 
 	// Other utils
