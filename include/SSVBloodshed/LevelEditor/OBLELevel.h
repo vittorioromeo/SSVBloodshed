@@ -65,6 +65,8 @@ namespace ob
 			inline int getColumns() const noexcept						{ return columns; }
 			inline int getRows() const noexcept							{ return rows; }
 			inline int getDepth() const noexcept						{ return depth; }
+			inline int getWidth() const noexcept						{ return columns * 10; }
+			inline int getHeight() const noexcept						{ return rows * 10; }
 			inline int getX() const noexcept							{ return x; }
 			inline int getY() const noexcept							{ return y; }
 			inline bool isValid(int mX, int mY, int mZ) const noexcept	{ return mX >= 0 && mY >= 0 && mZ >= -depth && mX < columns && mY < rows && mZ < depth; }

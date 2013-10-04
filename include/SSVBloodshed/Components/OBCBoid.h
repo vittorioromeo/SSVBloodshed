@@ -59,7 +59,7 @@ namespace ob
 				body.applyForce(getEvadeForce(mTarget.getPosF(), mTarget.getVel()) * mForceMult);
 			}
 
-			inline void setMaxVelocity(float mValue) noexcept	{ maxVelocity = mValue; }
+			inline void setMaxVel(float mValue) noexcept	{ maxVelocity = mValue; }
 			inline float getMaxVelocity() const noexcept		{ return maxVelocity; }
 	};
 }

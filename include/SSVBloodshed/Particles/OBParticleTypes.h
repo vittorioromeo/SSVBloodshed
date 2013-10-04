@@ -104,6 +104,17 @@ namespace ob
 				1.0f,
 				ssvu::getRndR(-2.5f, 2.5f));
 	}
+	inline void createPShard(OBParticleSystem& mPS, const Vec2f& mPosition)
+	{
+		mPS.emplace(mPosition,
+				ssvs::getVecFromDeg(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(0.3f, 5.4f)),
+				0.97f,
+				(ssvu::getRnd(0, 10) > 7) ? sf::Color::Yellow : sf::Color::Red,
+				1.2f + ssvu::getRndR<float>(-0.3, 0.3),
+				25 + ssvu::getRnd(-10, 15),
+				1.0f,
+				ssvu::getRndR(-2.5f, 2.5f));
+	}
 }
 
 #endif

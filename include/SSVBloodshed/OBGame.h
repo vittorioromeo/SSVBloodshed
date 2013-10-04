@@ -81,6 +81,21 @@ namespace ob
 			inline void reloadSector()	{ loadSector("./level.txt"); newGame(); }
 			inline void newGame()		{ currentLevelX = currentLevelY = 0; loadLevel(); }
 
+			inline void createBounds()
+			{
+				int width{toCoords(currentLevel->getWidth())}, height{toCoords(currentLevel->getHeight())}, offset{toCoords(100)};
+
+				std::initializer_list<std::pair<Vec2i, Vec2i>> bounds
+				{
+					{{0 - offset, 0},	{0, height}},
+					{{width, 0},		{width + offset, height}},
+					{{0, 0 - offset},	{width, 0}},
+					{{0, height},		{width, height + offset}}
+				};
+
+				for(const auto& p : bounds) world.create(ssvs::getCenter(p.first, p.second), ssvs::getSize(p.first, p.second), true).addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir);
+			}
+
 			inline void loadSector(const ssvu::FileSystem::Path& mPath)
 			{
 				try { sector = ssvuj::as<OBLESector>(ssvuj::readFromFile(mPath)); }
@@ -97,20 +112,20 @@ namespace ob
 					for(auto& p : currentLevel->getTiles()) database.spawn(*currentLevel, p.second, getTilePos(p.second.getX(), p.second.getY()));
 				}
 				catch(...) { ssvu::lo("Fatal error") << "Failed to load level" << std::endl; }
+
+				createBounds();
 			}
 
 			template<typename TPlayer> inline void changeLevel(const TPlayer& mPlayer, int mDirX, int mDirY)
 			{
 				auto playerData(mPlayer.getData());
+				int nextLevelX{currentLevelX + mDirX}, nextLevelY{currentLevelY + mDirY}, offset{toCoords(10)};
 
-				int nextLevelX{currentLevelX + mDirX};
-				int nextLevelY{currentLevelY + mDirY};
+				if(mDirX == 1) playerData.pos.x = toCoords(0) + offset;
+				else if(mDirX == -1) playerData.pos.x = toCoords(currentLevel->getWidth()) - offset;
 
-				if(mDirX == 1) playerData.pos.x = toCoords(0) + 1000;
-				else if(mDirX == -1) playerData.pos.x = toCoords(320) - 1000;
-
-				if(mDirY == 1) playerData.pos.y = toCoords(0) + 1000;
-				else if(mDirY == -1) playerData.pos.y = toCoords(240) - 1000;
+				if(mDirY == 1) playerData.pos.y = toCoords(0) + offset;
+				else if(mDirY == -1) playerData.pos.y = toCoords(currentLevel->getHeight()) - offset;
 
 				onPostUpdate += [this, nextLevelX, nextLevelY, playerData]
 				{
@@ -198,10 +213,13 @@ namespace ob
 			inline void createPSmoke(unsigned int mCount, const Vec2f& mPos)					{ for(auto i(0u); i < mCount; ++i) ob::createPSmoke(particles.getPSTemp(), mPos); }
 			inline void createPElectric(unsigned int mCount, const Vec2f& mPos)					{ for(auto i(0u); i < mCount; ++i) ob::createPElectric(particles.getPSTempAdd(), mPos); }
 			inline void createPCharge(unsigned int mCount, const Vec2f& mPos, float mDist)		{ for(auto i(0u); i < mCount; ++i) ob::createPCharge(particles.getPSTempAdd(), mPos, mDist); }
+			inline void createPShard(unsigned int mCount, const Vec2f& mPos)					{ for(auto i(0u); i < mCount; ++i) ob::createPShard(particles.getPSTempAdd(), mPos); }
 	};
 }
 
 // TODO: bullet sensor pressure plates, SSVSC refactoring/optimization, red doors
 // TODO: fix bounces, decouple weapon sprite from enemy sprite, explosives, enemy orientation, organic group?, do not pierce breakable wall etc
+// TODO: particles, tripwires, laserwires, etc
+// TODO: consider changing body.onResolution lambda with a bool
 
 #endif

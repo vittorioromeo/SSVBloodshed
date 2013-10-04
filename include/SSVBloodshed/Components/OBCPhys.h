@@ -64,6 +64,7 @@ namespace ob
 			inline Vec2f getPosPixels() const noexcept				{ return toPixels(body.getPosition()); }
 			inline Vec2f getPosF() const noexcept					{ return Vec2f(body.getPosition()); }
 			inline const Vec2f& getVel() const noexcept				{ return body.getVelocity(); }
+			inline const Vec2f& getOldVel() const noexcept			{ return body.getOldVelocity(); }
 			inline float getLeft() const noexcept					{ return body.getShape().getLeft(); }
 			inline float getRight() const noexcept					{ return body.getShape().getRight(); }
 			inline float getTop() const noexcept					{ return body.getShape().getTop(); }

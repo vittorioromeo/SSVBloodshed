@@ -97,7 +97,7 @@ namespace ob
 			inline void init() override
 			{
 				cWpnController.setWpn(OBWpnTypes::createEPlasmaBulletGun());
-				cEnemy.setMaxVelocity(200.f);
+				cEnemy.setMinBounceVel(125.f); cEnemy.setMaxVel(200.f);
 				cKillable.setType(OBCKillable::Type::Organic);
 			}
 			inline void update(float) override
@@ -137,7 +137,7 @@ namespace ob
 			inline void init() override
 			{
 				cWpnController.setWpn(OBWpnTypes::createEPlasmaBulletGun(1, 8.f));
-				cEnemy.setMaxVelocity(50.f);
+				cEnemy.setMinBounceVel(20.f); cEnemy.setMaxVel(50.f);
 				cWielder.setWieldDist(2000.f);
 				cKillable.setType(OBCKillable::Type::Organic);
 				cKillable.setParticleMult(2);
@@ -192,7 +192,7 @@ namespace ob
 			inline void init() override
 			{
 				cWpnController.setWpn(OBWpnTypes::createEPlasmaBulletGun(2, 8.f));
-				cEnemy.setMaxVelocity(50.f);
+				cEnemy.setMinBounceVel(15.f); cEnemy.setMaxVel(50.f);
 				cKillable.setParticleMult(4);
 				cKillable.onDeath += [this]{ assets.playSound("Sounds/alienDeath.wav"); };
 				cKillable.setType(OBCKillable::Type::Organic);
@@ -264,7 +264,7 @@ namespace ob
 
 				cKillable.setType(OBCKillable::Type::Robotic);
 				cEnemy.setFaceDirection(false);
-				cEnemy.setMaxVelocity(400.f);
+				cEnemy.setMinBounceVel(100.f); cEnemy.setMaxVel(400.f);
 
 				if(flying)
 				{
@@ -302,7 +302,7 @@ namespace ob
 				cKillable.setParticleMult(8);
 				cKillable.onDeath += [this]{ assets.playSound("Sounds/alienDeath.wav"); };
 
-				cEnemy.setMaxVelocity(100.f);
+				cEnemy.setMinBounceVel(10.f); cEnemy.setMaxVel(75.f);
 
 				repeat(tlCannon, [this]{ shootCannon(0); }, -1, 100.f);
 
@@ -366,7 +366,7 @@ namespace ob
 			inline void init() override
 			{
 				cKillable.setParticleMult(3);
-				cEnemy.setMaxVelocity(115.f);
+				cEnemy.setMinBounceVel(45.f); cEnemy.setMaxVel(115.f);
 				tckShoot.setLoop(false);
 			}
 			inline void update(float mFT) override
