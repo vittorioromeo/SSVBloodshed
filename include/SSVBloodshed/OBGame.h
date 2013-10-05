@@ -221,5 +221,6 @@ namespace ob
 // TODO: fix bounces, decouple weapon sprite from enemy sprite, explosives, enemy orientation, organic group?, do not pierce breakable wall etc
 // TODO: particles, tripwires, laserwires, etc
 // TODO: consider changing body.onResolution lambda with a bool
+// TODO: turrets must drop shards (dropshard component?)
 
 #endif
