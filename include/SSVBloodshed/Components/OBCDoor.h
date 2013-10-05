@@ -72,7 +72,7 @@ namespace ob
 
 		public:
 			OBCDoorR(OBCPhys& mCPhys, OBCDraw& mCDraw, bool mOpen = false) : OBCDoorBase{mCPhys, mCDraw, mOpen} { }
-			inline void update(float) override { if(!triggered && getManager().getEntityCount(OBGroup::GTrapdoor) <= 0 ) { toggle(); triggered = true; } }
+			inline void update(float) override { if(!triggered && getManager().getEntityCount(OBGroup::GTrapdoor) <= 0) { toggle(); triggered = true; } }
 	};
 }
 
