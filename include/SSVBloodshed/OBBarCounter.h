@@ -16,7 +16,7 @@ namespace ob
 			float barWidth, barHeight;
 			unsigned int barCount;
 			float value, minValue, maxValue;
-			sf::VertexArray vertices{sf::PrimitiveType::Quads};
+			ssvs::VertexVector<sf::PrimitiveType::Quads> vertices;
 			sf::FloatRect bounds;
 			sf::Color color{sf::Color::White};
 			int tracking{0};
@@ -42,10 +42,10 @@ namespace ob
 					float gTop{iY * barHeight};						if(yMin > gTop) yMin = gTop;
 					float gBottom{(iY + 1) * barHeight};			if(yMax < gBottom) yMax = gBottom;
 
-					vertices.append({{gLeft,	gTop},		color});
-					vertices.append({{gRight,	gTop},		color});
-					vertices.append({{gRight,	gBottom},	color});
-					vertices.append({{gLeft,	gBottom},	color});
+					vertices.emplace_back(Vec2f{gLeft,	gTop},		color);
+					vertices.emplace_back(Vec2f{gRight,	gTop},		color);
+					vertices.emplace_back(Vec2f{gRight,	gBottom},	color);
+					vertices.emplace_back(Vec2f{gLeft,	gBottom},	color);
 
 					++iX;
 				}
@@ -53,7 +53,7 @@ namespace ob
 				bounds = {xMin, yMin, xMax - xMin, yMax - yMin};
 				mustRefreshGeometry = false;
 			}
-			void refreshColor() { for(auto i(0u); i < vertices.getVertexCount(); ++i) vertices[i].color = color; mustRefreshColor = false; }
+			void refreshColor() { for(auto& v : vertices) v.color = color; mustRefreshColor = false; }
 			void refresh() const
 			{
 				if(mustRefreshGeometry) const_cast<OBBarCounter*>(this)->refreshGeometry();

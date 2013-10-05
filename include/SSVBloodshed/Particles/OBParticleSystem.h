@@ -10,20 +10,11 @@
 
 namespace ob
 {
-	template<sf::PrimitiveType TPrimitive> struct VertexVector : public std::vector<sf::Vertex>
-	{
-		using std::vector<sf::Vertex>::vector;
-		inline void draw(sf::RenderTarget& mRenderTarget, sf::RenderStates mRenderStates) const
-		{
-			mRenderTarget.draw(&this->operator [](0), this->size(), TPrimitive, mRenderStates);
-		}
-	};
-
 	class OBParticleSystem : public sf::Drawable
 	{
 		private:
 			unsigned int maxParticles{10000};
-			VertexVector<sf::PrimitiveType::Quads> vertices;
+			ssvs::VertexVector<sf::PrimitiveType::Quads> vertices;
 			std::vector<OBParticle> particles;
 
 		public:
@@ -42,7 +33,7 @@ namespace ob
 					vertices.emplace_back(Vec2f{p.getPosition().x - p.getSize(), p.getPosition().y + p.getSize()}, p.getColor());
 				}
 			}
-			inline void draw(sf::RenderTarget& mRenderTarget, sf::RenderStates mRenderStates) const override { vertices.draw(mRenderTarget, mRenderStates); }
+			inline void draw(sf::RenderTarget& mRenderTarget, sf::RenderStates mRenderStates) const override { mRenderTarget.draw(vertices, mRenderStates); }
 			inline void clear() { vertices.clear(); particles.clear(); }
 
 	};
