@@ -31,11 +31,11 @@ namespace ob
 
 			inline void init() override
 			{
-				getEntity().addGroup(OBGroup::GEnemy);
+				getEntity().addGroups(OBGroup::GEnemy, OBGroup::GEnemyKillable);
 
 				cKillable.getCHealth().setCooldown(0.5f);
 
-				body.addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir, OBGroup::GEnemy, OBGroup::GOrganic);
+				body.addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir, OBGroup::GEnemy, OBGroup::GEnemyKillable, OBGroup::GOrganic);
 				body.addGroupToCheck(OBGroup::GSolidGround);
 				body.setRestitutionX(1.f);
 				body.setRestitutionY(1.f);
@@ -52,11 +52,11 @@ namespace ob
 				};
 				body.onDetection += [this](const DetectionInfo& mDI)
 				{
-					if(mDI.body.hasGroup(OBGroup::GFriendly)) getEntityFromBody(mDI.body).getComponent<OBCHealth>().damage(bodyDamage);
+					if(mDI.body.hasGroup(OBGroup::GFriendlyKillable)) getEntityFromBody(mDI.body).getComponent<OBCHealth>().damage(bodyDamage);
 				};
 				body.onResolution += [this](const ResolutionInfo&){ bounce = true; };
 
-				cKillable.onDeath += [this]{ for(int i{0}; i < 1 + (cKillable.getCHealth().getMaxHealth() / 3); ++i) getFactory().createShard(cPhys.getPosI()); };
+				cKillable.onDeath += [this]{ game.createEShard(1 + cKillable.getCHealth().getMaxHealth() / 3, cPhys.getPosI()); };
 			}
 
 			inline void update(float mFT) override

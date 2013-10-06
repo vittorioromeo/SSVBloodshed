@@ -40,9 +40,11 @@ namespace ob
 				gs.addInput({{k::S}},		[this](float){ editor.cycleId(1); }, t::Once);
 				gs.addInput({{k::Q}},		[this](float){ editor.cycleParam(-1); }, t::Once);
 				gs.addInput({{k::W}},		[this](float){ editor.cycleParam(1); }, t::Once);
+				gs.addInput({{k::T}},		[this](float){ editor.cycleCurrentParam(-100); }, t::Once);
+				gs.addInput({{k::Y}},		[this](float){ editor.cycleCurrentParam(100); }, t::Once);
 				gs.addInput({{k::N}},		[this](float){ editor.copyParams(); });
 				gs.addInput({{k::M}},		[this](float){ editor.pasteParams(); });
-				gs.addInput({{k::LShift}},	[this](float){ editor.pick(); }, t::Once);
+				gs.addInput({{b::Middle}},	[this](float){ editor.pick(); }, t::Once);
 				gs.addInput({{k::F1}},		[this](float){ editor.getGameWindow().setGameState(editor.game->getGameState()); }, t::Once);
 
 				gs.addInput({{k::Numpad4}},	[this](float){ editor.cycleLevel(-1, 0); }, t::Once);
@@ -55,9 +57,9 @@ namespace ob
 					int dir{ssvu::getSign(mEvent.mouseWheel.delta)};
 
 					if(modShift && modCtrl)	editor.cycleCurrentParam(dir);
-					else if(modShift && !modCtrl) editor.cycleBrush(dir);
+					else if(modShift && !modCtrl) editor.cycleRot(dir * 45);
 					else if(modCtrl && !modShift) editor.cycleBrushSize(dir);
-					else editor.cycleRot(dir * 45);
+					else editor.cycleBrush(dir);
 				};
 
 			}

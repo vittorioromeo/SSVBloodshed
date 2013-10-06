@@ -23,7 +23,8 @@ namespace ob
 			{
 				std::ostringstream s;
 				const auto& entities(game.getManager().getEntities());
-				const auto& bodies(game.getWorld().getBodies());
+				const auto& bodies(game.getWorld().getBodies().getItems());
+				const auto& sensors(game.getWorld().getBodies().getItems());
 				std::size_t componentCount{0}, dynamicBodiesCount{0};
 				for(const auto& e : entities) componentCount += e->getComponents().size();
 				for(const auto& b : bodies) if(!b->isStatic()) ++dynamicBodiesCount;
@@ -33,7 +34,7 @@ namespace ob
 					<< "Bodies(all): "		<< bodies.size() << "\n"
 					<< "Bodies(static): "	<< bodies.size() - dynamicBodiesCount << "\n"
 					<< "Bodies(dynamic): "	<< dynamicBodiesCount << "\n"
-					<< "Sensors: "			<< game.getWorld().getSensors().size() << "\n"
+					<< "Sensors: "			<< sensors.size() << "\n"
 					<< "Entities: "			<< entities.size() << "\n"
 					<< "Components: "		<< componentCount << std::endl;
 

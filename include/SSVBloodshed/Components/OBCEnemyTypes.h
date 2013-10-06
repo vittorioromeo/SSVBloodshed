@@ -184,7 +184,7 @@ namespace ob
 			ssvs::Ticker tckShoot{150.f};
 			ssvu::Timeline tlShoot{false};
 			float lastDeg{0};
-			OBWpn wpn{game, OBGroup::GFriendly, OBWpnTypes::createEPlasmaStarGun(0)};
+			OBWpn wpn{game, OBGroup::GFriendlyKillable, OBWpnTypes::createEPlasmaStarGun(0)};
 
 		public:
 			OBCEJuggernaut(OBCEnemy& mCEnemy, OBCWielder& mCWielder, OBCWpnController& mCWpnController, bool mArmed) : OBCEArmedBase{mCEnemy, mCWielder, mCWpnController, mArmed, 18} { }
@@ -290,8 +290,8 @@ namespace ob
 		private:
 			ssvs::Ticker tckShoot{185.f};
 			ssvu::Timeline tlShoot{false}, tlSummon{false}, tlCannon{true};
-			OBWpn wpn{game, OBGroup::GFriendly, OBWpnTypes::createEPlasmaStarGun()};
-			OBWpn wpnC{game, OBGroup::GFriendly, OBWpnTypes::createPlasmaCannon()};
+			OBWpn wpn{game, OBGroup::GFriendlyKillable, OBWpnTypes::createEPlasmaStarGun()};
+			OBWpn wpnC{game, OBGroup::GFriendlyKillable, OBWpnTypes::createPlasmaCannon()};
 			float lastDeg{0};
 
 		public:
@@ -358,7 +358,7 @@ namespace ob
 	{
 		private:
 			ssvs::Ticker tckShoot{100.f};
-			OBWpn wpn{game, OBGroup::GFriendly, OBWpnTypes::createPlasmaCannon()};
+			OBWpn wpn{game, OBGroup::GFriendlyKillable, OBWpnTypes::createPlasmaCannon()};
 
 		public:
 			OBCEEnforcer(OBCEnemy& mCEnemy) : OBCEBase{mCEnemy} { }

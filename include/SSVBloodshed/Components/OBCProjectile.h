@@ -19,7 +19,7 @@ namespace ob
 			ssvs::Ticker tckLife{150.f};
 			float speed{125.f}, degrees{0.f}, curveSpeed{0.f}, damage{1};
 			int pierceOrganic{0};
-			OBGroup targetGroup{OBGroup::GEnemy};
+			OBGroup targetGroup{OBGroup::GEnemyKillable};
 
 			inline void destroy() { getEntity().destroy(); onDestroy(); }
 

@@ -36,8 +36,7 @@ namespace ob
 
 			inline int getWallMask(TLevel& mL, OBLETType mType, int mX, int mY, int mZ)
 			{
-				int mask{0};
-				constexpr int maxX{320 / 10}, maxY{240 / 10 - 2}; // TODO: get level size from mL
+				int mask{0}, maxX{mL.getColumns()}, maxY{mL.getRows()};
 				auto tileIs = [&](int mTX, int mTY, OBLETType mType){ if(mTX < 0 || mTY < 0 || mTX >= maxX || mTY >= maxY) return false; return mL.getTile(mTX, mTY, mZ).getType() == mType; };
 				mask += tileIs(mX, mY - 1, mType) << 0;
 				mask += tileIs(mX + 1, mY, mType) << 1;
@@ -54,7 +53,6 @@ namespace ob
 				add(OBLETType::LETFloor,			a.txSmall,		a.floor,				{},							[this](TLevel&, TTile&, const Vec2i& mP){ f->createFloor(mP, false); });
 				add(OBLETType::LETGrate,			a.txSmall,		a.floorGrate,			{},							[this](TLevel&, TTile&, const Vec2i& mP){ f->createFloor(mP, true); });
 				add(OBLETType::LETPit,				a.txSmall,		a.pit,					{},							[this](TLevel&, TTile&, const Vec2i& mP){ f->createPit(mP); });
-				add(OBLETType::LETSpawner,			a.txSmall,		a.pjCannonPlasma,		{{"spawns", {}}},			[this](TLevel&, TTile&, const Vec2i&){ /* TODO: */ });
 				add(OBLETType::LETTurretSP,			a.txSmall,		a.eTurret0,				{{"rot", 0}},				[this](TLevel&, TTile& mT, const Vec2i& mP){ f->createETurretStarPlasma(mP, getDir8FromDeg(getP<float>(mT, "rot"))); });
 				add(OBLETType::LETTurretCP,			a.txSmall,		a.eTurret1,				{{"rot", 0}},				[this](TLevel&, TTile& mT, const Vec2i& mP){ f->createETurretCannonPlasma(mP, getDir8FromDeg(getP<float>(mT, "rot"))); });
 				add(OBLETType::LETTurretBP,			a.txSmall,		a.eTurret2,				{{"rot", 0}},				[this](TLevel&, TTile& mT, const Vec2i& mP){ f->createETurretBulletPlasma(mP, getDir8FromDeg(getP<float>(mT, "rot"))); });
@@ -106,6 +104,12 @@ namespace ob
 				{
 					int mask{getWallMask(mL, OBLETType::LETDoorR, mT.getX(), mT.getY(), mT.getZ())};
 					f->createFloor(mP, true); f->createDoorR(mP, *a.doorRBitMask[mask], bool(getP<int>(mT, "open")));
+				});
+
+				add(OBLETType::LETSpawner,			a.txSmall,		a.shard,				{{"type", 0}, {"delayStart", 0.f}, {"delaySpawn", 200.f}, {"spawnCount", 1}},
+				[this](TLevel&, TTile& mT, const Vec2i& mP)
+				{
+					f->createSpawner(mP, getP<int>(mT, "type"), getP<float>(mT, "delayStart"), getP<float>(mT, "delaySpawn"), getP<int>(mT, "spawnCount"));
 				});
 			}
 

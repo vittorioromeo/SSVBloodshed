@@ -57,9 +57,10 @@ namespace ob
 					game.testhp.setValue(0.f);
 				};
 
-				getEntity().addGroups(OBGroup::GFriendly, OBGroup::GPlayer);
-				body.addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir, OBGroup::GFriendly, OBGroup::GOrganic, OBGroup::GPlayer);
+				getEntity().addGroups(OBGroup::GFriendly, OBGroup::GFriendlyKillable, OBGroup::GPlayer);
+				body.addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir, OBGroup::GFriendly, OBGroup::GFriendlyKillable, OBGroup::GOrganic, OBGroup::GPlayer);
 				body.addGroupToCheck(OBGroup::GSolidGround);
+				body.addGroupNoResolve(OBGroup::GLevelBound);
 			}
 
 			inline void updateInput()
@@ -90,27 +91,31 @@ namespace ob
 					for(auto& e : getManager().getEntities(OBGroup::GShard))
 					{
 						auto& c(e->getComponent<OBCPhys>());
-						if(ssvs::getMagnitude(c.getVel()) < 650.f) c.getBody().applyForce(Vec2f(cPhys.getPosI() - c.getPosI()) * 0.002f);
 						c.getBody().addGroupNoResolve(OBGroup::GSolidGround);
+						if(ssvs::getDistEuclidean(c.getPosI(), cPhys.getPosI()) > 1500)
+						{
+							if(ssvs::getMagnitude(c.getVel()) < 650.f) c.getBody().applyForce(Vec2f(cPhys.getPosI() - c.getPosI()) * 0.002f);
+						}
+						else c.setVel(Vec2f(cPhys.getPosI() - c.getPosI()));
 					}
 				}
+			}
+
+			inline void updateHUD()
+			{
+				// TODO:
+				auto& cHealth(getEntity().getComponent<OBCHealth>());
+				game.testhp.setValue(cHealth.getHealth());
+				game.testhp.setMaxValue(cHealth.getMaxHealth());
+				game.txtShards.setString(ssvu::toStr(shards + currentShards));
 			}
 
 			inline void update(float) override
 			{
 				updateInput();
-
-				{ // TODO:
-					auto& cHealth(getEntity().getComponent<OBCHealth>());
-					game.testhp.setValue(cHealth.getHealth());
-					game.testhp.setMaxValue(cHealth.getMaxHealth());
-				}
-
-				{ // TODO:
-					game.txtShards.setString(ssvu::toStr(shards + currentShards));
-				}
-
+				updateHUD();
 				attractShards();
+
 				if(game.isLevelClear()) { shards += currentShards; currentShards = 0; }
 
 				{
@@ -155,41 +160,6 @@ namespace ob
 				result.dir = cDir8;
 				result.shards = shards;
 				return result;
-			}
-	};
-
-	class OBCShard : public OBCActorBase
-	{
-		public:
-			OBCShard(OBCPhys& mCPhys, OBCDraw& mCDraw) : OBCActorBase{mCPhys, mCDraw} { }
-
-			inline void init() override
-			{
-				getEntity().addGroup(OBGroup::GShard);
-				body.addGroup(OBGroup::GShard);
-				body.addGroupsToCheck(OBGroup::GSolidGround, OBGroup::GFriendly);
-				body.addGroupNoResolve(OBGroup::GOrganic);
-				body.setRestitutionX(0.8f);
-				body.setRestitutionY(0.8f);
-				body.onPreUpdate += [this]{ body.setVelocity(ssvs::getCClampedMax(body.getVelocity() * 0.99f, 600.f)); };
-				body.onDetection += [this](const DetectionInfo& mDI)
-				{
-					if(mDI.body.hasGroup(OBGroup::GPlayer))
-					{
-						getEntityFromBody(mDI.body).getComponent<OBCPlayer>().shardGrabbed();
-						getEntity().destroy();
-						game.createPShard(20, cPhys.getPosPixels());
-					}
-				};
-
-				body.setVelocity(ssvs::getVecFromDeg(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(100.f, 370.f)));
-				cDraw.setBlendMode(sf::BlendMode::BlendAdd);
-				cDraw.setGlobalScale({0.65f, 0.65f});
-			}
-
-			inline void update(float) override
-			{
-				cDraw[0].rotate(ssvs::getMagnitude(body.getVelocity()) * 0.01f);
 			}
 	};
 }

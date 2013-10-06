@@ -43,12 +43,15 @@ namespace ob
 		GOrganic,
 		GFloor,
 		GFriendly,
+		GFriendlyKillable,
 		GEnemy,
+		GEnemyKillable,
 		GIdReceiver,
 		GPPlate,
 		GTrapdoor,
 		GPlayer,
-		GShard
+		GShard,
+		GLevelBound
 	};
 	enum OBLayer : int
 	{

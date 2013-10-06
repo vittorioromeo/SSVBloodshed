@@ -29,16 +29,18 @@ namespace ob
 
 		public:
 			OBCTurret(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCKillable& mCKillable, Dir8 mDir, const OBWpnType& mWpn, float mShootDelay, float mPJDelay, int mShootCount)
-				: OBCActorBase{mCPhys, mCDraw}, cKillable(mCKillable), direction{mDir}, wpn{game, OBGroup::GFriendly, mWpn}, shootDelay{mShootDelay}, pjDelay{mPJDelay}, shootCount{mShootCount} { }
+				: OBCActorBase{mCPhys, mCDraw}, cKillable(mCKillable), direction{mDir}, wpn{game, OBGroup::GFriendlyKillable, mWpn}, shootDelay{mShootDelay}, pjDelay{mPJDelay}, shootCount{mShootCount} { }
 
 			inline void init() override
 			{
-				getEntity().addGroup(OBGroup::GEnemy);
+				getEntity().addGroups(OBGroup::GEnemy, OBGroup::GEnemyKillable);
 				body.setResolve(false);
-				body.addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir, OBGroup::GEnemy);
+				body.addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir, OBGroup::GEnemy, OBGroup::GEnemyKillable);
 
 				tckShoot.restart(shootDelay);
 				repeat(tlShoot, [this]{ shoot(); }, shootCount, pjDelay);
+
+				cKillable.onDeath += [this]{ game.createEShard(5, cPhys.getPosI()); };
 			}
 			inline void update(float mFT) override
 			{

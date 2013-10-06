@@ -93,7 +93,7 @@ namespace ob
 					{{0, height},		{width, height + offset}}
 				};
 
-				for(const auto& p : bounds) world.create(ssvs::getCenter(p.first, p.second), ssvs::getSize(p.first, p.second), true).addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir);
+				for(const auto& p : bounds) world.create(ssvs::getCenter(p.first, p.second), ssvs::getSize(p.first, p.second), true).addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir, OBGroup::GLevelBound);
 			}
 
 			inline void loadSector(const ssvu::FileSystem::Path& mPath)
@@ -138,7 +138,7 @@ namespace ob
 							loadLevel();
 
 							// Remove existing players (TODO: change)
-							for(auto& e : manager.getEntities(OBGroup::GFriendly)) e->destroy();
+							for(auto& e : manager.getEntities(OBGroup::GPlayer)) e->destroy();
 
 							// If the level was cleared, remove all enemies (TODO: change not spawn)
 							if(levelStats[currentLevel].clear) for(auto& e : manager.getEntities(OBGroup::GEnemy)) e->destroy();
@@ -214,13 +214,15 @@ namespace ob
 			inline void createPElectric(unsigned int mCount, const Vec2f& mPos)					{ for(auto i(0u); i < mCount; ++i) ob::createPElectric(particles.getPSTempAdd(), mPos); }
 			inline void createPCharge(unsigned int mCount, const Vec2f& mPos, float mDist)		{ for(auto i(0u); i < mCount; ++i) ob::createPCharge(particles.getPSTempAdd(), mPos, mDist); }
 			inline void createPShard(unsigned int mCount, const Vec2f& mPos)					{ for(auto i(0u); i < mCount; ++i) ob::createPShard(particles.getPSTempAdd(), mPos); }
+
+			inline void createEShard(unsigned int mCount, const Vec2i& mPos)					{ for(auto i(0u); i < mCount; ++i) factory.createShard(mPos); }
 	};
 }
 
-// TODO: bullet sensor pressure plates, SSVSC refactoring/optimization, red doors
-// TODO: fix bounces, decouple weapon sprite from enemy sprite, explosives, enemy orientation, organic group?, do not pierce breakable wall etc
-// TODO: particles, tripwires, laserwires, etc
+// TODO: bullet sensor pressure plates, SSVSC refactoring/optimization
+// TODO: decouple weapon sprite from enemy sprite, explosives, enemy orientation, organic group?, do not pierce breakable wall etc
+// TODO: tripwires, laserwires, etc
 // TODO: consider changing body.onResolution lambda with a bool
-// TODO: turrets must drop shards (dropshard component?)
+// TODO: editor pick tile in center
 
 #endif

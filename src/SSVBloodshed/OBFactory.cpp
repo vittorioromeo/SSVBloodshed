@@ -20,6 +20,8 @@
 #include "SSVBloodshed/Components/OBCDoor.h"
 #include "SSVBloodshed/Components/OBCPPlate.h"
 #include "SSVBloodshed/Components/OBCTrapdoor.h"
+#include "SSVBloodshed/Components/OBCShard.h"
+#include "SSVBloodshed/Components/OBCSpawner.h"
 
 using namespace std;
 using namespace sf;
@@ -118,7 +120,7 @@ namespace ob
 	Entity& OBFactory::createWallDestructible(const Vec2i& mPos, const sf::IntRect& mIntRect)
 	{
 		auto tpl(createKillableBase(mPos, {1000, 1000}, OBLayer::LWall, 20));
-		getCPhys(tpl).getBody().addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir, OBGroup::GFriendly, OBGroup::GEnemy);
+		getCPhys(tpl).getBody().addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir, OBGroup::GFriendlyKillable, OBGroup::GEnemyKillable);
 		getCPhys(tpl).getBody().setStatic(true);
 		getCKillable(tpl).setType(OBCKillable::Type::Wall);
 		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, mIntRect);
@@ -159,7 +161,7 @@ namespace ob
 		auto tpl(createKillableBase(mPos, {650, 650}, OBLayer::LPlayer, 10));
 		auto& cDir8(getEntity(tpl).createComponent<OBCDir8>());
 		auto& cWielder(getEntity(tpl).createComponent<OBCWielder>(getCPhys(tpl), getCDraw(tpl), cDir8));
-		auto& cWpnController(getEntity(tpl).createComponent<OBCWpnController>(getCPhys(tpl), OBGroup::GEnemy));
+		auto& cWpnController(getEntity(tpl).createComponent<OBCWpnController>(getCPhys(tpl), OBGroup::GEnemyKillable));
 		getEntity(tpl).createComponent<OBCPlayer>(getCPhys(tpl), getCDraw(tpl), getCKillable(tpl), cWielder, cWpnController);
 		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.p1Stand);
 		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.p1Gun);
@@ -169,6 +171,13 @@ namespace ob
 	{
 		auto tpl(createActorBase(mPos, {400, 400}, OBLayer::LShard));
 		getEntity(tpl).createComponent<OBCShard>(getCPhys(tpl), getCDraw(tpl));
+		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.shard);
+		return getEntity(tpl);
+	}
+	Entity& OBFactory::createSpawner(const Vec2i& mPos, int mType, float mDelayStart, float mDelaySpawn, int mSpawnCount)
+	{
+		auto tpl(createActorBase(mPos, {400, 400}, OBLayer::LShard));
+		getEntity(tpl).createComponent<OBCSpawner>(getCPhys(tpl), getCDraw(tpl), mType, mDelayStart, mDelaySpawn, mSpawnCount);
 		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.shard);
 		return getEntity(tpl);
 	}

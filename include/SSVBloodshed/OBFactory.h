@@ -53,6 +53,7 @@ namespace ob
 			Entity& createPPlate(const Vec2i& mPos, int mId, PPlateType mType, OBIdAction mIdAction);
 			Entity& createPlayer(const Vec2i& mPos);
 			Entity& createShard(const Vec2i& mPos);
+			Entity& createSpawner(const Vec2i& mPos, int mType, float mDelayStart = 0.f, float mDelaySpawn = 200.f, int mSpawnCount = 1);
 
 			// Enemies
 			Entity& createEBall(const Vec2i& mPos, bool mFlying, bool mSmall = false);

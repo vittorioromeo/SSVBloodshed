@@ -7,6 +7,7 @@
 
 #include "SSVBloodshed/OBCommon.h"
 #include "SSVBloodshed/OBAssets.h"
+#include "SSVBloodshed/OBGame.h"
 #include "SSVBloodshed/LevelEditor/OBLEGDebugText.h"
 #include "SSVBloodshed/LevelEditor/OBLEGInput.h"
 #include "SSVBloodshed/LevelEditor/OBLETile.h"
@@ -14,7 +15,6 @@
 #include "SSVBloodshed/LevelEditor/OBLESector.h"
 #include "SSVBloodshed/LevelEditor/OBLEDatabase.h"
 #include "SSVBloodshed/LevelEditor/OBLEJson.h"
-#include "SSVBloodshed/OBGame.h"
 
 namespace ob
 {
@@ -62,8 +62,9 @@ namespace ob
 
 			inline void updateXY()
 			{
-				const auto& tileVec((gameCamera.getMousePosition() + Vec2f(5, 5)) / 10.f);
-				currentX = tileVec.x; currentY = tileVec.y;
+				const auto& tileVec((gameCamera.getMousePosition() + Vec2f(10, 10)) / 10.f);
+				currentX = ssvu::getClamped(tileVec.x - brushSize / 2.f, 0.f, static_cast<float>(currentLevel->getColumns() - brushSize));
+				currentY = ssvu::getClamped(tileVec.y - brushSize / 2.f, 0.f, static_cast<float>(currentLevel->getRows() - brushSize));
 			}
 			inline void grabTiles()
 			{
@@ -90,7 +91,14 @@ namespace ob
 				for(auto& t : currentTiles)
 				{
 					int idx{0};
-					for(auto& p : t->getParams()) if(ssvu::getSIMod(currentParamIdx, static_cast<int>(t->getParams().size())) == idx++) p.second = ssvuj::as<int>(p.second) + mDir;
+					for(auto& p : t->getParams())
+					{
+						if(ssvu::getSIMod(currentParamIdx, static_cast<int>(t->getParams().size())) == idx++)
+						{
+							if(ssvuj::is<int>(p.second)) p.second = ssvuj::as<int>(p.second) + mDir;
+							else if(ssvuj::is<float>(p.second)) p.second = ssvuj::as<float>(p.second) + float(mDir);
+						}
+					}
 					return;
 				}
 			}
@@ -123,6 +131,7 @@ namespace ob
 					}
 
 					paramsText.setString(str);
+					paramsText.setScale(t->getParams().size() < 3 ? Vec2f(1, 1) : Vec2f(0.7f, 0.7f));
 					break;
 				}
 			}
