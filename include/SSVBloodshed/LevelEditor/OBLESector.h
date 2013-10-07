@@ -19,7 +19,7 @@ namespace ob
 			std::unordered_map<int, OBLELevel> levels;
 
 		public:
-			inline OBLESector(int mColumns = 100, int mRows = 100) : columns{mColumns}, rows{mRows} { }
+			inline OBLESector(int mColumns = 100, int mRows = 100) noexcept : columns{mColumns}, rows{mRows} { }
 			inline void clear() { levels.clear(); }
 			inline void init(OBLEDatabase& mDatabase) { for(auto& p : levels) p.second.init(mDatabase); }
 

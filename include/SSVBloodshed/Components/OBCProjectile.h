@@ -26,7 +26,7 @@ namespace ob
 		public:
 			ssvu::Delegate<void()> onDestroy;
 
-			OBCProjectile(OBCPhys& mCPhys, OBCDraw& mCDraw, float mSpeed, float mDegrees) : OBCActorBase{mCPhys, mCDraw}, speed{mSpeed}, degrees{mDegrees} { }
+			OBCProjectile(OBCPhys& mCPhys, OBCDraw& mCDraw, float mSpeed, float mDegrees) noexcept : OBCActorBase{mCPhys, mCDraw}, speed{mSpeed}, degrees{mDegrees} { }
 
 			inline void init() override
 			{
@@ -35,16 +35,16 @@ namespace ob
 				body.setResolve(false);
 				body.onDetection += [this](const DetectionInfo& mDI)
 				{
-					if(!mDI.body.hasGroup(targetGroup))
+					if(mDI.body.hasGroup(targetGroup) && getEntityFromBody(mDI.body).getComponent<OBCHealth>().damage(damage) && pierceOrganic-- == 0)
 					{
-						if(!mDI.body.hasGroup(OBGroup::GOrganic) && mDI.body.hasGroup(OBGroup::GSolidAir))
-						{
-							game.createPDebris(6, cPhys.getPosPixels());
-							assets.playSound("Sounds/bulletHitWall.wav");
-							destroy();
-						}
+						destroy();
 					}
-					else if(getEntityFromBody(mDI.body).getComponent<OBCHealth>().damage(damage) && pierceOrganic-- == 0) destroy();
+					else if(!mDI.body.hasGroup(OBGroup::GOrganic) && mDI.body.hasGroup(OBGroup::GSolidAir))
+					{
+						game.createPDebris(6, cPhys.getPosPx());
+						assets.playSound("Sounds/bulletHitWall.wav");
+						destroy();
+					}
 				};
 			}
 			inline void update(float mFT) override

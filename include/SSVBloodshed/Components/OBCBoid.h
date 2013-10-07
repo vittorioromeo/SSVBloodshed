@@ -14,32 +14,32 @@ namespace ob
 	class OBCBoid : public OBCActorNoDrawBase
 	{
 		private:
-			float maxVelocity{150.f};
+			float maxVel{150.f};
 
 			inline Vec2f getSeekForce(Vec2f mTarget, float mSlowRadius) const noexcept
 			{
 				mTarget -= cPhys.getPosF();
 				float distance{ssvs::getMagnitude(mTarget)};
-				ssvs::resize(mTarget, distance <= mSlowRadius ? maxVelocity * distance / mSlowRadius : maxVelocity);
+				ssvs::resize(mTarget, distance <= mSlowRadius ? maxVel * distance / mSlowRadius : maxVel);
 				return mTarget - cPhys.getVel();
 			}
 			inline Vec2f getFleeForce(Vec2f mTarget) const noexcept
 			{
 				mTarget = cPhys.getPosF() - mTarget;
-				ssvs::resize(mTarget, maxVelocity);
+				ssvs::resize(mTarget, maxVel);
 				return mTarget - cPhys.getVel();
 			}
 
 			inline Vec2f getPursuitForce(const Vec2f& mTargetPos, const Vec2f& mTargetVel, float mPredictionMult, float mSlowRadius) const noexcept
 			{
 				Vec2f distance{mTargetPos - cPhys.getPosF()};
-				float prediction{ssvs::getMagnitude(distance) / maxVelocity};
+				float prediction{ssvs::getMagnitude(distance) / maxVel};
 				return getSeekForce(mTargetPos + mTargetVel * (prediction * mPredictionMult), mSlowRadius);
 			}
 			inline Vec2f getEvadeForce(const Vec2f& mTargetPos, const Vec2f& mTargetVel) const noexcept
 			{
 				Vec2f distance{mTargetPos - cPhys.getPosF()};
-				float prediction{ssvs::getMagnitude(distance) / maxVelocity};
+				float prediction{ssvs::getMagnitude(distance) / maxVel};
 				return getFleeForce(mTargetPos + mTargetVel * prediction);
 			}
 
@@ -59,8 +59,8 @@ namespace ob
 				body.applyForce(getEvadeForce(mTarget.getPosF(), mTarget.getVel()) * mForceMult);
 			}
 
-			inline void setMaxVel(float mValue) noexcept	{ maxVelocity = mValue; }
-			inline float getMaxVelocity() const noexcept		{ return maxVelocity; }
+			inline void setMaxVel(float mValue) noexcept	{ maxVel = mValue; }
+			inline float getMaxVel() const noexcept			{ return maxVel; }
 	};
 }
 

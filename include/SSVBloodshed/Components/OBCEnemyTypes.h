@@ -145,7 +145,7 @@ namespace ob
 				repeat(tlCharge, [this]
 				{
 					body.setVelocity(cPhys.getVel() * 0.8f);
-					game.createPCharge(4, cPhys.getPosPixels(), 45);
+					game.createPCharge(4, cPhys.getPosPx(), 45);
 				}, 10, 2.5f);
 				tlCharge.append<ssvu::WaitUntil>([this]{ return raycastToPlayer(cPhys, cTargeter.getTarget()); });
 				tlCharge.append<ssvu::Do>([this]{ cFloorSmasher.setActive(true); lastDeg = cEnemy.getCurrentDeg(); body.applyForce(ssvs::getVecFromDeg(lastDeg, 1250.f)); });
@@ -200,7 +200,7 @@ namespace ob
 				cWielder.setWieldDist(2800.f);
 
 				repeat(tlShoot, [this]{ shootUnarmed(ssvu::getRnd(-10, 10)); }, 8, 1.1f);
-				repeat(tlShoot, [this]{ game.createPCharge(4, cPhys.getPosPixels(), 55); }, 15, 1.f);
+				repeat(tlShoot, [this]{ game.createPCharge(4, cPhys.getPosPx(), 55); }, 15, 1.f);
 				tlShoot.append<ssvu::Do>([this]{ lastDeg = cEnemy.getCurrentDeg(); });
 				repeat(tlShoot, [this]{ shootUnarmed(lastDeg); lastDeg += 265; }, 45, 0.3f);
 			}
@@ -233,7 +233,7 @@ namespace ob
 
 			inline void shootUnarmed(int mDeg)
 			{
-				assets.playSound("Sounds/spark.wav"); game.createPMuzzle(20, cPhys.getPosPixels());
+				assets.playSound("Sounds/spark.wav"); game.createPMuzzle(20, cPhys.getPosPx());
 				wpn.shoot(cPhys.getPosI(), cEnemy.getCurrentDeg() + mDeg);
 			}
 	};
@@ -270,7 +270,7 @@ namespace ob
 				{
 					body.onResolution += [this](const ResolutionInfo& mRI)
 					{
-						if(!mRI.body.hasGroup(OBGroup::GSolidAir) && mRI.body.hasGroup(OBGroup::GSolidGround))
+						if(!mRI.body.hasAllGroups(OBGroup::GSolidAir | OBGroup::GSolidGround))
 							mRI.noResolvePosition = mRI.noResolveVelocity = true;
 					};
 					body.addGroupToCheck(OBGroup::GSolidAir);
@@ -278,7 +278,7 @@ namespace ob
 			}
 			inline void update(float mFT) override
 			{
-				if(flying && !small && ssvu::getRnd(0, 9) > 7) game.createPElectric(1, cPhys.getPosPixels());
+				if(flying && !small && ssvu::getRnd(0, 9) > 7) game.createPElectric(1, cPhys.getPosPx());
 				if(cTargeter.hasTarget()) cBoid.pursuit(cTargeter.getTarget());
 				spin += mFT * 15.f;
 			}
@@ -307,14 +307,14 @@ namespace ob
 				repeat(tlCannon, [this]{ shootCannon(0); }, -1, 100.f);
 
 				repeat(tlShoot, [this]{ shoot(ssvu::getRnd(-15, 15)); }, 20, 0.4f);
-				repeat(tlShoot, [this]{ game.createPCharge(5, cPhys.getPosPixels(), 65); }, 19, 1.f);
+				repeat(tlShoot, [this]{ game.createPCharge(5, cPhys.getPosPx(), 65); }, 19, 1.f);
 				tlShoot.append<ssvu::Do>([this]{ lastDeg = cEnemy.getCurrentDeg(); });
 				repeat(tlShoot, [this]{ shoot(lastDeg); lastDeg += 235; }, 150, 0.1f);
 
 				tlSummon.append<ssvu::Do>([this]{ lastDeg = cEnemy.getCurrentDeg(); });
 				repeat(tlSummon, [this]
 				{
-					game.createPCharge(5, cPhys.getPosPixels(), 65);
+					game.createPCharge(5, cPhys.getPosPx(), 65);
 					body.setVelocity(body.getVelocity() * 0.8f);
 					getFactory().createERunner(body.getPosition() + Vec2i(ssvs::getVecFromDeg<float>(lastDeg) * 1000.f), true);
 					lastDeg += 360 / 6;
@@ -340,7 +340,7 @@ namespace ob
 				assets.playSound("Sounds/spark.wav");
 				Vec2i shootPos{body.getPosition() + Vec2i(ssvs::getVecFromDeg<float>(cEnemy.getCurrentDeg()) * 100.f)};
 				wpn.shoot(shootPos, cEnemy.getCurrentDeg() + mDeg);
-				game.createPMuzzle(20, cPhys.getPosPixels());
+				game.createPMuzzle(20, cPhys.getPosPx());
 			}
 			inline void shootCannon(int mDeg)
 			{

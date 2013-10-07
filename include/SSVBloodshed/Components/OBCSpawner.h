@@ -32,8 +32,8 @@ namespace ob
 			}
 
 		public:
-			OBCSpawner(OBCPhys& mCPhys, OBCDraw& mCDraw, int mType, float mDelayStart, float mDelaySpawn, int mSpawnCount) : OBCActorBase{mCPhys, mCDraw},
-				type{mType}, delayStart{mDelayStart}, delaySpawn{mDelaySpawn}, spawnCount{mSpawnCount} { delayStart.setLoop(false); }
+			OBCSpawner(OBCPhys& mCPhys, OBCDraw& mCDraw, int mType, float mDelayStart, float mDelaySpawn, int mSpawnCount) noexcept :
+				OBCActorBase{mCPhys, mCDraw}, type{mType}, delayStart{mDelayStart}, delaySpawn{mDelaySpawn}, spawnCount{mSpawnCount} { delayStart.setLoop(false); }
 
 			inline void init() override { getEntity().addGroup(OBGroup::GEnemy); }
 
@@ -51,3 +51,4 @@ namespace ob
 
 #endif
 
+// TODO: Lambda instead of type?

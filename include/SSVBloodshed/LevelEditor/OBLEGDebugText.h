@@ -17,10 +17,7 @@ namespace ob
 			ssvs::BitmapText debugText;
 
 		public:
-			OBLEGDebugText(TGame& mGame) : editor(mGame), debugText{*editor.getAssets().obStroked}
-			{
-				debugText.setTracking(-3);
-			}
+			OBLEGDebugText(TGame& mGame) noexcept : editor(mGame), debugText{*editor.getAssets().obStroked} { debugText.setTracking(-3); }
 
 			inline void update(float)
 			{

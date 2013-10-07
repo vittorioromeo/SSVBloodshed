@@ -224,5 +224,7 @@ namespace ob
 // TODO: tripwires, laserwires, etc
 // TODO: consider changing body.onResolution lambda with a bool
 // TODO: editor pick tile in center
+// TODO: investigate entity component systems
+// TODO: bullet knockback? replicators? spawners?
 
 #endif

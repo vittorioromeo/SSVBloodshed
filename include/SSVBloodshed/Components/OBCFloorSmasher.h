@@ -19,7 +19,7 @@ namespace ob
 			bool active{false};
 
 		public:
-			OBCFloorSmasher(OBCPhys& mCPhys, bool mActive = false) : cPhys(mCPhys), body(cPhys.getBody()) { setActive(mActive); }
+			OBCFloorSmasher(OBCPhys& mCPhys, bool mActive = false) noexcept : cPhys(mCPhys), body(cPhys.getBody()) { setActive(mActive); }
 
 			inline void init() override
 			{
@@ -36,6 +36,7 @@ namespace ob
 				if(mValue) body.addGroupToCheck(OBGroup::GFloor);
 				else body.delGroupToCheck(OBGroup::GFloor);
 			}
+			inline bool isActive() const noexcept { return active; }
 	};
 }
 

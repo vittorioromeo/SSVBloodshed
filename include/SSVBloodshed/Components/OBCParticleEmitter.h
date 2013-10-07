@@ -15,26 +15,21 @@ namespace ob
 	class OBCParticleEmitter : public OBCActorNoDrawBase
 	{
 		public:
+			using GameParticleMemFn = void(OBGame::*)(unsigned int mCount, const Vec2f& mPos);
 			enum class Type{Smoke, Plasma};
 
 		private:
 			Vec2f offset;
-			Type type;
+			GameParticleMemFn particleMemFn;
 			unsigned int count;
 
 		public:
-			OBCParticleEmitter(OBCPhys& mCPhys, Type mType, unsigned int mCount = 1) : OBCActorNoDrawBase{mCPhys}, type{mType}, count{mCount} { }
+			OBCParticleEmitter(OBCPhys& mCPhys, GameParticleMemFn mParticleMemFn, unsigned int mCount = 1) : OBCActorNoDrawBase{mCPhys}, particleMemFn{mParticleMemFn}, count{mCount} { }
 
-			inline void update(float) override
-			{
-				switch(type)
-				{
-					case Type::Smoke: game.createPSmoke(count, cPhys.getPosPixels() + offset); break;
-					case Type::Plasma: game.createPPlasma(count, cPhys.getPosPixels() + offset); break;
-				}
-			}
+			inline void update(float) override { (game.*particleMemFn)(count, cPhys.getPosPx() + offset); }
 
-			inline void setOffset(const Vec2f& mOffset) noexcept { offset = mOffset; }
+			inline void setOffset(const Vec2f& mOffset) noexcept	{ offset = mOffset; }
+			inline const Vec2f& getOffset() const noexcept			{ return offset; }
 	};
 }
 

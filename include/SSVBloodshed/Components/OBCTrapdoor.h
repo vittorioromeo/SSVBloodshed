@@ -18,7 +18,7 @@ namespace ob
 			float fallTime{100.f};
 
 		public:
-			OBCTrapdoor(OBCPhys& mCPhys, OBCDraw& mCDraw) : OBCActorBase{mCPhys, mCDraw} { }
+			OBCTrapdoor(OBCPhys& mCPhys, OBCDraw& mCDraw) noexcept : OBCActorBase{mCPhys, mCDraw} { }
 
 			inline void init() override
 			{
@@ -28,10 +28,7 @@ namespace ob
 				body.addGroupsToCheck(OBGroup::GFriendly, OBGroup::GEnemy);
 
 				body.onPreUpdate += [this]{ weighted = false; };
-				body.onDetection += [this](DetectionInfo& mDI)
-				{
-					if(mDI.body.hasGroup(OBGroup::GFriendly) || mDI.body.hasGroup(OBGroup::GEnemy)) weighted = true;
-				};
+				body.onDetection += [this](DetectionInfo& mDI){ if(mDI.body.hasAnyGroup(OBGroup::GFriendly | OBGroup::GEnemy)) weighted = true; };
 			}
 			inline void update(float mFT) override
 			{

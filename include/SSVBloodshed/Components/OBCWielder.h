@@ -20,7 +20,7 @@ namespace ob
 			float wieldDist{1000.f};
 
 		public:
-			OBCWielder(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCDir8& mCDir8) : OBCActorBase{mCPhys, mCDraw}, cDir8(mCDir8) { }
+			OBCWielder(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCDir8& mCDir8) noexcept : OBCActorBase{mCPhys, mCDraw}, cDir8(mCDir8) { }
 
 			inline void draw() override
 			{

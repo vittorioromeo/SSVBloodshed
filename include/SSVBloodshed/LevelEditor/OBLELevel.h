@@ -24,7 +24,7 @@ namespace ob
 
 		public:
 			inline OBLELevel() = default;
-			inline OBLELevel(int mColumns, int mRows) : columns{mColumns}, rows{mRows} { }
+			inline OBLELevel(int mColumns, int mRows) noexcept : columns{mColumns}, rows{mRows} { }
 			inline OBLELevel(int mColumns, int mRows, const OBLEDatabaseEntry& mDefaultEntry) : OBLELevel{mColumns, mRows}
 			{
 				for(int iY{0}; iY < mRows; ++iY) for(int iX{0}; iX < mColumns; ++iX) getTile(iX, iY, 0).initFromEntry(mDefaultEntry);

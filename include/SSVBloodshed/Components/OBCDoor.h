@@ -20,12 +20,12 @@ namespace ob
 			inline void setOpen(bool mOpen) noexcept
 			{
 				openStatus = mOpen;
-				if(openStatus)	cPhys.getBody().delGroups(OBGroup::GSolidGround, OBGroup::GSolidAir);
-				else			cPhys.getBody().addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir);
+				if(openStatus)	body.delGroups(OBGroup::GSolidGround, OBGroup::GSolidAir);
+				else			body.addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir);
 			}
 
 		public:
-			OBCDoorBase(OBCPhys& mCPhys, OBCDraw& mCDraw, bool mOpen = false) : OBCActorBase{mCPhys, mCDraw}, openStatus{mOpen} { }
+			OBCDoorBase(OBCPhys& mCPhys, OBCDraw& mCDraw, bool mOpen = false) noexcept : OBCActorBase{mCPhys, mCDraw}, openStatus{mOpen} { }
 
 			inline void init() override { setOpen(openStatus); }
 			inline void draw() override { cDraw[0].setColor(sf::Color(255, 255, 255, openStatus ? 100 : 255)); }
@@ -41,7 +41,7 @@ namespace ob
 			OBCIdReceiver& cIdReceiver;
 
 		public:
-			OBCDoor(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCIdReceiver& mCIdReceiver, bool mOpen = false) : OBCDoorBase{mCPhys, mCDraw, mOpen}, cIdReceiver(mCIdReceiver)
+			OBCDoor(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCIdReceiver& mCIdReceiver, bool mOpen = false) noexcept : OBCDoorBase{mCPhys, mCDraw, mOpen}, cIdReceiver(mCIdReceiver)
 			{
 				cIdReceiver.onActivate += [this](OBIdAction mIdAction)
 				{
@@ -61,7 +61,7 @@ namespace ob
 			bool triggered{false};
 
 		public:
-			OBCDoorG(OBCPhys& mCPhys, OBCDraw& mCDraw, bool mOpen = false) : OBCDoorBase{mCPhys, mCDraw, mOpen} { }
+			OBCDoorG(OBCPhys& mCPhys, OBCDraw& mCDraw, bool mOpen = false) noexcept : OBCDoorBase{mCPhys, mCDraw, mOpen} { }
 			inline void update(float) override { if(!triggered && game.isLevelClear()) { toggle(); triggered = true; } }
 	};
 
@@ -71,7 +71,7 @@ namespace ob
 			bool triggered{false};
 
 		public:
-			OBCDoorR(OBCPhys& mCPhys, OBCDraw& mCDraw, bool mOpen = false) : OBCDoorBase{mCPhys, mCDraw, mOpen} { }
+			OBCDoorR(OBCPhys& mCPhys, OBCDraw& mCDraw, bool mOpen = false) noexcept : OBCDoorBase{mCPhys, mCDraw, mOpen} { }
 			inline void update(float) override { if(!triggered && getManager().getEntityCount(OBGroup::GTrapdoor) <= 0) { toggle(); triggered = true; } }
 	};
 }

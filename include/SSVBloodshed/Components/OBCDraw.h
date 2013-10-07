@@ -22,12 +22,12 @@ namespace ob
 			sf::BlendMode blendMode{sf::BlendMode::BlendAlpha};
 
 		public:
-			inline OBCDraw(OBGame& mGame, Body& mBody) : game(mGame), body(mBody) { }
+			inline OBCDraw(OBGame& mGame, Body& mBody) noexcept : game(mGame), body(mBody) { }
 
 			inline void update(float) override
 			{
 				const auto& position(toPixels(body.getPosition()));
-				const auto& size(toPixels(body.getSize()));
+				const auto& size(body.getSize());
 
 				for(auto i(0u); i < sprites.size(); ++i)
 				{
@@ -38,32 +38,32 @@ namespace ob
 					s.setPosition(position + globalOffset + offsets[i]);
 					s.setScale(flippedX ? -globalScale.x : globalScale.x, flippedY ? -globalScale.y : globalScale.y);
 
-					if(scaleWithBody) s.setScale(size.x / rect.width, size.y / rect.height);
+					if(scaleWithBody) s.setScale(toPixels(size.x) / rect.width, toPixels(size.y) / rect.height);
 				}
 			}
 			inline void draw() override { for(const auto& s : sprites) game.render(s, blendMode); }
 
-			inline void addSprite(const sf::Sprite& mSprite) { sprites.push_back(mSprite); offsets.emplace_back(); }
-			template<typename... TArgs> inline void emplaceSprite(TArgs&&... mArgs) { sprites.emplace_back(std::forward<TArgs>(mArgs)...); offsets.emplace_back(); }
+			inline void pushSprite(const sf::Sprite& mSprite)						{ sprites.push_back(mSprite); offsets.emplace_back(); }
+			template<typename... TArgs> inline void emplaceSprite(TArgs&&... mArgs)	{ sprites.emplace_back(std::forward<TArgs>(mArgs)...); offsets.emplace_back(); }
 
-			inline void setBlendMode(sf::BlendMode mMode) noexcept		{ blendMode = mMode; }
-			inline void setGlobalScale(const Vec2f& mScale) noexcept	{ globalScale = mScale; }
 			inline void setRotation(float mDegrees)	noexcept			{ for(auto& s : sprites) s.setRotation(mDegrees); }
 			inline void setFlippedX(bool mFlippedX)	noexcept			{ flippedX = mFlippedX; }
 			inline void setFlippedY(bool mFlippedY)	noexcept			{ flippedY = mFlippedY; }
 			inline void setScaleWithBody(bool mScale) noexcept			{ scaleWithBody = mScale; }
 			inline void setGlobalOffset(const Vec2f& mOffset) noexcept	{ globalOffset = mOffset; }
+			inline void setGlobalScale(const Vec2f& mScale) noexcept	{ globalScale = mScale; }
+			inline void setBlendMode(sf::BlendMode mMode) noexcept		{ blendMode = mMode; }
 
 			inline OBGame& getGame() const noexcept							{ return game; }
-			inline sf::BlendMode getBlendMode() const noexcept				{ return blendMode; }
-			inline bool isFlippedX() const noexcept							{ return flippedX; }
-			inline bool isFlippedY() const noexcept							{ return flippedY; }
 			inline const decltype(sprites)& getSprites() const noexcept		{ return sprites; }
 			inline const decltype(offsets)& getOffsets() const noexcept		{ return offsets; }
 			inline decltype(sprites)& getSprites() noexcept					{ return sprites; }
 			inline decltype(offsets)& getOffsets() noexcept					{ return offsets; }
 			inline sf::Sprite& operator[](unsigned int mIdx)				{ return sprites[mIdx]; }
 			inline const sf::Sprite& operator[](unsigned int mIdx) const	{ return sprites[mIdx]; }
+			inline bool isFlippedX() const noexcept							{ return flippedX; }
+			inline bool isFlippedY() const noexcept							{ return flippedY; }
+			inline sf::BlendMode getBlendMode() const noexcept				{ return blendMode; }
 	};
 }
 

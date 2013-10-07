@@ -14,26 +14,26 @@ namespace ob
 	class OBCFloor : public OBCActorBase
 	{
 		private:
-			bool smashed{false}, grate{false};
+			bool smashed{false};
 
-			inline void becomeFloorGrate()
+			inline void becomeGrate() noexcept
 			{
-				grate = true;
+				smashed = true;
 				cDraw[0].setTextureRect(assets.getFloorGrateVariant());
 				getEntity().setDrawPriority(OBLayer::LFloorGrate);
 			}
 
 		public:
-			OBCFloor(OBCPhys& mCPhys, OBCDraw& mCDraw, bool mGrate) : OBCActorBase{mCPhys, mCDraw}, grate{mGrate} { }
+			OBCFloor(OBCPhys& mCPhys, OBCDraw& mCDraw, bool mGrate) noexcept : OBCActorBase{mCPhys, mCDraw}, smashed{mGrate} { }
 
-			inline void init() override { body.addGroup(OBGroup::GFloor); if(grate) becomeFloorGrate(); }
+			inline void init() override { body.addGroup(OBGroup::GFloor); if(smashed) becomeGrate(); }
 			inline void smash() noexcept
 			{
-				if(smashed || grate) return;
+				if(smashed) return;
 				smashed = true;
-				game.createPDebris(20, cPhys.getPosPixels());
-				game.createPDebrisFloor(4, cPhys.getPosPixels());
-				becomeFloorGrate();
+				game.createPDebris(20, cPhys.getPosPx());
+				game.createPDebrisFloor(4, cPhys.getPosPx());
+				becomeGrate();
 			}
 			inline bool isSmashed() const noexcept { return smashed; }
 	};

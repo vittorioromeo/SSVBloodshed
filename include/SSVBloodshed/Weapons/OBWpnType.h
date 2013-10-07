@@ -23,8 +23,8 @@ namespace ob
 			ssvu::Delegate<void(OBCProjectile&)> onShotProjectile;
 
 			inline OBWpnType() = default;
-			inline OBWpnType(float mDelay, float mDamage, float mPjSpeed, std::string mSoundId) : delay{mDelay}, pjDamage{mDamage}, pjSpeed{mPjSpeed}, soundId{std::move(mSoundId)} { }
-			template<typename T> inline OBWpnType(float mDelay, float mDamage, float mPjSpeed, std::string mSoundId, T mOnShoot) : delay{mDelay}, pjDamage{mDamage}, pjSpeed{mPjSpeed}, soundId{std::move(mSoundId)}
+			inline OBWpnType(float mDelay, float mDamage, float mPjSpeed, std::string mSoundId) noexcept : delay{mDelay}, pjDamage{mDamage}, pjSpeed{mPjSpeed}, soundId{std::move(mSoundId)} { }
+			template<typename T> inline OBWpnType(float mDelay, float mDamage, float mPjSpeed, std::string mSoundId, T mOnShoot) noexcept : delay{mDelay}, pjDamage{mDamage}, pjSpeed{mPjSpeed}, soundId{std::move(mSoundId)}
 			{
 				onShoot += mOnShoot;
 			}
@@ -33,10 +33,8 @@ namespace ob
 			inline OBCProjectile& shotProjectile(Entity& mEntity)
 			{
 				auto& pj(mEntity.getComponent<OBCProjectile>());
-				pj.setDamage(pjDamage);
-				pj.setSpeed(pjSpeed);
-				onShotProjectile(pj);
-				return pj;
+				pj.setDamage(pjDamage); pj.setSpeed(pjSpeed);
+				onShotProjectile(pj); return pj;
 			}
 			inline void playSound(OBGame& mGame) { mGame.getAssets().playSound(soundId); }
 

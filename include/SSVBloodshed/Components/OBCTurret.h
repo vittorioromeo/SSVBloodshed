@@ -28,7 +28,7 @@ namespace ob
 			int shootCount;
 
 		public:
-			OBCTurret(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCKillable& mCKillable, Dir8 mDir, const OBWpnType& mWpn, float mShootDelay, float mPJDelay, int mShootCount)
+			OBCTurret(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCKillable& mCKillable, Dir8 mDir, const OBWpnType& mWpn, float mShootDelay, float mPJDelay, int mShootCount) noexcept
 				: OBCActorBase{mCPhys, mCDraw}, cKillable(mCKillable), direction{mDir}, wpn{game, OBGroup::GFriendlyKillable, mWpn}, shootDelay{mShootDelay}, pjDelay{mPJDelay}, shootCount{mShootCount} { }
 
 			inline void init() override
@@ -45,7 +45,7 @@ namespace ob
 			inline void update(float mFT) override
 			{
 				tlShoot.update(mFT);
-				if(tckShoot.getCurrent() > 90.f && tckShoot.getCurrent() < 115.f) { game.createPCharge(1, cPhys.getPosPixels(), 20); }
+				if(tckShoot.getCurrent() > 90.f && tckShoot.getCurrent() < 115.f) { game.createPCharge(1, cPhys.getPosPx(), 20); }
 				if(tckShoot.update(mFT)) { tlShoot.reset(); tlShoot.start(); }
 			}
 			inline void draw() override { cDraw.setRotation(getDegFromDir8(direction)); }
@@ -55,7 +55,7 @@ namespace ob
 				assets.playSound("Sounds/spark.wav");
 				Vec2i shootPos{body.getPosition() + getVecFromDir8<int>(direction) * 600};
 				wpn.shoot(shootPos, getDegFromDir8(direction));
-				game.createPMuzzle(20, cPhys.getPosPixels());
+				game.createPMuzzle(20, cPhys.getPosPx());
 			}
 
 			inline OBCKillable& getCKillable() const noexcept { return cKillable; }

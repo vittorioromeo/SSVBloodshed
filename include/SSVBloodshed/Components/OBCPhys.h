@@ -42,7 +42,6 @@ namespace ob
 					if(crushedBottom > 0) --crushedBottom;
 				};
 			}
-			inline void update(float) override { }
 
 			inline void setPos(const Vec2i& mPos) noexcept			{ body.setPosition(mPos); }
 			inline void setVel(const Vec2f& mVel) noexcept			{ body.setVelocity(mVel); }
@@ -61,7 +60,7 @@ namespace ob
 			inline int getCrushedBottom() const	noexcept			{ return crushedBottom; }
 
 			inline const Vec2i& getPosI() const noexcept			{ return body.getPosition(); }
-			inline Vec2f getPosPixels() const noexcept				{ return toPixels(body.getPosition()); }
+			inline Vec2f getPosPx() const noexcept					{ return toPixels(body.getPosition()); }
 			inline Vec2f getPosF() const noexcept					{ return Vec2f(body.getPosition()); }
 			inline const Vec2f& getVel() const noexcept				{ return body.getVelocity(); }
 			inline const Vec2f& getOldVel() const noexcept			{ return body.getOldVelocity(); }

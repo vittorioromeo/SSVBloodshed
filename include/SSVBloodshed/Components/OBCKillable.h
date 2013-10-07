@@ -26,16 +26,16 @@ namespace ob
 				switch(type)
 				{
 					case Type::Organic:
-						game.createPBlood(6 * particleMult, cPhys.getPosPixels());
+						game.createPBlood(6 * particleMult, cPhys.getPosPx());
 						assets.playSound("Sounds/bulletHitFlesh.wav");
 						break;
 					case Type::Robotic:
-						game.createPDebris(6 * particleMult, cPhys.getPosPixels());
-						game.createPElectric(24 * particleMult, cPhys.getPosPixels());
+						game.createPDebris(6 * particleMult, cPhys.getPosPx());
+						game.createPElectric(24 * particleMult, cPhys.getPosPx());
 						assets.playSound("Sounds/spark.wav");
 						break;
 					case Type::Wall:
-						game.createPDebris(6 * particleMult, cPhys.getPosPixels());
+						game.createPDebris(6 * particleMult, cPhys.getPosPx());
 						assets.playSound("Sounds/spark.wav");
 						break;
 				}
@@ -46,18 +46,18 @@ namespace ob
 				switch(type)
 				{
 					case Type::Organic:
-						game.createPBlood(20 * particleMult * particleMult, cPhys.getPosPixels(), particleMult);
-						game.createPGib(35 * particleMult * particleMult, cPhys.getPosPixels());
+						game.createPBlood(20 * particleMult * particleMult, cPhys.getPosPx(), particleMult);
+						game.createPGib(35 * particleMult * particleMult, cPhys.getPosPx());
 						assets.playSound("Sounds/squish.wav");
 						break;
 					case Type::Robotic:
-						game.createPDebris(24 * particleMult, cPhys.getPosPixels());
-						game.createPElectric(64 * particleMult, cPhys.getPosPixels());
+						game.createPDebris(24 * particleMult, cPhys.getPosPx());
+						game.createPElectric(64 * particleMult, cPhys.getPosPx());
 						assets.playSound("Sounds/spark.wav");
 						break;
 					case Type::Wall:
-						game.createPDebrisFloor(4 * particleMult, cPhys.getPosPixels());
-						game.createPDebris(36 * particleMult, cPhys.getPosPixels());
+						game.createPDebrisFloor(4 * particleMult, cPhys.getPosPx());
+						game.createPDebris(36 * particleMult, cPhys.getPosPx());
 						assets.playSound("Sounds/spark.wav");
 						break;
 				}
@@ -66,7 +66,7 @@ namespace ob
 		public:
 			ssvu::Delegate<void()> onDeath;
 
-			OBCKillable(OBCPhys& mCPhys, OBCHealth& mCHealth, Type mType) : OBCActorNoDrawBase{mCPhys}, cHealth(mCHealth), type{mType} { }
+			OBCKillable(OBCPhys& mCPhys, OBCHealth& mCHealth, Type mType) noexcept : OBCActorNoDrawBase{mCPhys}, cHealth(mCHealth), type{mType} { }
 
 			inline void init() override { cHealth.onDamage += [this]{ effectHit(); if(cHealth.isDead()) kill(); }; }
 

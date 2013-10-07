@@ -26,14 +26,14 @@ namespace ob
 
 		public:
 			inline OBLETile() = default;
-			inline OBLETile(const OBLETile& mTile)
+			inline OBLETile(const OBLETile& mTile) noexcept
 			{
 				x = mTile.x; y = mTile.y; z = mTile.z;
 				type = mTile.type; params = mTile.params;
 			}
 
-			inline void setRot(int mDeg) { if(hasParam("rot")) params["rot"] = mDeg; }
-			inline void setId(OBAssets& mAssets, int mId)
+			inline void setRot(int mDeg) noexcept { if(hasParam("rot")) params["rot"] = mDeg; }
+			inline void setId(OBAssets& mAssets, int mId) noexcept
 			{
 				if(hasParam("id"))
 				{
@@ -55,7 +55,7 @@ namespace ob
 				}
 			}
 
-			inline void initFromEntry(const OBLEDatabaseEntry& mEntry)
+			inline void initFromEntry(const OBLEDatabaseEntry& mEntry) noexcept
 			{
 				idText.reset(nullptr);
 				null = false; type = mEntry.type; params = mEntry.defaultParams;
@@ -63,7 +63,7 @@ namespace ob
 				sprite.setTextureRect(mEntry.intRect);
 			}
 
-			inline OBLETile& operator=(const OBLETile& mTile)
+			inline OBLETile& operator=(const OBLETile& mTile) noexcept
 			{
 				x = mTile.x; y = mTile.y; z = mTile.z;
 				type = mTile.type; params = mTile.params;
@@ -87,7 +87,7 @@ namespace ob
 			inline sf::Sprite& getSprite() noexcept						{ return sprite; }
 			inline const decltype(params)& getParams() const noexcept	{ return params; }
 			inline decltype(params)& getParams() noexcept				{ return params; }
-			inline ssvs::BitmapText* getIdText()						{ return idText.get(); }
+			inline ssvs::BitmapText* getIdText() noexcept				{ return idText.get(); }
 	};
 }
 

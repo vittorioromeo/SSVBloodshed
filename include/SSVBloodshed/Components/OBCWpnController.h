@@ -24,7 +24,7 @@ namespace ob
 			ssvs::Ticker tckShoot{0.f};
 
 		public:
-			OBCWpnController(OBCPhys& mCPhys, OBGroup mTargetGroup) : OBCActorNoDrawBase{mCPhys}, wpn{game, mTargetGroup} { }
+			OBCWpnController(OBCPhys& mCPhys, OBGroup mTargetGroup) noexcept : OBCActorNoDrawBase{mCPhys}, wpn{game, mTargetGroup} { }
 
 			inline void init() override				{ tckShoot.setLoop(false); }
 			inline void update(float mFT) override	{ tckShoot.update(mFT); }

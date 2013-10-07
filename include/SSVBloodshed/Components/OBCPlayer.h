@@ -40,10 +40,10 @@ namespace ob
 			int currentWpn{0}, currentShards{0}, shards{0};
 			std::vector<OBWpnType> weaponTypes{OBWpnTypes::createMachineGun(), OBWpnTypes::createPlasmaBolter(), OBWpnTypes::createPlasmaCannon()};
 
-			inline void cycleWeapons(int mDir) noexcept { currentWpn += mDir; cWpnController.setWpn(weaponTypes[currentWpn % weaponTypes.size()]); }
+			inline void cycleWeapons(int mDir) noexcept { currentWpn += mDir; cWpnController.setWpn(weaponTypes[ssvu::getSIMod(currentWpn, weaponTypes.size())]); }
 
 		public:
-			OBCPlayer(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCKillable& mCKillable, OBCWielder& mCWielder, OBCWpnController& mCWpnController)
+			OBCPlayer(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCKillable& mCKillable, OBCWielder& mCWielder, OBCWpnController& mCWpnController) noexcept
 				: OBCActorBase{mCPhys, mCDraw}, cKillable(mCKillable), cWielder(mCWielder), cDir8(mCWielder.getCDir8()), cWpnController(mCWpnController) { }
 
 			inline void init() override
@@ -51,11 +51,7 @@ namespace ob
 				cKillable.getCHealth().setCooldown(2.5f);
 				cycleWeapons(0);
 
-				cKillable.onDeath += [this]
-				{
-					assets.playSound("Sounds/playerDeath.wav");
-					game.testhp.setValue(0.f);
-				};
+				cKillable.onDeath += [this]{ assets.playSound("Sounds/playerDeath.wav"); game.testhp.setValue(0.f); };
 
 				getEntity().addGroups(OBGroup::GFriendly, OBGroup::GFriendlyKillable, OBGroup::GPlayer);
 				body.addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir, OBGroup::GFriendly, OBGroup::GFriendlyKillable, OBGroup::GOrganic, OBGroup::GPlayer);
@@ -73,7 +69,6 @@ namespace ob
 				if(!cWielder.isShooting() && (ix != 0 || iy != 0)) cDir8 = getDir8FromXY(ix, iy);
 
 				if(game.getInput().getIBomb()) bomb();
-
 				if(game.getInput().getISwitch()) cycleWeapons(1);
 			}
 
@@ -92,11 +87,11 @@ namespace ob
 					{
 						auto& c(e->getComponent<OBCPhys>());
 						c.getBody().addGroupNoResolve(OBGroup::GSolidGround);
-						if(ssvs::getDistEuclidean(c.getPosI(), cPhys.getPosI()) > 1500)
+						if(ssvs::getDistEuclidean(c.getPosI(), cPhys.getPosI()) > 6500)
 						{
 							if(ssvs::getMagnitude(c.getVel()) < 650.f) c.getBody().applyForce(Vec2f(cPhys.getPosI() - c.getPosI()) * 0.002f);
 						}
-						else c.setVel(Vec2f(cPhys.getPosI() - c.getPosI()));
+						else c.setVel(ssvs::getMClampedMin(Vec2f(cPhys.getPosI() - c.getPosI()) / 1.5f, 500.f));
 					}
 				}
 			}
@@ -109,25 +104,20 @@ namespace ob
 				game.testhp.setMaxValue(cHealth.getMaxHealth());
 				game.txtShards.setString(ssvu::toStr(shards + currentShards));
 			}
+			inline void checkTransitions()
+			{
+				if(cPhys.getPosI().x < toCoords(0))		game.changeLevel(*this, -1, 0);
+				if(cPhys.getPosI().x > toCoords(320))	game.changeLevel(*this, 1, 0);
+				if(cPhys.getPosI().y < toCoords(0))		game.changeLevel(*this, 0, -1);
+				if(cPhys.getPosI().y > toCoords(240))	game.changeLevel(*this, 0, 1);
+			}
 
 			inline void update(float) override
 			{
-				updateInput();
-				updateHUD();
-				attractShards();
+				updateInput(); updateHUD(); attractShards(); checkTransitions();
 
 				if(game.isLevelClear()) { shards += currentShards; currentShards = 0; }
-
-				{
-					if(cPhys.getPosI().x < toCoords(0))		game.changeLevel(*this, -1, 0);
-					if(cPhys.getPosI().x > toCoords(320))	game.changeLevel(*this, 1, 0);
-					if(cPhys.getPosI().y < toCoords(0))		game.changeLevel(*this, 0, -1);
-					if(cPhys.getPosI().y > toCoords(240))	game.changeLevel(*this, 0, 1);
-				}
-
-				if(cWielder.isShooting())
-					if(cWpnController.shoot(cWielder.getShootingPos(), cDir8.getDeg()))
-						game.createPMuzzle(20, toPixels(cWielder.getShootingPos()));
+				if(cWielder.isShooting() && cWpnController.shoot(cWielder.getShootingPos(), cDir8.getDeg())) game.createPMuzzle(20, toPixels(cWielder.getShootingPos()));
 			}
 			inline void draw() override
 			{

@@ -20,14 +20,12 @@ namespace ob
 			OBCKillable& cKillable;
 			OBCTargeter& cTargeter;
 			OBCBoid& cBoid;
-			float currentDeg{0.f}, snappedDeg{0.f}, turnSpeed{5.f};
-			bool faceDirection{true};
-			float bodyDamage{1};
-			bool bounce{false};
-			float minBounceVel{75.f};
+			float currentDeg{0.f}, snappedDeg{0.f}, turnSpeed{5.f}, minBounceVel{75.f};
+			bool faceDirection{true}, bounced{false};
 
 		public:
-			OBCEnemy(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCKillable& mCKillable, OBCTargeter& mCTargeter, OBCBoid& mCBoid) : OBCActorBase{mCPhys, mCDraw}, cKillable(mCKillable), cTargeter(mCTargeter), cBoid(mCBoid) { }
+			OBCEnemy(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCKillable& mCKillable, OBCTargeter& mCTargeter, OBCBoid& mCBoid) noexcept
+				: OBCActorBase{mCPhys, mCDraw}, cKillable(mCKillable), cTargeter(mCTargeter), cBoid(mCBoid) { }
 
 			inline void init() override
 			{
@@ -42,33 +40,23 @@ namespace ob
 
 				body.onPreUpdate += [this]
 				{
-					auto newVel(cPhys.getVel());
-					ssvs::mClampMax(newVel, 800.f);
-					if(bounce) ssvs::mClampMin(newVel, minBounceVel);
-
-					cPhys.setVel(newVel);
-
-					bounce = false;
+					constexpr float maxVel{800.f};
+					cPhys.setVel(ssvs::getMClamped(cPhys.getVel(), bounced ? minBounceVel : 0.f, maxVel));
+					bounced = false;
 				};
-				body.onDetection += [this](const DetectionInfo& mDI)
-				{
-					if(mDI.body.hasGroup(OBGroup::GFriendlyKillable)) getEntityFromBody(mDI.body).getComponent<OBCHealth>().damage(bodyDamage);
-				};
-				body.onResolution += [this](const ResolutionInfo&){ bounce = true; };
+				body.onResolution += [this](const ResolutionInfo&){ bounced = true; };
 
 				cKillable.onDeath += [this]{ game.createEShard(1 + cKillable.getCHealth().getMaxHealth() / 3, cPhys.getPosI()); };
 			}
 
 			inline void update(float mFT) override
 			{
-				if(cTargeter.hasTarget())
-				{
-					float targetDeg(ssvs::getDegTowards(cPhys.getPosF(), cTargeter.getPosF()));
-					currentDeg = ssvu::getRotatedDeg(currentDeg, targetDeg, turnSpeed * mFT);
-					snappedDeg = getDegFromDir8(getDir8FromDeg(currentDeg));
-				}
-			}
+				if(!cTargeter.hasTarget()) return;
 
+				float targetDeg(ssvs::getDegTowards(cPhys.getPosF(), cTargeter.getPosF()));
+				currentDeg = ssvu::getRotatedDeg(currentDeg, targetDeg, turnSpeed * mFT);
+				snappedDeg = getDegFromDir8(getDir8FromDeg(currentDeg));
+			}
 			inline void draw() override { if(faceDirection) cDraw.setRotation(snappedDeg); }
 
 			inline void setFaceDirection(bool mValue) noexcept	{ faceDirection = mValue; }

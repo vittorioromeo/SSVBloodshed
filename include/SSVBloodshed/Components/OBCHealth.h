@@ -19,7 +19,7 @@ namespace ob
 		public:
 			ssvu::Delegate<void()> onDamage, onHeal;
 
-			OBCHealth(float mHealth) : health{mHealth}, maxHealth{mHealth} { }
+			OBCHealth(float mHealth) noexcept : health{mHealth}, maxHealth{mHealth} { }
 
 			inline void update(float mFT) override { if(tckCooldown.update(mFT)) tckCooldown.stop(); }
 

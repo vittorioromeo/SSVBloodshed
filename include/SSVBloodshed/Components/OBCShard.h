@@ -14,7 +14,7 @@ namespace ob
 	class OBCShard : public OBCActorBase
 	{
 		public:
-			OBCShard(OBCPhys& mCPhys, OBCDraw& mCDraw) : OBCActorBase{mCPhys, mCDraw} { }
+			OBCShard(OBCPhys& mCPhys, OBCDraw& mCDraw) noexcept : OBCActorBase{mCPhys, mCDraw} { }
 
 			inline void init() override
 			{
@@ -27,23 +27,19 @@ namespace ob
 				body.onPreUpdate += [this]{ body.setVelocity(ssvs::getCClampedMax(body.getVelocity() * 0.99f, 600.f)); };
 				body.onDetection += [this](const DetectionInfo& mDI)
 				{
-					if(mDI.body.hasGroup(OBGroup::GPlayer))
-					{
-						getEntityFromBody(mDI.body).getComponent<OBCPlayer>().shardGrabbed();
-						getEntity().destroy();
-						game.createPShard(20, cPhys.getPosPixels());
-					}
+					if(!mDI.body.hasGroup(OBGroup::GPlayer)) return;
+
+					getEntityFromBody(mDI.body).getComponent<OBCPlayer>().shardGrabbed();
+					getEntity().destroy(); game.createPShard(20, cPhys.getPosPx());
 				};
 
 				body.setVelocity(ssvs::getVecFromDeg(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(100.f, 370.f)));
 				cDraw.setBlendMode(sf::BlendMode::BlendAdd);
-				cDraw.setGlobalScale({0.65f, 0.65f});
+				cDraw.setGlobalScale({0.65f + ssvu::getRndR(-0.10f, 0.10f), 0.65f + ssvu::getRndR(-0.10f, 0.10f)});
+				cDraw.setRotation(ssvu::getRnd(0, 360));
 			}
 
-			inline void update(float) override
-			{
-				cDraw[0].rotate(ssvs::getMagnitude(body.getVelocity()) * 0.01f);
-			}
+			inline void update(float) override { cDraw[0].rotate(ssvs::getMagnitude(body.getVelocity()) * 0.01f); }
 	};
 }
 

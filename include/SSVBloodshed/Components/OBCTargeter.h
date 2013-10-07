@@ -19,18 +19,14 @@ namespace ob
 			sses::EntityStat targetStat;
 
 		public:
-			OBCTargeter(OBCPhys& mCPhys, OBGroup mTargetGroup) : OBCActorNoDrawBase{mCPhys}, targetGroup(mTargetGroup) { }
+			OBCTargeter(OBCPhys& mCPhys, OBGroup mTargetGroup) noexcept : OBCActorNoDrawBase{mCPhys}, targetGroup(mTargetGroup) { }
 
 			inline void update(float) override
 			{
-				if(target == nullptr)
+				if(target == nullptr && game.getManager().hasEntity(targetGroup))
 				{
-					if(game.getManager().hasEntity(targetGroup))
-					{
-						const auto& e(game.getManager().getEntities(targetGroup).front());
-						targetStat = e->getStat();
-						target = &e->getComponent<OBCPhys>();
-					}
+					const auto& e(game.getManager().getEntities(targetGroup).front());
+					targetStat = e->getStat(); target = &e->getComponent<OBCPhys>();
 				}
 				else if(!game.getManager().isAlive(targetStat)) target = nullptr;
 			}

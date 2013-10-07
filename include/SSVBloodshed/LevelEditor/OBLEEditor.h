@@ -124,7 +124,7 @@ namespace ob
 					int idx{0};
 					for(const auto& p : t->getParams())
 					{
-						bool cp{ssvu::getSIMod(currentParamIdx, (int)t->getParams().size()) == idx++};
+						bool cp{ssvu::getSIMod(currentParamIdx, static_cast<int>(t->getParams().size())) == idx++};
 						if(cp) str += " >";
 						str += p.first + "(" + ssvu::getReplacedAll(ssvu::toStr(p.second), "\n", "") + ")";
 						if(cp) str += "< ";
