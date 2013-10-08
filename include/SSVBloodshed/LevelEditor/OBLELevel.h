@@ -53,7 +53,7 @@ namespace ob
 				for(auto& t : tiles)
 				{
 					sf::Sprite s{t.second.getSprite()};
-					if(mOnion) s.setColor({255, 255, 255, ssvu::getClamped<unsigned char>(255 - std::abs(t.second.getZ() - mCurrentZ) * 50, 0, 255)});
+					if(mOnion) s.setColor(sf::Color(255, 255, 255, ssvu::getClamped(255 - std::abs(t.second.getZ() - mCurrentZ) * 50, 0, 255)));
 					toDraw.emplace_back(t.second.getZ(), s);
 				}
 

@@ -28,7 +28,7 @@ namespace ob
 				body.addGroupsToCheck(OBGroup::GFriendly, OBGroup::GEnemy);
 
 				body.onPreUpdate += [this]{ weighted = false; };
-				body.onDetection += [this](DetectionInfo& mDI){ if(mDI.body.hasAnyGroup(OBGroup::GFriendly | OBGroup::GEnemy)) weighted = true; };
+				body.onDetection += [this](const DetectionInfo& mDI){ if(mDI.body.hasAnyGroup(OBGroup::GFriendly | OBGroup::GEnemy)) weighted = true; };
 			}
 			inline void update(float mFT) override
 			{
