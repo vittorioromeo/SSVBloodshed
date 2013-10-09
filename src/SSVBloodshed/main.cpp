@@ -74,6 +74,57 @@ int main()
 	manager.registerSystem(sDeath);
 	manager.registerSystem(sDraw);
 
+	ssvu::startBenchmark();
+	{
+		for(int k = 0; k < 5; ++k)
+		{
+			for(int i = 0; i < 20000; ++i)
+			{
+				auto e = manager.createEntity();
+				e.createComponent<CPosition>(ssvu::getRnd(512 - 100, 512 + 100), ssvu::getRnd(384 - 100, 384 + 100));
+				e.createComponent<CVelocity>(ssvu::getRndR(-1.f, 2.f), ssvu::getRndR(-1.f, 2.f));
+				e.createComponent<CAcceleration>(ssvu::getRndR(-1.f, 2.f), ssvu::getRndR(-1.f, 2.f));
+				e.createComponent<CLife>(1);
+			}
+
+			manager.refresh();
+			sMovement.update(5);
+			sDeath.update(5);
+
+			manager.refresh();
+			sMovement.update(5);
+			sDeath.update(5);
+
+			manager.refresh();
+			sMovement.update(5);
+			sDeath.update(5);
+		}
+
+		for(int k = 0; k < 5; ++k)
+		{
+			for(int i = 0; i < 20000; ++i)
+			{
+				auto e = manager.createEntity();
+				e.createComponent<CPosition>(ssvu::getRnd(512 - 100, 512 + 100), ssvu::getRnd(384 - 100, 384 + 100));
+				e.createComponent<CVelocity>(ssvu::getRndR(-1.f, 2.f), ssvu::getRndR(-1.f, 2.f));
+				e.createComponent<CAcceleration>(ssvu::getRndR(-1.f, 2.f), ssvu::getRndR(-1.f, 2.f));
+				e.createComponent<CLife>(25);
+			}
+
+			manager.refresh();
+			sMovement.update(5);
+			sDeath.update(5);
+
+			manager.refresh();
+			sMovement.update(5);
+			sDeath.update(5);
+
+			manager.refresh();
+			sMovement.update(5);
+			sDeath.update(5);
+		}
+	} ssvu::lo("benchmark") << ssvu::endBenchmark();
+
 	float counter{99};
 	ssvs::GameState gameState;
 	gameState.onUpdate += [&, counter](float mFT) mutable
