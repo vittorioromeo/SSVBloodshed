@@ -19,6 +19,7 @@ namespace ob
 			ssvs::Ticker tckLife{150.f};
 			float speed{125.f}, degrees{0.f}, curveSpeed{0.f}, damage{1};
 			int pierceOrganic{0};
+			bool killDestructible{false};
 			OBGroup targetGroup{OBGroup::GEnemyKillable};
 
 			inline void destroy() { getEntity().destroy(); onDestroy(); }
@@ -35,6 +36,12 @@ namespace ob
 				body.setResolve(false);
 				body.onDetection += [this](const DetectionInfo& mDI)
 				{
+					if(killDestructible && mDI.body.hasGroup(OBGroup::GEnvDestructible))
+					{
+						getEntityFromBody(mDI.body).getComponent<OBCHealth>().damage(100000);
+						destroy();
+					}
+
 					if(mDI.body.hasGroup(targetGroup) && getEntityFromBody(mDI.body).getComponent<OBCHealth>().damage(damage) && pierceOrganic-- == 0)
 					{
 						destroy();
@@ -62,13 +69,14 @@ namespace ob
 				return pj;
 			}
 
-			inline void setLife(float mValue) noexcept			{ tckLife.restart(mValue); }
-			inline void setSpeed(float mValue) noexcept			{ speed = mValue; }
-			inline void setDegrees(float mValue) noexcept		{ degrees = mValue; }
-			inline void setCurveSpeed(float mValue) noexcept	{ curveSpeed = mValue; }
-			inline void setDamage(float mValue) noexcept		{ damage = mValue; }
-			inline void setPierceOrganic(int mValue) noexcept	{ pierceOrganic = mValue; }
-			inline void setTargetGroup(OBGroup mValue) noexcept	{ targetGroup = mValue; }
+			inline void setLife(float mValue) noexcept				{ tckLife.restart(mValue); }
+			inline void setSpeed(float mValue) noexcept				{ speed = mValue; }
+			inline void setDegrees(float mValue) noexcept			{ degrees = mValue; }
+			inline void setCurveSpeed(float mValue) noexcept		{ curveSpeed = mValue; }
+			inline void setDamage(float mValue) noexcept			{ damage = mValue; }
+			inline void setPierceOrganic(int mValue) noexcept		{ pierceOrganic = mValue; }
+			inline void setTargetGroup(OBGroup mValue) noexcept		{ targetGroup = mValue; }
+			inline void setKillDestructible(bool mValue) noexcept	{ killDestructible = mValue; }
 
 			inline float getLife() const noexcept				{ return tckLife.getCurrent(); }
 			inline float getSpeed() const noexcept				{ return speed; }

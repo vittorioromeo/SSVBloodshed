@@ -43,6 +43,8 @@ namespace ob
 			sf::IntRect eTurret0,		eTurret1,		eTurret2;							// Turret enemy
 			sf::IntRect pPlateSingle,	pPlateMulti;										// Pressure plates
 			sf::IntRect shard;																// Shard
+			sf::IntRect explosiveCrate;														// Explosive crate
+			sf::IntRect null0;																// Empty tile
 
 			// Medium tileset (20x20)
 			sf::IntRect e2UAStand,		e2AStand,		e2AShoot,		e2AGun;				// Charger alien
@@ -118,6 +120,8 @@ namespace ob
 				T_TSSMALL(eTurret0);		T_TSSMALL(eTurret1);		T_TSSMALL(eTurret2);
 				T_TSSMALL(pPlateSingle);	T_TSSMALL(pPlateMulti);
 				T_TSSMALL(shard);
+				T_TSSMALL(explosiveCrate);
+				T_TSSMALL(null0);
 				WALLTS(wall); WALLTS(wallD); WALLTS(door); WALLTS(doorG); WALLTS(doorR);
 
 				// Medium tileset (20x20)

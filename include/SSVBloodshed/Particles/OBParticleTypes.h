@@ -115,6 +115,17 @@ namespace ob
 				1.0f,
 				ssvu::getRndR(-2.5f, 2.5f));
 	}
+	inline void createPExplosion(OBParticleSystem& mPS, const Vec2f& mPosition)
+	{
+		mPS.emplace(mPosition,
+				ssvs::getVecFromDeg(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(0.3f, 8.7f)),
+				0.97f,
+				(ssvu::getRnd(0, 10) > 7) ? sf::Color::Yellow : sf::Color::Red,
+				1.2f + ssvu::getRndR<float>(-1.2, 1.2),
+				20 + ssvu::getRnd(-15, 25),
+				1.0f,
+				ssvu::getRndR(-2.5f, 2.5f));
+	}
 }
 
 #endif

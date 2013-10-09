@@ -54,7 +54,7 @@ namespace ob
 				cKillable.onDeath += [this]{ assets.playSound("Sounds/playerDeath.wav"); game.testhp.setValue(0.f); };
 
 				getEntity().addGroups(OBGroup::GFriendly, OBGroup::GFriendlyKillable, OBGroup::GPlayer);
-				body.addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir, OBGroup::GFriendly, OBGroup::GFriendlyKillable, OBGroup::GOrganic, OBGroup::GPlayer);
+				body.addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir, OBGroup::GFriendly, OBGroup::GKillable, OBGroup::GFriendlyKillable, OBGroup::GOrganic, OBGroup::GPlayer);
 				body.addGroupToCheck(OBGroup::GSolidGround);
 				body.addGroupNoResolve(OBGroup::GLevelBound);
 			}
@@ -109,7 +109,7 @@ namespace ob
 				if(cPhys.getPosI().x < toCoords(0))		game.changeLevel(*this, -1, 0);
 				if(cPhys.getPosI().x > toCoords(320))	game.changeLevel(*this, 1, 0);
 				if(cPhys.getPosI().y < toCoords(0))		game.changeLevel(*this, 0, -1);
-				if(cPhys.getPosI().y > toCoords(240))	game.changeLevel(*this, 0, 1);
+				if(cPhys.getPosI().y > toCoords(220))	game.changeLevel(*this, 0, 1);
 			}
 
 			inline void update(float) override

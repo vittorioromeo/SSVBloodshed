@@ -214,6 +214,7 @@ namespace ob
 			inline void createPElectric(unsigned int mCount, const Vec2f& mPos)					{ for(auto i(0u); i < mCount; ++i) ob::createPElectric(particles.getPSTempAdd(), mPos); }
 			inline void createPCharge(unsigned int mCount, const Vec2f& mPos, float mDist)		{ for(auto i(0u); i < mCount; ++i) ob::createPCharge(particles.getPSTempAdd(), mPos, mDist); }
 			inline void createPShard(unsigned int mCount, const Vec2f& mPos)					{ for(auto i(0u); i < mCount; ++i) ob::createPShard(particles.getPSTempAdd(), mPos); }
+			inline void createPExplosion(unsigned int mCount, const Vec2f& mPos)				{ for(auto i(0u); i < mCount; ++i) ob::createPExplosion(particles.getPSTempAdd(), mPos); }
 
 			inline void createEShard(unsigned int mCount, const Vec2i& mPos)					{ for(auto i(0u); i < mCount; ++i) factory.createShard(mPos); }
 	};
@@ -221,10 +222,14 @@ namespace ob
 
 // TODO: bullet sensor pressure plates, SSVSC refactoring/optimization
 // TODO: decouple weapon sprite from enemy sprite, explosives, enemy orientation, organic group?, do not pierce breakable wall etc
-// TODO: tripwires, laserwires, etc
+// TODO: tripwires, laserwires, powerups, classes, weapon sets, etc
 // TODO: consider changing body.onResolution lambda with a bool
 // TODO: editor pick tile in center
 // TODO: investigate entity component systems
 // TODO: bullet knockback? replicators? spawners?
+// TODO: major group/facotry refactoring!
+// TODO: explosive crates id, fuses
+// TODO: check usages of eraseremove
+// TODO: check recursive variadic templates for code repetition
 
 #endif

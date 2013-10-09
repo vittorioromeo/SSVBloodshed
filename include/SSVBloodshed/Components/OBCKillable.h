@@ -14,7 +14,7 @@ namespace ob
 	class OBCKillable : public OBCActorNoDrawBase
 	{
 		public:
-			enum class Type{Organic, Robotic, Wall};
+			enum class Type{Organic, Robotic, Wall, ExplosiveCrate};
 
 		private:
 			OBCHealth& cHealth;
@@ -35,6 +35,7 @@ namespace ob
 						assets.playSound("Sounds/spark.wav");
 						break;
 					case Type::Wall:
+					case Type::ExplosiveCrate:
 						game.createPDebris(6 * particleMult, cPhys.getPosPx());
 						assets.playSound("Sounds/spark.wav");
 						break;
@@ -58,6 +59,12 @@ namespace ob
 					case Type::Wall:
 						game.createPDebrisFloor(4 * particleMult, cPhys.getPosPx());
 						game.createPDebris(36 * particleMult, cPhys.getPosPx());
+						assets.playSound("Sounds/spark.wav");
+						break;
+					case Type::ExplosiveCrate:
+						game.createPDebrisFloor(4 * particleMult, cPhys.getPosPx());
+						game.createPDebris(12 * particleMult, cPhys.getPosPx());
+						game.createPExplosion(6 * particleMult, cPhys.getPosPx());
 						assets.playSound("Sounds/spark.wav");
 						break;
 				}

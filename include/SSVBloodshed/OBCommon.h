@@ -51,7 +51,10 @@ namespace ob
 		GTrapdoor,
 		GPlayer,
 		GShard,
-		GLevelBound
+		GLevelBound,
+		GPit,
+		GKillable,
+		GEnvDestructible
 	};
 	enum OBLayer : int
 	{
@@ -99,7 +102,8 @@ namespace ob
 		LETPPlateMulti,
 		LETDoorG,
 		LETTrapdoor,
-		LETDoorR
+		LETDoorR,
+		LETExplosiveCrate
 	};
 
 	// Pixel <-> coords utils

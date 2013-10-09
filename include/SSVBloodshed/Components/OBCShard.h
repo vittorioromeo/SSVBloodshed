@@ -21,7 +21,7 @@ namespace ob
 				getEntity().addGroup(OBGroup::GShard);
 				body.addGroup(OBGroup::GShard);
 				body.addGroupsToCheck(OBGroup::GSolidGround, OBGroup::GFriendly);
-				body.addGroupNoResolve(OBGroup::GOrganic);
+				body.addGroupsNoResolve(OBGroup::GOrganic, OBGroup::GPit);
 				body.setRestitutionX(0.8f);
 				body.setRestitutionY(0.8f);
 				body.onPreUpdate += [this]{ body.setVelocity(ssvs::getCClampedMax(body.getVelocity() * 0.99f, 600.f)); };

@@ -52,16 +52,17 @@ namespace ob
 			Entity& createDoorR(const Vec2i& mPos, const sf::IntRect& mIntRect, bool mOpen);
 			Entity& createPPlate(const Vec2i& mPos, int mId, PPlateType mType, OBIdAction mIdAction);
 			Entity& createPlayer(const Vec2i& mPos);
+			Entity& createExplosiveCrate(const Vec2i& mPos);
 			Entity& createShard(const Vec2i& mPos);
 			Entity& createSpawner(const Vec2i& mPos, int mType, float mDelayStart = 0.f, float mDelaySpawn = 200.f, int mSpawnCount = 1);
 
 			// Enemies
-			Entity& createEBall(const Vec2i& mPos, bool mFlying, bool mSmall = false);
 			Entity& createERunner(const Vec2i& mPos, bool mArmed = false);
 			Entity& createECharger(const Vec2i& mPos, bool mArmed = false);
 			Entity& createEJuggernaut(const Vec2i& mPos, bool mArmed = false);
 			Entity& createEGiant(const Vec2i& mPos);
 			Entity& createEEnforcer(const Vec2i& mPos);
+			Entity& createEBall(const Vec2i& mPos, bool mFlying, bool mSmall = false);
 			Entity& createETurretStarPlasma(const Vec2i& mPos, Dir8 mDir);
 			Entity& createETurretCannonPlasma(const Vec2i& mPos, Dir8 mDir);
 			Entity& createETurretBulletPlasma(const Vec2i& mPos, Dir8 mDir);
@@ -73,6 +74,8 @@ namespace ob
 			Entity& createPJStar(const Vec2i& mPos, float mDegrees);
 			Entity& createPJStarPlasma(const Vec2i& mPos, float mDegrees);
 			Entity& createPJCannonPlasma(const Vec2i& mPos, float mDegrees);
+			Entity& createPJExplosion(const Vec2i& mPos, float mDegrees);
+
 			Entity& createPJTestBomb(const Vec2i& mPos, float mDegrees, float mSpeedMult = 1.f, float mCurveMult = 1.f);
 			Entity& createPJTestShell(const Vec2i& mPos, float mDegrees);
 	};
