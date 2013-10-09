@@ -61,13 +61,14 @@ class IdPool
 		{
 			// Fill the available ids vector from 0 to maxEntities
 			std::iota(std::begin(available), std::end(available), 0);
+			std::fill(std::begin(counters), std::end(counters), 0);
 		}
 
 		// Returns the first unused id
 		inline Id getAvailableId() noexcept	{ Id result(available.back()); available.pop_back(); return result; }
 
 		// Used on Entity death, reclaims the Entity's id so that it can be reused
-		inline void reclaim(const Id& mId) noexcept	{ ++counters[mId]; available.emplace_back(mId); }
+		inline void reclaim(const Id& mId, const Ctr& mCtr) noexcept { if(mCtr != counters[mId]) return; ssvu::lo<<"reclaiming counter: "<<counters[mId]<<std::endl; ++counters[mId]; available.emplace_back(mId); ssvu::lo<<"reclaimed " <<mId<<" counter is now: " << counters[mId]; }
 
 		// Checks if an Entity is currently alive
 		inline bool isAlive(const Id& mId, const Ctr& mCtr) const noexcept { return counters[mId] == mCtr; }
@@ -75,15 +76,19 @@ class IdPool
 
 class Entity
 {
+	friend class Manager;
 	friend class EntityHandle;
 
 	private:
 		Manager& manager;
 		std::unordered_map<TypeId, ssvu::Uptr<Component>> components;
 		Bitset typeIdBitset;
+		std::vector<std::size_t> systemIndices;
+		bool mustDestroy{false};
 
 	public:
 		inline Entity(Manager& mManager) noexcept : manager(mManager) { }
+		~Entity();
 
 		template<typename T, typename... TArgs> inline void createComponent(TArgs&&... mArgs)
 		{
@@ -94,12 +99,14 @@ class Entity
 		template<typename T> inline bool hasComponent() const noexcept	{ return components.count(getTypeId<T>()) > 0; }
 		template<typename T> inline T& getComponent()					{ assert(hasComponent<T>()); return *reinterpret_cast<T*>(components[getTypeId<T>()].get()); }
 
-		inline Manager& getManager() noexcept						{ return manager; }
+		inline void destroy() noexcept { mustDestroy = true; }
+
+		inline Manager& getManager() noexcept					{ return manager; }
 		inline const Bitset& getTypeIdBitset() const noexcept	{ return typeIdBitset; }
 };
 
-template<typename T> constexpr inline static std::tuple<T&> buildComponentsTuple(Entity& mEntity) { return std::tuple<T&>{mEntity.getComponent<T>()}; }
-template<typename T1, typename T2, typename... TArgs> constexpr inline static std::tuple<T1&, T2&, TArgs&...> buildComponentsTuple(Entity& mEntity) { return std::tuple_cat(buildComponentsTuple<T1>(mEntity), buildComponentsTuple<T2, TArgs...>(mEntity)); }
+template<typename T> constexpr inline static std::tuple<T*> buildComponentsTuple(Entity& mEntity) { return std::tuple<T*>{&mEntity.getComponent<T>()}; }
+template<typename T1, typename T2, typename... TArgs> constexpr inline static std::tuple<T1*, T2*, TArgs*...> buildComponentsTuple(Entity& mEntity) { return std::tuple_cat(buildComponentsTuple<T1>(mEntity), buildComponentsTuple<T2, TArgs...>(mEntity)); }
 
 struct SystemBase
 {
@@ -110,22 +117,27 @@ struct SystemBase
 		inline SystemBase(Bitset mTypeIdBitset) : typeIdBitset{std::move(mTypeIdBitset)} { }
 
 	public:
-		inline virtual void update() = 0;
-		inline virtual void registerEntity(Entity&) = 0;
+		virtual void update() = 0;
+		virtual void registerEntity(Entity&) = 0;
+		virtual void unregisterEntity(Entity&) = 0;
 		inline const Bitset& getTypeIdBitset() const noexcept { return typeIdBitset; }
 };
 
 template<typename... TArgs> class System : public SystemBase
 {
 	private:
-		std::vector<std::tuple<Entity&, TArgs&...>> tuples;
+		std::vector<std::tuple<Entity*, TArgs*...>> tuples;
 
 	public:
-		ssvu::Func<void(Entity&, TArgs&...)> onUpdate;
+		ssvu::Func<void(Entity*, TArgs*...)> onUpdate;
 
 		inline System() noexcept : SystemBase{getBitset<TArgs...>()} { }
 
-		inline void registerEntity(Entity& mEntity) override { tuples.push_back(std::tuple_cat(std::tuple<Entity&>{mEntity}, buildComponentsTuple<TArgs...>(mEntity))); }
+		inline void registerEntity(Entity& mEntity) override { tuples.push_back(std::tuple_cat(std::tuple<Entity*>{&mEntity}, buildComponentsTuple<TArgs...>(mEntity))); }
+		inline void unregisterEntity(Entity& mEntity) override
+		{
+			for(auto itr(std::begin(tuples)); itr != std::end(tuples); ++itr) if(std::get<0>(*itr) == &mEntity) { tuples.erase(itr); return; }
+		}
 		inline void update() override { for(auto& t : tuples) ssvu::explode(onUpdate, t); }
 };
 
@@ -145,6 +157,15 @@ class EntityHandle
 		template<typename T> inline bool hasComponent() const noexcept							{ assert(isAlive()); return entity.hasComponent<T>(); }
 		template<typename T> inline T& getComponent()											{ assert(isAlive()); return entity.getComponent<T>(); }
 
+		inline void destroy() noexcept
+		{
+			entity.destroy();
+			idPool.reclaim(id, counter);
+
+			ssvu::lo<<isAlive()<<std::endl;
+			assert(!isAlive());
+		}
+
 		inline bool isAlive() const noexcept		{ return idPool.isAlive(id, counter); }
 		inline Manager& getManager() noexcept		{ return manager; }
 		inline Entity& getEntity() noexcept			{ return entity; }
@@ -155,18 +176,29 @@ class EntityHandle
 class Manager
 {
 	private:
-		std::vector<Entity*> entitiesToAdd, entitiesToRemove;
-
 		IdPool entityIdPool;
-		std::vector<ssvu::Uptr<Entity>> entities;
+		std::vector<Entity*> entitiesToAdd;
 		std::vector<ssvu::Uptr<SystemBase>> systems;
+		std::vector<ssvu::Uptr<Entity>> entities;
 
 	public:
+		inline void delFromSystems(Entity& mEntity, const std::vector<std::size_t>& mIndices)
+		{
+			for(const auto& i : mIndices) systems[i]->unregisterEntity(mEntity);
+		}
+
 		inline void refresh()
 		{
+			ssvu::eraseRemoveIf(entities, [](const ssvu::Uptr<Entity>& mEntity){ return mEntity->mustDestroy; });
+
 			for(auto& e : entitiesToAdd)
 			{
-				for(auto& s : systems) if((e->getTypeIdBitset() & s->getTypeIdBitset()) == s->getTypeIdBitset()) s->registerEntity(*e);
+				for(auto i(0u); i < systems.size(); ++i)
+				{
+					auto& s(systems[i]);
+					if((e->getTypeIdBitset() & s->getTypeIdBitset()) == s->getTypeIdBitset()) s->registerEntity(*e);
+					e->systemIndices.push_back(i);
+				}
 				entities.emplace_back(e);
 			}
 
@@ -183,12 +215,13 @@ class Manager
 
 		template<typename T, typename... TArgs> void registerSystem(TArgs&&... mArgs)
 		{
-			auto system(new T{std::forward<TArgs>(mArgs)...});
-			systems.emplace_back(system);
+			systems.emplace_back(new T{std::forward<TArgs>(mArgs)...});
 		}
 
 		inline IdPool& getEntityIdPool() noexcept { return entityIdPool; }
 };
+
+inline Entity::~Entity() { manager.delFromSystems(*this, systemIndices); }
 
 // ---
 
@@ -200,11 +233,11 @@ struct CAcceleration : Component	{ int x, y; CAcceleration(int mX, int mY) : x{m
 
 struct SMovement : System<CPosition, CVelocity>
 {
-	SYSTEM_UPDATE(SMovement, (Entity& mEntity, CPosition& mCPosition, CVelocity& mCVelocity)
+	SYSTEM_UPDATE(SMovement, (Entity* mEntity, CPosition* mCPosition, CVelocity* mCVelocity)
 	{
-		mCPosition.x += mCVelocity.x;
-		mCPosition.y += mCVelocity.y;
-		ssvu::lo << "sm:" << mCPosition.x << " ; " << mCPosition.y << std::endl;
+		mCPosition->x += mCVelocity->x;
+		mCPosition->y += mCVelocity->y;
+		ssvu::lo << "sm:" << mCPosition->x << " ; " << mCPosition->y << std::endl;
 	})
 };
 
@@ -212,11 +245,11 @@ struct SMovementAdv : System<CVelocity, CAcceleration>
 {
 	inline SMovementAdv()
 	{
-		onUpdate = [](Entity& mEntity, CVelocity& mCVelocity, CAcceleration& mCAcceleration)
+		onUpdate = [](Entity* mEntity, CVelocity* mCVelocity, CAcceleration* mCAcceleration)
 		{
-			mCVelocity.x += mCAcceleration.x;
-			mCVelocity.y += mCAcceleration.y;
-			ssvu::lo << "smadv:" << mCVelocity.x << " ; " << mCVelocity.y << std::endl;
+			mCVelocity->x += mCAcceleration->x;
+			mCVelocity->y += mCAcceleration->y;
+			ssvu::lo << "smadv:" << mCVelocity->x << " ; " << mCVelocity->y << std::endl;
 		};
 	}
 };
@@ -232,12 +265,12 @@ int main()
 	manager.registerSystem<SMovement>();
 	manager.registerSystem<SMovementAdv>();
 
-	{
-		auto e = manager.createEntity();
-		e.createComponent<CPosition>(0, 0);
-		e.createComponent<CVelocity>(10, 5);
-		e.createComponent<CAcceleration>(-3, 5);
-	}
+
+	auto e = manager.createEntity();
+	e.createComponent<CPosition>(0, 0);
+	e.createComponent<CVelocity>(10, 5);
+	e.createComponent<CAcceleration>(-3, 5);
+
 
 	{
 		auto e = manager.createEntity();
@@ -250,6 +283,13 @@ int main()
 	manager.update();
 	manager.update();
 
+	e.destroy();
+	e.destroy();e.destroy();e.destroy();e.destroy();e.destroy();e.destroy();e.destroy();
+
+	manager.refresh();
+	manager.update();
+	manager.update();
+	manager.update();
 
 	/*TestSystem ts;
 	Manager m;
@@ -282,6 +322,8 @@ using namespace ssvms;
 
 int main()
 {
+	OBConfig::setSoundEnabled(false);
+
 	unsigned int width{VideoMode::getDesktopMode().width}, height{VideoMode::getDesktopMode().height};
 	width = 640; height = 480;
 
