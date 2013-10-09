@@ -35,6 +35,9 @@ namespace ob
 			}
 
 		public:
+			inline static void setSoundEnabled(bool mValue) noexcept		{ get().soundEnabled = mValue; }
+			inline static void setMusicEnabled(bool mValue) noexcept		{ get().musicEnabled = mValue; }
+
 			inline static bool isSoundEnabled() noexcept					{ return get().soundEnabled; }
 			inline static bool isMusicEnabled() noexcept					{ return get().musicEnabled; }
 
