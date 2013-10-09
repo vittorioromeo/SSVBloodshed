@@ -18,7 +18,7 @@ namespace ssvces
 			std::vector<TupleType> tuples;
 
 		public:
-			inline System() noexcept : SystemBase{getTypeIdPackBitset<TArgs...>()} { }
+			inline System() noexcept : SystemBase{getTypeIdsBitsetStorage<TArgs...>()} { }
 
 			inline void registerEntity(Entity& mEntity) override { tuples.push_back(std::tuple_cat(std::tuple<Entity*>{&mEntity}, buildComponentsTuple<TArgs...>(mEntity))); }
 			inline void refresh() override { ssvu::eraseRemoveIf(tuples, [](const TupleType& mTuple){ return std::get<0>(mTuple)->mustDestroy; }); }

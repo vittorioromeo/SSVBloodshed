@@ -14,8 +14,8 @@ namespace ssvces
 		// IdPool stores available Entity ids and is used to check Entity validity
 
 		private:
-			std::vector<Id> available;
-			std::array<Ctr, maxEntities> counters;
+			std::vector<EntityId> available;
+			std::array<EntityIdCtr, maxEntities> counters;
 
 		public:
 			inline IdPool() : available(maxEntities)
@@ -24,14 +24,14 @@ namespace ssvces
 				std::iota(std::begin(available), std::end(available), 0);
 			}
 
-			// Returns the first unused id
-			inline Id getAvailableId() noexcept	{ Id result(available.back()); available.pop_back(); return result; }
+			// Returns the first available IdCtrPair
+			inline EntityIdCtrPair getAvailableIdCtrPair() noexcept { EntityId id(available.back()); available.pop_back(); return {id, counters[id]}; }
 
 			// Used on Entity death, reclaims the Entity's id so that it can be reused
-			inline void reclaim(const Id& mId, const Ctr& mCtr) noexcept { if(mCtr != counters[mId]) return; ++counters[mId]; available.emplace_back(mId); }
+			inline void reclaim(const EntityIdCtrPair& mIdCtrPair) noexcept { if(mIdCtrPair.second != counters[mIdCtrPair.first]) return; ++counters[mIdCtrPair.first]; available.emplace_back(mIdCtrPair.first); }
 
 			// Checks if an Entity is currently alive
-			inline bool isAlive(const Id& mId, const Ctr& mCtr) const noexcept { return counters[mId] == mCtr; }
+			inline bool isAlive(const EntityIdCtrPair& mIdCtrPair) const noexcept { return counters[mIdCtrPair.first] == mIdCtrPair.second; }
 	};
 }
 

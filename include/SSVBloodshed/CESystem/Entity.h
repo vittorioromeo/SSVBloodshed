@@ -11,7 +11,6 @@ namespace ssvces
 {
 	class Manager;
 	class EntityHandle;
-	class SystemBase;
 	template<typename...> class System;
 
 	class Entity
@@ -22,28 +21,38 @@ namespace ssvces
 
 		private:
 			Manager& manager;
-			std::vector<ssvu::Uptr<Component>> components;
-			std::vector<Component*> componentPtrs;
-			Bitset typeIdBitset;
+			std::array<Uptr<Component>, maxComponents> components;
+			TypeIdsBitset typeIdsBitset;
 			bool mustDestroy{false};
+			GroupBitset groups;
+			EntityIdCtrPair idCtrPair;
 
 		public:
-			inline Entity(Manager& mManager) noexcept : manager(mManager), componentPtrs(maxComponentsPerEntity) { }
+			inline Entity(Manager& mManager, const EntityIdCtrPair& mIdCtrPair) noexcept : manager(mManager), idCtrPair{mIdCtrPair} { }
 
 			template<typename T, typename... TArgs> inline void createComponent(TArgs&&... mArgs)
 			{
 				assert(!hasComponent<T>());
-				auto component(new T(std::forward<TArgs>(mArgs)...));
-				componentPtrs[getTypeIdBitIdx<T>()] = component;
-				components.emplace_back(component);
-				appendTypeIdBit<T>(typeIdBitset);
+				components[getTypeIdBitIdx<T>()] = ssvu::make_unique<T>(std::forward<TArgs>(mArgs)...);
+				appendTypeIdBit<T>(typeIdsBitset);
 			}
-			template<typename T> inline bool hasComponent() const noexcept	{ return typeIdBitset[getTypeIdBitIdx<T>()]; }
-			template<typename T> inline T& getComponent()					{ assert(hasComponent<T>()); return *reinterpret_cast<T*>(componentPtrs[getTypeIdBitIdx<T>()]); }
+			template<typename T> inline bool hasComponent() const noexcept	{ return typeIdsBitset[getTypeIdBitIdx<T>()]; }
+			template<typename T> inline T& getComponent() noexcept			{ assert(hasComponent<T>()); return reinterpret_cast<T&>(*components[getTypeIdBitIdx<T>()]); }
 
-			inline void destroy() noexcept { mustDestroy = true; }
+			inline void destroy() noexcept;
 
 			inline Manager& getManager() noexcept { return manager; }
+
+			// Groups
+			inline void addGroups(Group mGroup) noexcept;
+			inline void delGroups(Group mGroup) noexcept;
+			inline void clearGroups() noexcept;
+			template<typename... TGroups> inline void addGroups(Group mGroup, TGroups... mGroups) noexcept	{ addGroups(mGroup); addGroups(mGroups...); }
+			template<typename... TGroups> inline void delGroups(Group mGroup, TGroups... mGroups) noexcept	{ delGroups(mGroup); delGroups(mGroups...); }
+			inline bool hasGroup(Group mGroup) const noexcept					{ return groups[mGroup]; }
+			inline bool hasAnyGroup(const GroupBitset& mGroups) const noexcept	{ return (groups & mGroups).any(); }
+			inline bool hasAllGroups(const GroupBitset& mGroups) const noexcept	{ return (groups & mGroups).all(); }
+			inline const GroupBitset& getGroups() const noexcept				{ return groups; }
 	};
 
 	template<typename T> constexpr inline static std::tuple<T*> buildComponentsTuple(Entity& mEntity) { return std::tuple<T*>{&mEntity.getComponent<T>()}; }
