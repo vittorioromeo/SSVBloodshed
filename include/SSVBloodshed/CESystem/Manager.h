@@ -31,12 +31,7 @@ namespace ssvces
 
 				for(auto& e : entitiesToAdd)
 				{
-					for(auto i(0u); i < systems.size(); ++i)
-					{
-						auto& s(systems[i]);
-						if((e->typeIdBitset & s->typeIdBitset) == s->typeIdBitset) s->registerEntity(*e);
-						e->systems.push_back(s);
-					}
+					for(auto& s : systems) if((e->typeIdBitset & s->typeIdBitset) == s->typeIdBitset) s->registerEntity(*e);
 					entities.emplace_back(e);
 				}
 
@@ -50,7 +45,7 @@ namespace ssvces
 				return {*this, entityIdPool, *entity, entityIdPool.getAvailableId()};
 			}
 
-			template<typename T> void registerSystem(T& mSystem) { systems.push_back(&mSystem);  }
+			template<typename T> inline void registerSystem(T& mSystem) { systems.push_back(&mSystem); }
 	};
 
 }

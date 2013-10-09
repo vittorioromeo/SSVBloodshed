@@ -25,7 +25,6 @@ namespace ssvces
 			std::vector<ssvu::Uptr<Component>> components;
 			std::vector<Component*> componentPtrs;
 			Bitset typeIdBitset;
-			std::vector<SystemBase*> systems;
 			bool mustDestroy{false};
 
 		public:

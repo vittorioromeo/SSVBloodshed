@@ -74,17 +74,7 @@ int main()
 	manager.registerSystem(sDeath);
 	manager.registerSystem(sDraw);
 
-	for(int i = 0; i < 20000; ++i)
-	{
-		auto e = manager.createEntity();
-		e.createComponent<CPosition>(ssvu::getRnd(512 - 100, 512 + 100), ssvu::getRnd(384 - 100, 384 + 100));
-		e.createComponent<CVelocity>(ssvu::getRnd(-10, 10), ssvu::getRnd(-10, 10));
-		e.createComponent<CAcceleration>(ssvu::getRnd(-1, 1), ssvu::getRnd(-1, 1));
-		e.createComponent<CSprite>();
-		e.createComponent<CLife>(ssvu::getRnd(50, 60));
-	}
-
-	float counter{0};
+	float counter{99};
 	ssvs::GameState gameState;
 	gameState.onUpdate += [&, counter](float mFT) mutable
 	{
@@ -96,8 +86,8 @@ int main()
 			{
 				auto e = manager.createEntity();
 				e.createComponent<CPosition>(ssvu::getRnd(512 - 100, 512 + 100), ssvu::getRnd(384 - 100, 384 + 100));
-				e.createComponent<CVelocity>(ssvu::getRnd(-10, 10), ssvu::getRnd(-10, 10));
-				e.createComponent<CAcceleration>(ssvu::getRnd(-1, 1), ssvu::getRnd(-1, 1));
+				e.createComponent<CVelocity>(ssvu::getRndR(-1.f, 2.f), ssvu::getRndR(-1.f, 2.f));
+				e.createComponent<CAcceleration>(ssvu::getRndR(-1.f, 2.f), ssvu::getRndR(-1.f, 2.f));
 				e.createComponent<CSprite>();
 				e.createComponent<CLife>(ssvu::getRnd(50, 100));
 			}

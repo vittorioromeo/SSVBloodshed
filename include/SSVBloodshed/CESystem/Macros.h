@@ -12,28 +12,28 @@
 #define MACRO_DISPATCH_(func, nargs) MACRO_DISPATCH__(func, nargs)
 #define MACRO_DISPATCH(func, ...) MACRO_DISPATCH_(func, VA_NUM_ARGS(__VA_ARGS__))
 
-#define SYSTEM_LOOP_1(nameEntity) for(const auto& tpl : getTuples()) { auto& nameEntity(getEntity(tpl));
-#define SYSTEM_LOOP_NOENTITY_0() for(const auto& tpl : getTuples()) {
-#define SYSTEM_LOOP_2(nameEntity, nameC0) for(const auto& tpl : getTuples()) { auto& nameEntity(getEntity(tpl)); auto& nameC0(getComponent<0>(tpl));
-#define SYSTEM_LOOP_NOENTITY_1(nameC0) for(const auto& tpl : getTuples()) { auto& nameC0(getComponent<0>(tpl));
-#define SYSTEM_LOOP_3(nameEntity, nameC0, nameC1) for(const auto& tpl : getTuples()) { auto& nameEntity(getEntity(tpl)); auto& nameC0(getComponent<0>(tpl)); auto& nameC1(getComponent<1>(tpl));
-#define SYSTEM_LOOP_NOENTITY_2(nameC0, nameC1) for(const auto& tpl : getTuples()) { auto& nameC0(getComponent<0>(tpl)); auto& nameC1(getComponent<1>(tpl));
-#define SYSTEM_LOOP_4(nameEntity, nameC0, nameC1, nameC2) for(const auto& tpl : getTuples()) { auto& nameEntity(getEntity(tpl)); auto& nameC0(getComponent<0>(tpl)); auto& nameC1(getComponent<1>(tpl)); auto& nameC2(getComponent<2>(tpl));
-#define SYSTEM_LOOP_NOENTITY_3(nameC0, nameC1, nameC2) for(const auto& tpl : getTuples()) { auto& nameC0(getComponent<0>(tpl)); auto& nameC1(getComponent<1>(tpl)); auto& nameC2(getComponent<2>(tpl));
-#define SYSTEM_LOOP_5(nameEntity, nameC0, nameC1, nameC2, nameC3) for(const auto& tpl : getTuples()) { auto& nameEntity(getEntity(tpl)); auto& nameC0(getComponent<0>(tpl)); auto& nameC1(getComponent<1>(tpl)); auto& nameC2(getComponent<2>(tpl)); auto& nameC3(getComponent<3>(tpl));
-#define SYSTEM_LOOP_NOENTITY_4(nameC0, nameC1, nameC2, nameC3) for(const auto& tpl : getTuples()) { auto& nameC0(getComponent<0>(tpl)); auto& nameC1(getComponent<1>(tpl)); auto& nameC2(getComponent<2>(tpl)); auto& nameC3(getComponent<3>(tpl));
-#define SYSTEM_LOOP_6(nameEntity, nameC0, nameC1, nameC2, nameC3, nameC4) for(const auto& tpl : getTuples()) { auto& nameEntity(getEntity(tpl)); auto& nameC0(getComponent<0>(tpl)); auto& nameC1(getComponent<1>(tpl)); auto& nameC2(getComponent<2>(tpl)); auto& nameC3(getComponent<3>(tpl)); auto& nameC4(getComponent<4>(tpl));
-#define SYSTEM_LOOP_NOENTITY_5(nameC0, nameC1, nameC2, nameC3, nameC4) for(const auto& tpl : getTuples()) { auto& nameC0(getComponent<0>(tpl)); auto& nameC1(getComponent<1>(tpl)); auto& nameC2(getComponent<2>(tpl)); auto& nameC3(getComponent<3>(tpl)); auto& nameC4(getComponent<4>(tpl));
-#define SYSTEM_LOOP_7(nameEntity, nameC0, nameC1, nameC2, nameC3, nameC4, nameC5) for(const auto& tpl : getTuples()) { auto& nameEntity(getEntity(tpl)); auto& nameC0(getComponent<0>(tpl)); auto& nameC1(getComponent<1>(tpl)); auto& nameC2(getComponent<2>(tpl)); auto& nameC3(getComponent<3>(tpl)); auto& nameC4(getComponent<4>(tpl)); auto& nameC5(getComponent<5>(tpl));
-#define SYSTEM_LOOP_NOENTITY_6(nameC0, nameC1, nameC2, nameC3, nameC4, nameC5) for(const auto& tpl : getTuples()) { auto& nameC0(getComponent<0>(tpl)); auto& nameC1(getComponent<1>(tpl)); auto& nameC2(getComponent<2>(tpl)); auto& nameC3(getComponent<3>(tpl)); auto& nameC4(getComponent<4>(tpl)); auto& nameC5(getComponent<5>(tpl));
-#define SYSTEM_LOOP_8(nameEntity, nameC0, nameC1, nameC2, nameC3, nameC4, nameC5, nameC6) for(const auto& tpl : getTuples()) { auto& nameEntity(getEntity(tpl)); auto& nameC0(getComponent<0>(tpl)); auto& nameC1(getComponent<1>(tpl)); auto& nameC2(getComponent<2>(tpl)); auto& nameC3(getComponent<3>(tpl)); auto& nameC4(getComponent<4>(tpl)); auto& nameC5(getComponent<5>(tpl)); auto& nameC6(getComponent<6>(tpl));
-#define SYSTEM_LOOP_NOENTITY_7(nameC0, nameC1, nameC2, nameC3, nameC4, nameC5, nameC6) for(const auto& tpl : getTuples()) { auto& nameC0(getComponent<0>(tpl)); auto& nameC1(getComponent<1>(tpl)); auto& nameC2(getComponent<2>(tpl)); auto& nameC3(getComponent<3>(tpl)); auto& nameC4(getComponent<4>(tpl)); auto& nameC5(getComponent<5>(tpl)); auto& nameC6(getComponent<6>(tpl));
-#define SYSTEM_LOOP_9(nameEntity, nameC0, nameC1, nameC2, nameC3, nameC4, nameC5, nameC6, nameC7) for(const auto& tpl : getTuples()) { auto& nameEntity(getEntity(tpl)); auto& nameC0(getComponent<0>(tpl)); auto& nameC1(getComponent<1>(tpl)); auto& nameC2(getComponent<2>(tpl)); auto& nameC3(getComponent<3>(tpl)); auto& nameC4(getComponent<4>(tpl)); auto& nameC5(getComponent<5>(tpl)); auto& nameC6(getComponent<6>(tpl)); auto& nameC7(getComponent<7>(tpl));
-#define SYSTEM_LOOP_NOENTITY_8(nameC0, nameC1, nameC2, nameC3, nameC4, nameC5, nameC6, nameC7) for(const auto& tpl : getTuples()) { auto& nameC0(getComponent<0>(tpl)); auto& nameC1(getComponent<1>(tpl)); auto& nameC2(getComponent<2>(tpl)); auto& nameC3(getComponent<3>(tpl)); auto& nameC4(getComponent<4>(tpl)); auto& nameC5(getComponent<5>(tpl)); auto& nameC6(getComponent<6>(tpl)); auto& nameC7(getComponent<7>(tpl));
-#define SYSTEM_LOOP_10(nameEntity, nameC0, nameC1, nameC2, nameC3, nameC4, nameC5, nameC6, nameC7, nameC8) for(const auto& tpl : getTuples()) { auto& nameEntity(getEntity(tpl)); auto& nameC0(getComponent<0>(tpl)); auto& nameC1(getComponent<1>(tpl)); auto& nameC2(getComponent<2>(tpl)); auto& nameC3(getComponent<3>(tpl)); auto& nameC4(getComponent<4>(tpl)); auto& nameC5(getComponent<5>(tpl)); auto& nameC6(getComponent<6>(tpl)); auto& nameC7(getComponent<7>(tpl)); auto& nameC8(getComponent<8>(tpl));
-#define SYSTEM_LOOP_NOENTITY_9(nameC0, nameC1, nameC2, nameC3, nameC4, nameC5, nameC6, nameC7, nameC8) for(const auto& tpl : getTuples()) { auto& nameC0(getComponent<0>(tpl)); auto& nameC1(getComponent<1>(tpl)); auto& nameC2(getComponent<2>(tpl)); auto& nameC3(getComponent<3>(tpl)); auto& nameC4(getComponent<4>(tpl)); auto& nameC5(getComponent<5>(tpl)); auto& nameC6(getComponent<6>(tpl)); auto& nameC7(getComponent<7>(tpl)); auto& nameC8(getComponent<8>(tpl));
-#define SYSTEM_LOOP_11(nameEntity, nameC0, nameC1, nameC2, nameC3, nameC4, nameC5, nameC6, nameC7, nameC8, nameC9) for(const auto& tpl : getTuples()) { auto& nameEntity(getEntity(tpl)); auto& nameC0(getComponent<0>(tpl)); auto& nameC1(getComponent<1>(tpl)); auto& nameC2(getComponent<2>(tpl)); auto& nameC3(getComponent<3>(tpl)); auto& nameC4(getComponent<4>(tpl)); auto& nameC5(getComponent<5>(tpl)); auto& nameC6(getComponent<6>(tpl)); auto& nameC7(getComponent<7>(tpl)); auto& nameC8(getComponent<8>(tpl)); auto& nameC9(getComponent<9>(tpl));
-#define SYSTEM_LOOP_NOENTITY_10(nameC0, nameC1, nameC2, nameC3, nameC4, nameC5, nameC6, nameC7, nameC8, nameC9) for(const auto& tpl : getTuples()) { auto& nameC0(getComponent<0>(tpl)); auto& nameC1(getComponent<1>(tpl)); auto& nameC2(getComponent<2>(tpl)); auto& nameC3(getComponent<3>(tpl)); auto& nameC4(getComponent<4>(tpl)); auto& nameC5(getComponent<5>(tpl)); auto& nameC6(getComponent<6>(tpl)); auto& nameC7(getComponent<7>(tpl)); auto& nameC8(getComponent<8>(tpl)); auto& nameC9(getComponent<9>(tpl));
+#define SYSTEM_LOOP_1(nameEntity) for(const auto& __sysTpl : this->getTuples()) { auto& nameEntity(this->getEntity(__sysTpl));
+#define SYSTEM_LOOP_2(nameEntity, nameC0) for(const auto& __sysTpl : this->getTuples()) { auto& nameEntity(this->getEntity(__sysTpl)); auto& nameC0(this->getComponent<0>(__sysTpl));
+#define SYSTEM_LOOP_3(nameEntity, nameC0, nameC1) for(const auto& __sysTpl : this->getTuples()) { auto& nameEntity(this->getEntity(__sysTpl)); auto& nameC0(this->getComponent<0>(__sysTpl)); auto& nameC1(this->getComponent<1>(__sysTpl));
+#define SYSTEM_LOOP_4(nameEntity, nameC0, nameC1, nameC2) for(const auto& __sysTpl : this->getTuples()) { auto& nameEntity(this->getEntity(__sysTpl)); auto& nameC0(this->getComponent<0>(__sysTpl)); auto& nameC1(this->getComponent<1>(__sysTpl)); auto& nameC2(this->getComponent<2>(__sysTpl));
+#define SYSTEM_LOOP_5(nameEntity, nameC0, nameC1, nameC2, nameC3) for(const auto& __sysTpl : this->getTuples()) { auto& nameEntity(this->getEntity(__sysTpl)); auto& nameC0(this->getComponent<0>(__sysTpl)); auto& nameC1(this->getComponent<1>(__sysTpl)); auto& nameC2(this->getComponent<2>(__sysTpl)); auto& nameC3(this->getComponent<3>(__sysTpl));
+#define SYSTEM_LOOP_6(nameEntity, nameC0, nameC1, nameC2, nameC3, nameC4) for(const auto& __sysTpl : this->getTuples()) { auto& nameEntity(this->getEntity(__sysTpl)); auto& nameC0(this->getComponent<0>(__sysTpl)); auto& nameC1(this->getComponent<1>(__sysTpl)); auto& nameC2(this->getComponent<2>(__sysTpl)); auto& nameC3(this->getComponent<3>(__sysTpl)); auto& nameC4(this->getComponent<4>(__sysTpl));
+#define SYSTEM_LOOP_7(nameEntity, nameC0, nameC1, nameC2, nameC3, nameC4, nameC5) for(const auto& __sysTpl : this->getTuples()) { auto& nameEntity(this->getEntity(__sysTpl)); auto& nameC0(this->getComponent<0>(__sysTpl)); auto& nameC1(this->getComponent<1>(__sysTpl)); auto& nameC2(this->getComponent<2>(__sysTpl)); auto& nameC3(this->getComponent<3>(__sysTpl)); auto& nameC4(this->getComponent<4>(__sysTpl)); auto& nameC5(this->getComponent<5>(__sysTpl));
+#define SYSTEM_LOOP_8(nameEntity, nameC0, nameC1, nameC2, nameC3, nameC4, nameC5, nameC6) for(const auto& __sysTpl : this->getTuples()) { auto& nameEntity(this->getEntity(__sysTpl)); auto& nameC0(this->getComponent<0>(__sysTpl)); auto& nameC1(this->getComponent<1>(__sysTpl)); auto& nameC2(this->getComponent<2>(__sysTpl)); auto& nameC3(this->getComponent<3>(__sysTpl)); auto& nameC4(this->getComponent<4>(__sysTpl)); auto& nameC5(this->getComponent<5>(__sysTpl)); auto& nameC6(this->getComponent<6>(__sysTpl));
+#define SYSTEM_LOOP_9(nameEntity, nameC0, nameC1, nameC2, nameC3, nameC4, nameC5, nameC6, nameC7) for(const auto& __sysTpl : this->getTuples()) { auto& nameEntity(this->getEntity(__sysTpl)); auto& nameC0(this->getComponent<0>(__sysTpl)); auto& nameC1(this->getComponent<1>(__sysTpl)); auto& nameC2(this->getComponent<2>(__sysTpl)); auto& nameC3(this->getComponent<3>(__sysTpl)); auto& nameC4(this->getComponent<4>(__sysTpl)); auto& nameC5(this->getComponent<5>(__sysTpl)); auto& nameC6(this->getComponent<6>(__sysTpl)); auto& nameC7(this->getComponent<7>(__sysTpl));
+#define SYSTEM_LOOP_10(nameEntity, nameC0, nameC1, nameC2, nameC3, nameC4, nameC5, nameC6, nameC7, nameC8) for(const auto& __sysTpl : this->getTuples()) { auto& nameEntity(this->getEntity(__sysTpl)); auto& nameC0(this->getComponent<0>(__sysTpl)); auto& nameC1(this->getComponent<1>(__sysTpl)); auto& nameC2(this->getComponent<2>(__sysTpl)); auto& nameC3(this->getComponent<3>(__sysTpl)); auto& nameC4(this->getComponent<4>(__sysTpl)); auto& nameC5(this->getComponent<5>(__sysTpl)); auto& nameC6(this->getComponent<6>(__sysTpl)); auto& nameC7(this->getComponent<7>(__sysTpl)); auto& nameC8(this->getComponent<8>(__sysTpl));
+#define SYSTEM_LOOP_11(nameEntity, nameC0, nameC1, nameC2, nameC3, nameC4, nameC5, nameC6, nameC7, nameC8, nameC9) for(const auto& __sysTpl : this->getTuples()) { auto& nameEntity(this->getEntity(__sysTpl)); auto& nameC0(this->getComponent<0>(__sysTpl)); auto& nameC1(this->getComponent<1>(__sysTpl)); auto& nameC2(this->getComponent<2>(__sysTpl)); auto& nameC3(this->getComponent<3>(__sysTpl)); auto& nameC4(this->getComponent<4>(__sysTpl)); auto& nameC5(this->getComponent<5>(__sysTpl)); auto& nameC6(this->getComponent<6>(__sysTpl)); auto& nameC7(this->getComponent<7>(__sysTpl)); auto& nameC8(this->getComponent<8>(__sysTpl)); auto& nameC9(this->getComponent<9>(__sysTpl));
+#define SYSTEM_LOOP_NOENTITY_0() for(const auto& __sysTpl : this->getTuples()) {
+#define SYSTEM_LOOP_NOENTITY_1(nameC0) for(const auto& __sysTpl : this->getTuples()) { auto& nameC0(this->getComponent<0>(__sysTpl));
+#define SYSTEM_LOOP_NOENTITY_2(nameC0, nameC1) for(const auto& __sysTpl : this->getTuples()) { auto& nameC0(this->getComponent<0>(__sysTpl)); auto& nameC1(this->getComponent<1>(__sysTpl));
+#define SYSTEM_LOOP_NOENTITY_3(nameC0, nameC1, nameC2) for(const auto& __sysTpl : this->getTuples()) { auto& nameC0(this->getComponent<0>(__sysTpl)); auto& nameC1(this->getComponent<1>(__sysTpl)); auto& nameC2(this->getComponent<2>(__sysTpl));
+#define SYSTEM_LOOP_NOENTITY_4(nameC0, nameC1, nameC2, nameC3) for(const auto& __sysTpl : this->getTuples()) { auto& nameC0(this->getComponent<0>(__sysTpl)); auto& nameC1(this->getComponent<1>(__sysTpl)); auto& nameC2(this->getComponent<2>(__sysTpl)); auto& nameC3(this->getComponent<3>(__sysTpl));
+#define SYSTEM_LOOP_NOENTITY_5(nameC0, nameC1, nameC2, nameC3, nameC4) for(const auto& __sysTpl : this->getTuples()) { auto& nameC0(this->getComponent<0>(__sysTpl)); auto& nameC1(this->getComponent<1>(__sysTpl)); auto& nameC2(this->getComponent<2>(__sysTpl)); auto& nameC3(this->getComponent<3>(__sysTpl)); auto& nameC4(this->getComponent<4>(__sysTpl));
+#define SYSTEM_LOOP_NOENTITY_6(nameC0, nameC1, nameC2, nameC3, nameC4, nameC5) for(const auto& __sysTpl : this->getTuples()) { auto& nameC0(this->getComponent<0>(__sysTpl)); auto& nameC1(this->getComponent<1>(__sysTpl)); auto& nameC2(this->getComponent<2>(__sysTpl)); auto& nameC3(this->getComponent<3>(__sysTpl)); auto& nameC4(this->getComponent<4>(__sysTpl)); auto& nameC5(this->getComponent<5>(__sysTpl));
+#define SYSTEM_LOOP_NOENTITY_7(nameC0, nameC1, nameC2, nameC3, nameC4, nameC5, nameC6) for(const auto& __sysTpl : this->getTuples()) { auto& nameC0(this->getComponent<0>(__sysTpl)); auto& nameC1(this->getComponent<1>(__sysTpl)); auto& nameC2(this->getComponent<2>(__sysTpl)); auto& nameC3(this->getComponent<3>(__sysTpl)); auto& nameC4(this->getComponent<4>(__sysTpl)); auto& nameC5(this->getComponent<5>(__sysTpl)); auto& nameC6(this->getComponent<6>(__sysTpl));
+#define SYSTEM_LOOP_NOENTITY_8(nameC0, nameC1, nameC2, nameC3, nameC4, nameC5, nameC6, nameC7) for(const auto& __sysTpl : this->getTuples()) { auto& nameC0(this->getComponent<0>(__sysTpl)); auto& nameC1(this->getComponent<1>(__sysTpl)); auto& nameC2(this->getComponent<2>(__sysTpl)); auto& nameC3(this->getComponent<3>(__sysTpl)); auto& nameC4(this->getComponent<4>(__sysTpl)); auto& nameC5(this->getComponent<5>(__sysTpl)); auto& nameC6(this->getComponent<6>(__sysTpl)); auto& nameC7(this->getComponent<7>(__sysTpl));
+#define SYSTEM_LOOP_NOENTITY_9(nameC0, nameC1, nameC2, nameC3, nameC4, nameC5, nameC6, nameC7, nameC8) for(const auto& __sysTpl : this->getTuples()) { auto& nameC0(this->getComponent<0>(__sysTpl)); auto& nameC1(this->getComponent<1>(__sysTpl)); auto& nameC2(this->getComponent<2>(__sysTpl)); auto& nameC3(this->getComponent<3>(__sysTpl)); auto& nameC4(this->getComponent<4>(__sysTpl)); auto& nameC5(this->getComponent<5>(__sysTpl)); auto& nameC6(this->getComponent<6>(__sysTpl)); auto& nameC7(this->getComponent<7>(__sysTpl)); auto& nameC8(this->getComponent<8>(__sysTpl));
+#define SYSTEM_LOOP_NOENTITY_10(nameC0, nameC1, nameC2, nameC3, nameC4, nameC5, nameC6, nameC7, nameC8, nameC9) for(const auto& __sysTpl : this->getTuples()) { auto& nameC0(this->getComponent<0>(__sysTpl)); auto& nameC1(this->getComponent<1>(__sysTpl)); auto& nameC2(this->getComponent<2>(__sysTpl)); auto& nameC3(this->getComponent<3>(__sysTpl)); auto& nameC4(this->getComponent<4>(__sysTpl)); auto& nameC5(this->getComponent<5>(__sysTpl)); auto& nameC6(this->getComponent<6>(__sysTpl)); auto& nameC7(this->getComponent<7>(__sysTpl)); auto& nameC8(this->getComponent<8>(__sysTpl)); auto& nameC9(this->getComponent<9>(__sysTpl));
 
 #define SYSTEM_LOOP(...) MACRO_DISPATCH(SYSTEM_LOOP_, __VA_ARGS__)(__VA_ARGS__)
 #define SYSTEM_LOOP_NOENTITY(...) MACRO_DISPATCH(SYSTEM_LOOP_NOENTITY_, __VA_ARGS__)(__VA_ARGS__)
@@ -44,11 +44,16 @@
 
 int main()
 {
+	constexpr int count{11};
+	const std::string macroName1{"SYSTEM_LOOP_"};
+	const std::string macroName2{"SYSTEM_LOOP_NOENTITY_"};
+	const std::string tplIdentifier{"__sysTpl"};
+
 	std::string result;
-	for(int i{0}; i < 11; ++i)
+	for(int i{0}; i < count; ++i)
 	{
 		// Macro name
-		result += "#define SYSTEM_LOOP_" + ssvu::toStr(i + 1);
+		result += "#define " + macroName1 + ssvu::toStr(i + 1);
 
 		// Parameters
 		result += "(nameEntity";
@@ -56,14 +61,16 @@ int main()
 		result += ") ";
 
 		// Macro body
-		result += "for(const auto& tpl : getTuples()) { ";
-		result += "auto& nameEntity(getEntity(tpl)); ";
-		for(int p{0}; p < i; ++p) result += "auto& nameC" + ssvu::toStr(p) + "(getComponent<" + ssvu::toStr(p) + ">(tpl)); ";
+		result += "for(const auto& " + tplIdentifier + " : this->getTuples()) { ";
+		result += "auto& nameEntity(this->getEntity(" + tplIdentifier + ")); ";
+		for(int p{0}; p < i; ++p) result += "auto& nameC" + ssvu::toStr(p) + "(this->getComponent<" + ssvu::toStr(p) + ">(" + tplIdentifier + ")); ";
 
 		result += "\n";
-
+	}
+	for(int i{0}; i < count; ++i)
+	{
 		// Macro name
-		result += "#define SYSTEM_LOOP_NOENTITY_" + ssvu::toStr(i + 1);
+		result += "#define " + macroName2 + ssvu::toStr(i);
 
 		// Parameters
 		result += "(";
@@ -75,15 +82,13 @@ int main()
 		result += ") ";
 
 		// Macro body
-		result += "for(const auto& tpl : getTuples()) { ";
-		for(int p{0}; p < i; ++p) result += "auto& nameC" + ssvu::toStr(p) + "(getComponent<" + ssvu::toStr(p) + ">(tpl)); ";
+		result += "for(const auto& " + tplIdentifier + " : this->getTuples()) { ";
+		for(int p{0}; p < i; ++p) result += "auto& nameC" + ssvu::toStr(p) + "(this->getComponent<" + ssvu::toStr(p) + ">(" + tplIdentifier + ")); ";
 
 		result += "\n";
 	}
 
-
 	std::cout << result << std::endl;
-
 	return 0;
 }
 
