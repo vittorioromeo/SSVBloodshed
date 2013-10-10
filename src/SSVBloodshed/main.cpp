@@ -141,6 +141,7 @@ int main()
 				e.createComponent<CAcceleration>(ssvu::getRndR(-1.f, 2.f), ssvu::getRndR(-1.f, 2.f));
 				e.createComponent<CSprite>();
 				e.createComponent<CLife>(ssvu::getRnd(50, 100));
+				e.addGroups(0);
 			}
 		}
 		manager.refresh();
@@ -148,6 +149,7 @@ int main()
 		sDeath.update(mFT);
 
 		if(gameWindow.getFPS() < 60) ssvu::lo<<gameWindow.getFPS()<<std::endl;
+		ssvu::lo<<manager.getEntityCount(0)<<std::endl;
 	};
 	gameState.onDraw += [&]{ sDraw.draw(); };
 

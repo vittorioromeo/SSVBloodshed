@@ -25,7 +25,7 @@ namespace ssvces
 
 			inline constexpr Entity& getEntity(const TupleType& mTuple) const noexcept { return *std::get<0>(mTuple); }
 			template<unsigned int TIdx> inline constexpr auto getComponent(const TupleType& mTuple) const noexcept -> decltype(*std::get<TIdx + 1>(mTuple)) { return *std::get<TIdx + 1>(mTuple); }
-			inline const decltype(tuples)& getTuples() const { return tuples; }
+			inline const decltype(tuples)& getTuples() const noexcept { return tuples; }
 	};
 }
 
