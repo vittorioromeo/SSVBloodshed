@@ -26,7 +26,7 @@ namespace ssvces
 
 	using EntityId = std::size_t;
 	using EntityIdCtr = std::uint8_t;
-	using EntityIdCtrPair = std::pair<EntityId, EntityIdCtr>;
+	struct EntityStat { EntityId id; EntityIdCtr ctr; };
 
 	using TypeId = std::size_t;
 	using TypeIdsBitset = std::bitset<maxComponents>;
@@ -54,7 +54,7 @@ namespace ssvces
 		template<typename T> const std::size_t TypeIdStorage<T>::bitIdx{lastTypeIdBitIdx++};
 
 		// These functions use variadic template recursion to "build" a bitset for a set of Component types
-		template<typename T> inline static void buildBitsetHelper(TypeIdsBitset& mBitset) noexcept { mBitset.set(Internal::TypeIdStorage<T>::bitIdx); }
+		template<typename T> inline static void buildBitsetHelper(TypeIdsBitset& mBitset) noexcept { mBitset[Internal::TypeIdStorage<T>::bitIdx] = true; }
 		template<typename T1, typename T2, typename... TArgs> inline static void buildBitsetHelper(TypeIdsBitset& mBitset) noexcept { buildBitsetHelper<T1>(mBitset); buildBitsetHelper<T2, TArgs...>(mBitset); }
 		template<typename... TArgs> inline static TypeIdsBitset getBuildBitset() noexcept { TypeIdsBitset result; buildBitsetHelper<TArgs...>(result); return result; }
 
