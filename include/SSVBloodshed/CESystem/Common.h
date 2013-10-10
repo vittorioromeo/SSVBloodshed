@@ -72,11 +72,12 @@ namespace ssvces
 	// Shortcut to get the bit index of a Component type
 	template<typename T> inline constexpr static const std::size_t& getTypeIdBitIdx() noexcept { return Internal::TypeIdStorage<T>::bitIdx; }
 
-	// Shortcut to append a bit of a Component type to an existing bitset
-	template<typename T> inline static void appendTypeIdBit(TypeIdsBitset& mBitset) noexcept { Internal::buildBitsetHelper<T>(mBitset); }
-
 	// Returns whether the first bitset contains all the value of the second one
 	inline static bool containsAll(const TypeIdsBitset& mA, const TypeIdsBitset& mB) noexcept { return (mA & mB) == mB; }
+
+	class Entity;
+	class SystemBase;
+	inline static bool matchesSystem(const TypeIdsBitset& mTypeIds, const SystemBase& mSystem) noexcept;
 }
 
 #endif

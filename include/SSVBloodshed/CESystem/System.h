@@ -21,8 +21,8 @@ namespace ssvces
 
 	template<typename... TArgs> struct Req : public Internal::Filter<TArgs...>
 	{
-		using TupleType = std::tuple<Entity*, TArgs*...>;
-		static TupleType getTuple(Entity& mEntity) { return std::tuple_cat(std::tuple<Entity*>{&mEntity}, buildComponentsTuple<TArgs...>(mEntity)); }
+		using TupleType = std::tuple<SystemBase*, Entity*, TArgs*...>;
+		static TupleType getTuple(SystemBase& mSystemBase, Entity& mEntity) { return std::tuple_cat(std::tuple<SystemBase*, Entity*>{&mSystemBase, &mEntity}, buildComponentsTuple<TArgs...>(mEntity)); }
 	};
 	template<typename... TArgs> struct Not : public Internal::Filter<TArgs...> { };
 
@@ -35,11 +35,11 @@ namespace ssvces
 		public:
 			inline System() noexcept : SystemBase{TReq::getTypeIdsBitset(), TNot::getTypeIdsBitset()} { }
 
-			inline void registerEntity(Entity& mEntity) override { tuples.push_back(TReq::getTuple(mEntity)); }
-			inline void refresh() override { ssvu::eraseRemoveIf(tuples, [](const TupleType& mTuple){ return std::get<0>(mTuple)->mustDestroy; }); }
+			inline void registerEntity(Entity& mEntity) override { tuples.push_back(TReq::getTuple(*this, mEntity)); }
+			inline void refresh() override { ssvu::eraseRemoveIf(tuples, [](const TupleType& mTuple){ return getEntity(mTuple).mustDestroy || getEntity(mTuple).mustRematch; }); }
 
-			inline constexpr Entity& getEntity(const TupleType& mTuple) const noexcept { return *std::get<0>(mTuple); }
-			template<unsigned int TIdx> inline constexpr auto getComponent(const TupleType& mTuple) const noexcept -> decltype(*std::get<TIdx + 1>(mTuple)) { return *std::get<TIdx + 1>(mTuple); }
+			inline static constexpr Entity& getEntity(const TupleType& mTuple) noexcept { return *std::get<1>(mTuple); }
+			template<unsigned int TIdx> inline static constexpr auto getComponent(const TupleType& mTuple) noexcept -> decltype(*std::get<TIdx + 2>(mTuple)) { return *std::get<TIdx + 2>(mTuple); }
 			inline const decltype(tuples)& getTuples() const noexcept { return tuples; }
 	};
 }

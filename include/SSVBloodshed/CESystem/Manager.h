@@ -46,22 +46,43 @@ namespace ssvces
 				ssvu::eraseRemove(entities.grouped[mGroup], mEntity);
 			}
 
-			inline bool entityMatchesSystem(const Entity& mEntity, const SystemBase& mSystem) const noexcept
-			{
-				return (mEntity.typeIdsBitset & mSystem.typeIdsNot).none() && containsAll(mEntity.typeIdsBitset, mSystem.typeIdsReq);
-			}
-
 		public:
 			inline void refresh()
 			{
 				for(auto& s : systems) s->refresh();
 
 				for(auto& v : entities.grouped) ssvu::eraseRemoveIf(v, [](const Entity* mEntity){ return mEntity->mustDestroy; });
-				ssvu::eraseRemoveIf(entities.alive, [](const Uptr<Entity>& mEntity){ return mEntity->mustDestroy; });
+
+				auto first(std::begin(entities.alive)), last(std::end(entities.alive)), result(first);
+				for(; first != last; ++first)
+				{
+					auto& e(**first);
+					if(!e.mustDestroy)
+					{
+						if(e.mustRematch)
+						{
+							for(auto& s : systems) if(matchesSystem(e.typeIds, *s)) s->registerEntity(e);
+							e.mustRematch = false;
+						}
+
+						*result++ = std::move(*first);
+					}
+				}
+				entities.alive.erase(result, last);
+
+				/*ssvu::eraseRemoveIf(entities.alive, [](const Uptr<Entity>& mEntity){ return mEntity->mustDestroy; });
+				for(auto& e : entities.alive)
+				{
+					if(!e->mustRematch) continue;
+
+					for(auto& s : systems) if(matchesSystem(e->typeIds, *s)) s->registerEntity(*e);
+					e->mustRematch = false;
+				}*/
 
 				for(auto& e : entities.toAdd)
 				{
-					for(auto& s : systems) if(entityMatchesSystem(*e, *s)) s->registerEntity(*e);
+					for(auto& s : systems) if(matchesSystem(e->typeIds, *s)) s->registerEntity(*e);
+					e->mustRematch = false;
 					entities.alive.emplace_back(e);
 				}
 
@@ -93,11 +114,39 @@ namespace ssvces
 	};
 
 	// to .inl
+	template<typename T, typename... TArgs> inline void Entity::createComponent(TArgs&&... mArgs)
+	{
+		static_assert(std::is_base_of<Component, T>::value, "Type must derive from Component");
+		assert(!hasComponent<T>() && componentCount <= maxComponents);
+
+		if(!mustRematch) oldTypeIds = typeIds;
+
+		components[getTypeIdBitIdx<T>()] = ssvu::make_unique<T>(std::forward<TArgs>(mArgs)...);
+		typeIds[getTypeIdBitIdx<T>()] = true;
+		++componentCount;
+
+		mustRematch = true;
+	}
+	template<typename T> inline void Entity::removeComponent()
+	{
+		static_assert(std::is_base_of<Component, T>::value, "Type must derive from Component");
+		assert(hasComponent<T>() && componentCount > 0);
+
+		components[getTypeIdBitIdx<T>()].reset();
+		typeIds[getTypeIdBitIdx<T>()] = false;
+		--componentCount;
+
+		mustRematch = true;
+	}
 	inline void Entity::destroy() noexcept					{ mustDestroy = true; manager.entityIdPool.reclaim(stat); }
 	inline void Entity::addGroups(Group mGroup) noexcept	{ groups[mGroup] = true; manager.addToGroup(this, mGroup); }
 	inline void Entity::delGroups(Group mGroup) noexcept	{ groups[mGroup] = false; manager.delFromGroup(this, mGroup); }
 	inline void Entity::clearGroups() noexcept				{ for(Group i{0}; i < groups.size(); ++i) if(groups[i]) manager.delFromGroup(this, i); groups.reset(); }
 	inline bool EntityHandle::isAlive() const noexcept		{ return manager.entityIdPool.isAlive(stat); }
+	inline static bool matchesSystem(const TypeIdsBitset& mTypeIds, const SystemBase& mSystem) noexcept
+	{
+		return (mTypeIds & mSystem.typeIdsNot).none() && containsAll(mTypeIds, mSystem.typeIdsReq);
+	}
 }
 
 #endif

@@ -13,6 +13,7 @@ namespace ssvces
 
 	class SystemBase
 	{
+		friend bool matchesSystem(const TypeIdsBitset&, const SystemBase&) noexcept;
 		friend class Manager;
 
 		private:

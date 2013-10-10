@@ -10,6 +10,7 @@ struct CVelocity : Component		{ float x, y; CVelocity(float mX, float mY) : x{mX
 struct CAcceleration : Component	{ float x, y; CAcceleration(float mX, float mY) : x{mX}, y{mY} { } };
 struct CLife : Component			{ float life; CLife(float mLife) : life{mLife} { } };
 struct CSprite : Component			{ sf::RectangleShape sprite; CSprite() : sprite{ssvs::Vec2f(1, 1)} { } };
+struct CColorInhibitor : Component	{ float life; CColorInhibitor(float mLife) : life{mLife} { } };
 
 struct SMovement : System<Req<CPosition, CVelocity, CAcceleration>>
 {
@@ -37,6 +38,17 @@ struct SDeath : System<Req<CLife>>
 	}
 };
 
+struct SNonColorInhibitor : System<Req<CSprite>, Not<CColorInhibitor>>
+{
+	inline void draw()
+	{
+		SYSTEM_LOOP(e, cSprite)
+		{
+			cSprite.sprite.setFillColor(sf::Color::Red);
+		}}
+	}
+};
+
 struct SDraw : System<Req<CPosition, CSprite>>
 {
 	sf::RenderTarget& renderTarget;
@@ -48,6 +60,26 @@ struct SDraw : System<Req<CPosition, CSprite>>
 		{
 			cSprite.sprite.setPosition(cPosition.x, cPosition.y);
 			renderTarget.draw(cSprite.sprite);
+		}}
+	}
+};
+
+struct SColorInhibitor : System<Req<CSprite, CColorInhibitor>>
+{
+	inline void update(float mFT)
+	{
+		SYSTEM_LOOP(entity, cSprite, cColorInhibitor)
+		{
+			cColorInhibitor.life -= mFT;
+			if(cColorInhibitor.life < 0) entity.removeComponent<CColorInhibitor>();
+		}}
+	}
+
+	inline void draw()
+	{
+		SYSTEM_LOOP(e, cSprite)
+		{
+			cSprite.sprite.setFillColor(sf::Color::Blue);
 		}}
 	}
 };
@@ -69,10 +101,14 @@ int main()
 	SMovement sMovement;
 	SDeath sDeath;
 	SDraw sDraw{gameWindow};
+	SColorInhibitor sColorInhibitor;
+	SNonColorInhibitor sNonColorInhibitor;
 
 	manager.registerSystem(sMovement);
 	manager.registerSystem(sDeath);
+	manager.registerSystem(sNonColorInhibitor);
 	manager.registerSystem(sDraw);
+	manager.registerSystem(sColorInhibitor);
 
 	ssvu::startBenchmark();
 	{
@@ -138,20 +174,28 @@ int main()
 				auto e = manager.createEntity();
 				e.createComponent<CPosition>(ssvu::getRnd(512 - 100, 512 + 100), ssvu::getRnd(384 - 100, 384 + 100));
 				e.createComponent<CVelocity>(ssvu::getRndR(-1.f, 2.f), ssvu::getRndR(-1.f, 2.f));
-				e.createComponent<CAcceleration>(ssvu::getRndR(-1.f, 2.f), ssvu::getRndR(-1.f, 2.f));
+				e.createComponent<CAcceleration>(ssvu::getRndR(-0.5f, 1.5f), ssvu::getRndR(-0.5f, 1.5f));
 				e.createComponent<CSprite>();
 				e.createComponent<CLife>(ssvu::getRnd(50, 100));
+				e.createComponent<CColorInhibitor>(ssvu::getRnd(5, 85));
 				e.addGroups(0);
 			}
 		}
 		manager.refresh();
 		sMovement.update(mFT);
 		sDeath.update(mFT);
+		sColorInhibitor.update(mFT);
 
 		if(gameWindow.getFPS() < 60) ssvu::lo<<gameWindow.getFPS()<<std::endl;
 		//ssvu::lo<<manager.getEntityCount(0)<<std::endl;
 	};
-	gameState.onDraw += [&]{ sDraw.draw(); };
+	/*gameState.onDraw += [&]
+	{
+		sNonColorInhibitor.draw();
+		sDraw.draw();
+		sColorInhibitor.draw();
+	};*/
+
 
 	gameWindow.setGameState(gameState);
 	gameWindow.run();
