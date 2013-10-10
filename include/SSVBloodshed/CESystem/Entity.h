@@ -25,19 +25,34 @@ namespace ssvces
 			TypeIdsBitset typeIdsBitset;
 			bool mustDestroy{false};
 			GroupBitset groups;
-			EntityIdCtrPair idCtrPair;
+			EntityStat stat;
+			std::size_t componentCount{0};
 
 		public:
-			inline Entity(Manager& mManager, const EntityIdCtrPair& mIdCtrPair) noexcept : manager(mManager), idCtrPair{mIdCtrPair} { }
+			inline Entity(Manager& mManager, const EntityStat& mStat) noexcept : manager(mManager), stat(mStat) { }
 
 			template<typename T, typename... TArgs> inline void createComponent(TArgs&&... mArgs)
 			{
-				assert(!hasComponent<T>());
+				static_assert(std::is_base_of<Component, T>::value, "Type must derive from Component");
+				assert(!hasComponent<T>() && componentCount <= maxComponents);
+
 				components[getTypeIdBitIdx<T>()] = ssvu::make_unique<T>(std::forward<TArgs>(mArgs)...);
 				appendTypeIdBit<T>(typeIdsBitset);
+				++componentCount;
 			}
-			template<typename T> inline bool hasComponent() const noexcept	{ return typeIdsBitset[getTypeIdBitIdx<T>()]; }
-			template<typename T> inline T& getComponent() noexcept			{ assert(hasComponent<T>()); return reinterpret_cast<T&>(*components[getTypeIdBitIdx<T>()]); }
+			template<typename T> inline bool hasComponent() const noexcept
+			{
+				static_assert(std::is_base_of<Component, T>::value, "Type must derive from Component");
+
+				return typeIdsBitset[getTypeIdBitIdx<T>()];
+			}
+			template<typename T> inline T& getComponent() noexcept
+			{
+				static_assert(std::is_base_of<Component, T>::value, "Type must derive from Component");
+				assert(componentCount > 0 && hasComponent<T>());
+
+				return reinterpret_cast<T&>(*components[getTypeIdBitIdx<T>()]);
+			}
 
 			inline void destroy() noexcept;
 
