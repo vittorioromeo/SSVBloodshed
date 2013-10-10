@@ -25,13 +25,20 @@ namespace ssvces
 			}
 
 			// Returns the first available IdCtrPair
-			inline EntityIdCtrPair getAvailableIdCtrPair() noexcept { EntityId id(available.back()); available.pop_back(); return {id, counters[id]}; }
+			inline EntityStat getAvailable() noexcept
+			{
+				assert(!available.empty());
+
+				EntityId id(available.back());
+				available.pop_back();
+				return {id, counters[id]};
+			}
 
 			// Used on Entity death, reclaims the Entity's id so that it can be reused
-			inline void reclaim(const EntityIdCtrPair& mIdCtrPair) noexcept { if(mIdCtrPair.second != counters[mIdCtrPair.first]) return; ++counters[mIdCtrPair.first]; available.emplace_back(mIdCtrPair.first); }
+			inline void reclaim(const EntityStat& mStat) noexcept { if(mStat.ctr != counters[mStat.id]) return; ++counters[mStat.id]; available.emplace_back(mStat.id); }
 
 			// Checks if an Entity is currently alive
-			inline bool isAlive(const EntityIdCtrPair& mIdCtrPair) const noexcept { return counters[mIdCtrPair.first] == mIdCtrPair.second; }
+			inline bool isAlive(const EntityStat& mStat) const noexcept { return counters[mStat.id] == mStat.ctr; }
 	};
 }
 
