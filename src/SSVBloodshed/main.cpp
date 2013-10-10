@@ -11,7 +11,7 @@ struct CAcceleration : Component	{ float x, y; CAcceleration(float mX, float mY)
 struct CLife : Component			{ float life; CLife(float mLife) : life{mLife} { } };
 struct CSprite : Component			{ sf::RectangleShape sprite; CSprite() : sprite{ssvs::Vec2f(1, 1)} { } };
 
-struct SMovement : System<CPosition, CVelocity, CAcceleration>
+struct SMovement : System<Req<CPosition, CVelocity, CAcceleration>>
 {
 	inline void update(float mFT)
 	{
@@ -25,7 +25,7 @@ struct SMovement : System<CPosition, CVelocity, CAcceleration>
 	}
 };
 
-struct SDeath : System<CLife>
+struct SDeath : System<Req<CLife>>
 {
 	inline void update(float mFT)
 	{
@@ -37,7 +37,7 @@ struct SDeath : System<CLife>
 	}
 };
 
-struct SDraw : System<CPosition, CSprite>
+struct SDraw : System<Req<CPosition, CSprite>>
 {
 	sf::RenderTarget& renderTarget;
 	inline SDraw(sf::RenderTarget& mRenderTarget) : renderTarget(mRenderTarget) { }
@@ -149,7 +149,7 @@ int main()
 		sDeath.update(mFT);
 
 		if(gameWindow.getFPS() < 60) ssvu::lo<<gameWindow.getFPS()<<std::endl;
-		ssvu::lo<<manager.getEntityCount(0)<<std::endl;
+		//ssvu::lo<<manager.getEntityCount(0)<<std::endl;
 	};
 	gameState.onDraw += [&]{ sDraw.draw(); };
 

@@ -16,10 +16,11 @@ namespace ssvces
 		friend class Manager;
 
 		private:
-			TypeIdsBitset typeIdsBitset;
+			TypeIdsBitset typeIdsReq, typeIdsNot;
 
 		protected:
-			inline SystemBase(TypeIdsBitset mTypeIdBitset) : typeIdsBitset{std::move(mTypeIdBitset)} { }
+			inline SystemBase(TypeIdsBitset mTypeIdsReq) : typeIdsReq{std::move(mTypeIdsReq)} { }
+			inline SystemBase(TypeIdsBitset mTypeIdsReq, TypeIdsBitset mTypeIdsNot) : typeIdsReq{std::move(mTypeIdsReq)}, typeIdsNot{std::move(mTypeIdsNot)} { }
 
 		public:
 			virtual void registerEntity(Entity&) = 0;

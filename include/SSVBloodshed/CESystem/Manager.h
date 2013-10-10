@@ -46,6 +46,11 @@ namespace ssvces
 				ssvu::eraseRemove(entities.grouped[mGroup], mEntity);
 			}
 
+			inline bool entityMatchesSystem(const Entity& mEntity, const SystemBase& mSystem) const noexcept
+			{
+				return (mEntity.typeIdsBitset & mSystem.typeIdsNot).none() && containsAll(mEntity.typeIdsBitset, mSystem.typeIdsReq);
+			}
+
 		public:
 			inline void refresh()
 			{
@@ -56,7 +61,7 @@ namespace ssvces
 
 				for(auto& e : entities.toAdd)
 				{
-					for(auto& s : systems) if(containsAll(e->typeIdsBitset, s->typeIdsBitset)) s->registerEntity(*e);
+					for(auto& s : systems) if(entityMatchesSystem(*e, *s)) s->registerEntity(*e);
 					entities.alive.emplace_back(e);
 				}
 

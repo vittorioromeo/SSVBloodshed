@@ -11,13 +11,15 @@ namespace ssvces
 {
 	class Manager;
 	class EntityHandle;
-	template<typename...> class System;
+	class SystemBase;
+	template<typename, typename> class System;
 
 	class Entity
 	{
 		friend class Manager;
 		friend class EntityHandle;
-		template<typename...> friend class System;
+		friend class SystemBase;
+		template<typename, typename> friend class System;
 
 		private:
 			Manager& manager;
