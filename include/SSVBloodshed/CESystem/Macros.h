@@ -46,7 +46,7 @@ int main()
 {
 	constexpr int count{11};
 	const std::string macroName1{"SYSTEM_LOOP_"};
-	const std::string macroName2{"SYSTEM_LOOP_NOENTITY_"};
+	const std::string macroName2{macroName1 + "NOENTITY_"};
 	const std::string tplIdentifier{"__sysTpl"};
 
 	std::string result;
