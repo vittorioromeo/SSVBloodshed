@@ -60,6 +60,7 @@ namespace ssvces
 
 		template<typename... TArgs> struct TypeIdsBitsetStorage{ static const TypeIdsBitset bitset; };
 		template<typename... TArgs> const TypeIdsBitset TypeIdsBitsetStorage<TArgs...>::bitset{getBuildBitset<TArgs...>()};
+		template<> const TypeIdsBitset TypeIdsBitsetStorage<>::bitset{};
 	}
 
 	// Shortcut to get the static TypeId of a Component type from TypeIdStorage
@@ -75,7 +76,7 @@ namespace ssvces
 	template<typename T> inline static void appendTypeIdBit(TypeIdsBitset& mBitset) noexcept { Internal::buildBitsetHelper<T>(mBitset); }
 
 	// Returns whether the first bitset contains all the value of the second one
-	inline static bool containsAll(TypeIdsBitset& mA, TypeIdsBitset& mB) noexcept { return (mA & mB) == mB; }
+	inline static bool containsAll(const TypeIdsBitset& mA, const TypeIdsBitset& mB) noexcept { return (mA & mB) == mB; }
 }
 
 #endif
