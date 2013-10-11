@@ -1,5 +1,6 @@
 #ifndef HGJSIOPHSJH
 
+#include <chrono>
 #include "SSVBloodshed/CESystem/CES.h"
 #include "SSVBloodshed/OBCommon.h"
 
@@ -59,7 +60,7 @@ struct SDraw : System<Req<CPosition, CSprite>>
 		SYSTEM_LOOP_NOENTITY(cPosition, cSprite)
 		{
 			cSprite.sprite.setPosition(cPosition.x, cPosition.y);
-			renderTarget.draw(cSprite.sprite);
+			//renderTarget.draw(cSprite.sprite);
 		}}
 	}
 };
@@ -88,6 +89,7 @@ int main()
 {
 	using namespace std;
 	using namespace ssvu;
+	using namespace sf;
 
 	ssvs::GameWindow gameWindow;
 	gameWindow.setTitle("component tests");
@@ -110,7 +112,7 @@ int main()
 	manager.registerSystem(sDraw);
 	manager.registerSystem(sColorInhibitor);
 
-	ssvu::startBenchmark();
+	/*ssvu::startBenchmark();
 	{
 		for(int k = 0; k < 5; ++k)
 		{
@@ -159,7 +161,9 @@ int main()
 			sMovement.update(5);
 			sDeath.update(5);
 		}
-	} ssvu::lo("benchmark") << ssvu::endBenchmark();
+	} ssvu::lo("benchmark") << ssvu::endBenchmark();*/
+
+	string dms = "";
 
 	float counter{99};
 	ssvs::GameState gameState;
@@ -181,20 +185,31 @@ int main()
 				e.addGroups(0);
 			}
 		}
-		manager.refresh();
-		sMovement.update(mFT);
-		sDeath.update(mFT);
-		sColorInhibitor.update(mFT);
 
-		if(gameWindow.getFPS() < 60) ssvu::lo<<gameWindow.getFPS()<<std::endl;
+		ssvu::startBenchmark();
+		{
+			manager.refresh();
+			sMovement.update(mFT);
+			sDeath.update(mFT);
+			sColorInhibitor.update(mFT);
+		}
+		auto ums = ssvu::endBenchmark();
+
+		gameWindow.setTitle("up: " + ums + "\t dw: " + dms);
+
+		//if(gameWindow.getFPS() < 60) ssvu::lo<<gameWindow.getFPS()<<std::endl;
 		//ssvu::lo<<manager.getEntityCount(0)<<std::endl;
 	};
-	/*gameState.onDraw += [&]
+	gameState.onDraw += [&]
 	{
-		sNonColorInhibitor.draw();
-		sDraw.draw();
-		sColorInhibitor.draw();
-	};*/
+		ssvu::startBenchmark();
+		{
+			sNonColorInhibitor.draw();
+			sDraw.draw();
+			sColorInhibitor.draw();
+		}
+		dms = ssvu::endBenchmark();
+	};
 
 
 	gameWindow.setGameState(gameState);
