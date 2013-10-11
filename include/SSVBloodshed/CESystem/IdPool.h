@@ -22,6 +22,7 @@ namespace ssvces
 			{
 				// Fill the available ids vector from 0 to maxEntities
 				std::iota(std::begin(available), std::end(available), 0);
+				std::fill(std::begin(counters), std::end(counters), 0);
 			}
 
 			// Returns the first available IdCtrPair
