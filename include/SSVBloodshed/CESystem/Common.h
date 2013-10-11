@@ -66,16 +66,15 @@ namespace ssvces
 	// Shortcut to get the static TypeId of a Component type from TypeIdStorage
 	template<typename T> inline constexpr const TypeId& getTypeId() noexcept { return Internal::TypeIdStorage<T>::typeId; }
 
-	// Shortcut to get the static Bitset of a pack of Component types
-	template<typename... TArgs> inline constexpr static const TypeIdsBitset& getTypeIdsBitsetStorage() noexcept { return Internal::TypeIdsBitsetStorage<TArgs...>::bitset; }
-
 	// Shortcut to get the bit index of a Component type
 	template<typename T> inline constexpr static const std::size_t& getTypeIdBitIdx() noexcept { return Internal::TypeIdStorage<T>::bitIdx; }
+
+	// Shortcut to get the static Bitset of a pack of Component types
+	template<typename... TArgs> inline constexpr static const TypeIdsBitset& getTypeIdsBitsetStorage() noexcept { return Internal::TypeIdsBitsetStorage<TArgs...>::bitset; }
 
 	// Returns whether the first bitset contains all the value of the second one
 	inline static bool containsAll(const TypeIdsBitset& mA, const TypeIdsBitset& mB) noexcept { return (mA & mB) == mB; }
 
-	class Entity;
 	class SystemBase;
 	inline static bool matchesSystem(const TypeIdsBitset& mTypeIds, const SystemBase& mSystem) noexcept;
 }
