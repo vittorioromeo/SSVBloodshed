@@ -45,9 +45,9 @@
 int main()
 {
 	constexpr int count{11};
-	const std::string macroName1{"SYSTEM_LOOP_"};
-	const std::string macroName2{"SYSTEM_LOOP_NOENTITY_"};
-	const std::string tplIdentifier{"__sysTpl"};
+	constexpr const char* macroName1{"SYSTEM_LOOP_"};
+	constexpr const char* macroName2{"SYSTEM_LOOP_NOENTITY_"};
+	constexpr const char* tplIdentifier{"__sysTpl"};
 
 	std::string result;
 	for(int i{0}; i < count; ++i)
