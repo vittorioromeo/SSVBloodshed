@@ -15,12 +15,12 @@ namespace ssvces
 	class EntityHandle
 	{
 		private:
-			Manager& manager;
 			Entity& entity;
+			Manager& manager;
 			EntityStat stat;
 
 		public:
-			inline EntityHandle(Manager& mManager, Entity& mEntity) noexcept : manager(mManager), entity(mEntity), stat(entity.stat) { }
+			inline EntityHandle(Entity& mEntity) noexcept : entity(mEntity), manager(entity.getManager()), stat(entity.stat) { }
 
 			template<typename T, typename... TArgs> inline void createComponent(TArgs&&... mArgs)	{ assert(isAlive()); entity.createComponent<T>(std::forward<TArgs>(mArgs)...); }
 			template<typename T> inline bool hasComponent() const noexcept							{ assert(isAlive()); return entity.hasComponent<T>(); }
