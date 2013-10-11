@@ -18,7 +18,7 @@
 
 namespace ssvces
 {
-	class Component { };
+	struct Component { inline virtual ~Component() noexcept { } };
 
 	static constexpr std::size_t maxEntities{1000000};
 	static constexpr std::size_t maxComponents{32};
