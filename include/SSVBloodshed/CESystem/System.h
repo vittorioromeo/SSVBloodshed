@@ -15,14 +15,14 @@ namespace ssvces
 	{
 		template<typename... TArgs> struct Filter
 		{
-			static const TypeIdsBitset& getTypeIdsBitset() { return getTypeIdsBitsetStorage<TArgs...>(); }
+			static const TypeIdsBitset& getTypeIds() { return getTypeIdsBitsetStorage<TArgs...>(); }
 		};
 	}
 
 	template<typename... TArgs> struct Req : public Internal::Filter<TArgs...>
 	{
 		using TupleType = std::tuple<SystemBase*, Entity*, TArgs*...>;
-		static TupleType getTuple(SystemBase& mSystemBase, Entity& mEntity) { return std::tuple_cat(std::tuple<SystemBase*, Entity*>{&mSystemBase, &mEntity}, buildComponentsTuple<TArgs...>(mEntity)); }
+		template<typename T> static inline void emplaceTuple(T& mContainer, SystemBase& mSystemBase, Entity& mEntity) { mContainer.emplace_back(std::tuple_cat(std::tuple<SystemBase*, Entity*>{&mSystemBase, &mEntity}, buildComponentsTuple<TArgs...>(mEntity))); }
 	};
 	template<typename... TArgs> struct Not : public Internal::Filter<TArgs...> { };
 
@@ -33,9 +33,9 @@ namespace ssvces
 			std::vector<TupleType> tuples;
 
 		public:
-			inline System() noexcept : SystemBase{TReq::getTypeIdsBitset(), TNot::getTypeIdsBitset()} { }
+			inline System() noexcept : SystemBase{TReq::getTypeIds(), TNot::getTypeIds()} { }
 
-			inline void registerEntity(Entity& mEntity) override { tuples.push_back(TReq::getTuple(*this, mEntity)); }
+			inline void registerEntity(Entity& mEntity) override { TReq::emplaceTuple(tuples, *this, mEntity); }
 			inline void refresh() override { ssvu::eraseRemoveIf(tuples, [](const TupleType& mTuple){ return getEntity(mTuple).mustDestroy || getEntity(mTuple).mustRematch; }); }
 
 			inline static constexpr Entity& getEntity(const TupleType& mTuple) noexcept { return *std::get<1>(mTuple); }

@@ -89,7 +89,7 @@ namespace ssvces
 				entities.toAdd.clear();
 			}
 
-			inline EntityHandle createEntity() { return {*this, *entities.create(*this, entityIdPool)}; }
+			inline EntityHandle createEntity() { return {*entities.create(*this, entityIdPool)}; }
 			template<typename T> inline void registerSystem(T& mSystem)
 			{
 				static_assert(std::is_base_of<SystemBase, T>::value, "Type must derive from SystemBase");
@@ -103,13 +103,15 @@ namespace ssvces
 			inline std::vector<EntityHandle> getEntityHandles(Group mGroup) noexcept
 			{
 				std::vector<EntityHandle> result;
-				for(const auto& e : getEntities(mGroup)) result.emplace_back(*this, *e);
+				for(const auto& e : getEntities(mGroup)) result.emplace_back(*e);
 				return result;
 			}
 
 			inline bool hasEntity(Group mGroup) const noexcept				{ return !getEntities(mGroup).empty(); }
 			inline std::size_t getEntityCount() const noexcept				{ return entities.alive.size(); }
 			inline std::size_t getEntityCount(Group mGroup) const noexcept	{ return getEntities(mGroup).size(); }
+
+			// Have a manager.componentCount too?
 			inline std::size_t getComponentCount() const noexcept			{ std::size_t result{0}; for(auto& e : getEntities()) result += e->componentCount; return result; }
 	};
 
@@ -118,8 +120,6 @@ namespace ssvces
 	{
 		static_assert(std::is_base_of<Component, T>::value, "Type must derive from Component");
 		assert(!hasComponent<T>() && componentCount <= maxComponents);
-
-		if(!mustRematch) oldTypeIds = typeIds;
 
 		components[getTypeIdBitIdx<T>()] = ssvu::make_unique<T>(std::forward<TArgs>(mArgs)...);
 		typeIds[getTypeIdBitIdx<T>()] = true;
@@ -141,7 +141,7 @@ namespace ssvces
 	inline void Entity::destroy() noexcept					{ mustDestroy = true; manager.entityIdPool.reclaim(stat); }
 	inline void Entity::addGroups(Group mGroup) noexcept	{ groups[mGroup] = true; manager.addToGroup(this, mGroup); }
 	inline void Entity::delGroups(Group mGroup) noexcept	{ groups[mGroup] = false; manager.delFromGroup(this, mGroup); }
-	inline void Entity::clearGroups() noexcept				{ for(Group i{0}; i < groups.size(); ++i) if(groups[i]) manager.delFromGroup(this, i); groups.reset(); }
+	inline void Entity::clearGroups() noexcept				{ for(auto i(0u); i < maxGroups; ++i) if(groups[i]) manager.delFromGroup(this, i); groups.reset(); }
 	inline bool EntityHandle::isAlive() const noexcept		{ return manager.entityIdPool.isAlive(stat); }
 	inline static bool matchesSystem(const TypeIdsBitset& mTypeIds, const SystemBase& mSystem) noexcept
 	{
