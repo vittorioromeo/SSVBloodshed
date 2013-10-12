@@ -35,23 +35,14 @@ namespace ssvces
 			std::vector<SystemBase*> systems;
 			EntityStorage entities;
 
-			inline void addToGroup(Entity* mEntity, Group mGroup)
-			{
-				assert(mGroup <= maxGroups);
-				entities.grouped[mGroup].push_back(mEntity);
-			}
-			inline void delFromGroup(Entity* mEntity, Group mGroup)
-			{
-				assert(mGroup <= maxGroups);
-				ssvu::eraseRemove(entities.grouped[mGroup], mEntity);
-			}
+			inline void addToGroup(Entity* mEntity, Group mGroup) { assert(mGroup <= maxGroups); entities.grouped[mGroup].push_back(mEntity); }
 
 		public:
 			inline void refresh()
 			{
 				for(auto& s : systems) s->refresh();
 
-				for(auto& v : entities.grouped) ssvu::eraseRemoveIf(v, [](const Entity* mEntity){ return mEntity->mustDestroy; });
+				for(auto i(0u); i < maxGroups; ++i) ssvu::eraseRemoveIf(entities.grouped[i], [i](const Entity* mEntity){ return mEntity->mustDestroy || !mEntity->hasGroup(i); });
 
 				auto first(std::begin(entities.alive)), last(std::end(entities.alive)), result(first);
 				for(; first != last; ++first)
@@ -130,8 +121,8 @@ namespace ssvces
 	}
 	inline void Entity::destroy() noexcept					{ mustDestroy = true; manager.entityIdPool.reclaim(stat); }
 	inline void Entity::addGroups(Group mGroup) noexcept	{ groups[mGroup] = true; manager.addToGroup(this, mGroup); }
-	inline void Entity::delGroups(Group mGroup) noexcept	{ groups[mGroup] = false; manager.delFromGroup(this, mGroup); }
-	inline void Entity::clearGroups() noexcept				{ for(auto i(0u); i < maxGroups; ++i) if(groups[i]) manager.delFromGroup(this, i); groups.reset(); }
+	inline void Entity::delGroups(Group mGroup) noexcept	{ groups[mGroup] = false; }
+	inline void Entity::clearGroups() noexcept				{ groups.reset(); }
 	inline bool EntityHandle::isAlive() const noexcept		{ return manager.entityIdPool.isAlive(stat); }
 	inline static bool matchesSystem(const TypeIdsBitset& mTypeIds, const SystemBase& mSystem) noexcept
 	{
