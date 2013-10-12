@@ -56,7 +56,7 @@ namespace ob
 				getEntity().addGroups(OBGroup::GFriendly, OBGroup::GFriendlyKillable, OBGroup::GPlayer);
 				body.addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir, OBGroup::GFriendly, OBGroup::GKillable, OBGroup::GFriendlyKillable, OBGroup::GOrganic, OBGroup::GPlayer);
 				body.addGroupToCheck(OBGroup::GSolidGround);
-				body.addGroupNoResolve(OBGroup::GLevelBound);
+				body.onResolution += [this](const ResolutionInfo& mRI){ if(mRI.body.hasGroup(OBGroup::GLevelBound)) checkTransitions(); };
 			}
 
 			inline void updateInput()
@@ -106,15 +106,15 @@ namespace ob
 			}
 			inline void checkTransitions()
 			{
-				if(cPhys.getPosI().x < toCoords(0))		game.changeLevel(*this, -1, 0);
-				if(cPhys.getPosI().x > toCoords(320))	game.changeLevel(*this, 1, 0);
-				if(cPhys.getPosI().y < toCoords(0))		game.changeLevel(*this, 0, -1);
-				if(cPhys.getPosI().y > toCoords(220))	game.changeLevel(*this, 0, 1);
+				if(cPhys.getLeft() + cPhys.getVel().x < 0)							game.changeLevel(*this, -1, 0);
+				else if(cPhys.getRight() + cPhys.getVel().x > levelWidthCoords)		game.changeLevel(*this, 1, 0);
+				else if(cPhys.getTop() + cPhys.getVel().y < 0)						game.changeLevel(*this, 0, -1);
+				else if(cPhys.getBottom() + cPhys.getVel().y > levelHeightCoords)	game.changeLevel(*this, 0, 1);
 			}
 
 			inline void update(float) override
 			{
-				updateInput(); updateHUD(); attractShards(); checkTransitions();
+				updateInput(); updateHUD(); attractShards();
 
 				if(game.isLevelClear()) { shards += currentShards; currentShards = 0; }
 				if(cWielder.isShooting() && cWpnController.shoot(cWielder.getShootingPos(), cDir8.getDeg())) game.createPMuzzle(20, toPixels(cWielder.getShootingPos()));
