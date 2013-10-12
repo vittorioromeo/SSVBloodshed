@@ -23,7 +23,6 @@ namespace ssvces
 			inline SystemBase(TypeIdsBitset mTypeIdsReq) : typeIdsReq{std::move(mTypeIdsReq)} { }
 			inline SystemBase(TypeIdsBitset mTypeIdsReq, TypeIdsBitset mTypeIdsNot) : typeIdsReq{std::move(mTypeIdsReq)}, typeIdsNot{std::move(mTypeIdsNot)} { }
 
-		public:
 			virtual void registerEntity(Entity&) = 0;
 			virtual void refresh() = 0;
 	};

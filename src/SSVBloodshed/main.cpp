@@ -13,75 +13,63 @@ struct CLife : Component			{ float life; CLife(float mLife) : life{mLife} { } };
 struct CSprite : Component			{ sf::RectangleShape sprite; CSprite() : sprite{ssvs::Vec2f(1, 1)} { } };
 struct CColorInhibitor : Component	{ float life; CColorInhibitor(float mLife) : life{mLife} { } };
 
-struct SMovement : System<Req<CPosition, CVelocity, CAcceleration>>
+struct SMovement : System<SMovement, Req<CPosition, CVelocity, CAcceleration>>
 {
-	inline void update(float mFT)
+	inline void update(float mFT) { processAll(mFT); }
+	inline void process(Entity&, CPosition& cPosition, CVelocity& cVelocity, CAcceleration& cAcceleration, float mFT)
 	{
-		SYSTEM_LOOP_NOENTITY(cPosition, cVelocity, cAcceleration)
-		{
-			cVelocity.x += cAcceleration.x * mFT;
-			cVelocity.y += cAcceleration.y * mFT;
-			cPosition.x += cVelocity.x * mFT;
-			cPosition.y += cVelocity.y * mFT;
-		}}
+		cVelocity.x += cAcceleration.x * mFT;
+		cVelocity.y += cAcceleration.y * mFT;
+		cPosition.x += cVelocity.x * mFT;
+		cPosition.y += cVelocity.y * mFT;
 	}
 };
 
-struct SDeath : System<Req<CLife>>
+struct SDeath : System<SDeath, Req<CLife>>
 {
-	inline void update(float mFT)
+	inline void update(float mFT) { processAll(mFT); }
+	inline void process(Entity& entity, CLife& cLife, float mFT)
 	{
-		SYSTEM_LOOP(entity, cLife)
-		{
-			cLife.life -= mFT;
-			if(cLife.life < 0) entity.destroy();
-		}}
+		cLife.life -= mFT;
+		if(cLife.life < 0) entity.destroy();
 	}
 };
 
-struct SNonColorInhibitor : System<Req<CSprite>, Not<CColorInhibitor>>
+struct SNonColorInhibitor : System<SNonColorInhibitor, Req<CSprite>, Not<CColorInhibitor>>
 {
-	inline void draw()
+	inline void draw() { processAll(); }
+	inline void process(Entity&, CSprite& cSprite)
 	{
-		SYSTEM_LOOP(e, cSprite)
-		{
-			cSprite.sprite.setFillColor(sf::Color::Red);
-		}}
+		cSprite.sprite.setFillColor(sf::Color::Red);
 	}
 };
 
-struct SDraw : System<Req<CPosition, CSprite>>
+struct SDraw : System<SDraw, Req<CPosition, CSprite>>
 {
 	sf::RenderTarget& renderTarget;
 	inline SDraw(sf::RenderTarget& mRenderTarget) : renderTarget(mRenderTarget) { }
 
-	inline void draw()
+	inline void draw() { processAll(); }
+	inline void process(Entity&, CPosition& cPosition, CSprite& cSprite)
 	{
-		SYSTEM_LOOP_NOENTITY(cPosition, cSprite)
-		{
-			cSprite.sprite.setPosition(cPosition.x, cPosition.y);
-			//renderTarget.draw(cSprite.sprite);
-		}}
+		cSprite.sprite.setPosition(cPosition.x, cPosition.y);
+		renderTarget.draw(cSprite.sprite);
 	}
 };
 
-struct SColorInhibitor : System<Req<CSprite, CColorInhibitor>>
+struct SColorInhibitor : System<SColorInhibitor, Req<CSprite, CColorInhibitor>>
 {
-	inline void update(float mFT)
-	{
-		SYSTEM_LOOP(entity, cSprite, cColorInhibitor)
-		{
-			cColorInhibitor.life -= mFT;
-			if(cColorInhibitor.life < 0) entity.removeComponent<CColorInhibitor>();
-		}}
-	}
+	inline void update(float mFT) { processAll(mFT); }
+	inline void draw() { processAll(); }
 
-	inline void draw()
+	inline void process(Entity& entity, CSprite&, CColorInhibitor& cColorInhibitor, float mFT)
 	{
-		SYSTEM_LOOP(e, cSprite)
-		{
-			cSprite.sprite.setFillColor(sf::Color::Blue);
-		}}
+		cColorInhibitor.life -= mFT;
+		if(cColorInhibitor.life < 0) entity.removeComponent<CColorInhibitor>();
+	}
+	inline void process(Entity&, CSprite& cSprite, CColorInhibitor&)
+	{
+		cSprite.sprite.setFillColor(sf::Color::Blue);
 	}
 };
 

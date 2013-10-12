@@ -57,27 +57,17 @@ namespace ssvces
 				for(; first != last; ++first)
 				{
 					auto& e(**first);
-					if(!e.mustDestroy)
-					{
-						if(e.mustRematch)
-						{
-							for(auto& s : systems) if(matchesSystem(e.typeIds, *s)) s->registerEntity(e);
-							e.mustRematch = false;
-						}
+					if(e.mustDestroy) continue;
 
-						*result++ = std::move(*first);
+					if(e.mustRematch)
+					{
+						for(auto& s : systems) if(matchesSystem(e.typeIds, *s)) s->registerEntity(e);
+						e.mustRematch = false;
 					}
+
+					*result++ = std::move(*first);
 				}
 				entities.alive.erase(result, last);
-
-				/*ssvu::eraseRemoveIf(entities.alive, [](const Uptr<Entity>& mEntity){ return mEntity->mustDestroy; });
-				for(auto& e : entities.alive)
-				{
-					if(!e->mustRematch) continue;
-
-					for(auto& s : systems) if(matchesSystem(e->typeIds, *s)) s->registerEntity(*e);
-					e->mustRematch = false;
-				}*/
 
 				for(auto& e : entities.toAdd)
 				{
