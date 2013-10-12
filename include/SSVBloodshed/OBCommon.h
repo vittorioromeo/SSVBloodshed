@@ -34,6 +34,20 @@ namespace ob
 	using DetectionInfo = World::DetectionInfoType;
 	using ResolutionInfo = World::ResolutionInfoType;
 
+	// Pixel <-> coords utils
+	template<typename T> inline constexpr float toPixels(T mValue) noexcept		{ return mValue / 100; }
+	template<typename T> inline constexpr int toCoords(T mValue) noexcept		{ return mValue * 100; }
+	template<typename T> inline Vec2f toPixels(const Vec2<T>& mValue) noexcept	{ return {toPixels(mValue.x), toPixels(mValue.y)}; }
+	template<typename T> inline Vec2i toCoords(const Vec2<T>& mValue) noexcept	{ return {toCoords(mValue.x), toCoords(mValue.y)}; }
+
+	// Level values
+	constexpr int levelRows{32};
+	constexpr int levelColumns{22};
+	constexpr int levelWidthPx{levelRows * 10};
+	constexpr int levelHeightPx{levelColumns * 10};
+	constexpr int levelWidthCoords{toCoords(levelWidthPx)};
+	constexpr int levelHeightCoords{toCoords(levelHeightPx)};
+
 	// Game enums
 	enum OBGroup : unsigned int
 	{
@@ -105,12 +119,6 @@ namespace ob
 		LETDoorR,
 		LETExplosiveCrate
 	};
-
-	// Pixel <-> coords utils
-	template<typename T> inline constexpr float toPixels(T mValue) noexcept		{ return mValue / 100; }
-	template<typename T> inline constexpr int toCoords(T mValue) noexcept		{ return mValue * 100; }
-	template<typename T> inline Vec2f toPixels(const Vec2<T>& mValue) noexcept	{ return {toPixels(mValue.x), toPixels(mValue.y)}; }
-	template<typename T> inline Vec2i toCoords(const Vec2<T>& mValue) noexcept	{ return {toCoords(mValue.x), toCoords(mValue.y)}; }
 
 	// Direction utils
 	constexpr float dir8Step{45.f};

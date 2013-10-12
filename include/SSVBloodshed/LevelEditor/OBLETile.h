@@ -13,7 +13,7 @@ namespace ob
 {
 	class OBLETile
 	{
-		template<typename> friend struct ssvuj::Internal::Converter;
+		template<typename> friend struct ssvuj::Converter;
 
 		private:
 			bool null{true};

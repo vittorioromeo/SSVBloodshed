@@ -57,7 +57,7 @@ namespace ob
 			inline void newSector() { sector.clear(); sector.init(database); refreshCurrentLevel(); clearCurrentLevel(); }
 
 			inline void refreshCurrentLevel()	{ currentLevel = &sector.getLevel(currentLevelX, currentLevelY); }
-			inline void clearCurrentLevel()		{ *currentLevel = {320 / 10, 240 / 10 - 2, database.get(OBLETType::LETFloor)}; refreshCurrentTiles(); }
+			inline void clearCurrentLevel()		{ *currentLevel = {levelRows, levelColumns, database.get(OBLETType::LETFloor)}; refreshCurrentTiles(); }
 			inline void refreshCurrentTiles()	{ for(auto& t : currentLevel->getTiles()) if(t.second.hasParam("id")) t.second.setId(assets, t.second.getParam<int>("id")); }
 
 			inline void updateXY()
