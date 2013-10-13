@@ -19,15 +19,19 @@ namespace ob
 		public:
 			ssvu::Delegate<void()> onDamage, onHeal;
 
-			OBCHealth(float mHealth) noexcept : health{mHealth}, maxHealth{mHealth} { }
+			OBCHealth(float mHealth) noexcept : health{mHealth}, maxHealth{mHealth} { tckCooldown.setLoop(false); }
 
-			inline void update(float mFT) override { if(tckCooldown.update(mFT)) tckCooldown.stop(); }
+			inline void update(float mFT) override { tckCooldown.update(mFT); }
 
-			inline void heal(float mHealth) noexcept { health += mHealth; ssvu::clampMax(health, maxHealth); onHeal(); }
+			inline bool heal(float mHealth) noexcept
+			{
+				if(health >= maxHealth || isDead()) return false;
+				health += mHealth; ssvu::clampMax(health, maxHealth);
+				onHeal(); return true;
+			}
 			inline bool damage(float mDamage) noexcept
 			{
-				if(tckCooldown.isRunning()) return false;
-
+				if(tckCooldown.isRunning() || isDead()) return false;
 				health = ssvu::getClampedMin(health - mDamage, 0.f);
 				tckCooldown.restart(); onDamage(); return true;
 			}
@@ -35,10 +39,9 @@ namespace ob
 			inline void setMaxHealth(float mValue) noexcept	{ maxHealth = mValue; }
 			inline void setCooldown(float mValue) noexcept	{ tckCooldown.restart(mValue); }
 
-			inline bool isDead() const noexcept			{ return health <= 0; }
+			inline bool isDead() const noexcept			{ return health <= 0.f; }
 			inline int getHealth() const noexcept		{ return health; }
 			inline int getMaxHealth() const noexcept	{ return maxHealth; }
-			inline operator int() const noexcept		{ return health; }
 	};
 }
 
