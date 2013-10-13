@@ -21,6 +21,8 @@
 
 namespace ob
 {
+	class OBCVMachine;
+
 	struct OBGLevelStat
 	{
 		bool clear{false};
@@ -55,11 +57,11 @@ namespace ob
 			OBLELevel* currentLevel{nullptr};
 			int currentLevelX{0}, currentLevelY{0};
 
+		public:
 			ssvu::Delegate<void()> onPostUpdate;
 
-		public:
 			OBBarCounter testhp{2, 6, 13};
-			ssvs::BitmapText txtShards{*assets.obStroked};
+			ssvs::BitmapText txtShards{*assets.obStroked}, txtVM{*assets.obStroked};
 
 			inline OBGame(ssvs::GameWindow& mGameWindow, OBAssets& mAssets) : gameWindow(mGameWindow), assets(mAssets)
 			{
@@ -74,6 +76,8 @@ namespace ob
 				testAmmoTxt.setPosition(86, (240 - ssvs::getGlobalHeight(hudSprite) / 2.f) - 3.f);
 				txtShards.setColor(sf::Color{195, 90, 10, 255}); txtShards.setTracking(-3);
 				txtShards.setPosition(235, (240 - ssvs::getGlobalHeight(hudSprite) / 2.f) - 3.f);
+				txtVM.setColor(sf::Color{225, 225, 225, 255}); txtVM.setTracking(-3);
+				txtVM.setPosition(120, (240 - ssvs::getGlobalHeight(hudSprite) / 2.f) - 3.f);
 
 				reloadSector();
 			}
@@ -178,6 +182,7 @@ namespace ob
 				render(testhp);
 				render(testAmmoTxt);
 				render(txtShards);
+				render(txtVM);
 				overlayCamera.unapply();
 
 				debugText.draw();
@@ -230,5 +235,6 @@ namespace ob
 // TODO: major group/facotry refactoring!
 // TODO: explosive crates id, fuses
 // TODO: big enforcer variant that shoots a plasma cannon ball that splits in other plasma cannon balls
+// TODO: vending machines hud becomes text
 
 #endif

@@ -117,7 +117,8 @@ namespace ob
 		LETDoorG,
 		LETTrapdoor,
 		LETDoorR,
-		LETExplosiveCrate
+		LETExplosiveCrate,
+		LETVMHealth
 	};
 
 	// Direction utils
@@ -169,7 +170,7 @@ namespace ob
 	}
 
 	// Other utils
-	inline Entity& getEntityFromBody(Body& mBody) { return *static_cast<Entity*>(mBody.getUserData()); }
+	inline Entity& getEntityFromBody(Body& mBody) { return *reinterpret_cast<Entity*>(mBody.getUserData()); }
 }
 
 #endif
