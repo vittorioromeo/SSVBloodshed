@@ -26,17 +26,17 @@ namespace ob
 				switch(type)
 				{
 					case Type::Organic:
-						game.createPBlood(6 * particleMult, cPhys.getPosPx());
+						game.createPBlood(5 * particleMult, cPhys.getPosPx());
 						assets.playSound("Sounds/bulletHitFlesh.wav");
 						break;
 					case Type::Robotic:
-						game.createPDebris(6 * particleMult, cPhys.getPosPx());
-						game.createPElectric(24 * particleMult, cPhys.getPosPx());
+						game.createPDebris(5 * particleMult, cPhys.getPosPx());
+						game.createPElectric(22 * particleMult, cPhys.getPosPx());
 						assets.playSound("Sounds/spark.wav");
 						break;
 					case Type::Wall:
 					case Type::ExplosiveCrate:
-						game.createPDebris(6 * particleMult, cPhys.getPosPx());
+						game.createPDebris(5 * particleMult, cPhys.getPosPx());
 						assets.playSound("Sounds/spark.wav");
 						break;
 				}
@@ -62,9 +62,9 @@ namespace ob
 						assets.playSound("Sounds/spark.wav");
 						break;
 					case Type::ExplosiveCrate:
-						game.createPDebrisFloor(4 * particleMult, cPhys.getPosPx());
-						game.createPDebris(12 * particleMult, cPhys.getPosPx());
-						game.createPExplosion(6 * particleMult, cPhys.getPosPx());
+						game.createPDebrisFloor(3 * particleMult, cPhys.getPosPx());
+						game.createPDebris(8 * particleMult, cPhys.getPosPx());
+						game.createPExplosion(36 * particleMult, cPhys.getPosPx());
 						assets.playSound("Sounds/spark.wav");
 						break;
 				}
