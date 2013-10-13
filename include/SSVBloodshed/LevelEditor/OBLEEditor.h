@@ -37,7 +37,7 @@ namespace ob
 			int currentLevelX{0}, currentLevelY{0};
 
 			std::vector<OBLETile*> currentTiles;
-			int brushIdx{0}, brushSize{1}, currentX{0}, currentY{0}, currentZ{0}, currentRot{0}, currentId{0}, currentParamIdx{0};
+			int brushIdx{0}, brushSize{1}, currentX{0}, currentY{0}, currentZ{0}, currentRot{0}, currentId{-1}, currentParamIdx{0};
 			OBGame* game{nullptr};
 			ssvs::BitmapText paramsText{*assets.obStroked};
 			std::pair<OBLETType, std::map<std::string, ssvuj::Obj>> copiedParams{OBLETType::LETFloor, {}};
@@ -49,7 +49,7 @@ namespace ob
 				gameState.onUpdate += [this](float mFT){ update(mFT); };
 				gameState.onDraw += [this]{ draw(); };
 				paramsText.setTracking(-3);
-				paramsText.setPosition(35, 240 - 15);
+				paramsText.setPosition(55, 240 - 15);
 
 				newSector();
 			}
@@ -131,7 +131,7 @@ namespace ob
 					}
 
 					paramsText.setString(str);
-					paramsText.setScale(t->getParams().size() < 3 ? Vec2f(1, 1) : Vec2f(0.7f, 0.7f));
+					paramsText.setScale(t->getParams().size() < 3 ? Vec2f(0.8f, 0.8f) : Vec2f(0.65f, 0.65f));
 					break;
 				}
 			}
@@ -164,11 +164,24 @@ namespace ob
 
 				overlayCamera.apply<int>();
 				{
-					sf::Sprite s{*getCurrentEntry().texture, getCurrentEntry().intRect};
-					Vec2f origin{s.getTextureRect().width / 2.f, s.getTextureRect().height / 2.f};
-					s.setOrigin(origin); s.setPosition(5 + origin.x, 240 - 15 + origin.x);
-					if(getCurrentEntry().defaultParams.count("rot") > 0) s.setRotation(currentRot);
-					render(s); render(paramsText);
+					for(int i{-1}; i < 3; ++i)
+					{
+						auto& e(database.get(OBLETType(ssvu::getSIMod(brushIdx + i, database.getSize()))));
+						sf::Sprite s{*e.texture, e.intRect};
+						Vec2f origin{5.f, 5.f};
+						s.setScale(10.f / s.getTextureRect().width, 10.f / s.getTextureRect().height);
+						s.setOrigin(origin); s.setPosition(15 + origin.x + (12 * i), 240 - 15 + origin.y);
+						if(e.defaultParams.count("rot") > 0) s.setRotation(currentRot);
+						render(s);
+
+						if(i != 0) continue;
+						sf::RectangleShape ind{Vec2f{3.2f, 3.2f}};
+						ind.setFillColor(sf::Color::White); ind.setOrigin(origin);
+						ind.setPosition(15 + 3.5f + origin.x + (12 * i), 240 - 18.5f + origin.y);
+						render(ind);
+					}
+
+					render(paramsText);
 				}
 				overlayCamera.unapply();
 
