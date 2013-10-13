@@ -63,10 +63,12 @@ namespace ob
 			OBBarCounter testhp{2, 6, 13};
 			ssvs::BitmapText txtShards{*assets.obStroked}, txtVM{*assets.obStroked};
 
+			std::string lastMsUpdate, lastMsDraw;
+
 			inline OBGame(ssvs::GameWindow& mGameWindow, OBAssets& mAssets) : gameWindow(mGameWindow), assets(mAssets)
 			{
-				gameState.onUpdate += [this](float mFT){ update(mFT); };
-				gameState.onDraw += [this]{ draw(); };
+				gameState.onUpdate += [this](float mFT){ ssvu::startBenchmark(); update(mFT); lastMsUpdate = ssvu::endBenchmark(); };
+				gameState.onDraw += [this]{ ssvu::startBenchmark(); draw(); lastMsDraw = ssvu::endBenchmark(); };
 
 				// Testing hud
 				hudSprite.setPosition(0, 240 - ssvs::getGlobalHeight(hudSprite));

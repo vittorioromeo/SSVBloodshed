@@ -105,7 +105,7 @@ namespace ob
 						{
 							if(ssvs::getMagnitude(c.getVel()) < 650.f) c.getBody().applyForce(Vec2f(cPhys.getPosI() - c.getPosI()) * 0.002f);
 						}
-						else c.setVel(ssvs::getMClampedMin(Vec2f(cPhys.getPosI() - c.getPosI()) / 1.5f, 500.f));
+						else c.setVel(ssvs::getMClampedMax(Vec2f(cPhys.getPosI() - c.getPosI()) / 1.5f, 400.f));
 					}
 				}
 			}
