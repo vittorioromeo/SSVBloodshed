@@ -124,7 +124,7 @@ namespace ssvces
 	inline void Entity::delGroups(Group mGroup) noexcept	{ groups[mGroup] = false; }
 	inline void Entity::clearGroups() noexcept				{ groups.reset(); }
 	inline bool EntityHandle::isAlive() const noexcept		{ return manager.entityIdPool.isAlive(stat); }
-	inline static bool matchesSystem(const TypeIdsBitset& mTypeIds, const SystemBase& mSystem) noexcept
+	inline bool matchesSystem(const TypeIdsBitset& mTypeIds, const SystemBase& mSystem) noexcept
 	{
 		return (mTypeIds & mSystem.typeIdsNot).none() && containsAll(mTypeIds, mSystem.typeIdsReq);
 	}
