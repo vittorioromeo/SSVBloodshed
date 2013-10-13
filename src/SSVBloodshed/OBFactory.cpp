@@ -52,7 +52,7 @@ namespace ob
 		auto& cDraw(result.createComponent<OBCDraw>(game, cPhys.getBody()));
 		return std::forward_as_tuple(result, cPhys, cDraw);
 	}
-	std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCHealth&, OBCKillable&> OBFactory::createKillableBase(const Vec2i& mPos, const Vec2i& mSize, int mDrawPriority, int mHealth)
+	std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCHealth&, OBCKillable&> OBFactory::createKillableBase(const Vec2i& mPos, const Vec2i& mSize, int mDrawPriority, float mHealth)
 	{
 		auto tpl(createActorBase(mPos, mSize, mDrawPriority));
 		auto& cHealth(getEntity(tpl).createComponent<OBCHealth>(mHealth));
@@ -169,14 +169,16 @@ namespace ob
 		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.p1Gun);
 		return getEntity(tpl);
 	}
-	Entity& OBFactory::createExplosiveCrate(const Vec2i& mPos)
+	Entity& OBFactory::createExplosiveCrate(const Vec2i& mPos, int mId)
 	{
 		auto tpl(createKillableBase(mPos, {1000, 1000}, OBLayer::LWall, 10));
+		auto& cIdReceiver(getEntity(tpl).createComponent<OBCIdReceiver>(mId));
 		getCPhys(tpl).getBody().addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir, OBGroup::GKillable, OBGroup::GFriendlyKillable, OBGroup::GEnemyKillable, OBGroup::GEnvDestructible);
 		getCPhys(tpl).getBody().setStatic(true);
 		getCKillable(tpl).setType(OBCKillable::Type::ExplosiveCrate);
 		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.explosiveCrate);
 
+		cIdReceiver.onActivate += [tpl](OBIdAction){ getCKillable(tpl).kill(); };
 		getCKillable(tpl).onDeath += [this, tpl]
 		{
 			for(int i{0}; i < 360; i += 360 / 16)
@@ -330,7 +332,7 @@ namespace ob
 	{
 		auto tpl(createProjectileBase(mPos, {400, 400}, 300.f, mDegrees, assets.null0));
 		getEntity(tpl).createComponent<OBCFloorSmasher>(getCPhys(tpl)).setActive(true);
-		getEntity(tpl).createComponent<OBCParticleEmitter>(getCPhys(tpl), &OBGame::createPExplosion, 5);
+		getEntity(tpl).createComponent<OBCParticleEmitter>(getCPhys(tpl), &OBGame::createPExplosion, 1);
 		getCProjectile(tpl).setPierceOrganic(-1);
 		getCProjectile(tpl).setDamage(5);
 		return getEntity(tpl);
@@ -359,6 +361,15 @@ namespace ob
 		getCProjectile(tpl).setLife(10.f + getRnd(-5, 15));
 		getCProjectile(tpl).setPierceOrganic(3);
 		getCProjectile(tpl).setSpeed(getCProjectile(tpl).getSpeed() + getRnd(-5, 25));
+		return getEntity(tpl);
+	}
+
+	Entity& OBFactory::createVMHealth(const Vec2i& mPos)
+	{
+		auto tpl(createActorBase(mPos, {1000, 1000}, OBLayer::LWall, false));
+		getCPhys(tpl).getBody().addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir);
+		getEntity(tpl).createComponent<OBCVMachine>(getCPhys(tpl), getCDraw(tpl));
+		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.vmHealth);
 		return getEntity(tpl);
 	}
 }

@@ -17,6 +17,8 @@
 
 namespace ob
 {
+	class OBCVMachine;
+
 	class OBCPlayer : public OBCActorBase
 	{
 		public:
@@ -36,11 +38,13 @@ namespace ob
 			OBCDir8& cDir8;
 			OBCWpnController& cWpnController;
 			float walkSpeed{125.f};
+			OBCVMachine* currentVM{nullptr};
 
 			int currentWpn{0}, currentShards{0}, shards{0};
 			std::vector<OBWpnType> weaponTypes{OBWpnTypes::createMachineGun(), OBWpnTypes::createPlasmaBolter(), OBWpnTypes::createPlasmaCannon()};
 
 			inline void cycleWeapons(int mDir) noexcept { currentWpn += mDir; cWpnController.setWpn(weaponTypes[ssvu::getSIMod(currentWpn, weaponTypes.size())]); }
+			inline void useVM();
 
 		public:
 			OBCPlayer(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCKillable& mCKillable, OBCWielder& mCWielder, OBCWpnController& mCWpnController) noexcept
@@ -69,7 +73,17 @@ namespace ob
 				if(!cWielder.isShooting() && (ix != 0 || iy != 0)) cDir8 = getDir8FromXY(ix, iy);
 
 				if(game.getInput().getIBomb()) bomb();
-				if(game.getInput().getISwitch()) cycleWeapons(1);
+				if(game.getInput().getISwitch())
+				{
+					if(currentVM == nullptr)
+					{
+						cycleWeapons(1);
+					}
+					else
+					{
+						useVM();
+					}
+				}
 			}
 
 			inline void attractShards()
@@ -99,11 +113,12 @@ namespace ob
 			inline void updateHUD()
 			{
 				// TODO:
-				auto& cHealth(getEntity().getComponent<OBCHealth>());
+				auto& cHealth(cKillable.getCHealth());
 				game.testhp.setValue(cHealth.getHealth());
 				game.testhp.setMaxValue(cHealth.getMaxHealth());
 				game.txtShards.setString(ssvu::toStr(shards + currentShards));
 			}
+			inline void updateVM();
 			inline void checkTransitions()
 			{
 				if(cPhys.getLeft() + cPhys.getVel().x < 0)							game.changeLevel(*this, -1, 0);
@@ -114,7 +129,7 @@ namespace ob
 
 			inline void update(float) override
 			{
-				updateInput(); updateHUD(); attractShards();
+				updateInput(); updateHUD(); updateVM(); attractShards();
 
 				if(game.isLevelClear()) { shards += currentShards; currentShards = 0; }
 				if(cWielder.isShooting() && cWpnController.shoot(cWielder.getShootingPos(), cDir8.getDeg())) game.createPMuzzle(20, toPixels(cWielder.getShootingPos()));
@@ -132,6 +147,9 @@ namespace ob
 			}
 
 			inline void shardGrabbed() noexcept { ++currentShards; }
+
+			inline void setCurrentVM(OBCVMachine* mVMachine) { currentVM = mVMachine; }
+			inline OBCVMachine* getCurrentVM() { return currentVM; }
 
 			inline void initFromData(const Data& mData) noexcept
 			{
@@ -152,6 +170,71 @@ namespace ob
 				return result;
 			}
 	};
+
+	class OBCVMachine : public OBCActorBase
+	{
+		private:
+			float healAmount{1};
+			int shardCost{10};
+
+		public:
+			OBCVMachine(OBCPhys& mCPhys, OBCDraw& mCDraw) noexcept : OBCActorBase{mCPhys, mCDraw} { }
+
+			inline void init() override
+			{
+				body.setResolve(false);
+			}
+
+			inline void update(float) override
+			{
+				for(auto& e : getManager().getEntities(OBGroup::GPlayer))
+				{
+					if(!e->hasComponent<OBCPhys>()) throw;
+					if(!e->hasComponent<OBCPlayer>()) throw;
+
+					auto& cPhys(e->getComponent<OBCPhys>());
+					auto& cPlayer(e->getComponent<OBCPlayer>());
+					if(ssvs::getDistEuclidean(cPhys.getPosPx(), toPixels(body.getPosition())) < 13)
+					{
+						cPlayer.setCurrentVM(this);
+					}
+					else if(cPlayer.getCurrentVM() == this)
+					{
+						cPlayer.setCurrentVM(nullptr);
+					}
+				}
+			}
+
+			inline float getHealAmount() const noexcept		{ return healAmount; }
+			inline int getShardCost() const noexcept		{ return shardCost; }
+			inline std::string getMsg() const noexcept		{ return "[" + ssvu::toStr(shardCost) + "] Heal <" + ssvu::toStr(healAmount) + "> hp"; }
+	};
+
+	inline void OBCPlayer::updateVM()
+	{
+		if(currentVM == nullptr) { game.txtVM.setString(""); return; }
+		game.txtVM.setString(currentVM->getMsg());
+	}
+
+	inline void OBCPlayer::useVM()
+	{
+		if(currentVM->getShardCost() > shards + currentShards) return;
+
+		if(cKillable.getCHealth().heal(currentVM->getHealAmount()))
+		{
+			int toRemove{currentVM->getShardCost()};
+			int fromCurrent(currentShards - toRemove);
+			if(fromCurrent > 0)
+			{
+				currentShards -= toRemove;
+			}
+			else
+			{
+				currentShards = 0;
+				shards -= std::abs(toRemove);
+			}
+		}
+	}
 }
 
 #endif

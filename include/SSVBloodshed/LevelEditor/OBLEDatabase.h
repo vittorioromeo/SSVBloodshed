@@ -70,7 +70,8 @@ namespace ob
 				add(OBLETType::LETPPlateSingle,		a.txSmall,		a.pPlateSingle,			{{"id", 0}, {"action", 0}},	[this](TLevel&, TTile& mT, const Vec2i& mP){ f->createPPlate(mP, getP<int>(mT, "id"), PPlateType::Single, OBIdAction(getP<int>(mT, "action"))); });
 				add(OBLETType::LETPPlateMulti,		a.txSmall,		a.pPlateMulti,			{{"id", 0}, {"action", 0}},	[this](TLevel&, TTile& mT, const Vec2i& mP){ f->createPPlate(mP, getP<int>(mT, "id"), PPlateType::Multi, OBIdAction(getP<int>(mT, "action"))); });
 				add(OBLETType::LETTrapdoor,			a.txSmall,		a.trapdoor,				{},							[this](TLevel&, TTile&, const Vec2i& mP){ f->createTrapdoor(mP); });
-				add(OBLETType::LETExplosiveCrate,	a.txSmall,		a.explosiveCrate,		{},							[this](TLevel&, TTile&, const Vec2i& mP){ f->createFloor(mP, true); f->createExplosiveCrate(mP); });
+				add(OBLETType::LETExplosiveCrate,	a.txSmall,		a.explosiveCrate,		{{"id", -1}},				[this](TLevel&, TTile& mT, const Vec2i& mP){ f->createFloor(mP, true); f->createExplosiveCrate(mP, getP<int>(mT, "id")); });
+				add(OBLETType::LETVMHealth,			a.txSmall,		a.vmHealth,				{},							[this](TLevel&, TTile&, const Vec2i& mP){ f->createVMHealth(mP); });
 
 				add(OBLETType::LETWall,				a.txSmall,		a.wallSingle,			{},
 				[this](TLevel& mL, TTile& mT, const Vec2i& mP)
