@@ -23,6 +23,7 @@
 #include "SSVBloodshed/Components/OBCShard.h"
 #include "SSVBloodshed/Components/OBCSpawner.h"
 #include "SSVBloodshed/Components/OBCDamageOnTouch.h"
+#include "SSVBloodshed/Components/OBCVMachine.h"
 
 using namespace std;
 using namespace sf;
