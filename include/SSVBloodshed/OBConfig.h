@@ -21,8 +21,8 @@ namespace ob
 			inline OBConfig()
 			{
 				using k = sf::Keyboard::Key;
-				using b = sf::Mouse::Button;
-				using t = ssvs::Input::Trigger::Type;
+				//using b = sf::Mouse::Button;
+				//using t = ssvs::Input::Trigger::Type;
 
 				tLeft = {{k::Left}};
 				tRight = {{k::Right}};

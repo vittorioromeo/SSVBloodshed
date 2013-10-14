@@ -12,6 +12,5 @@
 #include "SSVBloodshed/CESystem/Entity.h"
 #include "SSVBloodshed/CESystem/EntityHandle.h"
 #include "SSVBloodshed/CESystem/Manager.h"
-#include "SSVBloodshed/CESystem/Macros.h"
 
 #endif

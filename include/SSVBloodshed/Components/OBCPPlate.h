@@ -24,7 +24,7 @@ namespace ob
 				for(auto& e : getManager().getEntities(OBGroup::GIdReceiver))
 				{
 					auto& c(e->getComponent<OBCIdReceiver>());
-					if(c.getId() == id) c.onActivate(idAction);
+					if(c.getId() == id) c.activate(idAction);
 				}
 			}
 

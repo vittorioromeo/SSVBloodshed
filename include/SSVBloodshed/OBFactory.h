@@ -32,7 +32,7 @@ namespace ob
 
 			inline Entity& createEntity(int mDrawPriority = 0) { auto& result(manager.createEntity()); result.setDrawPriority(mDrawPriority); return result; }
 			std::tuple<Entity&, OBCPhys&, OBCDraw&> createActorBase(const Vec2i& mPos, const Vec2i& mSize, int mDrawPriority = 0, bool mStatic = false);
-			std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCHealth&, OBCKillable&> createKillableBase(const Vec2i& mPos, const Vec2i& mSize, int mDrawPriority, int mHealth);
+			std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCHealth&, OBCKillable&> createKillableBase(const Vec2i& mPos, const Vec2i& mSize, int mDrawPriority, float mHealth);
 			std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCHealth&, OBCKillable&, OBCEnemy&> createEnemyBase(const Vec2i& mPos, const Vec2i& mSize, int mHealth);
 			std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCProjectile&> createProjectileBase(const Vec2i& mPos, const Vec2i& mSize, float mSpeed, float mDegrees, const sf::IntRect& mIntRect);
 			Entity& createETurretBase(const Vec2i& mPos, Dir8 mDir, const sf::IntRect& mIntRect, const OBWpnType& mWpn, float mShootDelay, float mPJDelay, int mShootCount);
@@ -52,7 +52,7 @@ namespace ob
 			Entity& createDoorR(const Vec2i& mPos, const sf::IntRect& mIntRect, bool mOpen);
 			Entity& createPPlate(const Vec2i& mPos, int mId, PPlateType mType, OBIdAction mIdAction);
 			Entity& createPlayer(const Vec2i& mPos);
-			Entity& createExplosiveCrate(const Vec2i& mPos);
+			Entity& createExplosiveCrate(const Vec2i& mPos, int mId);
 			Entity& createShard(const Vec2i& mPos);
 			Entity& createSpawner(const Vec2i& mPos, int mType, float mDelayStart = 0.f, float mDelaySpawn = 200.f, int mSpawnCount = 1);
 
@@ -75,6 +75,9 @@ namespace ob
 			Entity& createPJStarPlasma(const Vec2i& mPos, float mDegrees);
 			Entity& createPJCannonPlasma(const Vec2i& mPos, float mDegrees);
 			Entity& createPJExplosion(const Vec2i& mPos, float mDegrees);
+
+			// Vending machines
+			Entity& createVMHealth(const Vec2i& mPos);
 
 			Entity& createPJTestBomb(const Vec2i& mPos, float mDegrees, float mSpeedMult = 1.f, float mCurveMult = 1.f);
 			Entity& createPJTestShell(const Vec2i& mPos, float mDegrees);

@@ -13,7 +13,7 @@ namespace ob
 {
 	class OBLETile
 	{
-		template<typename> friend struct ssvuj::Internal::Converter;
+		template<typename> friend struct ssvuj::Converter;
 
 		private:
 			bool null{true};
@@ -50,8 +50,9 @@ namespace ob
 
 				if(idText != nullptr)
 				{
+					auto id(getParam<int>("id"));
 					idText->setPosition(x * 10.f - 4, y * 10.f - 5);
-					idText->setString(ssvu::toStr(getParam<int>("id")));
+					idText->setString(id == -1 ? "" : ssvu::toStr(id));
 				}
 			}
 

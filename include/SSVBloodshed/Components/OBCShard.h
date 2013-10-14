@@ -24,7 +24,7 @@ namespace ob
 				body.addGroupsNoResolve(OBGroup::GOrganic, OBGroup::GPit);
 				body.setRestitutionX(0.8f);
 				body.setRestitutionY(0.8f);
-				body.onPreUpdate += [this]{ body.setVelocity(ssvs::getCClampedMax(body.getVelocity() * 0.99f, 600.f)); };
+				body.onPreUpdate += [this]{ body.setVelocity(ssvs::getCClampedMax(body.getVelocity() * 0.99f, 500.f)); };
 				body.onDetection += [this](const DetectionInfo& mDI)
 				{
 					if(!mDI.body.hasGroup(OBGroup::GPlayer)) return;

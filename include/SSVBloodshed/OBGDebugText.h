@@ -19,18 +19,18 @@ namespace ob
 		public:
 			inline OBGDebugText(TGame& mGame) : game(mGame), debugText{*game.getAssets().obStroked} { debugText.setTracking(-3); }
 
-			inline void update(float mFT)
+			inline void update(float)
 			{
 				std::ostringstream s;
 				const auto& entities(game.getManager().getEntities());
 				const auto& bodies(game.getWorld().getBodies().getItems());
-				const auto& sensors(game.getWorld().getBodies().getItems());
+				const auto& sensors(game.getWorld().getSensors().getItems());
 				std::size_t componentCount{0}, dynamicBodiesCount{0};
 				for(const auto& e : entities) componentCount += e->getComponents().size();
 				for(const auto& b : bodies) if(!b->isStatic()) ++dynamicBodiesCount;
 
-				s	<< "FPS: "				<< static_cast<int>(game.getGameWindow().getFPS()) << "\t"
-					<< "FT: "				<< mFT << "\n"
+				s	<< "FPS: "				<< static_cast<int>(game.getGameWindow().getFPS()) << "\n"
+					<< "U: "				<< game.lastMsUpdate << "\t" << "D: " << game.lastMsDraw << "\n"
 					<< "Bodies(all): "		<< bodies.size() << "\n"
 					<< "Bodies(static): "	<< bodies.size() - dynamicBodiesCount << "\n"
 					<< "Bodies(dynamic): "	<< dynamicBodiesCount << "\n"

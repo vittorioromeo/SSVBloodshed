@@ -17,6 +17,8 @@
 
 namespace ob
 {
+	class OBCVMachine;
+
 	class OBCPlayer : public OBCActorBase
 	{
 		public:
@@ -36,11 +38,13 @@ namespace ob
 			OBCDir8& cDir8;
 			OBCWpnController& cWpnController;
 			float walkSpeed{125.f};
+			OBCVMachine* currentVM{nullptr};
 
 			int currentWpn{0}, currentShards{0}, shards{0};
 			std::vector<OBWpnType> weaponTypes{OBWpnTypes::createMachineGun(), OBWpnTypes::createPlasmaBolter(), OBWpnTypes::createPlasmaCannon()};
 
 			inline void cycleWeapons(int mDir) noexcept { currentWpn += mDir; cWpnController.setWpn(weaponTypes[ssvu::getSIMod(currentWpn, weaponTypes.size())]); }
+			inline void useVM();
 
 		public:
 			OBCPlayer(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCKillable& mCKillable, OBCWielder& mCWielder, OBCWpnController& mCWpnController) noexcept
@@ -56,7 +60,7 @@ namespace ob
 				getEntity().addGroups(OBGroup::GFriendly, OBGroup::GFriendlyKillable, OBGroup::GPlayer);
 				body.addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir, OBGroup::GFriendly, OBGroup::GKillable, OBGroup::GFriendlyKillable, OBGroup::GOrganic, OBGroup::GPlayer);
 				body.addGroupToCheck(OBGroup::GSolidGround);
-				body.addGroupNoResolve(OBGroup::GLevelBound);
+				body.onResolution += [this](const ResolutionInfo& mRI){ if(mRI.body.hasGroup(OBGroup::GLevelBound)) checkTransitions(); };
 			}
 
 			inline void updateInput()
@@ -69,7 +73,17 @@ namespace ob
 				if(!cWielder.isShooting() && (ix != 0 || iy != 0)) cDir8 = getDir8FromXY(ix, iy);
 
 				if(game.getInput().getIBomb()) bomb();
-				if(game.getInput().getISwitch()) cycleWeapons(1);
+				if(game.getInput().getISwitch())
+				{
+					if(currentVM == nullptr)
+					{
+						cycleWeapons(1);
+					}
+					else
+					{
+						useVM();
+					}
+				}
 			}
 
 			inline void attractShards()
@@ -91,7 +105,7 @@ namespace ob
 						{
 							if(ssvs::getMagnitude(c.getVel()) < 650.f) c.getBody().applyForce(Vec2f(cPhys.getPosI() - c.getPosI()) * 0.002f);
 						}
-						else c.setVel(ssvs::getMClampedMin(Vec2f(cPhys.getPosI() - c.getPosI()) / 1.5f, 500.f));
+						else c.setVel(ssvs::getMClampedMax(Vec2f(cPhys.getPosI() - c.getPosI()) / 1.5f, 400.f));
 					}
 				}
 			}
@@ -99,22 +113,23 @@ namespace ob
 			inline void updateHUD()
 			{
 				// TODO:
-				auto& cHealth(getEntity().getComponent<OBCHealth>());
+				auto& cHealth(cKillable.getCHealth());
 				game.testhp.setValue(cHealth.getHealth());
 				game.testhp.setMaxValue(cHealth.getMaxHealth());
 				game.txtShards.setString(ssvu::toStr(shards + currentShards));
 			}
+			inline void updateVM();
 			inline void checkTransitions()
 			{
-				if(cPhys.getPosI().x < toCoords(0))		game.changeLevel(*this, -1, 0);
-				if(cPhys.getPosI().x > toCoords(320))	game.changeLevel(*this, 1, 0);
-				if(cPhys.getPosI().y < toCoords(0))		game.changeLevel(*this, 0, -1);
-				if(cPhys.getPosI().y > toCoords(220))	game.changeLevel(*this, 0, 1);
+				if(cPhys.getLeft() + cPhys.getVel().x < 0)							game.changeLevel(*this, -1, 0);
+				else if(cPhys.getRight() + cPhys.getVel().x > levelWidthCoords)		game.changeLevel(*this, 1, 0);
+				else if(cPhys.getTop() + cPhys.getVel().y < 0)						game.changeLevel(*this, 0, -1);
+				else if(cPhys.getBottom() + cPhys.getVel().y > levelHeightCoords)	game.changeLevel(*this, 0, 1);
 			}
 
 			inline void update(float) override
 			{
-				updateInput(); updateHUD(); attractShards(); checkTransitions();
+				updateInput(); updateHUD(); updateVM(); attractShards();
 
 				if(game.isLevelClear()) { shards += currentShards; currentShards = 0; }
 				if(cWielder.isShooting() && cWpnController.shoot(cWielder.getShootingPos(), cDir8.getDeg())) game.createPMuzzle(20, toPixels(cWielder.getShootingPos()));
@@ -132,6 +147,9 @@ namespace ob
 			}
 
 			inline void shardGrabbed() noexcept { ++currentShards; }
+
+			inline void setCurrentVM(OBCVMachine* mVMachine) { currentVM = mVMachine; }
+			inline OBCVMachine* getCurrentVM() { return currentVM; }
 
 			inline void initFromData(const Data& mData) noexcept
 			{

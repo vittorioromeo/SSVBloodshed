@@ -15,12 +15,12 @@ namespace ssvces
 	class EntityHandle
 	{
 		private:
-			Manager& manager;
 			Entity& entity;
-			EntityIdCtrPair idCtrPair;
+			Manager& manager;
+			EntityStat stat;
 
 		public:
-			inline EntityHandle(Manager& mManager, Entity& mEntity) noexcept : manager(mManager), entity(mEntity), idCtrPair{entity.idCtrPair} { }
+			inline EntityHandle(Entity& mEntity) noexcept : entity(mEntity), manager(entity.getManager()), stat(entity.stat) { }
 
 			template<typename T, typename... TArgs> inline void createComponent(TArgs&&... mArgs)	{ assert(isAlive()); entity.createComponent<T>(std::forward<TArgs>(mArgs)...); }
 			template<typename T> inline bool hasComponent() const noexcept							{ assert(isAlive()); return entity.hasComponent<T>(); }
@@ -29,9 +29,8 @@ namespace ssvces
 			inline void destroy() noexcept { entity.destroy(); assert(!isAlive()); }
 
 			inline bool isAlive() const noexcept;
-			inline Manager& getManager() noexcept						{ return manager; }
-			inline Entity& getEntity() noexcept							{ assert(isAlive()); return entity; }
-			inline const EntityIdCtrPair& getIdCtrPair() const noexcept	{ return idCtrPair; }
+			inline Manager& getManager() noexcept	{ return manager; }
+			inline Entity& getEntity() noexcept		{ assert(isAlive()); return entity; }
 
 			// Groups
 			template<typename... TGroups> inline void addGroups(TGroups... mGroups) noexcept	{ entity.addGroups(mGroups...); }

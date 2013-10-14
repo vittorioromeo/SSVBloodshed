@@ -21,6 +21,8 @@
 
 namespace ob
 {
+	class OBCVMachine;
+
 	struct OBGLevelStat
 	{
 		bool clear{false};
@@ -55,16 +57,18 @@ namespace ob
 			OBLELevel* currentLevel{nullptr};
 			int currentLevelX{0}, currentLevelY{0};
 
+		public:
 			ssvu::Delegate<void()> onPostUpdate;
 
-		public:
 			OBBarCounter testhp{2, 6, 13};
-			ssvs::BitmapText txtShards{*assets.obStroked};
+			ssvs::BitmapText txtShards{*assets.obStroked}, txtVM{*assets.obStroked};
+
+			std::string lastMsUpdate, lastMsDraw;
 
 			inline OBGame(ssvs::GameWindow& mGameWindow, OBAssets& mAssets) : gameWindow(mGameWindow), assets(mAssets)
 			{
-				gameState.onUpdate += [this](float mFT){ update(mFT); };
-				gameState.onDraw += [this]{ draw(); };
+				gameState.onUpdate += [this](float mFT){ ssvu::startBenchmark(); update(mFT); lastMsUpdate = ssvu::endBenchmark(); };
+				gameState.onDraw += [this]{ ssvu::startBenchmark(); draw(); lastMsDraw = ssvu::endBenchmark(); };
 
 				// Testing hud
 				hudSprite.setPosition(0, 240 - ssvs::getGlobalHeight(hudSprite));
@@ -74,6 +78,8 @@ namespace ob
 				testAmmoTxt.setPosition(86, (240 - ssvs::getGlobalHeight(hudSprite) / 2.f) - 3.f);
 				txtShards.setColor(sf::Color{195, 90, 10, 255}); txtShards.setTracking(-3);
 				txtShards.setPosition(235, (240 - ssvs::getGlobalHeight(hudSprite) / 2.f) - 3.f);
+				txtVM.setColor(sf::Color{225, 225, 225, 255}); txtVM.setTracking(-3);
+				txtVM.setPosition(120, (240 - ssvs::getGlobalHeight(hudSprite) / 2.f) - 3.f);
 
 				reloadSector();
 			}
@@ -116,7 +122,7 @@ namespace ob
 				createBounds();
 			}
 
-			template<typename TPlayer> inline void changeLevel(const TPlayer& mPlayer, int mDirX, int mDirY)
+			template<typename TPlayer> inline bool changeLevel(const TPlayer& mPlayer, int mDirX, int mDirY)
 			{
 				auto playerData(mPlayer.getData());
 				int nextLevelX{currentLevelX + mDirX}, nextLevelY{currentLevelY + mDirY}, offset{toCoords(10)};
@@ -127,26 +133,27 @@ namespace ob
 				if(mDirY == 1) playerData.pos.y = toCoords(0) + offset;
 				else if(mDirY == -1) playerData.pos.y = toCoords(currentLevel->getHeight()) - offset;
 
+				if(!sector.isValid(nextLevelX, nextLevelY)) return false;
+
 				onPostUpdate += [this, nextLevelX, nextLevelY, playerData]
 				{
 					if(currentLevelX != nextLevelX || currentLevelY != nextLevelY)
 					{
-						if(sector.isValid(nextLevelX, nextLevelY))
-						{
-							currentLevelX = nextLevelX;
-							currentLevelY = nextLevelY;
-							loadLevel();
+						currentLevelX = nextLevelX;
+						currentLevelY = nextLevelY;
+						loadLevel();
 
-							// Remove existing players (TODO: change)
-							for(auto& e : manager.getEntities(OBGroup::GPlayer)) e->destroy();
+						// Remove existing players (TODO: change)
+						for(auto& e : manager.getEntities(OBGroup::GPlayer)) e->destroy();
 
-							// If the level was cleared, remove all enemies (TODO: change not spawn)
-							if(levelStats[currentLevel].clear) for(auto& e : manager.getEntities(OBGroup::GEnemy)) e->destroy();
+						// If the level was cleared, remove all enemies (TODO: change not spawn)
+						if(levelStats[currentLevel].clear) for(auto& e : manager.getEntities(OBGroup::GEnemy)) e->destroy();
 
-							factory.createPlayer(playerData.pos).template getComponent<TPlayer>().initFromData(playerData);
-						}
+						factory.createPlayer(playerData.pos).template getComponent<TPlayer>().initFromData(playerData);
 					}
 				};
+
+				return true;
 			}
 
 			inline bool isLevelClear() noexcept		{ return manager.getEntityCount(OBGroup::GEnemy) <= 0; }
@@ -177,6 +184,7 @@ namespace ob
 				render(testhp);
 				render(testAmmoTxt);
 				render(txtShards);
+				render(txtVM);
 				overlayCamera.unapply();
 
 				debugText.draw();
@@ -225,11 +233,10 @@ namespace ob
 // TODO: tripwires, laserwires, powerups, classes, weapon sets, etc
 // TODO: consider changing body.onResolution lambda with a bool
 // TODO: editor pick tile in center
-// TODO: investigate entity component systems
 // TODO: bullet knockback? replicators? spawners?
 // TODO: major group/facotry refactoring!
 // TODO: explosive crates id, fuses
-// TODO: check usages of eraseremove
-// TODO: check recursive variadic templates for code repetition
+// TODO: big enforcer variant that shoots a plasma cannon ball that splits in other plasma cannon balls
+// TODO: vending machines hud becomes text
 
 #endif

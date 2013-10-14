@@ -16,7 +16,7 @@ namespace ob
 	class OBLELevel
 	{
 		friend class OBLESector;
-		template<typename> friend struct ssvuj::Internal::Converter;
+		template<typename> friend struct ssvuj::Converter;
 
 		private:
 			int columns{0}, rows{0}, depth{5}, x{0}, y{0};

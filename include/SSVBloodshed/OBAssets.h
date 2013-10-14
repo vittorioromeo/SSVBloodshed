@@ -44,6 +44,7 @@ namespace ob
 			sf::IntRect pPlateSingle,	pPlateMulti;										// Pressure plates
 			sf::IntRect shard;																// Shard
 			sf::IntRect explosiveCrate;														// Explosive crate
+			sf::IntRect vmHealth;															// Vending machines
 			sf::IntRect null0;																// Empty tile
 
 			// Medium tileset (20x20)
@@ -121,6 +122,7 @@ namespace ob
 				T_TSSMALL(pPlateSingle);	T_TSSMALL(pPlateMulti);
 				T_TSSMALL(shard);
 				T_TSSMALL(explosiveCrate);
+				T_TSSMALL(vmHealth);
 				T_TSSMALL(null0);
 				WALLTS(wall); WALLTS(wallD); WALLTS(door); WALLTS(doorG); WALLTS(doorR);
 

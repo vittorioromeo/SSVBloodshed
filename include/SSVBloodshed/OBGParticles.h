@@ -14,8 +14,8 @@ namespace ob
 	class OBGParticles
 	{
 		private:
-			constexpr static unsigned int txWidth{320};
-			constexpr static unsigned int txHeight{240};
+			constexpr static unsigned int txWidth{levelWidthPx};
+			constexpr static unsigned int txHeight{levelHeightPx};
 			sf::RenderTexture txPSPerm, txPSTemp;
 			OBParticleSystem* psPerm{nullptr};
 			OBParticleSystem* psTemp{nullptr};
