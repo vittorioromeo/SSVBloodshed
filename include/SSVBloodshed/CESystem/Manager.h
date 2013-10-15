@@ -102,7 +102,7 @@ namespace ssvces
 		static_assert(std::is_base_of<Component, T>::value, "Type must derive from Component");
 		assert(!hasComponent<T>() && componentCount <= maxComponents);
 
-		components[getTypeIdBitIdx<T>()] = ssvu::make_unique<T>(std::forward<TArgs>(mArgs)...);
+		components[getTypeIdBitIdx<T>()] = std::make_unique<T>(std::forward<TArgs>(mArgs)...);
 		typeIds[getTypeIdBitIdx<T>()] = true;
 		++componentCount;
 
