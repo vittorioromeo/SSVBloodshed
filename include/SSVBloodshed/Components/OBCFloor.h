@@ -21,6 +21,7 @@ namespace ob
 				smashed = true;
 				cDraw[0].setTextureRect(assets.getFloorGrateVariant());
 				getEntity().setDrawPriority(OBLayer::LFloorGrate);
+				body.delGroup(OBGroup::GFloor);
 			}
 
 		public:

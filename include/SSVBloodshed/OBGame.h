@@ -237,5 +237,6 @@ namespace ob
 // TODO: major group/facotry refactoring!
 // TODO: explosive crates id, fuses
 // TODO: big enforcer variant that shoots a plasma cannon ball that splits in other plasma cannon balls
+// TODO: ammunition, classes, vending machine particles
 
 #endif

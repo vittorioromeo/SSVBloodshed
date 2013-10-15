@@ -40,7 +40,7 @@ namespace ssvces
 
 			template<typename... TArgs> inline void processAllImpl(TupleType& mTuple, TArgs&&... mArgs)
 			{
-				ssvu::explode(&Internal::ExpHelper<typename ssvu::RemoveReferenceType<decltype(mTuple)>, std::tuple<TArgs...>>::template processImpl<TDerived>,
+				ssvu::explode(&Internal::ExpHelper<typename ssvu::RemoveReference<decltype(mTuple)>, std::tuple<TArgs...>>::template processImpl<TDerived>,
 					std::tuple_cat(std::tuple<TDerived&>(*reinterpret_cast<TDerived*>(this)), mTuple, std::tuple<TArgs...>{std::forward<TArgs>(mArgs)...}));
 			}
 
