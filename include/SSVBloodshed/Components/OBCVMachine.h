@@ -21,34 +21,23 @@ namespace ob
 		public:
 			OBCVMachine(OBCPhys& mCPhys, OBCDraw& mCDraw) noexcept : OBCActorBase{mCPhys, mCDraw} { }
 
-			inline void init() override
-			{
-				body.setResolve(false);
-			}
+			inline void init() override { body.setResolve(false); }
 
 			inline void update(float) override
 			{
 				for(auto& e : getManager().getEntities(OBGroup::GPlayer))
 				{
-					if(!e->hasComponent<OBCPhys>()) throw;
-					if(!e->hasComponent<OBCPlayer>()) throw;
-
 					auto& cPhys(e->getComponent<OBCPhys>());
 					auto& cPlayer(e->getComponent<OBCPlayer>());
-					if(ssvs::getDistEuclidean(cPhys.getPosPx(), toPixels(body.getPosition())) < 13)
-					{
-						cPlayer.setCurrentVM(this);
-					}
-					else if(cPlayer.getCurrentVM() == this)
-					{
-						cPlayer.setCurrentVM(nullptr);
-					}
+
+					if(ssvs::getDistEuclidean(cPhys.getPosI(), body.getPosition()) < 1300) cPlayer.setCurrentVM(this);
+					else if(cPlayer.getCurrentVM() == this) cPlayer.setCurrentVM(nullptr);
 				}
 			}
 
-			inline float getHealAmount() const noexcept		{ return healAmount; }
-			inline int getShardCost() const noexcept		{ return shardCost; }
-			inline std::string getMsg() const noexcept		{ return "[" + ssvu::toStr(shardCost) + "] Heal <" + ssvu::toStr(healAmount) + "> hp"; }
+			inline float getHealAmount() const noexcept	{ return healAmount; }
+			inline int getShardCost() const noexcept	{ return shardCost; }
+			inline std::string getMsg() const noexcept	{ return "[" + ssvu::toStr(shardCost) + "] Heal <" + ssvu::toStr(healAmount) + "> hp"; }
 	};
 
 	inline void OBCPlayer::updateVM()
@@ -65,15 +54,15 @@ namespace ob
 		{
 			int toRemove{currentVM->getShardCost()};
 			int fromCurrent(currentShards - toRemove);
-			if(fromCurrent > 0)
-			{
-				currentShards -= toRemove;
-			}
+
+			if(fromCurrent > 0) currentShards -= toRemove;
 			else
 			{
 				currentShards = 0;
 				shards -= std::abs(toRemove);
 			}
+
+			game.createPHeal(15, cPhys.getPosPx());
 		}
 	}
 }
