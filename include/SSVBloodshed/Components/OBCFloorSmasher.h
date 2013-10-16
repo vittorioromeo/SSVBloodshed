@@ -19,10 +19,11 @@ namespace ob
 			bool active{false};
 
 		public:
-			OBCFloorSmasher(OBCPhys& mCPhys, bool mActive = false) noexcept : cPhys(mCPhys), body(cPhys.getBody()) { setActive(mActive); }
+			OBCFloorSmasher(OBCPhys& mCPhys, bool mActive = false) noexcept : cPhys(mCPhys), body(cPhys.getBody()), active{mActive} { }
 
 			inline void init() override
 			{
+				setActive(active);
 				body.addGroupNoResolve(OBGroup::GFloor);
 				body.onDetection += [this](const DetectionInfo& mDI)
 				{

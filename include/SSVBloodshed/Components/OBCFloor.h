@@ -21,13 +21,18 @@ namespace ob
 				smashed = true;
 				cDraw[0].setTextureRect(assets.getFloorGrateVariant());
 				getEntity().setDrawPriority(OBLayer::LFloorGrate);
-				body.delGroup(OBGroup::GFloor);
+				body.delGroup(OBGroup::GFloor); // TODO: if I uncomment this giant collides with floor - why?
 			}
 
 		public:
 			OBCFloor(OBCPhys& mCPhys, OBCDraw& mCDraw, bool mGrate) noexcept : OBCActorBase{mCPhys, mCDraw}, smashed{mGrate} { }
 
-			inline void init() override { body.addGroup(OBGroup::GFloor); if(smashed) becomeGrate(); }
+			inline void init() override
+			{
+				body.addGroup(OBGroup::GFloor);
+				body.setResolve(false);
+				if(smashed) becomeGrate();
+			}
 			inline void smash() noexcept
 			{
 				if(smashed) return;
