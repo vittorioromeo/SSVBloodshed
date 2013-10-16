@@ -152,13 +152,30 @@ namespace ob
 				{
 					currentLevel->draw(gameWindow, true, currentZ);
 
-					sf::RectangleShape hr({10.f * brushSize, 10.f * brushSize});
-					hr.setFillColor({255, 0, 0, 125});
-					hr.setOutlineColor({255, 255, 0, 125});
-					hr.setOutlineThickness(0.5f);
-					hr.setPosition(currentX * 10.f, currentY * 10.f);
-					hr.setOrigin(5.f, 5.f);
-					render(hr);
+					{
+						sf::RectangleShape hr({10.f * brushSize, 10.f * brushSize});
+						hr.setFillColor({255, 0, 0, 125});
+						hr.setOutlineColor({255, 255, 0, 125});
+						hr.setOutlineThickness(0.5f);
+						hr.setPosition(currentX * 10.f, currentY * 10.f);
+						hr.setOrigin(5.f, 5.f);
+						render(hr);
+					}
+
+					// TODO: pick tile with this one
+					{
+						const auto& tileVec((gameCamera.getMousePosition() + Vec2f(10, 10)) / 10.f);
+						int currentX = ssvu::getClamped(tileVec.x - 1 / 2.f, 0.f, static_cast<float>(currentLevel->getColumns() - 1));
+						int currentY = ssvu::getClamped(tileVec.y - 1 / 2.f, 0.f, static_cast<float>(currentLevel->getRows() - 1));
+
+						sf::RectangleShape hr({10.f, 10.f});
+						hr.setFillColor({0, 0, 0, 0});
+						hr.setOutlineColor({255, 255, 0, 125});
+						hr.setOutlineThickness(0.65f);
+						hr.setPosition(currentX * 10.f, currentY * 10.f);
+						hr.setOrigin(5.f, 5.f);
+						render(hr);
+					}
 				}
 				gameCamera.unapply();
 
