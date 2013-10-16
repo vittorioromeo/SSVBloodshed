@@ -126,6 +126,17 @@ namespace ob
 				1.0f,
 				ssvu::getRndR(-2.5f, 2.5f));
 	}
+	inline void createPHeal(OBParticleSystem& mPS, const Vec2f& mPosition)
+	{
+		mPS.emplace(mPosition,
+				ssvs::getVecFromDeg(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(0.3f, 5.4f)),
+				0.97f,
+				(ssvu::getRnd(0, 10) > 7) ? sf::Color::White : sf::Color::Green,
+				1.2f + ssvu::getRndR<float>(-0.3f, 0.3f),
+				45 + ssvu::getRnd(-15, 20),
+				1.0f,
+				ssvu::getRndR(-4.5f, 4.5f));
+	}
 }
 
 #endif
