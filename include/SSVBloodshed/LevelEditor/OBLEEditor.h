@@ -158,8 +158,9 @@ namespace ob
 			{
 				currentLevel->update();
 				updateXY(); grabTiles(); updateParamsText();
+
 				if(input.painting) paint();
-				if(input.deleting) del();
+				else if(input.deleting) del();
 
 				debugText.update(mFT);
 				gameCamera.update<int>(mFT);

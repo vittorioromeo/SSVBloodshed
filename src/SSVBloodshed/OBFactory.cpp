@@ -106,11 +106,11 @@ namespace ob
 		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.pit);
 		return getEntity(tpl);
 	}
-	Entity& OBFactory::createTrapdoor(const Vec2i& mPos)
+	Entity& OBFactory::createTrapdoor(const Vec2i& mPos, bool mPlayerOnly)
 	{
 		auto tpl(createActorBase(mPos, {1000, 1000}, OBLayer::LTrapdoor));
-		getEntity(tpl).createComponent<OBCTrapdoor>(getCPhys(tpl), getCDraw(tpl));
-		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.trapdoor);
+		getEntity(tpl).createComponent<OBCTrapdoor>(getCPhys(tpl), getCDraw(tpl), mPlayerOnly);
+		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, mPlayerOnly ? assets.trapdoorPOnly : assets.trapdoor);
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createWall(const Vec2i& mPos, const sf::IntRect& mIntRect)

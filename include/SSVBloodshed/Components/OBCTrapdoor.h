@@ -14,11 +14,11 @@ namespace ob
 	class OBCTrapdoor : public OBCActorBase
 	{
 		private:
-			bool wasWeighted{false}, weighted{false}, falling{false};
+			bool wasWeighted{false}, weighted{false}, falling{false}, playerOnly{false};
 			float fallTime{100.f};
 
 		public:
-			OBCTrapdoor(OBCPhys& mCPhys, OBCDraw& mCDraw) noexcept : OBCActorBase{mCPhys, mCDraw} { }
+			OBCTrapdoor(OBCPhys& mCPhys, OBCDraw& mCDraw, bool mPlayerOnly) noexcept : OBCActorBase{mCPhys, mCDraw}, playerOnly{mPlayerOnly} { }
 
 			inline void init() override
 			{
@@ -28,7 +28,10 @@ namespace ob
 				body.addGroupsToCheck(OBGroup::GFriendly, OBGroup::GEnemy);
 
 				body.onPreUpdate += [this]{ weighted = false; };
-				body.onDetection += [this](const DetectionInfo& mDI){ if(mDI.body.hasAnyGroup(OBGroup::GFriendly | OBGroup::GEnemy)) weighted = true; };
+				body.onDetection += [this](const DetectionInfo& mDI)
+				{
+					if((!playerOnly && mDI.body.hasGroup(OBGroup::GEnemy)) || mDI.body.hasGroup(OBGroup::GFriendly)) weighted = true;
+				};
 			}
 			inline void update(float mFT) override
 			{

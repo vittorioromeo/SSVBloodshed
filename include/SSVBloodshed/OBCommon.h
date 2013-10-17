@@ -118,7 +118,8 @@ namespace ob
 		LETTrapdoor,
 		LETDoorR,
 		LETExplosiveCrate,
-		LETVMHealth
+		LETVMHealth,
+		LETTrapdoorPOnly
 	};
 
 	// Direction utils

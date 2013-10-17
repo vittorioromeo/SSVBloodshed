@@ -44,7 +44,7 @@ namespace ob
 
 			Entity& createFloor(const Vec2i& mPos, bool mGrate = false);
 			Entity& createPit(const Vec2i& mPos);
-			Entity& createTrapdoor(const Vec2i& mPos);
+			Entity& createTrapdoor(const Vec2i& mPos, bool mPlayerOnly);
 			Entity& createWall(const Vec2i& mPos, const sf::IntRect& mIntRect);
 			Entity& createWallDestructible(const Vec2i& mPos, const sf::IntRect& mIntRect);
 			Entity& createDoor(const Vec2i& mPos, const sf::IntRect& mIntRect, int mId, bool mOpen);

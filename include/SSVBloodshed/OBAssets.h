@@ -36,7 +36,7 @@ namespace ob
 			sf::IntRect e1UAStand, 		e1AStand,		e1AShoot,		e1AGun;				// Runner alien
 			sf::IntRect floor,			floorAlt1,		floorAlt2;							// Floor
 			sf::IntRect floorGrate,		floorGrateAlt1,	floorGrateAlt2;						// Floor grate
-			sf::IntRect pit,			trapdoor;											// Pit and trapdoor
+			sf::IntRect pit,			trapdoor,		trapdoorPOnly;						// Pit and trapdoor
 			sf::IntRect pjBullet,		pjPlasma,		pjStar,			pjBulletPlasma;		// Projectiles
 			sf::IntRect pjStarPlasma,	pjCannonPlasma;										// Projectiles
 			sf::IntRect eBall,			eBallFlying;										// Ball enemy
@@ -114,7 +114,7 @@ namespace ob
 				T_TSSMALL(e1UAStand); 		T_TSSMALL(e1AStand);		T_TSSMALL(e1AShoot);		T_TSSMALL(e1AGun);
 				T_TSSMALL(floor);			T_TSSMALL(floorAlt1);		T_TSSMALL(floorAlt2);
 				T_TSSMALL(floorGrate);		T_TSSMALL(floorGrateAlt1);	T_TSSMALL(floorGrateAlt2);
-				T_TSSMALL(pit);				T_TSSMALL(trapdoor);
+				T_TSSMALL(pit);				T_TSSMALL(trapdoor);		T_TSSMALL(trapdoorPOnly);
 				T_TSSMALL(pjBullet);		T_TSSMALL(pjPlasma);		T_TSSMALL(pjStar);			T_TSSMALL(pjBulletPlasma);
 				T_TSSMALL(pjStarPlasma);	T_TSSMALL(pjCannonPlasma);
 				T_TSSMALL(eBall);			T_TSSMALL(eBallFlying);

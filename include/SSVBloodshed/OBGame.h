@@ -233,8 +233,7 @@ namespace ob
 // TODO: decouple weapon sprite from enemy sprite, explosives, enemy orientation, organic group?, do not pierce breakable wall etc
 // TODO: tripwires, laserwires, powerups, classes, weapon sets, etc
 // TODO: bullet knockback? replicators? spawners?
-// TODO: major group/facotry refactoring!
-// TODO: explosive crates id, fuses, ammunition
+// TODO: major group/facotry refactoring!, fuses, ammunition
 // TODO: big enforcer variant that shoots a plasma cannon ball that splits in other plasma cannon balls
 
 #endif
