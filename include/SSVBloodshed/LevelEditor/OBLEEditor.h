@@ -116,15 +116,15 @@ namespace ob
 				int idx{0};
 				for(auto& p : t.getParams())
 				{
-					if(ssvu::getSIMod(currentParamIdx, static_cast<int>(t.getParams().size())) == idx++)
+					if(ssvu::getWrapIdx(currentParamIdx, static_cast<int>(t.getParams().size())) == idx++)
 					{
 						if(ssvuj::is<int>(p.second)) p.second = ssvuj::as<int>(p.second) + mDir;
 						else if(ssvuj::is<float>(p.second)) p.second = ssvuj::as<float>(p.second) + float(mDir);
 					}
 				}
 			}
-			inline void cycleBrush(int mDir)				{ brush.idx = ssvu::getSIMod(brush.idx + mDir, database.getSize()); }
-			inline void cycleZ(int mDir)					{ currentZ = -ssvu::getSIMod(-currentZ + mDir, 3); }
+			inline void cycleBrush(int mDir)				{ brush.idx = ssvu::getWrapIdx(brush.idx + mDir, database.getSize()); }
+			inline void cycleZ(int mDir)					{ currentZ = -ssvu::getWrapIdx(-currentZ + mDir, 3); }
 			inline void cycleBrushSize(int mDir)			{ brush.size = ssvu::getClamped(brush.size + mDir, 1, 20); }
 			inline void cycleLevel(int mDirX, int mDirY)	{ currentLevelX += mDirX; currentLevelY += mDirY; refreshCurrentLevel(); refreshCurrentTiles(); }
 
@@ -144,7 +144,7 @@ namespace ob
 				int idx{0};
 				for(const auto& p : t.getParams())
 				{
-					bool cp{ssvu::getSIMod(currentParamIdx, static_cast<int>(t.getParams().size())) == idx++};
+					bool cp{ssvu::getWrapIdx(currentParamIdx, static_cast<int>(t.getParams().size())) == idx++};
 					if(cp) str += " >";
 					str += p.first + "(" + ssvu::getReplacedAll(ssvu::toStr(p.second), "\n", "") + ")";
 					if(cp) str += "< ";
@@ -182,11 +182,11 @@ namespace ob
 				{
 					for(int i{-1}; i < 3; ++i)
 					{
-						auto& e(database.get(OBLETType(ssvu::getSIMod(brush.idx + i, database.getSize()))));
+						auto& e(database.get(OBLETType(ssvu::getWrapIdx(brush.idx + i, database.getSize()))));
 						sf::Sprite s{*e.texture, e.intRect};
 						Vec2f origin{s.getTextureRect().width / 2.f, s.getTextureRect().height / 2.f};
 						s.setScale(10.f / s.getTextureRect().width, 10.f / s.getTextureRect().height);
-						s.setOrigin(origin); s.setPosition(15 + origin.x + (12 * i), 240 - 15 + origin.y);
+						s.setOrigin(origin); s.setPosition(20 + (12 * i), 230);
 						if(e.defaultParams.count("rot") > 0) s.setRotation(currentRot);
 						render(s);
 

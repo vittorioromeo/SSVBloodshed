@@ -43,7 +43,7 @@ namespace ob
 			int currentWpn{0}, currentShards{0}, shards{0};
 			std::vector<OBWpnType> weaponTypes{OBWpnTypes::createMachineGun(), OBWpnTypes::createPlasmaBolter(), OBWpnTypes::createPlasmaCannon()};
 
-			inline void cycleWeapons(int mDir) noexcept { currentWpn += mDir; cWpnController.setWpn(weaponTypes[ssvu::getSIMod(currentWpn, weaponTypes.size())]); }
+			inline void cycleWeapons(int mDir) noexcept { currentWpn += mDir; cWpnController.setWpn(ssvu::getByWrapIdx(weaponTypes, currentWpn)); }
 			inline void useVM();
 
 		public:
