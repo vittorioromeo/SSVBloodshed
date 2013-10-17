@@ -37,7 +37,7 @@ namespace ob
 			int currentLevelX{0}, currentLevelY{0};
 
 			std::vector<OBLETile*> currentTiles;
-			int brushIdx{0}, brushSize{1}, currentX{0}, currentY{0}, currentZ{0}, currentRot{0}, currentId{-1}, currentParamIdx{0};
+			int brushIdx{0}, brushSize{1}, currentBrushLeft{0}, currentBrushTop{0}, currentBrushX{0}, currentBrushY{0}, currentZ{0}, currentRot{0}, currentId{-1}, currentParamIdx{0};
 			OBGame* game{nullptr};
 			ssvs::BitmapText paramsText{*assets.obStroked};
 			std::pair<OBLETType, std::map<std::string, ssvuj::Obj>> copiedParams{OBLETType::LETFloor, {}};
@@ -62,9 +62,14 @@ namespace ob
 
 			inline void updateXY()
 			{
+				const auto& fColumns(static_cast<float>(currentLevel->getColumns()));
+				const auto& fRows(static_cast<float>(currentLevel->getRows()));
 				const auto& tileVec((gameCamera.getMousePosition() + Vec2f(10, 10)) / 10.f);
-				currentX = ssvu::getClamped(tileVec.x - brushSize / 2.f, 0.f, static_cast<float>(currentLevel->getColumns() - brushSize));
-				currentY = ssvu::getClamped(tileVec.y - brushSize / 2.f, 0.f, static_cast<float>(currentLevel->getRows() - brushSize));
+
+				currentBrushLeft =	ssvu::getClamped(tileVec.x - brushSize / 2.f, 0.f, fColumns - brushSize);
+				currentBrushTop =	ssvu::getClamped(tileVec.y - brushSize / 2.f, 0.f, fRows - brushSize);
+				currentBrushX =		ssvu::getClamped(tileVec.x - 1 / 2.f, 0.f, fColumns - 1);
+				currentBrushY =		ssvu::getClamped(tileVec.y - 1 / 2.f, 0.f, fRows - 1);
 			}
 			inline void grabTiles()
 			{
@@ -72,15 +77,17 @@ namespace ob
 
 				for(int iY{0}; iY < brushSize; ++iY)
 					for(int iX{0}; iX < brushSize; ++iX)
-						if(currentLevel->isValid(currentX + iX, currentY + iY, currentZ))
-							currentTiles.push_back(&currentLevel->getTile(currentX + iX, currentY + iY, currentZ));
+						if(currentLevel->isValid(currentBrushLeft + iX, currentBrushTop + iY, currentZ))
+							currentTiles.push_back(&currentLevel->getTile(currentBrushLeft + iX, currentBrushTop + iY, currentZ));
 			}
+
+			inline OBLETile& getPickTile() const noexcept { return currentLevel->getTile(currentBrushX, currentBrushY, currentZ); }
 
 			inline void paint()	{ for(auto& t : currentTiles) { t->initFromEntry(getCurrentEntry()); t->setRot(currentRot); t->setId(assets, currentId); } }
 			inline void del()	{ for(auto& t : currentTiles) { currentLevel->del(*t); } }
-			inline void pick()	{ for(auto& t : currentTiles) { brushIdx = int(t->getType()); return; } }
+			inline void pick()	{ auto& t(getPickTile()); brushIdx = int(t.getType()); }
 
-			inline void copyParams()	{ for(auto& t : currentTiles) { copiedParams = std::make_pair(t->getType(), t->getParams()); return; } }
+			inline void copyParams()	{ auto& t(getPickTile()); copiedParams = std::make_pair(t.getType(), t.getParams()); }
 			inline void pasteParams()	{ for(auto& t : currentTiles) { if(t->getType() == copiedParams.first) t->setParams(copiedParams.second); } }
 
 			inline void cycleRot(int mDeg)			{ currentRot = ssvu::wrapDeg(currentRot + mDeg); }
@@ -88,18 +95,16 @@ namespace ob
 			inline void cycleParam(int mDir)		{ currentParamIdx += mDir; }
 			inline void cycleCurrentParam(int mDir)
 			{
-				for(auto& t : currentTiles)
+				auto& t(getPickTile());
+
+				int idx{0};
+				for(auto& p : t.getParams())
 				{
-					int idx{0};
-					for(auto& p : t->getParams())
+					if(ssvu::getSIMod(currentParamIdx, static_cast<int>(t.getParams().size())) == idx++)
 					{
-						if(ssvu::getSIMod(currentParamIdx, static_cast<int>(t->getParams().size())) == idx++)
-						{
-							if(ssvuj::is<int>(p.second)) p.second = ssvuj::as<int>(p.second) + mDir;
-							else if(ssvuj::is<float>(p.second)) p.second = ssvuj::as<float>(p.second) + float(mDir);
-						}
+						if(ssvuj::is<int>(p.second)) p.second = ssvuj::as<int>(p.second) + mDir;
+						else if(ssvuj::is<float>(p.second)) p.second = ssvuj::as<float>(p.second) + float(mDir);
 					}
-					return;
 				}
 			}
 			inline void cycleBrush(int mDir)				{ brushIdx = ssvu::getSIMod(brushIdx + mDir, database.getSize()); }
@@ -117,23 +122,20 @@ namespace ob
 
 			inline void updateParamsText()
 			{
-				for(auto& t : currentTiles)
+				auto& t(getPickTile());
+				std::string str;
+
+				int idx{0};
+				for(const auto& p : t.getParams())
 				{
-					std::string str;
-
-					int idx{0};
-					for(const auto& p : t->getParams())
-					{
-						bool cp{ssvu::getSIMod(currentParamIdx, static_cast<int>(t->getParams().size())) == idx++};
-						if(cp) str += " >";
-						str += p.first + "(" + ssvu::getReplacedAll(ssvu::toStr(p.second), "\n", "") + ")";
-						if(cp) str += "< ";
-					}
-
-					paramsText.setString(str);
-					paramsText.setScale(t->getParams().size() < 3 ? Vec2f(0.8f, 0.8f) : Vec2f(0.65f, 0.65f));
-					break;
+					bool cp{ssvu::getSIMod(currentParamIdx, static_cast<int>(t.getParams().size())) == idx++};
+					if(cp) str += " >";
+					str += p.first + "(" + ssvu::getReplacedAll(ssvu::toStr(p.second), "\n", "") + ")";
+					if(cp) str += "< ";
 				}
+
+				paramsText.setString(str);
+				paramsText.setScale(t.getParams().size() < 3 ? Vec2f(0.8f, 0.8f) : Vec2f(0.65f, 0.65f));
 			}
 
 			inline void update(float mFT)
@@ -157,22 +159,17 @@ namespace ob
 						hr.setFillColor({255, 0, 0, 125});
 						hr.setOutlineColor({255, 255, 0, 125});
 						hr.setOutlineThickness(0.5f);
-						hr.setPosition(currentX * 10.f, currentY * 10.f);
+						hr.setPosition(currentBrushLeft * 10.f, currentBrushTop * 10.f);
 						hr.setOrigin(5.f, 5.f);
 						render(hr);
 					}
 
-					// TODO: pick tile with this one
 					{
-						const auto& tileVec((gameCamera.getMousePosition() + Vec2f(10, 10)) / 10.f);
-						int currentX = ssvu::getClamped(tileVec.x - 1 / 2.f, 0.f, static_cast<float>(currentLevel->getColumns() - 1));
-						int currentY = ssvu::getClamped(tileVec.y - 1 / 2.f, 0.f, static_cast<float>(currentLevel->getRows() - 1));
-
 						sf::RectangleShape hr({10.f, 10.f});
 						hr.setFillColor({0, 0, 0, 0});
 						hr.setOutlineColor({255, 255, 0, 125});
 						hr.setOutlineThickness(0.65f);
-						hr.setPosition(currentX * 10.f, currentY * 10.f);
+						hr.setPosition(currentBrushX * 10.f, currentBrushY * 10.f);
 						hr.setOrigin(5.f, 5.f);
 						render(hr);
 					}
