@@ -21,7 +21,7 @@ namespace ob
 				smashed = true;
 				cDraw[0].setTextureRect(assets.getFloorGrateVariant());
 				getEntity().setDrawPriority(OBLayer::LFloorGrate);
-				body.delGroup(OBGroup::GFloor); // TODO: if I uncomment this giant collides with floor - why?
+				//body.delGroup(OBGroup::GFloor); // TODO: if I uncomment this giant collides with floor - why?
 			}
 
 		public:

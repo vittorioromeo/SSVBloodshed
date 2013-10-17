@@ -57,6 +57,11 @@ namespace ob
 			OBLELevel* currentLevel{nullptr};
 			int currentLevelX{0}, currentLevelY{0};
 
+			template<typename T, typename... TArgs> inline void createParticles(const T& mFunc, OBParticleSystem& mPS, unsigned int mCount, const Vec2f& mPos, TArgs&&... mArgs)
+			{
+				for(auto i(0u); i < mCount; ++i) mFunc(mPS, mPos, std::forward<TArgs>(mArgs)...);
+			}
+
 		public:
 			ssvu::Delegate<void()> onPostUpdate;
 
@@ -210,22 +215,22 @@ namespace ob
 
 			inline void createPBlood(unsigned int mCount, const Vec2f& mPos, float mMult = 1.f)
 			{
-				for(auto i(0u); i < mCount; ++i) ob::createPBlood(particles.getPSPerm(), mPos, mMult);
-				for(auto i(0u); i < mCount / 2; ++i) ob::createPGib(particles.getPSTemp(), mPos);
+				createParticles(ob::createPBlood, particles.getPSPerm(), mCount, mPos, mMult);
+				createParticles(ob::createPGib, particles.getPSTemp(), mCount / 2, mPos);
 			}
-			inline void createPGib(unsigned int mCount, const Vec2f& mPos)						{ for(auto i(0u); i < mCount; ++i) ob::createPGib(particles.getPSTemp(), mPos); }
-			inline void createPDebris(unsigned int mCount, const Vec2f& mPos)					{ for(auto i(0u); i < mCount; ++i) ob::createPDebris(particles.getPSTemp(), mPos); }
-			inline void createPDebrisFloor(unsigned int mCount, const Vec2f& mPos)				{ for(auto i(0u); i < mCount; ++i) ob::createPDebrisFloor(particles.getPSTemp(), mPos); }
-			inline void createPMuzzle(unsigned int mCount, const Vec2f& mPos)					{ for(auto i(0u); i < mCount; ++i) ob::createPMuzzle(particles.getPSTempAdd(), mPos); }
-			inline void createPPlasma(unsigned int mCount, const Vec2f& mPos)					{ for(auto i(0u); i < mCount; ++i) ob::createPPlasma(particles.getPSTempAdd(), mPos); }
-			inline void createPSmoke(unsigned int mCount, const Vec2f& mPos)					{ for(auto i(0u); i < mCount; ++i) ob::createPSmoke(particles.getPSTemp(), mPos); }
-			inline void createPElectric(unsigned int mCount, const Vec2f& mPos)					{ for(auto i(0u); i < mCount; ++i) ob::createPElectric(particles.getPSTempAdd(), mPos); }
-			inline void createPCharge(unsigned int mCount, const Vec2f& mPos, float mDist)		{ for(auto i(0u); i < mCount; ++i) ob::createPCharge(particles.getPSTempAdd(), mPos, mDist); }
-			inline void createPShard(unsigned int mCount, const Vec2f& mPos)					{ for(auto i(0u); i < mCount; ++i) ob::createPShard(particles.getPSTempAdd(), mPos); }
-			inline void createPExplosion(unsigned int mCount, const Vec2f& mPos)				{ for(auto i(0u); i < mCount; ++i) ob::createPExplosion(particles.getPSTempAdd(), mPos); }
-			inline void createPHeal(unsigned int mCount, const Vec2f& mPos)						{ for(auto i(0u); i < mCount; ++i) ob::createPHeal(particles.getPSTempAdd(), mPos); }
+			inline void createPGib(unsigned int mCount, const Vec2f& mPos)					{ createParticles(ob::createPGib,			particles.getPSTemp(),		mCount, mPos); }
+			inline void createPDebris(unsigned int mCount, const Vec2f& mPos)				{ createParticles(ob::createPDebris,		particles.getPSTemp(),		mCount, mPos); }
+			inline void createPDebrisFloor(unsigned int mCount, const Vec2f& mPos)			{ createParticles(ob::createPDebrisFloor,	particles.getPSTemp(),		mCount, mPos); }
+			inline void createPMuzzle(unsigned int mCount, const Vec2f& mPos)				{ createParticles(ob::createPMuzzle,		particles.getPSTempAdd(),	mCount, mPos); }
+			inline void createPPlasma(unsigned int mCount, const Vec2f& mPos)				{ createParticles(ob::createPPlasma,		particles.getPSTempAdd(),	mCount, mPos); }
+			inline void createPSmoke(unsigned int mCount, const Vec2f& mPos)				{ createParticles(ob::createPSmoke,			particles.getPSTemp(),		mCount, mPos); }
+			inline void createPElectric(unsigned int mCount, const Vec2f& mPos)				{ createParticles(ob::createPElectric,		particles.getPSTempAdd(),	mCount, mPos); }
+			inline void createPCharge(unsigned int mCount, const Vec2f& mPos, float mDist)	{ createParticles(ob::createPCharge,		particles.getPSTempAdd(),	mCount, mPos, mDist); }
+			inline void createPShard(unsigned int mCount, const Vec2f& mPos)				{ createParticles(ob::createPShard,			particles.getPSTempAdd(),	mCount, mPos); }
+			inline void createPExplosion(unsigned int mCount, const Vec2f& mPos)			{ createParticles(ob::createPExplosion,		particles.getPSTempAdd(),	mCount, mPos); }
+			inline void createPHeal(unsigned int mCount, const Vec2f& mPos)					{ createParticles(ob::createPHeal,			particles.getPSTempAdd(),	mCount, mPos); }
 
-			inline void createEShard(unsigned int mCount, const Vec2i& mPos)					{ for(auto i(0u); i < mCount; ++i) factory.createShard(mPos); }
+			inline void createEShard(unsigned int mCount, const Vec2i& mPos) { for(auto i(0u); i < mCount; ++i) factory.createShard(mPos); }
 	};
 }
 
