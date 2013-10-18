@@ -13,18 +13,6 @@
 
 namespace ssvces
 {
-	class EntityStorage
-	{
-		friend class Manager;
-
-		private:
-			std::vector<Entity*> toAdd;
-			std::vector<Uptr<Entity>> alive;
-			std::array<std::vector<Entity*>, maxGroups> grouped;
-
-			inline Entity* create(Manager& mManager, IdPool& mIdPool) { auto entity(new Entity{mManager, mIdPool.getAvailable()}); toAdd.push_back(entity); return entity; }
-	};
-
 	class Manager
 	{
 		friend class Entity;
@@ -33,54 +21,48 @@ namespace ssvces
 		private:
 			IdPool entityIdPool;
 			std::vector<SystemBase*> systems;
-			EntityStorage entities;
+			std::vector<Uptr<Entity>> entities;
+			std::array<std::vector<Entity*>, maxGroups> grouped;
 
-			inline void addToGroup(Entity* mEntity, Group mGroup) { assert(mGroup <= maxGroups); entities.grouped[mGroup].push_back(mEntity); }
+			inline Entity* create(Manager& mManager, IdPool& mIdPool) { auto entity(new Entity{mManager, mIdPool.getAvailable()}); entities.emplace_back(entity); return entity; }
+
+			inline void addToGroup(Entity* mEntity, Group mGroup) { assert(mGroup <= maxGroups); grouped[mGroup].push_back(mEntity); }
 
 		public:
 			inline void refresh()
 			{
 				for(auto& s : systems) s->refresh();
 
-				for(auto i(0u); i < maxGroups; ++i) ssvu::eraseRemoveIf(entities.grouped[i], [i](const Entity* mEntity){ return mEntity->mustDestroy || !mEntity->hasGroup(i); });
+				for(auto i(0u); i < maxGroups; ++i) ssvu::eraseRemoveIf(grouped[i], [i](const Entity* mEntity){ return mEntity->mustDestroy || !mEntity->hasGroup(i); });
 
-				auto first(std::begin(entities.alive)), last(std::end(entities.alive)), result(first);
-				for(; first != last; ++first)
+				auto itr(std::begin(entities)), last(std::end(entities)), result(itr);
+				for(; itr != last; ++itr)
 				{
-					auto& e(**first);
-					if(e.mustDestroy) continue;
+					auto& e(**itr);
 
+					if(e.mustDestroy) continue;
 					if(e.mustRematch)
 					{
 						for(auto& s : systems) if(matchesSystem(e.typeIds, *s)) s->registerEntity(e);
 						e.mustRematch = false;
 					}
 
-					*result++ = std::move(*first);
+					*result++ = std::move(*itr);
 				}
-				entities.alive.erase(result, last);
-
-				for(auto& e : entities.toAdd)
-				{
-					for(auto& s : systems) if(matchesSystem(e->typeIds, *s)) s->registerEntity(*e);
-					e->mustRematch = false;
-					entities.alive.emplace_back(e);
-				}
-
-				entities.toAdd.clear();
+				entities.erase(result, last);
 			}
 
-			inline EntityHandle createEntity() { return {*entities.create(*this, entityIdPool)}; }
+			inline EntityHandle createEntity() { return {*create(*this, entityIdPool)}; }
 			template<typename T> inline void registerSystem(T& mSystem)
 			{
 				static_assert(std::is_base_of<SystemBase, T>::value, "Type must derive from SystemBase");
 				systems.push_back(&mSystem);
 			}
 
-			inline const decltype(entities.alive)& getEntities() const noexcept			{ return entities.alive; }
-			inline decltype(entities.alive)& getEntities() noexcept						{ return entities.alive; }
-			inline const std::vector<Entity*>& getEntities(Group mGroup) const noexcept { assert(mGroup <= maxGroups); return entities.grouped[mGroup]; }
-			inline std::vector<Entity*>& getEntities(Group mGroup) noexcept				{ assert(mGroup <= maxGroups); return entities.grouped[mGroup]; }
+			inline const decltype(entities)& getEntities() const noexcept				{ return entities; }
+			inline decltype(entities)& getEntities() noexcept							{ return entities; }
+			inline const std::vector<Entity*>& getEntities(Group mGroup) const noexcept { assert(mGroup <= maxGroups); return grouped[mGroup]; }
+			inline std::vector<Entity*>& getEntities(Group mGroup) noexcept				{ assert(mGroup <= maxGroups); return grouped[mGroup]; }
 			inline std::vector<EntityHandle> getEntityHandles(Group mGroup) noexcept
 			{
 				std::vector<EntityHandle> result;
@@ -89,7 +71,7 @@ namespace ssvces
 			}
 
 			inline bool hasEntity(Group mGroup) const noexcept				{ return !getEntities(mGroup).empty(); }
-			inline std::size_t getEntityCount() const noexcept				{ return entities.alive.size(); }
+			inline std::size_t getEntityCount() const noexcept				{ return entities.size(); }
 			inline std::size_t getEntityCount(Group mGroup) const noexcept	{ return getEntities(mGroup).size(); }
 
 			// Have a manager.componentCount too?

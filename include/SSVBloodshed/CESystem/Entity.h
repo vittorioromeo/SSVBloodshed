@@ -25,7 +25,7 @@ namespace ssvces
 			Manager& manager;
 			std::array<Uptr<Component>, maxComponents> components;
 			TypeIdsBitset typeIds;
-			bool mustDestroy{false}, mustRematch{false};
+			bool mustDestroy{false}, mustRematch{true};
 			GroupBitset groups;
 			EntityStat stat;
 			std::size_t componentCount{0};
