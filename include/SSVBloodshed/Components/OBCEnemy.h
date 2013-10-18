@@ -34,7 +34,7 @@ namespace ob
 				cKillable.getCHealth().setCooldown(0.5f);
 
 				body.addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir, OBGroup::GEnemy, OBGroup::GKillable, OBGroup::GEnemyKillable, OBGroup::GOrganic);
-				body.addGroupToCheck(OBGroup::GSolidGround);
+				body.addGroupsToCheck(OBGroup::GSolidGround, OBGroup::GLevelBound);
 				body.setRestitutionX(1.f);
 				body.setRestitutionY(1.f);
 

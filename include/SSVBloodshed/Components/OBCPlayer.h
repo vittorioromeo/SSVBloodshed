@@ -59,7 +59,7 @@ namespace ob
 
 				getEntity().addGroups(OBGroup::GFriendly, OBGroup::GFriendlyKillable, OBGroup::GPlayer);
 				body.addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir, OBGroup::GFriendly, OBGroup::GKillable, OBGroup::GFriendlyKillable, OBGroup::GOrganic, OBGroup::GPlayer);
-				body.addGroupToCheck(OBGroup::GSolidGround);
+				body.addGroupsToCheck(OBGroup::GSolidGround);
 				body.onResolution += [this](const ResolutionInfo& mRI){ if(mRI.body.hasGroup(OBGroup::GLevelBound)) checkTransitions(); };
 			}
 
@@ -100,7 +100,7 @@ namespace ob
 					for(auto& e : getManager().getEntities(OBGroup::GShard))
 					{
 						auto& c(e->getComponent<OBCPhys>());
-						c.getBody().addGroupNoResolve(OBGroup::GSolidGround);
+						c.getBody().addGroupsNoResolve(OBGroup::GSolidGround);
 						if(ssvs::getDistEuclidean(c.getPosI(), cPhys.getPosI()) > 6500)
 						{
 							if(ssvs::getMagnitude(c.getVel()) < 650.f) c.getBody().applyForce(Vec2f(cPhys.getPosI() - c.getPosI()) * 0.002f);

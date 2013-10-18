@@ -19,7 +19,7 @@ namespace ob
 			ssvu::Delegate<void(OBIdAction)> onActivate;
 
 			inline OBCIdReceiver(int mId) : id{mId} { }
-			inline void init() override { getEntity().addGroup(OBGroup::GIdReceiver); }
+			inline void init() override { getEntity().addGroups(OBGroup::GIdReceiver); }
 
 			inline void activate(OBIdAction mAction) { if(id != -1) onActivate(mAction); }
 

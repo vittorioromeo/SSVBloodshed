@@ -24,7 +24,7 @@ namespace ob
 			inline void init() override
 			{
 				setActive(active);
-				body.addGroupNoResolve(OBGroup::GFloor);
+				body.addGroupsNoResolve(OBGroup::GFloor);
 				body.onDetection += [this](const DetectionInfo& mDI)
 				{
 					if(active && mDI.body.hasGroup(OBGroup::GFloor) && ssvu::getRnd(0, 10) > 8) getEntityFromBody(mDI.body).getComponent<OBCFloor>().smash();
@@ -34,8 +34,8 @@ namespace ob
 			inline void setActive(bool mValue) noexcept
 			{
 				active = mValue;
-				if(mValue) body.addGroupToCheck(OBGroup::GFloor);
-				else body.delGroupToCheck(OBGroup::GFloor);
+				if(mValue) body.addGroupsToCheck(OBGroup::GFloor);
+				else body.delGroupsToCheck(OBGroup::GFloor);
 			}
 			inline bool isActive() const noexcept { return active; }
 	};
