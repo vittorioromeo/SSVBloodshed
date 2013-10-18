@@ -68,7 +68,8 @@ namespace ob
 		GLevelBound,
 		GPit,
 		GKillable,
-		GEnvDestructible
+		GEnvDestructible,
+		GFlying
 	};
 	enum OBLayer : int
 	{
