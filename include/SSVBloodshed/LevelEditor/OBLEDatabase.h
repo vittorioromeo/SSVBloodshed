@@ -67,8 +67,6 @@ namespace ob
 				add(OBLETType::LETBall,				a.txSmall,		a.eBall,				{},							[this](TLevel&, TTile&, const Vec2i& mP){ f->createEBall(mP, false, false); });
 				add(OBLETType::LETBallFlying,		a.txSmall,		a.eBallFlying,			{},							[this](TLevel&, TTile&, const Vec2i& mP){ f->createEBall(mP, true, false); });
 				add(OBLETType::LETEnforcer,			a.txMedium,		a.e5UAStand,			{{"rot", 0}},				[this](TLevel&, TTile&, const Vec2i& mP){ f->createEEnforcer(mP); });
-				add(OBLETType::LETPPlateSingle,		a.txSmall,		a.pPlateSingle,			{{"id", 0}, {"action", 0}},	[this](TLevel&, TTile& mT, const Vec2i& mP){ f->createPPlate(mP, getP<int>(mT, "id"), PPlateType::Single, OBIdAction(getP<int>(mT, "action"))); });
-				add(OBLETType::LETPPlateMulti,		a.txSmall,		a.pPlateMulti,			{{"id", 0}, {"action", 0}},	[this](TLevel&, TTile& mT, const Vec2i& mP){ f->createPPlate(mP, getP<int>(mT, "id"), PPlateType::Multi, OBIdAction(getP<int>(mT, "action"))); });
 				add(OBLETType::LETTrapdoor,			a.txSmall,		a.trapdoor,				{},							[this](TLevel&, TTile&, const Vec2i& mP){ f->createTrapdoor(mP, false); });
 				add(OBLETType::LETTrapdoorPOnly,	a.txSmall,		a.trapdoorPOnly,		{},							[this](TLevel&, TTile&, const Vec2i& mP){ f->createTrapdoor(mP, true); });
 				add(OBLETType::LETExplosiveCrate,	a.txSmall,		a.explosiveCrate,		{{"id", -1}},				[this](TLevel&, TTile& mT, const Vec2i& mP){ f->createFloor(mP, true); f->createExplosiveCrate(mP, getP<int>(mT, "id")); });
@@ -113,6 +111,18 @@ namespace ob
 				[this](TLevel&, TTile& mT, const Vec2i& mP)
 				{
 					f->createSpawner(mP, getP<int>(mT, "type"), getP<float>(mT, "delayStart"), getP<float>(mT, "delaySpawn"), getP<int>(mT, "spawnCount"));
+				});
+
+				add(OBLETType::LETPPlateSingle,		a.txSmall,		a.pPlateSingle,			{{"id", 0}, {"action", 0}, {"playerOnly", false}},
+				[this](TLevel&, TTile& mT, const Vec2i& mP)
+				{
+					f->createPPlate(mP, getP<int>(mT, "id"), PPlateType::Single, OBIdAction(getP<int>(mT, "action")), getP<bool>(mT, "playerOnly"));
+				});
+
+				add(OBLETType::LETPPlateMulti,		a.txSmall,		a.pPlateMulti,			{{"id", 0}, {"action", 0}, {"playerOnly", false}},
+				[this](TLevel&, TTile& mT, const Vec2i& mP)
+				{
+					f->createPPlate(mP, getP<int>(mT, "id"), PPlateType::Multi, OBIdAction(getP<int>(mT, "action")), getP<bool>(mT, "playerOnly"));
 				});
 			}
 

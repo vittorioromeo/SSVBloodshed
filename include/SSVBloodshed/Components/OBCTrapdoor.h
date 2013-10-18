@@ -8,30 +8,25 @@
 #include "SSVBloodshed/OBCommon.h"
 #include "SSVBloodshed/OBGame.h"
 #include "SSVBloodshed/Components/OBCActorBase.h"
+#include "SSVBloodshed/Components/OBWeightable.h"
 
 namespace ob
 {
-	class OBCTrapdoor : public OBCActorBase
+	class OBCTrapdoor : public OBCActorBase, public OBWeightable
 	{
 		private:
-			bool wasWeighted{false}, weighted{false}, falling{false}, playerOnly{false};
-			float fallTime{100.f};
+			static constexpr float fallTimeMax{70.f};
+			float fallTime{fallTimeMax};
+			bool falling{false};
 
 		public:
-			OBCTrapdoor(OBCPhys& mCPhys, OBCDraw& mCDraw, bool mPlayerOnly) noexcept : OBCActorBase{mCPhys, mCDraw}, playerOnly{mPlayerOnly} { }
+			OBCTrapdoor(OBCPhys& mCPhys, OBCDraw& mCDraw, bool mPlayerOnly) noexcept : OBCActorBase{mCPhys, mCDraw}, OBWeightable{mCPhys, mPlayerOnly} { }
 
 			inline void init() override
 			{
-				body.setResolve(false);
-				getEntity().addGroup(OBGroup::GTrapdoor);
-				body.addGroup(OBGroup::GTrapdoor);
-				body.addGroupsToCheck(OBGroup::GFriendly, OBGroup::GEnemy);
-
-				body.onPreUpdate += [this]{ weighted = false; };
-				body.onDetection += [this](const DetectionInfo& mDI)
-				{
-					if((!playerOnly && mDI.body.hasGroup(OBGroup::GEnemy)) || mDI.body.hasGroup(OBGroup::GFriendly)) weighted = true;
-				};
+				getEntity().addGroups(OBGroup::GTrapdoor);
+				body.addGroups(OBGroup::GTrapdoor);
+				OBWeightable::init();
 			}
 			inline void update(float mFT) override
 			{
@@ -39,18 +34,18 @@ namespace ob
 				{
 					fallTime -= mFT * 2.5f;
 					if(fallTime <= 0) getEntity().destroy();
-					cDraw.setGlobalScale(Vec2f(fallTime / 100.f, fallTime / 100.f));
+					cDraw.setGlobalScale(fallTime / fallTimeMax);
 					return;
 				}
 
-				if(wasWeighted && !weighted)
+				if(hasBeenUnweighted())
 				{
 					assets.playSound("Sounds/spark.wav");
 					getFactory().createPit(cPhys.getPosI());
 					falling = true;
 				}
 
-				wasWeighted = weighted;
+				OBWeightable::refresh();
 			}
 	};
 }

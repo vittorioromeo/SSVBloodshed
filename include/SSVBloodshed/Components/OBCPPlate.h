@@ -8,16 +8,17 @@
 #include "SSVBloodshed/OBCommon.h"
 #include "SSVBloodshed/OBGame.h"
 #include "SSVBloodshed/Components/OBCActorBase.h"
+#include "SSVBloodshed/Components/OBWeightable.h"
 
 namespace ob
 {
-	class OBCPPlate : public OBCActorBase
+	class OBCPPlate : public OBCActorBase, public OBWeightable
 	{
 		private:
 			int id;
 			PPlateType type;
 			OBIdAction idAction;
-			bool triggered{false}, wasWeighted{false}, weighted{false};
+			bool triggered{false};
 
 			inline void activate()
 			{
@@ -51,33 +52,27 @@ namespace ob
 			inline void unTrigger()	{ if(triggered) { triggered = false; triggerNeighbors(false); } }
 
 		public:
-			OBCPPlate(OBCPhys& mCPhys, OBCDraw& mCDraw, int mId, PPlateType mType, OBIdAction mIdAction) noexcept
-				: OBCActorBase{mCPhys, mCDraw}, id{mId}, type{mType}, idAction{mIdAction} { }
+			OBCPPlate(OBCPhys& mCPhys, OBCDraw& mCDraw, int mId, PPlateType mType, OBIdAction mIdAction, bool mPlayerOnly) noexcept
+				: OBCActorBase{mCPhys, mCDraw}, OBWeightable{mCPhys, mPlayerOnly}, id{mId}, type{mType}, idAction{mIdAction} { }
 
 			inline void init() override
 			{
 				if(type == PPlateType::Single) triggered = false;
-
-				body.setResolve(false);
-				body.addGroup(OBGroup::GPPlate);
-				body.addGroupsToCheck(OBGroup::GFriendly, OBGroup::GEnemy);
-
-				body.onPreUpdate += [this]{ weighted = false; };
-				body.onDetection += [this](const DetectionInfo& mDI){ if(mDI.body.hasAnyGroup(OBGroup::GFriendly | OBGroup::GEnemy)) weighted = true; };
+				OBWeightable::init();
 			}
 			inline void update(float) override
 			{
-				if(!wasWeighted && weighted && !triggered)
+				if(hasBeenWeighted() && !triggered)
 				{
 					if(type == PPlateType::Single || type == PPlateType::Multi) { trigger(); activate(); }
 				}
 
-				if(wasWeighted && !weighted)
+				if(hasBeenUnweighted())
 				{
 					if(type == PPlateType::Multi) unTrigger();
 				}
 
-				wasWeighted = weighted;
+				OBWeightable::refresh();
 			}
 			inline void draw() override { cDraw[0].setColor(triggered ? sf::Color(100, 100, 100, 255) : sf::Color::White); }
 
