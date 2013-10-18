@@ -51,6 +51,8 @@ namespace ob
 			inline void setFlippedY(bool mFlippedY)	noexcept			{ flippedY = mFlippedY; }
 			inline void setScaleWithBody(bool mScale) noexcept			{ scaleWithBody = mScale; }
 			inline void setGlobalOffset(const Vec2f& mOffset) noexcept	{ globalOffset = mOffset; }
+			inline void setGlobalScale(float mFactor) noexcept			{ globalScale.x = globalScale.y = mFactor; }
+			inline void setGlobalScale(float mX, float mY) noexcept		{ globalScale.x = mX; globalScale.y = mY; }
 			inline void setGlobalScale(const Vec2f& mScale) noexcept	{ globalScale = mScale; }
 			inline void setBlendMode(sf::BlendMode mMode) noexcept		{ blendMode = mMode; }
 
