@@ -12,5 +12,7 @@
 #include "SSVBloodshed/CESystem/Entity.h"
 #include "SSVBloodshed/CESystem/EntityHandle.h"
 #include "SSVBloodshed/CESystem/Manager.h"
+#include "SSVBloodshed/CESystem/Entity.inl"
+#include "SSVBloodshed/CESystem/EntityHandle.inl"
 
 #endif
