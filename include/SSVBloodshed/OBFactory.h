@@ -50,7 +50,7 @@ namespace ob
 			Entity& createDoor(const Vec2i& mPos, const sf::IntRect& mIntRect, int mId, bool mOpen);
 			Entity& createDoorG(const Vec2i& mPos, const sf::IntRect& mIntRect, bool mOpen);
 			Entity& createDoorR(const Vec2i& mPos, const sf::IntRect& mIntRect, bool mOpen);
-			Entity& createPPlate(const Vec2i& mPos, int mId, PPlateType mType, OBIdAction mIdAction);
+			Entity& createPPlate(const Vec2i& mPos, int mId, PPlateType mType, OBIdAction mIdAction, bool mPlayerOnly);
 			Entity& createPlayer(const Vec2i& mPos);
 			Entity& createExplosiveCrate(const Vec2i& mPos, int mId);
 			Entity& createShard(const Vec2i& mPos);
