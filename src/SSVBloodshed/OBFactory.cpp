@@ -151,10 +151,10 @@ namespace ob
 		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, mIntRect);
 		return getEntity(tpl);
 	}
-	Entity& OBFactory::createPPlate(const Vec2i& mPos, int mId, PPlateType mType, OBIdAction mIdAction)
+	Entity& OBFactory::createPPlate(const Vec2i& mPos, int mId, PPlateType mType, OBIdAction mIdAction, bool mPlayerOnly)
 	{
 		auto tpl(createActorBase(mPos, {1000, 1000}, OBLayer::LFloor));
-		getEntity(tpl).createComponent<OBCPPlate>(getCPhys(tpl), getCDraw(tpl), mId, mType, mIdAction);
+		getEntity(tpl).createComponent<OBCPPlate>(getCPhys(tpl), getCDraw(tpl), mId, mType, mIdAction, mPlayerOnly);
 		const auto& intRect(mType == PPlateType::Single ? assets.pPlateSingle : assets.pPlateMulti);
 		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, intRect);
 		return getEntity(tpl);
@@ -214,7 +214,7 @@ namespace ob
 		if(!mSmall && !mFlying) getEntity(tpl).createComponent<OBCFloorSmasher>(getCPhys(tpl)).setActive(true);
 		getEntity(tpl).createComponent<OBCEBall>(getCEnemy(tpl), mFlying, mSmall);
 		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, mFlying ? assets.eBallFlying : assets.eBall);
-		if(mSmall) getCDraw(tpl).setGlobalScale({0.7f, 0.7f});
+		if(mSmall) getCDraw(tpl).setGlobalScale(0.7f);
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createERunner(const Vec2i& mPos, bool mArmed)
