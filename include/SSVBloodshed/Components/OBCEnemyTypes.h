@@ -268,12 +268,13 @@ namespace ob
 
 				if(flying)
 				{
+					body.addGroups(OBGroup::GFlying);
 					body.onResolution += [this](const ResolutionInfo& mRI)
 					{
-						if(!mRI.body.hasAllGroups(OBGroup::GSolidAir | OBGroup::GSolidGround))
+						if(mRI.body.hasGroup(OBGroup::GSolidGround) && !mRI.body.hasGroup(OBGroup::GSolidAir))
 							mRI.noResolvePosition = mRI.noResolveVelocity = true;
 					};
-					body.addGroupToCheck(OBGroup::GSolidAir);
+					body.addGroupsToCheck(OBGroup::GSolidAir);
 				}
 			}
 			inline void update(float mFT) override
