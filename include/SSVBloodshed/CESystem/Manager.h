@@ -78,34 +78,6 @@ namespace ssvces
 			inline std::size_t getComponentCount() const noexcept			{ std::size_t result{0}; for(auto& e : getEntities()) result += e->componentCount; return result; }
 	};
 
-	// to .inl
-	template<typename T, typename... TArgs> inline void Entity::createComponent(TArgs&&... mArgs)
-	{
-		static_assert(std::is_base_of<Component, T>::value, "Type must derive from Component");
-		assert(!hasComponent<T>() && componentCount <= maxComponents);
-
-		components[getTypeIdBitIdx<T>()] = std::make_unique<T>(std::forward<TArgs>(mArgs)...);
-		typeIds[getTypeIdBitIdx<T>()] = true;
-		++componentCount;
-
-		mustRematch = true;
-	}
-	template<typename T> inline void Entity::removeComponent()
-	{
-		static_assert(std::is_base_of<Component, T>::value, "Type must derive from Component");
-		assert(hasComponent<T>() && componentCount > 0);
-
-		components[getTypeIdBitIdx<T>()].reset();
-		typeIds[getTypeIdBitIdx<T>()] = false;
-		--componentCount;
-
-		mustRematch = true;
-	}
-	inline void Entity::destroy() noexcept					{ mustDestroy = true; manager.entityIdPool.reclaim(stat); }
-	inline void Entity::addGroups(Group mGroup) noexcept	{ groups[mGroup] = true; manager.addToGroup(this, mGroup); }
-	inline void Entity::delGroups(Group mGroup) noexcept	{ groups[mGroup] = false; }
-	inline void Entity::clearGroups() noexcept				{ groups.reset(); }
-	inline bool EntityHandle::isAlive() const noexcept		{ return manager.entityIdPool.isAlive(stat); }
 	inline bool matchesSystem(const TypeIdsBitset& mTypeIds, const SystemBase& mSystem) noexcept
 	{
 		return (mTypeIds & mSystem.typeIdsNot).none() && containsAll(mTypeIds, mSystem.typeIdsReq);
