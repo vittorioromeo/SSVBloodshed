@@ -31,7 +31,7 @@ namespace ob
 
 			inline void init() override
 			{
-				body.addGroup(OBGroup::GProjectile);
+				body.addGroups(OBGroup::GProjectile);
 				body.addGroupsToCheck(OBGroup::GSolidGround, OBGroup::GSolidAir);
 				body.setResolve(false);
 				body.onDetection += [this](const DetectionInfo& mDI)

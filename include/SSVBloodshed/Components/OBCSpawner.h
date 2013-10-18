@@ -41,7 +41,7 @@ namespace ob
 			OBCSpawner(OBCPhys& mCPhys, OBCDraw& mCDraw, int mType, float mDelayStart, float mDelaySpawn, int mSpawnCount) noexcept :
 				OBCActorBase{mCPhys, mCDraw}, type{mType}, delayStart{mDelayStart}, delaySpawn{mDelaySpawn}, spawnCount{mSpawnCount} { delayStart.setLoop(false); }
 
-			inline void init() override { getEntity().addGroup(OBGroup::GEnemy); }
+			inline void init() override { getEntity().addGroups(OBGroup::GEnemy); }
 
 			inline void update(float mFT) override
 			{

@@ -18,8 +18,8 @@ namespace ob
 
 			inline void init() override
 			{
-				getEntity().addGroup(OBGroup::GShard);
-				body.addGroup(OBGroup::GShard);
+				getEntity().addGroups(OBGroup::GShard);
+				body.addGroups(OBGroup::GShard);
 				body.addGroupsToCheck(OBGroup::GSolidGround, OBGroup::GFriendly);
 				body.addGroupsNoResolve(OBGroup::GOrganic, OBGroup::GPit);
 				body.setRestitutionX(0.8f);
@@ -35,7 +35,7 @@ namespace ob
 
 				body.setVelocity(ssvs::getVecFromDeg(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(100.f, 370.f)));
 				cDraw.setBlendMode(sf::BlendMode::BlendAdd);
-				cDraw.setGlobalScale({0.65f, 0.65f});
+				cDraw.setGlobalScale(0.65f);
 				cDraw.setRotation(ssvu::getRnd(0, 360));
 			}
 
