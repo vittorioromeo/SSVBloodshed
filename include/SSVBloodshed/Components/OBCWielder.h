@@ -17,25 +17,40 @@ namespace ob
 		private:
 			OBCDir8& cDir8;
 			bool shooting{false};
-			float wieldDist{1000.f};
+			float holdDist{2.f}, wieldDist{8.f};
+			sf::IntRect rectStand, rectShoot;
 
 		public:
-			OBCWielder(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCDir8& mCDir8) noexcept : OBCActorBase{mCPhys, mCDraw}, cDir8(mCDir8) { }
+			OBCWielder(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCDir8& mCDir8, const sf::IntRect& mRectStand, const sf::IntRect& mRectShoot) noexcept
+				: OBCActorBase{mCPhys, mCDraw}, cDir8(mCDir8), rectStand{mRectStand}, rectShoot{mRectShoot} { }
 
 			inline void draw() override
 			{
-				if(!shooting) return;
-				cDraw[1].setRotation(cDir8.getDeg());
-				cDraw.getOffsets()[1] = cDir8.getVec(toPixels(wieldDist));
+				if(shooting)
+				{
+					cDraw[0].setTextureRect(rectShoot);
+					cDraw[1].setRotation(cDir8.getDeg() - 90);
+					cDraw.getOffsets()[1] = cDir8.getVec(wieldDist);
+				}
+				else
+				{
+					cDraw[0].setTextureRect(rectStand);
+					cDraw[1].setRotation(cDir8.getDeg());
+					cDraw.getOffsets()[1] = cDir8.getVec(holdDist);
+				}
 			}
 
-			inline void setShooting(bool mValue) noexcept		{ shooting = mValue; cDraw[1].setColor(sf::Color(255, 255, 255, shooting ? 255 : 0)); }
-			inline void setWieldDist(float mValue) noexcept		{ wieldDist = mValue; }
+			inline void setShooting(bool mValue) noexcept					{ shooting = mValue; }
+			inline void setHoldDist(float mValue) noexcept					{ holdDist = mValue; }
+			inline void setWieldDist(float mValue) noexcept					{ wieldDist = mValue; }
+			inline void setRectStand(const sf::IntRect& mRect) noexcept		{ rectStand = mRect; }
+			inline void setRectShoot(const sf::IntRect& mRect) noexcept		{ rectShoot = mRect; }
 
 			inline OBCDir8& getCDir8() const noexcept			{ return cDir8; }
 			inline bool isShooting() const noexcept				{ return shooting; }
-			inline Vec2i getShootingPos() const noexcept		{ return cPhys.getPosI() + Vec2i(cDir8.getVec(wieldDist)); }
+			inline Vec2i getShootingPos() const noexcept		{ return cPhys.getPosI() + Vec2i(cDir8.getVec(toCoords(wieldDist))); }
 	};
 }
 
 #endif
+

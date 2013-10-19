@@ -73,14 +73,10 @@ namespace ob
 				else cBoid.seek(ssvs::getOrbitFromDeg(cTargeter.getPosF(), cDir8.getDeg() + 180, mPursuitDist), 0.02f, 750.f);
 			}
 			inline void faceShootDir() { cDir8 = getDir8FromDeg(cEnemy.getCurrentDeg()); }
-			inline void recalculateTile(const sf::IntRect& mUnarmedStand, const sf::IntRect& mArmedStand, const sf::IntRect& mArmedShoot)
+			inline void recalculateTile()
 			{
-				if(armed)
-				{
-					cDraw[0].setRotation(cDir8.getDeg());
-					cDraw[0].setTextureRect(cWielder.isShooting() ? mArmedShoot : mArmedStand);
-				}
-				else cDraw[0].setTextureRect(mUnarmedStand);
+				if(armed) cDraw[0].setRotation(cDir8.getDeg());
+				else cDraw[1].setColor(sf::Color::Transparent);
 			}
 
 			inline void shootGun()
@@ -99,6 +95,8 @@ namespace ob
 				cWpnController.setWpn(OBWpnTypes::createEPlasmaBulletGun());
 				cEnemy.setMinBounceVel(125.f); cEnemy.setMaxVel(200.f);
 				cKillable.setType(OBCKillable::Type::Organic);
+				cWielder.setHoldDist(2.f);
+				cWielder.setWieldDist(8.f);
 			}
 			inline void update(float) override
 			{
@@ -119,7 +117,7 @@ namespace ob
 				}
 				else cWielder.setShooting(false);
 			}
-			inline void draw() override { recalculateTile(assets.e1UAStand, assets.e1AStand, assets.e1AShoot); }
+			inline void draw() override { recalculateTile(); }
 	};
 
 	class OBCECharger : public OBCEArmedBase
@@ -138,7 +136,8 @@ namespace ob
 			{
 				cWpnController.setWpn(OBWpnTypes::createEPlasmaBulletGun(1, 8.f));
 				cEnemy.setMinBounceVel(20.f); cEnemy.setMaxVel(50.f);
-				cWielder.setWieldDist(2000.f);
+				cWielder.setHoldDist(5.f);
+				cWielder.setWieldDist(16.f);
 				cKillable.setType(OBCKillable::Type::Organic);
 				cKillable.setParticleMult(2);
 
@@ -175,7 +174,7 @@ namespace ob
 				}
 				else cWielder.setShooting(false);
 			}
-			inline void draw() override { recalculateTile(assets.e2UAStand, assets.e2AStand, assets.e2AShoot); }
+			inline void draw() override { recalculateTile(); }
 	};
 
 	class OBCEJuggernaut : public OBCEArmedBase
@@ -197,7 +196,8 @@ namespace ob
 				cKillable.onDeath += [this]{ assets.playSound("Sounds/alienDeath.wav"); };
 				cKillable.setType(OBCKillable::Type::Organic);
 				cKillable.setParticleMult(2);
-				cWielder.setWieldDist(2800.f);
+				cWielder.setWieldDist(22.f);
+				cWielder.setHoldDist(6.f);
 
 				repeat(tlShoot, [this]{ shootUnarmed(ssvu::getRnd(-10, 10)); }, 8, 1.1f);
 				repeat(tlShoot, [this]{ game.createPCharge(4, cPhys.getPosPx(), 55); }, 15, 1.f);
@@ -229,7 +229,7 @@ namespace ob
 				}
 				else cWielder.setShooting(false);
 			}
-			inline void draw() override { recalculateTile(assets.e3UAStand, assets.e3AStand, assets.e3AShoot); }
+			inline void draw() override { recalculateTile(); }
 
 			inline void shootUnarmed(int mDeg)
 			{

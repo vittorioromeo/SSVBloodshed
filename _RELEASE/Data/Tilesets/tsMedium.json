@@ -3,8 +3,7 @@
 
 	"labels": 
 	[
-		["e2UAStand"],
-		["e2AStand", "e2AShoot", "e2AGun"],
-		["e5UAStand"]
+		["e2Stand", "e2Shoot", "e2Gun"],		
+		["e5Stand"]
 	]
 }

@@ -168,7 +168,7 @@ namespace ob
 		assert(mTimes > 0);
 		auto& action(mTimeline.append<ssvu::Do>(mAction));
 		mTimeline.append<ssvu::Wait>(mWait);
-		mTimeline.append<ssvu::Go>(action.getIdx(), mTimes - 1);
+		mTimeline.append<ssvu::Goto>(action, mTimes - 1);
 	}
 
 	// Other utils

@@ -163,12 +163,12 @@ namespace ob
 	Entity& OBFactory::createPlayer(const Vec2i& mPos)
 	{
 		auto tpl(createKillableBase(mPos, {650, 650}, OBLayer::LPlayer, 10));
-		auto& cDir8(getEntity(tpl).createComponent<OBCDir8>());
-		auto& cWielder(getEntity(tpl).createComponent<OBCWielder>(getCPhys(tpl), getCDraw(tpl), cDir8));
-		auto& cWpnController(getEntity(tpl).createComponent<OBCWpnController>(getCPhys(tpl), OBGroup::GEnemyKillable));
-		getEntity(tpl).createComponent<OBCPlayer>(getCPhys(tpl), getCDraw(tpl), getCKillable(tpl), cWielder, cWpnController);
 		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.p1Stand);
 		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.p1Gun);
+		auto& cDir8(getEntity(tpl).createComponent<OBCDir8>());
+		auto& cWielder(getEntity(tpl).createComponent<OBCWielder>(getCPhys(tpl), getCDraw(tpl), cDir8, assets.p1Stand, assets.p1Shoot));
+		auto& cWpnController(getEntity(tpl).createComponent<OBCWpnController>(getCPhys(tpl), OBGroup::GEnemyKillable));
+		getEntity(tpl).createComponent<OBCPlayer>(getCPhys(tpl), getCDraw(tpl), getCKillable(tpl), cWielder, cWpnController);
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createExplosiveCrate(const Vec2i& mPos, int mId)
@@ -225,11 +225,11 @@ namespace ob
 	{
 		auto tpl(createEnemyBase(mPos, {600, 600}, 4));
 		auto& cDir8(getEntity(tpl).createComponent<OBCDir8>());
-		auto& cWielder(getEntity(tpl).createComponent<OBCWielder>(getCPhys(tpl), getCDraw(tpl), cDir8));
+		auto& cWielder(getEntity(tpl).createComponent<OBCWielder>(getCPhys(tpl), getCDraw(tpl), cDir8, assets.e1Stand, assets.e1Shoot));
 		auto& cWpnController(getEntity(tpl).createComponent<OBCWpnController>(getCPhys(tpl), OBGroup::GFriendly));
 		getEntity(tpl).createComponent<OBCERunner>(getCEnemy(tpl), cWielder, cWpnController, mArmed);
-		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.e1AStand);
-		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.e1AGun);
+		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.e1Shoot);
+		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.e1Gun);
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createECharger(const Vec2i& mPos, bool mArmed)
@@ -237,22 +237,22 @@ namespace ob
 		auto tpl(createEnemyBase(mPos, {1100, 1100}, 18));
 		auto& cFloorSmasher(getEntity(tpl).createComponent<OBCFloorSmasher>(getCPhys(tpl)));
 		auto& cDir8(getEntity(tpl).createComponent<OBCDir8>());
-		auto& cWielder(getEntity(tpl).createComponent<OBCWielder>(getCPhys(tpl), getCDraw(tpl), cDir8));
+		auto& cWielder(getEntity(tpl).createComponent<OBCWielder>(getCPhys(tpl), getCDraw(tpl), cDir8, assets.e2Stand, assets.e2Shoot));
 		auto& cWpnController(getEntity(tpl).createComponent<OBCWpnController>(getCPhys(tpl), OBGroup::GFriendly));
 		getEntity(tpl).createComponent<OBCECharger>(getCEnemy(tpl), cFloorSmasher, cWielder, cWpnController, mArmed);
-		emplaceSpriteByTile(getCDraw(tpl), assets.txMedium, assets.e2AStand);
-		emplaceSpriteByTile(getCDraw(tpl), assets.txMedium, assets.e2AGun);
+		emplaceSpriteByTile(getCDraw(tpl), assets.txMedium, assets.e2Stand);
+		emplaceSpriteByTile(getCDraw(tpl), assets.txMedium, assets.e2Gun);
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createEJuggernaut(const Vec2i& mPos, bool mArmed)
 	{
 		auto tpl(createEnemyBase(mPos, {2100, 2100}, 36));
 		auto& cDir8(getEntity(tpl).createComponent<OBCDir8>());
-		auto& cWielder(getEntity(tpl).createComponent<OBCWielder>(getCPhys(tpl), getCDraw(tpl), cDir8));
+		auto& cWielder(getEntity(tpl).createComponent<OBCWielder>(getCPhys(tpl), getCDraw(tpl), cDir8, assets.e3Stand, assets.e3Shoot));
 		auto& cWpnController(getEntity(tpl).createComponent<OBCWpnController>(getCPhys(tpl), OBGroup::GFriendly));
 		getEntity(tpl).createComponent<OBCEJuggernaut>(getCEnemy(tpl), cWielder, cWpnController, mArmed);
-		emplaceSpriteByTile(getCDraw(tpl), assets.txBig, assets.e3AStand);
-		emplaceSpriteByTile(getCDraw(tpl), assets.txBig, assets.e3AGun);
+		emplaceSpriteByTile(getCDraw(tpl), assets.txBig, assets.e3Stand);
+		emplaceSpriteByTile(getCDraw(tpl), assets.txBig, assets.e3Gun);
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createEGiant(const Vec2i& mPos)
@@ -260,14 +260,14 @@ namespace ob
 		auto tpl(createEnemyBase(mPos, {2500, 2500}, 100));
 		getEntity(tpl).createComponent<OBCFloorSmasher>(getCPhys(tpl), true);
 		getEntity(tpl).createComponent<OBCEGiant>(getCEnemy(tpl));
-		emplaceSpriteByTile(getCDraw(tpl), assets.txGiant, assets.e4UAStand);
+		emplaceSpriteByTile(getCDraw(tpl), assets.txGiant, assets.e4Stand);
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createEEnforcer(const Vec2i& mPos)
 	{
 		auto tpl(createEnemyBase(mPos, {1200, 1200}, 30));
 		getEntity(tpl).createComponent<OBCEEnforcer>(getCEnemy(tpl));
-		emplaceSpriteByTile(getCDraw(tpl), assets.txMedium, assets.e5UAStand);
+		emplaceSpriteByTile(getCDraw(tpl), assets.txMedium, assets.e5Stand);
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createETurretStarPlasma(const Vec2i& mPos, Dir8 mDir)

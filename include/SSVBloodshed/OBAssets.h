@@ -34,7 +34,7 @@ namespace ob
 			sf::IntRect p2Stand,		p2Shoot,		p2Gun;								// Player class 2
 			sf::IntRect p3Stand,		p3Shoot,		p3Gun;								// Player class 3
 			sf::IntRect p4Stand,		p4Shoot,		p4Gun;								// Player class 4
-			sf::IntRect e1UAStand, 		e1AStand,		e1AShoot,		e1AGun;				// Runner alien
+			sf::IntRect e1Stand, 		e1Shoot,		e1Gun;								// Runner alien
 			sf::IntRect floor,			floorAlt1,		floorAlt2;							// Floor
 			sf::IntRect floorGrate,		floorGrateAlt1,	floorGrateAlt2;						// Floor grate
 			sf::IntRect pit,			trapdoor,		trapdoorPOnly;						// Pit and trapdoor
@@ -47,16 +47,17 @@ namespace ob
 			sf::IntRect explosiveCrate;														// Explosive crate
 			sf::IntRect vmHealth;															// Vending machines
 			sf::IntRect null0;																// Empty tile
+			sf::IntRect gunPCannon;
 
 			// Medium tileset (20x20)
-			sf::IntRect e2UAStand,		e2AStand,		e2AShoot,		e2AGun;				// Charger alien
-			sf::IntRect e5UAStand;															// Enforcer alien
+			sf::IntRect e2Stand,		e2Shoot,		e2Gun;								// Charger alien
+			sf::IntRect e5Stand;															// Enforcer alien
 
 			// Big tileset (30x30)
-			sf::IntRect e3UAStand,		e3AStand,		e3AShoot,		e3AGun;				// Juggernaut alien
+			sf::IntRect e3Stand,		e3Shoot,		e3Gun;								// Juggernaut alien
 
 			// Giant tileset (40x40)
-			sf::IntRect e4UAStand;															// Giant alien
+			sf::IntRect e4Stand;															// Giant alien
 
 			#define WALLTSDECL(x)	sf::IntRect x ## Single,	x ## Cross,		x ## V,			x ## H, \
 												x ## CornerSW,	x ## CornerSE,	x ## CornerNW,	x ## CornerNE, \
@@ -113,7 +114,7 @@ namespace ob
 				T_TSSMALL(p2Stand);			T_TSSMALL(p2Shoot);			T_TSSMALL(p2Gun);
 				T_TSSMALL(p3Stand);			T_TSSMALL(p3Shoot);			T_TSSMALL(p3Gun);
 				T_TSSMALL(p4Stand);			T_TSSMALL(p4Shoot);			T_TSSMALL(p4Gun);
-				T_TSSMALL(e1UAStand); 		T_TSSMALL(e1AStand);		T_TSSMALL(e1AShoot);		T_TSSMALL(e1AGun);
+				T_TSSMALL(e1Stand); 		T_TSSMALL(e1Shoot);			T_TSSMALL(e1Gun);
 				T_TSSMALL(floor);			T_TSSMALL(floorAlt1);		T_TSSMALL(floorAlt2);
 				T_TSSMALL(floorGrate);		T_TSSMALL(floorGrateAlt1);	T_TSSMALL(floorGrateAlt2);
 				T_TSSMALL(pit);				T_TSSMALL(trapdoor);		T_TSSMALL(trapdoorPOnly);
@@ -126,17 +127,18 @@ namespace ob
 				T_TSSMALL(explosiveCrate);
 				T_TSSMALL(vmHealth);
 				T_TSSMALL(null0);
+				T_TSSMALL(gunPCannon);
 				WALLTS(wall); WALLTS(wallD); WALLTS(door); WALLTS(doorG); WALLTS(doorR);
 
 				// Medium tileset (20x20)
-				T_TSMEDIUM(e2UAStand); 		T_TSMEDIUM(e2AStand);		T_TSMEDIUM(e2AShoot);		T_TSMEDIUM(e2AGun);
-				T_TSMEDIUM(e5UAStand);
+				T_TSMEDIUM(e2Stand); 		T_TSMEDIUM(e2Shoot);		T_TSMEDIUM(e2Gun);
+				T_TSMEDIUM(e5Stand);
 
 				// Big tileset (30x30)
-				T_TSBIG(e3UAStand);			T_TSBIG(e3AStand);			T_TSBIG(e3AShoot);			T_TSBIG(e3AGun);
+				T_TSBIG(e3Stand);			T_TSBIG(e3Shoot);			T_TSBIG(e3Gun);
 
 				// Giant tileset (40x40)
-				T_TSGIANT(e4UAStand);
+				T_TSGIANT(e4Stand);
 
 				#undef T_TSSMALL
 				#undef T_TSMEDIUM

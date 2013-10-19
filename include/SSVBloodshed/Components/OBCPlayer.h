@@ -42,8 +42,15 @@ namespace ob
 
 			int currentWpn{0}, currentShards{0}, shards{0};
 			std::vector<OBWpnType> weaponTypes{OBWpnTypes::createMachineGun(), OBWpnTypes::createPlasmaBolter(), OBWpnTypes::createPlasmaCannon()};
+			std::vector<sf::IntRect> weaponRects{assets.p1Gun, assets.e1Gun, assets.gunPCannon};
 
-			inline void cycleWeapons(int mDir) noexcept { currentWpn += mDir; cWpnController.setWpn(ssvu::getByWrapIdx(weaponTypes, currentWpn)); }
+			inline void cycleWeapons(int mDir) noexcept
+			{
+				currentWpn += mDir;
+				const auto& i(ssvu::getWrapIdx(currentWpn, weaponTypes.size()));
+				cWpnController.setWpn(weaponTypes[i]);
+				cDraw[1].setTextureRect(weaponRects[i]);
+			}
 			inline void useVM();
 
 		public:
@@ -52,6 +59,7 @@ namespace ob
 
 			inline void init() override
 			{
+				cWielder.setWieldDist(7.f);
 				cKillable.getCHealth().setCooldown(2.5f);
 				cycleWeapons(0);
 
@@ -137,7 +145,6 @@ namespace ob
 			inline void draw() override
 			{
 				cDraw[0].setRotation(cDir8.getDeg());
-				cDraw[0].setTextureRect(cWielder.isShooting() ? assets.p1Shoot : assets.p1Stand);
 			}
 
 			inline void bomb()

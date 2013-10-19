@@ -244,7 +244,7 @@ namespace ob
 }
 
 // TODO: bullet sensor pressure plates, SSVSC refactoring/optimization
-// TODO: decouple weapon sprite from enemy sprite, explosives, enemy orientation, organic group?, do not pierce breakable wall etc
+// TODO  enemy orientation, organic group?, do not pierce breakable wall etc
 // TODO: tripwires, laserwires, powerups, classes, weapon sets, etc
 // TODO: bullet knockback? replicators? spawners?
 // TODO: major group/facotry refactoring!, fuses, ammunition
