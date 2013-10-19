@@ -206,7 +206,7 @@ namespace ob
 			}
 			inline void update(float mFT) override
 			{
-				constexpr float distBodySlam{2600.f};
+				constexpr float distBodySlam{2750.f};
 				constexpr float distEvade{10000.f};
 
 				if(cTargeter.hasTarget())

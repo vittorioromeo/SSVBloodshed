@@ -133,23 +133,23 @@ namespace ob
 	Entity& OBFactory::createDoor(const Vec2i& mPos, const sf::IntRect& mIntRect, int mId, bool mOpen)
 	{
 		auto tpl(createActorBase(mPos, {1000, 1000}, OBLayer::LWall, true));
+		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, mIntRect);
 		auto& cIdReceiver(getEntity(tpl).createComponent<OBCIdReceiver>(mId));
 		getEntity(tpl).createComponent<OBCDoor>(getCPhys(tpl), getCDraw(tpl), cIdReceiver, mOpen);
-		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, mIntRect);
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createDoorG(const Vec2i& mPos, const sf::IntRect& mIntRect, bool mOpen)
 	{
 		auto tpl(createActorBase(mPos, {1000, 1000}, OBLayer::LWall, true));
-		getEntity(tpl).createComponent<OBCDoorG>(getCPhys(tpl), getCDraw(tpl), mOpen);
 		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, mIntRect);
+		getEntity(tpl).createComponent<OBCDoorG>(getCPhys(tpl), getCDraw(tpl), mOpen);
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createDoorR(const Vec2i& mPos, const sf::IntRect& mIntRect, bool mOpen)
 	{
 		auto tpl(createActorBase(mPos, {1000, 1000}, OBLayer::LWall, true));
-		getEntity(tpl).createComponent<OBCDoorR>(getCPhys(tpl), getCDraw(tpl), mOpen);
 		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, mIntRect);
+		getEntity(tpl).createComponent<OBCDoorR>(getCPhys(tpl), getCDraw(tpl), mOpen);
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createPPlate(const Vec2i& mPos, int mId, PPlateType mType, OBIdAction mIdAction, bool mPlayerOnly)
