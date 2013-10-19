@@ -20,7 +20,8 @@ namespace ob
 			ssvs::MusicPlayer musicPlayer;
 
 			// BitmapFonts
-			ssvs::BitmapFont* obStroked;
+			ssvs::BitmapFont* obStroked{nullptr};
+			ssvs::BitmapFont* obBigStroked{nullptr};
 
 			// Textures
 			sf::Texture* txSmall{nullptr};
@@ -99,6 +100,7 @@ namespace ob
 
 				// BitmapFonts
 				obStroked = &assetManager.get<ssvs::BitmapFont>("fontObStroked");
+				obBigStroked = &assetManager.get<ssvs::BitmapFont>("fontObBigStroked");
 
 				// Textures
 				txSmall = 	&assetManager.get<sf::Texture>("tsSmall.png");

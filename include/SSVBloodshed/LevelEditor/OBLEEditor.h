@@ -120,6 +120,7 @@ namespace ob
 					{
 						if(ssvuj::is<int>(p.second)) p.second = ssvuj::as<int>(p.second) + mDir;
 						else if(ssvuj::is<float>(p.second)) p.second = ssvuj::as<float>(p.second) + float(mDir);
+						else if(ssvuj::is<bool>(p.second)) p.second = !ssvuj::as<bool>(p.second);
 					}
 				}
 			}
@@ -180,7 +181,7 @@ namespace ob
 
 				overlayCamera.apply<int>();
 				{
-					for(int i{-1}; i < 3; ++i)
+					for(int i{-1}; i < (getPickTile().getParams().empty() ? 25 : 3); ++i)
 					{
 						auto& e(database.get(OBLETType(ssvu::getWrapIdx(brush.idx + i, database.getSize()))));
 						sf::Sprite s{*e.texture, e.intRect};

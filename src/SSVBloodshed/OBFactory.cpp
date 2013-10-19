@@ -38,13 +38,14 @@ namespace ob
 {
 	Sprite OBFactory::getSpriteByTile(const std::string& mTextureId, const IntRect& mRect) const					{ return {assets.get<Texture>(mTextureId), mRect}; }
 	void OBFactory::emplaceSpriteByTile(OBCDraw& mCDraw, sf::Texture* mTexture, const sf::IntRect& mRect) const		{ mCDraw.emplaceSprite(*mTexture, mRect); }
-	template<typename... TArgs> constexpr inline Entity& getEntity(const std::tuple<TArgs...>& mTuple)				{ return std::get<0>(mTuple); }
-	template<typename... TArgs> constexpr inline OBCPhys& getCPhys(const std::tuple<TArgs...>& mTuple)				{ return std::get<1>(mTuple); }
-	template<typename... TArgs> constexpr inline OBCDraw& getCDraw(const std::tuple<TArgs...>& mTuple)				{ return std::get<2>(mTuple); }
-	template<typename... TArgs> constexpr inline OBCHealth& getCHealth(const std::tuple<TArgs...>& mTuple)			{ return std::get<3>(mTuple); }
-	template<typename... TArgs> constexpr inline OBCProjectile& getCProjectile(const std::tuple<TArgs...>& mTuple)	{ return std::get<3>(mTuple); }
-	template<typename... TArgs> constexpr inline OBCKillable& getCKillable(const std::tuple<TArgs...>& mTuple)		{ return std::get<4>(mTuple); }
-	template<typename... TArgs> constexpr inline OBCEnemy& getCEnemy(const std::tuple<TArgs...>& mTuple)			{ return std::get<5>(mTuple); }
+
+	template<typename T> constexpr inline Entity& getEntity(const T& mTuple)				{ return std::get<0>(mTuple); }
+	template<typename T> constexpr inline OBCPhys& getCPhys(const T& mTuple)				{ return std::get<1>(mTuple); }
+	template<typename T> constexpr inline OBCDraw& getCDraw(const T& mTuple)				{ return std::get<2>(mTuple); }
+	template<typename T> constexpr inline OBCHealth& getCHealth(const T& mTuple)			{ return std::get<3>(mTuple); }
+	template<typename T> constexpr inline OBCProjectile& getCProjectile(const T& mTuple)	{ return std::get<3>(mTuple); }
+	template<typename T> constexpr inline OBCKillable& getCKillable(const T& mTuple)		{ return std::get<4>(mTuple); }
+	template<typename T> constexpr inline OBCEnemy& getCEnemy(const T& mTuple)				{ return std::get<5>(mTuple); }
 
 	std::tuple<Entity&, OBCPhys&, OBCDraw&> OBFactory::createActorBase(const Vec2i& mPos, const Vec2i& mSize, int mDrawPriority, bool mStatic)
 	{
@@ -200,11 +201,14 @@ namespace ob
 		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.shard);
 		return getEntity(tpl);
 	}
-	Entity& OBFactory::createSpawner(const Vec2i& mPos, int mType, float mDelayStart, float mDelaySpawn, int mSpawnCount)
+	Entity& OBFactory::createSpawner(const Vec2i& mPos, int mType, int mId, float mDelayStart, float mDelaySpawn, int mSpawnCount)
 	{
 		auto tpl(createActorBase(mPos, {400, 400}, OBLayer::LShard));
-		getEntity(tpl).createComponent<OBCSpawner>(getCPhys(tpl), getCDraw(tpl), mType, mDelayStart, mDelaySpawn, mSpawnCount);
+		auto& cIdReceiver(getEntity(tpl).createComponent<OBCIdReceiver>(mId));
+		auto& cSpawner(getEntity(tpl).createComponent<OBCSpawner>(getCPhys(tpl), getCDraw(tpl), cIdReceiver, mType, mDelayStart, mDelaySpawn, mSpawnCount));
 		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.shard);
+
+		if(mId != -1) cSpawner.setActive(false);
 		return getEntity(tpl);
 	}
 

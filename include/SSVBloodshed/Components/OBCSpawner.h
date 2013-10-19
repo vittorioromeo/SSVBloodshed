@@ -8,15 +8,18 @@
 #include "SSVBloodshed/OBCommon.h"
 #include "SSVBloodshed/OBGame.h"
 #include "SSVBloodshed/Components/OBCActorBase.h"
+#include "SSVBloodshed/Components/OBCIdReceiver.h"
 
 namespace ob
 {
 	class OBCSpawner : public OBCActorBase
 	{
 		private:
+			OBCIdReceiver& cIdReceiver;
 			int type;
 			ssvs::Ticker delayStart, delaySpawn;
 			int spawnCount;
+			bool active{true};
 
 			inline void spawn()
 			{
@@ -38,13 +41,27 @@ namespace ob
 			}
 
 		public:
-			OBCSpawner(OBCPhys& mCPhys, OBCDraw& mCDraw, int mType, float mDelayStart, float mDelaySpawn, int mSpawnCount) noexcept :
-				OBCActorBase{mCPhys, mCDraw}, type{mType}, delayStart{mDelayStart}, delaySpawn{mDelaySpawn}, spawnCount{mSpawnCount} { delayStart.setLoop(false); }
+			OBCSpawner(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCIdReceiver& mCIdReceiver, int mType, float mDelayStart, float mDelaySpawn, int mSpawnCount) noexcept :
+				OBCActorBase{mCPhys, mCDraw}, cIdReceiver(mCIdReceiver), type{mType}, delayStart{mDelayStart}, delaySpawn{mDelaySpawn}, spawnCount{mSpawnCount} { delayStart.setLoop(false); }
 
-			inline void init() override { getEntity().addGroups(OBGroup::GEnemy); }
+			inline void init() override
+			{
+				getEntity().addGroups(OBGroup::GEnemy);
+				cIdReceiver.onActivate += [this](OBIdAction mIdAction)
+				{
+					switch(mIdAction)
+					{
+						case OBIdAction::Toggle: active = !active; break;
+						case OBIdAction::Open: active = true; break;
+						case OBIdAction::Close: active = false; break;
+					}
+				};
+			}
 
 			inline void update(float mFT) override
 			{
+				if(!active) return;
+
 				delayStart.update(mFT);
 				if(delayStart.isStopped())
 				{
@@ -52,6 +69,8 @@ namespace ob
 					if(delaySpawn.update(mFT)) spawn();
 				}
 			}
+
+			inline void setActive(bool mActive) noexcept { active = mActive; }
 	};
 }
 

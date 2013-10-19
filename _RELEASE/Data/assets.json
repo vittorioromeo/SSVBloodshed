@@ -5,6 +5,8 @@
 		"limeStroked.png",
 		"fontOb.png",
 		"fontObStroked.png",
+		"fontObBig.png",
+		"fontObBigStroked.png",
 		"tsSmall.png",
 		"tsMedium.png",
 		"tsBig.png",
@@ -28,7 +30,9 @@
 	{
 		"limeStroked": ["limeStroked.png", "lime.json"],
 		"fontOb": ["fontOb.png", "fontOb.json"],
-		"fontObStroked": ["fontObStroked.png", "fontOb.json"]
+		"fontObStroked": ["fontObStroked.png", "fontOb.json"],
+		"fontObBig": ["fontObBig.png", "fontObBig.json"],
+		"fontObBigStroked": ["fontObBigStroked.png", "fontObBig.json"]
 	},
 	"tilesets":
 	{

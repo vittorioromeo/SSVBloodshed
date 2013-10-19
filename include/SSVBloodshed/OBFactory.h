@@ -54,7 +54,7 @@ namespace ob
 			Entity& createPlayer(const Vec2i& mPos);
 			Entity& createExplosiveCrate(const Vec2i& mPos, int mId);
 			Entity& createShard(const Vec2i& mPos);
-			Entity& createSpawner(const Vec2i& mPos, int mType, float mDelayStart = 0.f, float mDelaySpawn = 200.f, int mSpawnCount = 1);
+			Entity& createSpawner(const Vec2i& mPos, int mType, int mId, float mDelayStart = 0.f, float mDelaySpawn = 200.f, int mSpawnCount = 1);
 
 			// Enemies
 			Entity& createERunner(const Vec2i& mPos, bool mArmed = false);
