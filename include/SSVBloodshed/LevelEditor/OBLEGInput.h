@@ -20,8 +20,8 @@ namespace ob
 
 			inline OBLEGInput(TGame& mGame) : editor(mGame)
 			{
-				using k = sf::Keyboard::Key;
-				using b = sf::Mouse::Button;
+				using k = ssvs::KKey;
+				using b = ssvs::MBtn;
 				using t = ssvs::Input::Trigger::Type;
 				auto& gs(editor.getGameState());
 

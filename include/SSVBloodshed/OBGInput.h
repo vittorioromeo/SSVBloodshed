@@ -20,8 +20,8 @@ namespace ob
 		public:
 			inline OBGInput(TGame& mGame) : game(mGame)
 			{
-				using k = sf::Keyboard::Key;
-				//using b = sf::Mouse::Button;
+				using k = ssvs::KKey;
+				//using b = ssvs::MBtn;
 				using t = ssvs::Input::Trigger::Type;
 
 				auto& gs(game.getGameState());
