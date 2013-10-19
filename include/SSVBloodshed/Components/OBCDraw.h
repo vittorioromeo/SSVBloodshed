@@ -17,7 +17,8 @@ namespace ob
 			Body& body;
 			std::vector<sf::Sprite> sprites;
 			std::vector<Vec2f> offsets;
-			bool flippedX{false}, flippedY{false}, scaleWithBody{false};
+			int flippedX{1}, flippedY{1};
+			bool scaleWithBody{false};
 			Vec2f globalOffset, globalScale{1.f, 1.f};
 			sf::BlendMode blendMode{sf::BlendMode::BlendAlpha};
 
@@ -36,7 +37,7 @@ namespace ob
 					const auto& rect(s.getTextureRect());
 					s.setOrigin({rect.width / 2.f, rect.height / 2.f});
 					s.setPosition(position + globalOffset + offsets[i]);
-					s.setScale(flippedX ? -globalScale.x : globalScale.x, flippedY ? -globalScale.y : globalScale.y);
+					s.setScale(globalScale.x * flippedX, globalScale.y * flippedY);
 
 					if(scaleWithBody) s.setScale(toPixels(size.x) / rect.width, toPixels(size.y) / rect.height);
 				}
@@ -47,8 +48,8 @@ namespace ob
 			template<typename... TArgs> inline void emplaceSprite(TArgs&&... mArgs)	{ sprites.emplace_back(std::forward<TArgs>(mArgs)...); offsets.emplace_back(); }
 
 			inline void setRotation(float mDegrees)	noexcept			{ for(auto& s : sprites) s.setRotation(mDegrees); }
-			inline void setFlippedX(bool mFlippedX)	noexcept			{ flippedX = mFlippedX; }
-			inline void setFlippedY(bool mFlippedY)	noexcept			{ flippedY = mFlippedY; }
+			inline void setFlippedX(bool mFlippedX)	noexcept			{ flippedX = mFlippedX ? -1 : 1; }
+			inline void setFlippedY(bool mFlippedY)	noexcept			{ flippedY = mFlippedY ? -1 : 1; }
 			inline void setScaleWithBody(bool mScale) noexcept			{ scaleWithBody = mScale; }
 			inline void setGlobalOffset(const Vec2f& mOffset) noexcept	{ globalOffset = mOffset; }
 			inline void setGlobalScale(float mFactor) noexcept			{ globalScale.x = globalScale.y = mFactor; }
@@ -63,8 +64,8 @@ namespace ob
 			inline decltype(offsets)& getOffsets() noexcept					{ return offsets; }
 			inline sf::Sprite& operator[](unsigned int mIdx)				{ return sprites[mIdx]; }
 			inline const sf::Sprite& operator[](unsigned int mIdx) const	{ return sprites[mIdx]; }
-			inline bool isFlippedX() const noexcept							{ return flippedX; }
-			inline bool isFlippedY() const noexcept							{ return flippedY; }
+			inline bool isFlippedX() const noexcept							{ return flippedX == -1; }
+			inline bool isFlippedY() const noexcept							{ return flippedY == -1; }
 			inline sf::BlendMode getBlendMode() const noexcept				{ return blendMode; }
 	};
 }

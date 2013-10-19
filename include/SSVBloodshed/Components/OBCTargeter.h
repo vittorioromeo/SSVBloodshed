@@ -23,15 +23,15 @@ namespace ob
 
 			inline void update(float) override
 			{
-				if(target == nullptr && game.getManager().hasEntity(targetGroup))
+				if(target == nullptr && manager.hasEntity(targetGroup))
 				{
-					const auto& e(game.getManager().getEntities(targetGroup).front());
+					const auto& e(manager.getEntities(targetGroup).front());
 					targetStat = e->getStat(); target = &e->getComponent<OBCPhys>();
 				}
-				else if(!game.getManager().isAlive(targetStat)) target = nullptr;
+				else if(!manager.isAlive(targetStat)) target = nullptr;
 			}
 
-			inline bool hasTarget() const noexcept			{ return target != nullptr && getManager().isAlive(targetStat); }
+			inline bool hasTarget() const noexcept			{ return target != nullptr && manager.isAlive(targetStat); }
 			inline OBCPhys& getTarget() const noexcept		{ return *target; }
 			inline Vec2f getPosF() const noexcept			{ return target->getPosF(); }
 			inline const Vec2i& getPosI() const noexcept	{ return target->getPosI(); }

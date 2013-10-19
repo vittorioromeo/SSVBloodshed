@@ -193,19 +193,13 @@ namespace ob
 				gameCamera.unapply();
 
 				overlayCamera.apply<int>();
-				render(hudSprite);
-				render(testhp);
-				render(testAmmoTxt);
-				render(txtShards);
-				render(txtVM);
-				render(txtInfo);
+				render(hudSprite); render(testhp); render(testAmmoTxt); render(txtShards); render(txtVM); render(txtInfo);
 				overlayCamera.unapply();
 
 				debugText.draw();
 			}
 
-			inline void render(const sf::Drawable& mDrawable)									{ gameWindow.draw(mDrawable); }
-			inline void render(const sf::Drawable& mDrawable, sf::RenderStates mRenderStates)	{ gameWindow.draw(mDrawable, mRenderStates); }
+			template<typename... TArgs> inline void render(const sf::Drawable& mDrawable, TArgs&&... mArgs)	{ gameWindow.draw(mDrawable, std::forward<TArgs>(mArgs)...); }
 
 			inline void setEditor(OBLEEditor& mEditor) { editor = &mEditor; }
 

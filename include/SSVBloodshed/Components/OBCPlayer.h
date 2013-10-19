@@ -83,14 +83,9 @@ namespace ob
 				if(game.getInput().getIBomb()) bomb();
 				if(game.getInput().getISwitch())
 				{
-					if(currentVM == nullptr)
-					{
-						cycleWeapons(1);
-					}
-					else
-					{
-						useVM();
-					}
+					// TODO: generalize to usable objects, like switches
+					if(currentVM == nullptr) cycleWeapons(1);
+					else useVM();
 				}
 			}
 
@@ -105,7 +100,7 @@ namespace ob
 				}
 				else
 				{
-					for(auto& e : getManager().getEntities(OBGroup::GShard))
+					for(auto& e : manager.getEntities(OBGroup::GShard))
 					{
 						auto& c(e->getComponent<OBCPhys>());
 						c.getBody().addGroupsNoResolve(OBGroup::GSolidGround);
@@ -142,15 +137,12 @@ namespace ob
 				if(game.isLevelClear()) { shards += currentShards; currentShards = 0; }
 				if(cWielder.isShooting() && cWpnController.shoot(cWielder.getShootingPos(), cDir8.getDeg())) game.createPMuzzle(20, toPixels(cWielder.getShootingPos()));
 			}
-			inline void draw() override
-			{
-				cDraw[0].setRotation(cDir8.getDeg());
-			}
+			inline void draw() override { cDraw[0].setRotation(cDir8.getDeg()); }
 
 			inline void bomb()
 			{
 				for(int k{0}; k < 5; ++k)
-					for(int i{0}; i < 360; i += 360 / 16) getFactory().createPJTestBomb(body.getPosition(), cDir8.getDeg() + (i * (360 / 16)), 2.f - k * 0.2f + i * 0.004f, 4.f + k * 0.3f - i * 0.004f);
+					for(int i{0}; i < 360; i += 360 / 16) factory.createPJTestBomb(body.getPosition(), cDir8.getDeg() + (i * (360 / 16)), 2.f - k * 0.2f + i * 0.004f, 4.f + k * 0.3f - i * 0.004f);
 			}
 
 			inline void shardGrabbed() noexcept { ++currentShards; }

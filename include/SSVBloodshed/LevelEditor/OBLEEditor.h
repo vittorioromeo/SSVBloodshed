@@ -205,8 +205,7 @@ namespace ob
 				debugText.draw();
 			}
 
-			inline void render(const sf::Drawable& mDrawable)									{ gameWindow.draw(mDrawable); }
-			inline void render(const sf::Drawable& mDrawable, sf::RenderStates mRenderStates)	{ gameWindow.draw(mDrawable, mRenderStates); }
+			template<typename... TArgs> inline void render(const sf::Drawable& mDrawable, TArgs&&... mArgs)	{ gameWindow.draw(mDrawable, std::forward<TArgs>(mArgs)...); }
 
 			inline void setGame(OBGame& mGame)						{ game = &mGame; }
 

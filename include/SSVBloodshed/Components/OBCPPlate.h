@@ -22,7 +22,7 @@ namespace ob
 
 			inline void activate()
 			{
-				for(auto& e : getManager().getEntities(OBGroup::GIdReceiver))
+				for(auto& e : manager.getEntities(OBGroup::GIdReceiver))
 				{
 					auto& c(e->getComponent<OBCIdReceiver>());
 					if(c.getId() == id) c.activate(idAction);

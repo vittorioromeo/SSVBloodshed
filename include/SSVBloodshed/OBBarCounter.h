@@ -29,8 +29,7 @@ namespace ob
 
 				vertices.clear();
 
-				float dist{maxValue - minValue};
-				float barValue{dist / barCount};
+				float dist{maxValue - minValue}, barValue{dist / barCount};
 				unsigned int barsToDraw(barValue == 0 ? 0 : std::floor(value / barValue));
 
 				for(auto i(0u); i < barsToDraw; ++i)
@@ -77,13 +76,13 @@ namespace ob
 			inline void setColor(sf::Color mColor)	{ color = std::move(mColor); mustRefreshColor = true; }
 			inline void setTracking(int mTracking)	{ tracking = mTracking; mustRefreshGeometry = true; }
 
-			inline float getValue() const noexcept					{ return value; }
-			inline float getMaxValue() const noexcept				{ return maxValue; }
-			inline float getMinValue() const noexcept				{ return minValue; }
-			inline const sf::Color& getColor() const noexcept		{ return color; }
-			inline int getTracking() const noexcept					{ return tracking; }
-			inline sf::FloatRect getLocalBounds() const				{ refresh(); return bounds; }
-			inline sf::FloatRect getGlobalBounds() const			{ return getTransform().transformRect(getLocalBounds()); }
+			inline float getValue() const noexcept				{ return value; }
+			inline float getMaxValue() const noexcept			{ return maxValue; }
+			inline float getMinValue() const noexcept			{ return minValue; }
+			inline const sf::Color& getColor() const noexcept	{ return color; }
+			inline int getTracking() const noexcept				{ return tracking; }
+			inline sf::FloatRect getLocalBounds() const			{ refresh(); return bounds; }
+			inline sf::FloatRect getGlobalBounds() const		{ return getTransform().transformRect(getLocalBounds()); }
 	};
 }
 

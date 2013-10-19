@@ -25,7 +25,7 @@ namespace ob
 
 			inline void update(float) override
 			{
-				for(auto& e : getManager().getEntities(OBGroup::GPlayer))
+				for(auto& e : manager.getEntities(OBGroup::GPlayer))
 				{
 					auto& cPhys(e->getComponent<OBCPhys>());
 					auto& cPlayer(e->getComponent<OBCPlayer>());

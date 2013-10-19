@@ -31,7 +31,7 @@ namespace ob
 			{
 				getEntity().addGroups(OBGroup::GEnemy, OBGroup::GEnemyKillable);
 
-				cKillable.getCHealth().setCooldown(0.5f);
+				cKillable.getCHealth().setCooldown(0.45f);
 
 				body.addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir, OBGroup::GEnemy, OBGroup::GKillable, OBGroup::GEnemyKillable, OBGroup::GOrganic);
 				body.addGroupsToCheck(OBGroup::GSolidGround, OBGroup::GLevelBound);
@@ -51,11 +51,11 @@ namespace ob
 
 			inline void update(float mFT) override
 			{
-				if(!cTargeter.hasTarget()) return;
+				snappedDeg = getDegFromDir8(getDir8FromDeg(currentDeg));
 
+				if(!cTargeter.hasTarget()) return;
 				float targetDeg(ssvs::getDegTowards(cPhys.getPosF(), cTargeter.getPosF()));
 				currentDeg = ssvu::getRotatedDeg(currentDeg, targetDeg, turnSpeed * mFT);
-				snappedDeg = getDegFromDir8(getDir8FromDeg(currentDeg));
 			}
 			inline void draw() override { if(faceDirection) cDraw.setRotation(snappedDeg); }
 

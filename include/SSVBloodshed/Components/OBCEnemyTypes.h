@@ -206,13 +206,13 @@ namespace ob
 			}
 			inline void update(float mFT) override
 			{
-				constexpr float distBodySlam{2500.f};
+				constexpr float distBodySlam{2600.f};
 				constexpr float distEvade{10000.f};
 
 				if(cTargeter.hasTarget())
 				{
 					float distance{ssvs::getDistEuclidean(cTargeter.getPosF(), cPhys.getPosF())};
-					cWielder.setShooting(armed && raycastToPlayer(cPhys, cTargeter.getTarget()));
+					cWielder.setShooting(armed && raycastToPlayer(cPhys, cTargeter.getTarget()) && distance > distBodySlam);
 
 					if(armed && distance > distBodySlam)
 					{
@@ -255,7 +255,7 @@ namespace ob
 					{
 						for(int i{0}; i < 3; ++i)
 						{
-							auto& e(getFactory().createEBall(cPhys.getPosI(), flying, true));
+							auto& e(factory.createEBall(cPhys.getPosI(), flying, true));
 							e.getComponent<OBCPhys>().setVel(ssvs::getVecFromDeg(360.f / 3.f * i, 400.f));
 						}
 					};
@@ -317,7 +317,7 @@ namespace ob
 				{
 					game.createPCharge(5, cPhys.getPosPx(), 65);
 					body.setVelocity(body.getVelocity() * 0.8f);
-					getFactory().createERunner(body.getPosition() + Vec2i(ssvs::getVecFromDeg<float>(lastDeg) * 1000.f), true);
+					factory.createERunner(body.getPosition() + Vec2i(ssvs::getVecFromDeg<float>(lastDeg) * 1000.f), true);
 					lastDeg += 360 / 6;
 				}, 6, 4.5f);
 				tlSummon.append<ssvu::Wait>(19.f);

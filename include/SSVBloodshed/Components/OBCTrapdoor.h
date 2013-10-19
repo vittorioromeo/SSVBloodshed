@@ -41,7 +41,7 @@ namespace ob
 				if(hasBeenUnweighted())
 				{
 					assets.playSound("Sounds/spark.wav");
-					getFactory().createPit(cPhys.getPosI());
+					factory.createPit(cPhys.getPosI());
 					falling = true;
 				}
 

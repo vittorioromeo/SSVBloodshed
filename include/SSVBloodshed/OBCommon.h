@@ -159,7 +159,7 @@ namespace ob
 		}
 		return {{0, 0}};
 	}
-	template<typename T> inline Dir8 getDir8FromVec(const Vec2<T>& mVec) noexcept		{ return getDir8FromXY(mVec.x, mVec.y); }
+	template<typename T> inline Dir8 getDir8FromVec(const Vec2<T>& mVec) noexcept	{ return getDir8FromXY(mVec.x, mVec.y); }
 	template<typename T = int> inline Vec2<T> getVecFromDir8(Dir8 mDir) noexcept	{ const auto& xy(getXYFromDir8<T>(mDir)); return {xy[0], xy[1]}; }
 
 	// Timeline shortcuts

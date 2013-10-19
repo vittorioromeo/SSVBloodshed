@@ -20,15 +20,15 @@ namespace ob
 			inline void setOpen(bool mOpen) noexcept
 			{
 				openStatus = mOpen;
+				cDraw[0].setColor(sf::Color(255, 255, 255, openStatus ? 100 : 255));
+
 				if(openStatus)	body.delGroups(OBGroup::GSolidGround, OBGroup::GSolidAir);
 				else			body.addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir);
 			}
 
 		public:
 			OBCDoorBase(OBCPhys& mCPhys, OBCDraw& mCDraw, bool mOpen = false) noexcept : OBCActorBase{mCPhys, mCDraw}, openStatus{mOpen} { }
-
 			inline void init() override { setOpen(openStatus); }
-			inline void draw() override { cDraw[0].setColor(sf::Color(255, 255, 255, openStatus ? 100 : 255)); }
 
 			inline void toggle() noexcept	{ setOpen(!openStatus); }
 			inline void open() noexcept		{ setOpen(true); }
@@ -72,7 +72,7 @@ namespace ob
 
 		public:
 			OBCDoorR(OBCPhys& mCPhys, OBCDraw& mCDraw, bool mOpen = false) noexcept : OBCDoorBase{mCPhys, mCDraw, mOpen} { }
-			inline void update(float) override { if(!triggered && getManager().getEntityCount(OBGroup::GTrapdoor) <= 0) { toggle(); triggered = true; } }
+			inline void update(float) override { if(!triggered && manager.getEntityCount(OBGroup::GTrapdoor) <= 0) { toggle(); triggered = true; } }
 	};
 }
 
