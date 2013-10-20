@@ -63,7 +63,7 @@ namespace ob
 				if(!active) return;
 
 				delayStart.update(mFT);
-				if(delayStart.isStopped())
+				if(!delayStart.isRunning())
 				{
 					cDraw[0].rotate(10.f * mFT);
 					if(delaySpawn.update(mFT)) spawn();
