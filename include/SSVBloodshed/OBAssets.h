@@ -42,12 +42,12 @@ namespace ob
 			sf::IntRect pjStarPlasma,	pjCannonPlasma;										// Projectiles
 			sf::IntRect eBall,			eBallFlying;										// Ball enemy
 			sf::IntRect eTurret0,		eTurret1,		eTurret2;							// Turret enemy
-			sf::IntRect pPlateSingle,	pPlateMulti;										// Pressure plates
+			sf::IntRect pPlateSingle,	pPlateMulti,	pPlateOnOff;						// Pressure plates
 			sf::IntRect shard;																// Shard
 			sf::IntRect explosiveCrate;														// Explosive crate
 			sf::IntRect vmHealth;															// Vending machines
 			sf::IntRect null0;																// Empty tile
-			sf::IntRect gunPCannon;
+			sf::IntRect gunPCannon,		spawner;
 
 			// Medium tileset (20x20)
 			sf::IntRect e2Stand,		e2Shoot,		e2Gun;								// Charger alien
@@ -122,12 +122,12 @@ namespace ob
 				T_TSSMALL(pjStarPlasma);	T_TSSMALL(pjCannonPlasma);
 				T_TSSMALL(eBall);			T_TSSMALL(eBallFlying);
 				T_TSSMALL(eTurret0);		T_TSSMALL(eTurret1);		T_TSSMALL(eTurret2);
-				T_TSSMALL(pPlateSingle);	T_TSSMALL(pPlateMulti);
+				T_TSSMALL(pPlateSingle);	T_TSSMALL(pPlateMulti);		T_TSSMALL(pPlateOnOff);
 				T_TSSMALL(shard);
 				T_TSSMALL(explosiveCrate);
 				T_TSSMALL(vmHealth);
 				T_TSSMALL(null0);
-				T_TSSMALL(gunPCannon);
+				T_TSSMALL(gunPCannon);		T_TSSMALL(spawner);
 				WALLTS(wall); WALLTS(wallD); WALLTS(door); WALLTS(doorG); WALLTS(doorR);
 
 				// Medium tileset (20x20)
