@@ -74,7 +74,7 @@ namespace ob
 			Entity& createPJStar(const Vec2i& mPos, float mDegrees);
 			Entity& createPJStarPlasma(const Vec2i& mPos, float mDegrees);
 			Entity& createPJCannonPlasma(const Vec2i& mPos, float mDegrees);
-			Entity& createPJExplosion(const Vec2i& mPos, float mDegrees);
+			Entity& createPJExplosion(const Vec2i& mPos, float mDegrees, float mSpeed = 300.f);
 
 			// Vending machines
 			Entity& createVMHealth(const Vec2i& mPos);

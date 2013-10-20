@@ -86,7 +86,7 @@ namespace ob
 		LFloor,
 		LBackground
 	};
-	enum class PPlateType{Single, Multi};
+	enum class PPlateType{Single, Multi, OnOff};
 	enum OBIdAction : int {Toggle, Open, Close};
 
 	// Level editor enums
@@ -120,7 +120,8 @@ namespace ob
 		LETDoorR,
 		LETExplosiveCrate,
 		LETVMHealth,
-		LETTrapdoorPOnly
+		LETTrapdoorPOnly,
+		LETPPlateOnOff
 	};
 
 	// Direction utils

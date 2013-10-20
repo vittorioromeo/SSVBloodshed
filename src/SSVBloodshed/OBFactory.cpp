@@ -156,7 +156,7 @@ namespace ob
 	{
 		auto tpl(createActorBase(mPos, {1000, 1000}, OBLayer::LFloor));
 		getEntity(tpl).createComponent<OBCPPlate>(getCPhys(tpl), getCDraw(tpl), mId, mType, mIdAction, mPlayerOnly);
-		const auto& intRect(mType == PPlateType::Single ? assets.pPlateSingle : assets.pPlateMulti);
+		const auto& intRect(mType == PPlateType::Single ? assets.pPlateSingle : (mType == PPlateType::Multi ? assets.pPlateMulti : assets.pPlateOnOff));
 		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, intRect);
 		return getEntity(tpl);
 	}
@@ -190,6 +190,11 @@ namespace ob
 				cp.setLife(19.f);
 				cp.setKillDestructible(true);
 			}
+
+			auto& cp(createPJExplosion(getCPhys(tpl).getPosI(), 0, 0).getComponent<OBCProjectile>());
+			cp.setTargetGroup(OBGroup::GKillable);
+			cp.setLife(19.f);
+			cp.setKillDestructible(true);
 		};
 
 		return getEntity(tpl);
@@ -206,7 +211,7 @@ namespace ob
 		auto tpl(createActorBase(mPos, {400, 400}, OBLayer::LShard));
 		auto& cIdReceiver(getEntity(tpl).createComponent<OBCIdReceiver>(mId));
 		auto& cSpawner(getEntity(tpl).createComponent<OBCSpawner>(getCPhys(tpl), getCDraw(tpl), cIdReceiver, mType, mDelayStart, mDelaySpawn, mSpawnCount));
-		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.shard);
+		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.spawner);
 
 		if(mId != -1) cSpawner.setActive(false);
 		return getEntity(tpl);
@@ -333,9 +338,9 @@ namespace ob
 		getCDraw(tpl).setBlendMode(sf::BlendMode::BlendAdd);
 		return getEntity(tpl);
 	}
-	Entity& OBFactory::createPJExplosion(const Vec2i& mPos, float mDegrees)
+	Entity& OBFactory::createPJExplosion(const Vec2i& mPos, float mDegrees, float mSpeed)
 	{
-		auto tpl(createProjectileBase(mPos, {400, 400}, 300.f, mDegrees, assets.null0));
+		auto tpl(createProjectileBase(mPos, {400, 400}, mSpeed, mDegrees, assets.null0));
 		getEntity(tpl).createComponent<OBCFloorSmasher>(getCPhys(tpl)).setActive(true);
 		getEntity(tpl).createComponent<OBCParticleEmitter>(getCPhys(tpl), &OBGame::createPExplosion, 1);
 		getCProjectile(tpl).setPierceOrganic(-1);

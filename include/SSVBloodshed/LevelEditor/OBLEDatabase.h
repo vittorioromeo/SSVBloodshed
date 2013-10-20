@@ -124,6 +124,12 @@ namespace ob
 				{
 					f->createPPlate(mP, getP<int>(mT, "id"), PPlateType::Multi, OBIdAction(getP<int>(mT, "action")), getP<bool>(mT, "playerOnly"));
 				});
+
+				add(OBLETType::LETPPlateOnOff,		a.txSmall,		a.pPlateOnOff,			{{"id", 0}, {"action", 0}, {"playerOnly", false}},
+				[this](TLevel&, TTile& mT, const Vec2i& mP)
+				{
+					f->createPPlate(mP, getP<int>(mT, "id"), PPlateType::OnOff, OBIdAction(getP<int>(mT, "action")), getP<bool>(mT, "playerOnly"));
+				});
 			}
 
 			template<typename T> inline void add(OBLETType mType, sf::Texture* mTexture, const sf::IntRect& mIntRect, const std::map<std::string, ssvuj::Obj>& mDefaultParams, T mSpawn)

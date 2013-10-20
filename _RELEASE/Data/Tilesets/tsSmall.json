@@ -8,7 +8,7 @@
 		["p3Stand",			"p3Shoot",			"p3Gun",			"wallVEndS",		"wallCornerSW",		"wallTS",			"wallCornerSE",		"pjStar"],
 		["p4Stand",			"p4Shoot",			"p4Gun",			"wallSingle",		"wallHEndW",		"wallH",			"wallHEndE",		"pjBulletPlasma"],
 		["e1Stand",			"e1Shoot",			"e1Gun",			"floor",			"floorGrate",		"pit",	 			"floorAlt2",		"pjStarPlasma"],
-		["gunPCannon",		"null0",			"null1",			"floorAlt1",		"floorGrateAlt1",	"floorGrateAlt2",	"shard",			"pjCannonPlasma"],
+		["gunPCannon",		"null0",			"null1",			"floorAlt1",		"floorGrateAlt1",	"floorGrateAlt2",	"spawner",			"pjCannonPlasma"],
 		["eBall",			"eBallFlying",		"eTurret0", 		"eTurret1",			"eTurret2",			"pPlateSingle",		"pPlateMulti",		"trapdoor"],
 		["wallDVEndN",		"wallDCornerNW",	"wallDTN",			"wallDCornerNE",	"doorVEndN",		"doorCornerNW",		"doorTN",			"doorCornerNE"],
 		["wallDV",			"wallDTW",			"wallDCross",		"wallDTE",			"doorV",			"doorTW",			"doorCross",		"doorTE"],
@@ -18,6 +18,6 @@
 		["doorGV",			"doorGTW",			"doorGCross",		"doorGTE",			"doorRV",			"doorRTW",			"doorRCross",		"doorRTE"],
 		["doorGVEndS",		"doorGCornerSW",	"doorGTS",			"doorGCornerSE",	"doorRVEndS",		"doorRCornerSW",	"doorRTS",			"doorRCornerSE"],
 		["doorGSingle",		"doorGHEndW",		"doorGH",			"doorGHEndE",		"doorRSingle",		"doorRHEndW",		"doorRH",			"doorRHEndE"],
-		["explosiveCrate",	"vmHealth",			"trapdoorPOnly"]
+		["explosiveCrate",	"vmHealth",			"trapdoorPOnly",	"pPlateOnOff",		"shard"]
 	]
 } 

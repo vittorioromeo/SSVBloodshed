@@ -64,12 +64,12 @@ namespace ob
 			{
 				if(hasBeenWeighted() && !triggered)
 				{
-					if(type == PPlateType::Single || type == PPlateType::Multi) { trigger(); activate(); }
+					trigger(); activate();
 				}
-
-				if(hasBeenUnweighted())
+				else if(hasBeenUnweighted())
 				{
 					if(type == PPlateType::Multi) unTrigger();
+					else if(type == PPlateType::OnOff) { unTrigger(); activate(); }
 				}
 
 				OBWeightable::refresh();
