@@ -22,7 +22,7 @@ namespace ob
 
 		public:
 			OBCPhys(OBGame& mGame, bool mIsStatic, const Vec2i& mPosition, const Vec2i& mSize) : game(mGame), world(mGame.getWorld()), body(world.create(mPosition, mSize, mIsStatic)) { }
-			inline ~OBCPhys() { body.destroy(); }
+			inline ~OBCPhys() override { body.destroy(); }
 
 			inline void init()
 			{
