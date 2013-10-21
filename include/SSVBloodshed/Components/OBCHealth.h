@@ -26,7 +26,7 @@ namespace ob
 			inline bool heal(float mAmount) noexcept
 			{
 				if(health >= maxHealth || isDead()) return false;
-				ssvu::getClampedMax(health + mAmount, maxHealth);
+				health = ssvu::getClampedMax(health + mAmount, maxHealth);
 				onHeal(); return true;
 			}
 			inline bool damage(float mAmount) noexcept
