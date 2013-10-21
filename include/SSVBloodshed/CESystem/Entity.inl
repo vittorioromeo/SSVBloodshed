@@ -29,10 +29,11 @@ namespace ssvces
 
 		mustRematch = true;
 	}
-	inline void Entity::destroy() noexcept					{ mustDestroy = true; manager.entityIdPool.reclaim(stat); }
-	inline void Entity::addGroups(Group mGroup) noexcept	{ groups[mGroup] = true; manager.addToGroup(this, mGroup); }
-	inline void Entity::delGroups(Group mGroup) noexcept	{ groups[mGroup] = false; }
-	inline void Entity::clearGroups() noexcept				{ groups.reset(); }
+	inline void Entity::destroy() noexcept							{ mustDestroy = true; manager.entityIdPool.reclaim(stat); }
+	inline void Entity::addGroups(Group mGroup) noexcept			{ groups[mGroup] = true; manager.addToGroup(this, mGroup); }
+	inline void Entity::delGroups(Group mGroup) noexcept			{ groups[mGroup] = false; }
+	inline void Entity::setGroups(bool mOn, Group mGroup) noexcept	{ groups[mGroup] = mOn; if(mOn) manager.addToGroup(this, mGroup); }
+	inline void Entity::clearGroups() noexcept						{ groups.reset(); }
 }
 
 #endif
