@@ -52,11 +52,13 @@ namespace ssvces
 			inline Manager& getManager() noexcept { return manager; }
 
 			// Groups
+			inline void setGroups(bool mOn, Group mGroup) noexcept;
 			inline void addGroups(Group mGroup) noexcept;
 			inline void delGroups(Group mGroup) noexcept;
 			inline void clearGroups() noexcept;
-			template<typename... TGroups> inline void addGroups(Group mGroup, TGroups... mGroups) noexcept	{ addGroups(mGroup); addGroups(mGroups...); }
-			template<typename... TGroups> inline void delGroups(Group mGroup, TGroups... mGroups) noexcept	{ delGroups(mGroup); delGroups(mGroups...); }
+			template<typename... TGroups> inline void setGroups(bool mOn, Group mGroup, TGroups... mGroups) noexcept { setGroups(mOn, mGroup); setGroups(mOn, mGroups...); }
+			template<typename... TGroups> inline void addGroups(Group mGroup, TGroups... mGroups) noexcept { addGroups(mGroup); addGroups(mGroups...); }
+			template<typename... TGroups> inline void delGroups(Group mGroup, TGroups... mGroups) noexcept { delGroups(mGroup); delGroups(mGroups...); }
 			inline bool hasGroup(Group mGroup) const noexcept					{ return groups[mGroup]; }
 			inline bool hasAnyGroup(const GroupBitset& mGroups) const noexcept	{ return (groups & mGroups).any(); }
 			inline bool hasAllGroups(const GroupBitset& mGroups) const noexcept	{ return (groups & mGroups).all(); }
