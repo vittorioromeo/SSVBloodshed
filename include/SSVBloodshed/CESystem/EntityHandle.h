@@ -26,19 +26,19 @@ namespace ssvces
 			template<typename T> inline bool hasComponent() const noexcept							{ assert(isAlive()); return entity.hasComponent<T>(); }
 			template<typename T> inline T& getComponent()											{ assert(isAlive()); return entity.getComponent<T>(); }
 
-			inline void destroy() noexcept { entity.destroy(); assert(!isAlive()); }
+			inline void destroy() noexcept { if(isAlive()) entity.destroy(); }
 
 			inline bool isAlive() const noexcept;
 			inline Manager& getManager() noexcept	{ return manager; }
 			inline Entity& getEntity() noexcept		{ assert(isAlive()); return entity; }
 
 			// Groups
-			template<typename... TGroups> inline void addGroups(TGroups... mGroups) noexcept	{ entity.addGroups(mGroups...); }
-			template<typename... TGroups> inline void delGroups(TGroups... mGroups) noexcept	{ entity.delGroups(mGroups...); }
-			inline bool hasGroup(Group mGroup) const noexcept									{ return entity.hasGroup(mGroup); }
-			inline bool hasAnyGroup(const GroupBitset& mGroups) const noexcept					{ return entity.hasAnyGroup(mGroups); }
-			inline void clearGroups() noexcept													{ return entity.clearGroups(); }
-			inline const GroupBitset& getGroups() const noexcept								{ return entity.getGroups(); }
+			template<typename... TGroups> inline void addGroups(TGroups... mGroups) noexcept	{ assert(isAlive()); entity.addGroups(mGroups...); }
+			template<typename... TGroups> inline void delGroups(TGroups... mGroups) noexcept	{ assert(isAlive()); entity.delGroups(mGroups...); }
+			inline bool hasGroup(Group mGroup) const noexcept									{ assert(isAlive()); return entity.hasGroup(mGroup); }
+			inline bool hasAnyGroup(const GroupBitset& mGroups) const noexcept					{ assert(isAlive()); return entity.hasAnyGroup(mGroups); }
+			inline void clearGroups() noexcept													{ assert(isAlive()); return entity.clearGroups(); }
+			inline const GroupBitset& getGroups() const noexcept								{ assert(isAlive()); return entity.getGroups(); }
 	};
 }
 
