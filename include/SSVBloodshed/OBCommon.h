@@ -87,41 +87,41 @@ namespace ob
 		LBackground
 	};
 	enum class PPlateType{Single, Multi, OnOff};
-	enum OBIdAction : int {Toggle, Open, Close};
+	enum class IdAction{Toggle, Open, Close};
 
 	// Level editor enums
-	enum OBLETType : int
+	enum class OBLETType : int
 	{
-		LETFloor,
-		LETWall,
-		LETGrate,
-		LETPit,
-		LETTurretSP,
-		LETTurretCP,
-		LETTurretBP,
-		LETSpawner,
-		LETPlayer,
-		LETRunner,
-		LETRunnerArmed,
-		LETCharger,
-		LETChargerArmed,
-		LETJuggernaut,
-		LETJuggernautArmed,
-		LETGiant,
-		LETBall,
-		LETBallFlying,
-		LETEnforcer,
-		LETWallD,
-		LETDoor,
-		LETPPlateSingle,
-		LETPPlateMulti,
-		LETDoorG,
-		LETTrapdoor,
-		LETDoorR,
-		LETExplosiveCrate,
-		LETVMHealth,
-		LETTrapdoorPOnly,
-		LETPPlateOnOff
+		LETFloor			= 0,
+		LETGrate			= 1,
+		LETWall				= 2,
+		LETWallD			= 3,
+		LETPit				= 4,
+		LETDoor				= 5,
+		LETDoorG			= 6,
+		LETDoorR			= 7,
+		LETPPlateSingle		= 8,
+		LETPPlateMulti		= 9,
+		LETPPlateOnOff		= 10,
+		LETTrapdoor			= 11,
+		LETTrapdoorPOnly	= 12,
+		LETExplosiveCrate	= 13,
+		LETVMHealth			= 14,
+		LETTurretSP			= 15,
+		LETTurretCP			= 16,
+		LETTurretBP			= 17,
+		LETSpawner			= 18,
+		LETPlayer			= 19,
+		LETRunner			= 20,
+		LETRunnerArmed		= 21,
+		LETCharger			= 22,
+		LETChargerArmed		= 23,
+		LETJuggernaut		= 24,
+		LETJuggernautArmed	= 25,
+		LETEnforcer			= 26,
+		LETGiant			= 27,
+		LETBall				= 28,
+		LETBallFlying		= 29
 	};
 
 	// Direction utils
@@ -174,6 +174,8 @@ namespace ob
 
 	// Other utils
 	inline Entity& getEntityFromBody(Body& mBody) { return *reinterpret_cast<Entity*>(mBody.getUserData()); }
+	template<typename T> inline T& getComponentFromBody(Body& mBody){ return getEntityFromBody(mBody).getComponent<T>(); }
 }
+
 
 #endif

@@ -14,25 +14,25 @@ namespace ob
 	class OBCDamageOnTouch : public OBCActorNoDrawBase
 	{
 		private:
-			float damage;
+			float dmg;
 			OBGroup targetGroup;
 
 		public:
-			OBCDamageOnTouch(OBCPhys& mCPhys, float mDamage, OBGroup mTargetGroup) noexcept : OBCActorNoDrawBase{mCPhys}, damage{mDamage}, targetGroup{mTargetGroup} { }
+			OBCDamageOnTouch(OBCPhys& mCPhys, float mDamage, OBGroup mTargetGroup) noexcept : OBCActorNoDrawBase{mCPhys}, dmg{mDamage}, targetGroup{mTargetGroup} { }
 
-			inline void init() override
+			inline void init()
 			{
 				body.addGroupsToCheck(targetGroup);
 				body.onDetection += [this](const DetectionInfo& mDI)
 				{
-					if(mDI.body.hasGroup(targetGroup) && !mDI.body.hasGroup(OBGroup::GEnvDestructible)) getEntityFromBody(mDI.body).getComponent<OBCHealth>().damage(damage);
+					if(mDI.body.hasGroup(targetGroup) && !mDI.body.hasGroup(OBGroup::GEnvDestructible)) getComponentFromBody<OBCHealth>(mDI.body).damage(dmg);
 				};
 			}
 
-			inline void setDamage(float mValue) noexcept		{ damage = mValue; }
+			inline void setDamage(float mValue) noexcept		{ dmg = mValue; }
 			inline void setTargetGroup(OBGroup mValue) noexcept	{ targetGroup = mValue; }
 
-			inline float getDamage() const noexcept				{ return damage; }
+			inline float getDamage() const noexcept				{ return dmg; }
 			inline OBGroup getTargetGroup() const noexcept		{ return targetGroup; }
 	};
 }

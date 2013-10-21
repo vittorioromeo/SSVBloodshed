@@ -26,7 +26,7 @@ namespace ob
 		public:
 			OBCFloor(OBCPhys& mCPhys, OBCDraw& mCDraw, bool mGrate) noexcept : OBCActorBase{mCPhys, mCDraw}, smashed{mGrate} { }
 
-			inline void init() override
+			inline void init()
 			{
 				body.addGroups(OBGroup::GFloor);
 				body.setResolve(false);

@@ -25,7 +25,7 @@ namespace ob
 				for(const auto& p : editor.copiedParams.second) copiedParamsStr += p.first + "(" + ssvu::getReplacedAll(ssvu::toStr(p.second), "\n", "") + ")" + "\n";
 
 				std::ostringstream s;
-				s	<< "Z: "				<< editor.currentZ << "\n"
+				s	<< "Z: " << editor.currentZ << "\n"
 					<< "Level XY: "	<< editor.currentLevelX << ";" << editor.currentLevelY << "\n"
 					<< "C/V: save/load" << "\t" << "Z/X: cycle Z" << "\n"
 					<< "A/S: cycle id" << "\t" << "Q/W: cycle param" << "\n"

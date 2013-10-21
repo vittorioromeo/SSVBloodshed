@@ -26,7 +26,7 @@ namespace ob
 		public:
 			OBCWpnController(OBCPhys& mCPhys, OBGroup mTargetGroup) noexcept : OBCActorNoDrawBase{mCPhys}, wpn{game, mTargetGroup} { }
 
-			inline void init() override				{ tckShoot.setLoop(false); }
+			inline void init()				{ tckShoot.setLoop(false); }
 			inline void update(float mFT) override	{ tckShoot.update(mFT); }
 
 			inline bool shoot(const Vec2i& mPos, float mDeg)

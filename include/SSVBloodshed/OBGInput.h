@@ -32,17 +32,17 @@ namespace ob
 				ssvs::add3StateInput(gs, OBConfig::getTLeft(), OBConfig::getTRight(), iX);
 				ssvs::add3StateInput(gs, OBConfig::getTUp(), OBConfig::getTDown(), iY);
 
-				gs.addInput({{k::Escape}}, [this](float){ game.assets.musicPlayer.stop(); std::terminate(); });
+				gs.addInput({{k::Escape}},	[this](float){ game.assets.musicPlayer.stop(); std::terminate(); });
 
-				gs.addInput({{k::A}}, [=](float){ game.gameCamera.pan(-4, 0); });
-				gs.addInput({{k::D}}, [=](float){ game.gameCamera.pan(4, 0); });
-				gs.addInput({{k::W}}, [=](float){ game.gameCamera.pan(0, -4); });
-				gs.addInput({{k::S}}, [=](float){ game.gameCamera.pan(0, 4); });
-				gs.addInput({{k::Q}}, [=](float){ game.gameCamera.zoomOut(1.1f); });
-				gs.addInput({{k::E}}, [=](float){ game.gameCamera.zoomIn(1.1f); });
+				gs.addInput({{k::A}},		[this](float){ game.gameCamera.pan(-4, 0); });
+				gs.addInput({{k::D}},		[this](float){ game.gameCamera.pan(4, 0); });
+				gs.addInput({{k::W}},		[this](float){ game.gameCamera.pan(0, -4); });
+				gs.addInput({{k::S}},		[this](float){ game.gameCamera.pan(0, 4); });
+				gs.addInput({{k::Q}},		[this](float){ game.gameCamera.zoomOut(1.1f); });
+				gs.addInput({{k::E}},		[this](float){ game.gameCamera.zoomIn(1.1f); });
 
-				gs.addInput({{k::R}}, [this](float){ game.newGame(); }, t::Once);
-				gs.addInput({{k::T}}, [this](float){ game.reloadSector(); }, t::Once);
+				gs.addInput({{k::R}},		[this](float){ game.newGame(); }, t::Once);
+				gs.addInput({{k::T}},		[this](float){ game.reloadSector(); }, t::Once);
 
 				gs.addInput({{k::Num0}},	[this](float){ game.factory.createPit(game.getMousePosition()); }, t::Once);
 				gs.addInput({{k::Num1}},	[this](float){ game.factory.createWall(game.getMousePosition(), game.getAssets().wallSingle); }, t::Once);

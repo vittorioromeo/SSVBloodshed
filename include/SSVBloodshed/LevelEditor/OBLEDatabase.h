@@ -116,19 +116,19 @@ namespace ob
 				add(OBLETType::LETPPlateSingle,		a.txSmall,		a.pPlateSingle,			{{"id", 0}, {"action", 0}, {"playerOnly", false}},
 				[this](TLevel&, TTile& mT, const Vec2i& mP)
 				{
-					f->createPPlate(mP, getP<int>(mT, "id"), PPlateType::Single, OBIdAction(getP<int>(mT, "action")), getP<bool>(mT, "playerOnly"));
+					f->createPPlate(mP, getP<int>(mT, "id"), PPlateType::Single, IdAction(getP<int>(mT, "action")), getP<bool>(mT, "playerOnly"));
 				});
 
 				add(OBLETType::LETPPlateMulti,		a.txSmall,		a.pPlateMulti,			{{"id", 0}, {"action", 0}, {"playerOnly", false}},
 				[this](TLevel&, TTile& mT, const Vec2i& mP)
 				{
-					f->createPPlate(mP, getP<int>(mT, "id"), PPlateType::Multi, OBIdAction(getP<int>(mT, "action")), getP<bool>(mT, "playerOnly"));
+					f->createPPlate(mP, getP<int>(mT, "id"), PPlateType::Multi, IdAction(getP<int>(mT, "action")), getP<bool>(mT, "playerOnly"));
 				});
 
 				add(OBLETType::LETPPlateOnOff,		a.txSmall,		a.pPlateOnOff,			{{"id", 0}, {"action", 0}, {"playerOnly", false}},
 				[this](TLevel&, TTile& mT, const Vec2i& mP)
 				{
-					f->createPPlate(mP, getP<int>(mT, "id"), PPlateType::OnOff, OBIdAction(getP<int>(mT, "action")), getP<bool>(mT, "playerOnly"));
+					f->createPPlate(mP, getP<int>(mT, "id"), PPlateType::OnOff, IdAction(getP<int>(mT, "action")), getP<bool>(mT, "playerOnly"));
 				});
 			}
 

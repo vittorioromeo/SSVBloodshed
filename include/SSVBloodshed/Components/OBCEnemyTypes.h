@@ -90,7 +90,7 @@ namespace ob
 		public:
 			OBCERunner(OBCEnemy& mCEnemy, OBCWielder& mCWielder, OBCWpnController& mCWpnController, bool mArmed) : OBCEArmedBase{mCEnemy, mCWielder, mCWpnController, mArmed, 1} { }
 
-			inline void init() override
+			inline void init()
 			{
 				cWpnController.setWpn(OBWpnTypes::createEPlasmaBulletGun());
 				cEnemy.setMinBounceVel(125.f); cEnemy.setMaxVel(200.f);
@@ -132,7 +132,7 @@ namespace ob
 			OBCECharger(OBCEnemy& mCEnemy, OBCFloorSmasher& mCFloorSmasher, OBCWielder& mCWielder, OBCWpnController& mCWpnController, bool mArmed)
 				: OBCEArmedBase{mCEnemy, mCWielder, mCWpnController, mArmed, 7}, cFloorSmasher(mCFloorSmasher) { }
 
-			inline void init() override
+			inline void init()
 			{
 				cWpnController.setWpn(OBWpnTypes::createEPlasmaBulletGun(1, 8.f));
 				cEnemy.setMinBounceVel(20.f); cEnemy.setMaxVel(50.f);
@@ -188,7 +188,7 @@ namespace ob
 		public:
 			OBCEJuggernaut(OBCEnemy& mCEnemy, OBCWielder& mCWielder, OBCWpnController& mCWpnController, bool mArmed) : OBCEArmedBase{mCEnemy, mCWielder, mCWpnController, mArmed, 18} { }
 
-			inline void init() override
+			inline void init()
 			{
 				cWpnController.setWpn(OBWpnTypes::createEPlasmaBulletGun(2, 8.f));
 				cEnemy.setMinBounceVel(15.f); cEnemy.setMaxVel(50.f);
@@ -247,7 +247,7 @@ namespace ob
 		public:
 			OBCEBall(OBCEnemy& mCEnemy, bool mFlying, bool mSmall) : OBCEBase{mCEnemy}, flying{mFlying}, small{mSmall} { }
 
-			inline void init() override
+			inline void init()
 			{
 				if(!small)
 				{
@@ -298,7 +298,7 @@ namespace ob
 		public:
 			OBCEGiant(OBCEnemy& mCEnemy) : OBCEBase{mCEnemy} { }
 
-			inline void init() override
+			inline void init()
 			{
 				cKillable.setParticleMult(8);
 				cKillable.onDeath += [this]{ assets.playSound("Sounds/alienDeath.wav"); };
@@ -364,7 +364,7 @@ namespace ob
 		public:
 			OBCEEnforcer(OBCEnemy& mCEnemy) : OBCEBase{mCEnemy} { }
 
-			inline void init() override
+			inline void init()
 			{
 				cKillable.setParticleMult(3);
 				cEnemy.setMinBounceVel(45.f); cEnemy.setMaxVel(115.f);

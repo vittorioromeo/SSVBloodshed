@@ -21,7 +21,7 @@ namespace ob
 		public:
 			OBCVMachine(OBCPhys& mCPhys, OBCDraw& mCDraw) noexcept : OBCActorBase{mCPhys, mCDraw} { }
 
-			inline void init() override { body.setResolve(false); }
+			inline void init() { body.setResolve(false); }
 
 			inline void update(float) override
 			{
@@ -40,10 +40,10 @@ namespace ob
 			inline std::string getMsg() const noexcept	{ return "[" + ssvu::toStr(shardCost) + "] Heal <" + ssvu::toStr(healAmount) + "> hp"; }
 	};
 
-	inline void OBCPlayer::updateVM()
+	inline void OBCPlayer::setCurrentVM(OBCVMachine* mVMachine)
 	{
-		if(currentVM == nullptr) { game.txtVM.setString(""); return; }
-		game.txtVM.setString(currentVM->getMsg());
+		currentVM = mVMachine;
+		game.txtVM.setString(currentVM == nullptr ? "" :currentVM->getMsg());
 	}
 
 	inline void OBCPlayer::useVM()

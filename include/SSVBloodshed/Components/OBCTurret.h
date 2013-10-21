@@ -31,7 +31,7 @@ namespace ob
 			OBCTurret(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCKillable& mCKillable, Dir8 mDir, const OBWpnType& mWpn, float mShootDelay, float mPJDelay, int mShootCount) noexcept
 				: OBCActorBase{mCPhys, mCDraw}, cKillable(mCKillable), direction{mDir}, wpn{game, OBGroup::GFriendlyKillable, mWpn}, shootDelay{mShootDelay}, pjDelay{mPJDelay}, shootCount{mShootCount} { }
 
-			inline void init() override
+			inline void init()
 			{
 				getEntity().addGroups(OBGroup::GEnemy, OBGroup::GEnemyKillable);
 				body.setResolve(false);

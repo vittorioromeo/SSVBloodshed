@@ -14,7 +14,7 @@ namespace ob
 {
 	namespace OBWpnTypes
 	{
-		using FactoryMemPtr = Entity&(OBFactory::*)(const Vec2i& mPos, float mDeg);
+		//using FactoryMemPtr = Entity&(OBFactory::*)(const Vec2i& mPos, float mDeg);
 		//template<typename... TArgs> using FactoryMemPtr = Entity&(OBFactory::*)(TArgs...);
 
 		template<typename T> inline void fanShoot(T mFactoryAction, OBWpnType& mWpn, OBGame& mGame, const Vec2i& mPos, float mDeg, int mCount, float mStep, float mSpeedChange)

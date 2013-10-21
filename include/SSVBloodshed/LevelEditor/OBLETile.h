@@ -17,7 +17,7 @@ namespace ob
 
 		private:
 			bool null{true};
-			int x, y, z;
+			int x{-1}, y{-1}, z{-1};
 			OBLETType type;
 			std::map<std::string, ssvuj::Obj> params;
 
@@ -26,20 +26,19 @@ namespace ob
 
 		public:
 			inline OBLETile() = default;
-			inline OBLETile(const OBLETile& mTile) noexcept
+			inline OBLETile(const OBLETile& mTile) noexcept : x{mTile.x}, y{mTile.y}, z{mTile.z}, type{mTile.type}, params{mTile.params} { }
+
+			inline void refreshIdText(OBAssets& mAssets)
 			{
-				x = mTile.x; y = mTile.y; z = mTile.z;
-				type = mTile.type; params = mTile.params;
+				if(hasParam("id") && idText == nullptr) idText.reset(new ssvs::BitmapText(*mAssets.obStroked));
 			}
 
 			inline void setRot(int mDeg) noexcept { if(hasParam("rot")) params["rot"] = mDeg; }
 			inline void setId(OBAssets& mAssets, int mId) noexcept
 			{
-				if(hasParam("id"))
-				{
-					if(idText == nullptr) idText.reset(new ssvs::BitmapText(*mAssets.obStroked));
-					params["id"] = mId;
-				}
+				if(!hasParam("id")) return;
+				params["id"] = mId;
+				refreshIdText(mAssets);
 			}
 
 			inline void update()
@@ -64,12 +63,7 @@ namespace ob
 				sprite.setTextureRect(mEntry.intRect);
 			}
 
-			inline OBLETile& operator=(const OBLETile& mTile) noexcept
-			{
-				x = mTile.x; y = mTile.y; z = mTile.z;
-				type = mTile.type; params = mTile.params;
-				return *this;
-			}
+			inline OBLETile& operator=(const OBLETile& mT) noexcept { x = mT.x; y = mT.y; z = mT.z; type = mT.type; params = mT.params; return *this; }
 
 			inline bool isNull() const noexcept								{ return null; }
 			inline void setX(int mX) noexcept								{ x = mX; }

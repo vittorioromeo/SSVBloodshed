@@ -16,12 +16,12 @@ namespace ob
 			int id;
 
 		public:
-			ssvu::Delegate<void(OBIdAction)> onActivate;
+			ssvu::Delegate<void(IdAction)> onActivate;
 
 			inline OBCIdReceiver(int mId) : id{mId} { }
-			inline void init() override { getEntity().addGroups(OBGroup::GIdReceiver); }
+			inline void init() { getEntity().addGroups(OBGroup::GIdReceiver); }
 
-			inline void activate(OBIdAction mAction) { if(id != -1) onActivate(mAction); }
+			inline void activate(IdAction mAction) { if(id != -1) onActivate(mAction); }
 
 			inline void setId(int mId) noexcept	{ id = mId; }
 			inline int getId() const noexcept	{ return id; }

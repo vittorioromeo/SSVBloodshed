@@ -25,7 +25,7 @@ namespace ob
 			OBCParticleSystem(sf::RenderTexture& mRenderTexture, sf::RenderTarget& mRenderTarget, bool mClearOnDraw = false, unsigned char mAlpha = 255, sf::BlendMode mBlendMode = sf::BlendMode::BlendAlpha) noexcept
 				: renderTexture(mRenderTexture), renderTarget(mRenderTarget), clearOnDraw{mClearOnDraw}, alpha{mAlpha}, blendMode{mBlendMode} { }
 
-			inline void init() override
+			inline void init()
 			{
 				renderTexture.clear(sf::Color::Transparent);
 				sprite.setTexture(renderTexture.getTexture());

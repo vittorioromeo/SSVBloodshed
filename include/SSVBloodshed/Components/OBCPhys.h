@@ -24,7 +24,7 @@ namespace ob
 			OBCPhys(OBGame& mGame, bool mIsStatic, const Vec2i& mPosition, const Vec2i& mSize) : game(mGame), world(mGame.getWorld()), body(world.create(mPosition, mSize, mIsStatic)) { }
 			inline ~OBCPhys() { body.destroy(); }
 
-			inline void init() override
+			inline void init()
 			{
 				body.setUserData(&getEntity());
 				body.onResolution += [this](const ResolutionInfo& mResolutionInfo)

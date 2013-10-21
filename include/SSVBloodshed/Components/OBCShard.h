@@ -16,7 +16,7 @@ namespace ob
 		public:
 			OBCShard(OBCPhys& mCPhys, OBCDraw& mCDraw) noexcept : OBCActorBase{mCPhys, mCDraw} { }
 
-			inline void init() override
+			inline void init()
 			{
 				getEntity().addGroups(OBGroup::GShard);
 				body.addGroups(OBGroup::GShard);
@@ -29,7 +29,7 @@ namespace ob
 				{
 					if(!mDI.body.hasGroup(OBGroup::GPlayer)) return;
 
-					getEntityFromBody(mDI.body).getComponent<OBCPlayer>().shardGrabbed();
+					getComponentFromBody<OBCPlayer>(mDI.body).shardGrabbed();
 					getEntity().destroy(); game.createPShard(20, cPhys.getPosPx());
 				};
 

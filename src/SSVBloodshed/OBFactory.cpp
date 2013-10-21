@@ -152,7 +152,7 @@ namespace ob
 		getEntity(tpl).createComponent<OBCDoorR>(getCPhys(tpl), getCDraw(tpl), mOpen);
 		return getEntity(tpl);
 	}
-	Entity& OBFactory::createPPlate(const Vec2i& mPos, int mId, PPlateType mType, OBIdAction mIdAction, bool mPlayerOnly)
+	Entity& OBFactory::createPPlate(const Vec2i& mPos, int mId, PPlateType mType, IdAction mIdAction, bool mPlayerOnly)
 	{
 		auto tpl(createActorBase(mPos, {1000, 1000}, OBLayer::LFloor));
 		getEntity(tpl).createComponent<OBCPPlate>(getCPhys(tpl), getCDraw(tpl), mId, mType, mIdAction, mPlayerOnly);
@@ -180,7 +180,7 @@ namespace ob
 		getCKillable(tpl).setType(OBCKillable::Type::ExplosiveCrate);
 		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.explosiveCrate);
 
-		cIdReceiver.onActivate += [tpl](OBIdAction){ getCKillable(tpl).kill(); };
+		cIdReceiver.onActivate += [tpl](IdAction){ getCKillable(tpl).kill(); };
 		getCKillable(tpl).onDeath += [this, tpl]
 		{
 			for(int i{0}; i < 360; i += 360 / 16)

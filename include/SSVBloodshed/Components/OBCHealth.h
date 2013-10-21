@@ -23,16 +23,16 @@ namespace ob
 
 			inline void update(float mFT) override { tckCooldown.update(mFT); }
 
-			inline bool heal(float mHealth) noexcept
+			inline bool heal(float mAmount) noexcept
 			{
 				if(health >= maxHealth || isDead()) return false;
-				health += mHealth; ssvu::clampMax(health, maxHealth);
+				ssvu::getClampedMax(health + mAmount, maxHealth);
 				onHeal(); return true;
 			}
-			inline bool damage(float mDamage) noexcept
+			inline bool damage(float mAmount) noexcept
 			{
 				if(tckCooldown.isRunning() || isDead()) return false;
-				health = ssvu::getClampedMin(health - mDamage, 0.f);
+				health = ssvu::getClampedMin(health - mAmount, 0.f);
 				tckCooldown.restart(); onDamage(); return true;
 			}
 			inline void setHealth(float mHealth) noexcept	{ health = ssvu::getClamped(mHealth, 0.f, maxHealth); }

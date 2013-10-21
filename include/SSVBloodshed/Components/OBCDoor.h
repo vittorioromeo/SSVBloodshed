@@ -22,13 +22,12 @@ namespace ob
 				openStatus = mOpen;
 				cDraw[0].setColor(sf::Color(255, 255, 255, openStatus ? 100 : 255));
 
-				if(openStatus)	body.delGroups(OBGroup::GSolidGround, OBGroup::GSolidAir);
-				else			body.addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir);
+				body.setGroups(!openStatus, OBGroup::GSolidGround, OBGroup::GSolidAir);
 			}
 
 		public:
 			OBCDoorBase(OBCPhys& mCPhys, OBCDraw& mCDraw, bool mOpen = false) noexcept : OBCActorBase{mCPhys, mCDraw}, openStatus{mOpen} { }
-			inline void init() override { setOpen(openStatus); }
+			inline void init() { setOpen(openStatus); }
 
 			inline void toggle() noexcept	{ setOpen(!openStatus); }
 			inline void open() noexcept		{ setOpen(true); }
@@ -43,13 +42,13 @@ namespace ob
 		public:
 			OBCDoor(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCIdReceiver& mCIdReceiver, bool mOpen = false) noexcept : OBCDoorBase{mCPhys, mCDraw, mOpen}, cIdReceiver(mCIdReceiver)
 			{
-				cIdReceiver.onActivate += [this](OBIdAction mIdAction)
+				cIdReceiver.onActivate += [this](IdAction mIdAction)
 				{
 					switch(mIdAction)
 					{
-						case OBIdAction::Toggle: toggle(); break;
-						case OBIdAction::Open: open(); break;
-						case OBIdAction::Close: close(); break;
+						case IdAction::Toggle: toggle(); break;
+						case IdAction::Open: open(); break;
+						case IdAction::Close: close(); break;
 					}
 				};
 			}

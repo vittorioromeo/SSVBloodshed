@@ -27,7 +27,7 @@ namespace ob
 			OBCEnemy(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCKillable& mCKillable, OBCTargeter& mCTargeter, OBCBoid& mCBoid) noexcept
 				: OBCActorBase{mCPhys, mCDraw}, cKillable(mCKillable), cTargeter(mCTargeter), cBoid(mCBoid) { }
 
-			inline void init() override
+			inline void init()
 			{
 				getEntity().addGroups(OBGroup::GEnemy, OBGroup::GEnemyKillable);
 

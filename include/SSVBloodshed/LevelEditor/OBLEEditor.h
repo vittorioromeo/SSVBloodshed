@@ -74,7 +74,7 @@ namespace ob
 
 			inline void refreshCurrentLevel()	{ currentLevel = &sector.getLevel(currentLevelX, currentLevelY); }
 			inline void clearCurrentLevel()		{ *currentLevel = {levelRows, levelColumns, database.get(OBLETType::LETFloor)}; refreshCurrentTiles(); }
-			inline void refreshCurrentTiles()	{ for(auto& t : currentLevel->getTiles()) if(t.second.hasParam("id")) t.second.setId(assets, t.second.getParam<int>("id")); }
+			inline void refreshCurrentTiles()	{ for(auto& t : currentLevel->getTiles()) t.second.refreshIdText(assets); }
 
 			inline void updateXY()
 			{
@@ -101,8 +101,8 @@ namespace ob
 
 			inline void paint()	{ for(auto& t : currentTiles) { t->initFromEntry(getCurrentEntry()); t->setRot(currentRot); t->setId(assets, currentId); } }
 			inline void del()	{ for(auto& t : currentTiles) { currentLevel->del(*t); } }
-			inline void pick()	{ auto& t(getPickTile()); brush.idx = int(t.getType()); }
-
+			inline void pick()	{ brush.idx = int(getPickTile().getType()); }
+\
 			inline void copyParams()	{ auto& t(getPickTile()); copiedParams = std::make_pair(t.getType(), t.getParams()); }
 			inline void pasteParams()	{ for(auto& t : currentTiles) { if(t->getType() == copiedParams.first) t->setParams(copiedParams.second); } }
 

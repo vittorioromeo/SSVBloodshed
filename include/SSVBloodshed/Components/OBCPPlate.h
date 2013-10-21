@@ -12,22 +12,22 @@
 
 namespace ob
 {
+	inline void activateIdReceivers(int mId, IdAction mIdAction, sses::Manager& mManager)
+	{
+		for(auto& e : mManager.getEntities(OBGroup::GIdReceiver))
+		{
+			auto& c(e->getComponent<OBCIdReceiver>());
+			if(c.getId() == mId) c.activate(mIdAction);
+		}
+	}
+
 	class OBCPPlate : public OBCActorBase, public OBWeightable
 	{
 		private:
 			int id;
 			PPlateType type;
-			OBIdAction idAction;
+			IdAction idAction;
 			bool triggered{false};
-
-			inline void activate()
-			{
-				for(auto& e : manager.getEntities(OBGroup::GIdReceiver))
-				{
-					auto& c(e->getComponent<OBCIdReceiver>());
-					if(c.getId() == id) c.activate(idAction);
-				}
-			}
 
 			inline void triggerNeighbors(bool mTrigger)
 			{
@@ -52,10 +52,10 @@ namespace ob
 			inline void unTrigger()	{ if(triggered) { triggered = false; triggerNeighbors(false); } }
 
 		public:
-			OBCPPlate(OBCPhys& mCPhys, OBCDraw& mCDraw, int mId, PPlateType mType, OBIdAction mIdAction, bool mPlayerOnly) noexcept
+			OBCPPlate(OBCPhys& mCPhys, OBCDraw& mCDraw, int mId, PPlateType mType, IdAction mIdAction, bool mPlayerOnly) noexcept
 				: OBCActorBase{mCPhys, mCDraw}, OBWeightable{mCPhys, mPlayerOnly}, id{mId}, type{mType}, idAction{mIdAction} { }
 
-			inline void init() override
+			inline void init()
 			{
 				if(type == PPlateType::Single) triggered = false;
 				OBWeightable::init();
@@ -64,12 +64,12 @@ namespace ob
 			{
 				if(hasBeenWeighted() && !triggered)
 				{
-					trigger(); activate();
+					trigger(); activateIdReceivers(id, idAction, manager);
 				}
 				else if(hasBeenUnweighted())
 				{
 					if(type == PPlateType::Multi) unTrigger();
-					else if(type == PPlateType::OnOff) { unTrigger(); activate(); }
+					else if(type == PPlateType::OnOff) { unTrigger(); activateIdReceivers(id, idAction, manager); }
 				}
 
 				OBWeightable::refresh();

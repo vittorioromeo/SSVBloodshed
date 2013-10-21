@@ -22,7 +22,7 @@ namespace ob
 		public:
 			OBCTrapdoor(OBCPhys& mCPhys, OBCDraw& mCDraw, bool mPlayerOnly) noexcept : OBCActorBase{mCPhys, mCDraw}, OBWeightable{mCPhys, mPlayerOnly} { }
 
-			inline void init() override
+			inline void init()
 			{
 				getEntity().addGroups(OBGroup::GTrapdoor);
 				body.addGroups(OBGroup::GTrapdoor);

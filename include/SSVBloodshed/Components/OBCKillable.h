@@ -75,7 +75,7 @@ namespace ob
 
 			OBCKillable(OBCPhys& mCPhys, OBCHealth& mCHealth, Type mType) noexcept : OBCActorNoDrawBase{mCPhys}, cHealth(mCHealth), type{mType} { }
 
-			inline void init() override { cHealth.onDamage += [this]{ effectHit(); if(cHealth.isDead()) kill(); }; }
+			inline void init() { cHealth.onDamage += [this]{ effectHit(); if(cHealth.isDead()) kill(); }; }
 
 			inline void kill() { effectDeath(); onDeath(); getEntity().destroy(); }
 

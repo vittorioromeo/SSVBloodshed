@@ -57,7 +57,7 @@ namespace ob
 			OBCPlayer(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCKillable& mCKillable, OBCWielder& mCWielder, OBCWpnController& mCWpnController) noexcept
 				: OBCActorBase{mCPhys, mCDraw}, cKillable(mCKillable), cWielder(mCWielder), cDir8(mCWielder.getCDir8()), cWpnController(mCWpnController) { }
 
-			inline void init() override
+			inline void init()
 			{
 				cWielder.setWieldDist(7.f);
 				cKillable.getCHealth().setCooldown(2.5f);
@@ -121,7 +121,6 @@ namespace ob
 				game.testhp.setMaxValue(cHealth.getMaxHealth());
 				game.txtShards.setString(ssvu::toStr(shards + currentShards));
 			}
-			inline void updateVM();
 			inline void checkTransitions()
 			{
 				if(cPhys.getLeft() + cPhys.getVel().x < 0)							game.changeLevel(*this, -1, 0);
@@ -132,7 +131,7 @@ namespace ob
 
 			inline void update(float) override
 			{
-				updateInput(); updateHUD(); updateVM(); attractShards();
+				updateInput(); updateHUD(); attractShards();
 
 				if(game.isLevelClear()) { shards += currentShards; currentShards = 0; }
 				if(cWielder.isShooting() && cWpnController.shoot(cWielder.getShootingPos(), cDir8.getDeg())) game.createPMuzzle(20, toPixels(cWielder.getShootingPos()));
@@ -147,7 +146,7 @@ namespace ob
 
 			inline void shardGrabbed() noexcept { ++currentShards; }
 
-			inline void setCurrentVM(OBCVMachine* mVMachine) { currentVM = mVMachine; }
+			void setCurrentVM(OBCVMachine* mVMachine);
 			inline OBCVMachine* getCurrentVM() { return currentVM; }
 
 			inline void initFromData(const Data& mData) noexcept

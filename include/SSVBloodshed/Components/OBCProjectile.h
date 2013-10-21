@@ -17,7 +17,7 @@ namespace ob
 	{
 		private:
 			ssvs::Ticker tckLife{150.f};
-			float speed{125.f}, degrees{0.f}, curveSpeed{0.f}, damage{1};
+			float speed{125.f}, degrees{0.f}, curveSpeed{0.f}, dmg{1};
 			int pierceOrganic{0};
 			bool killDestructible{false};
 			OBGroup targetGroup{OBGroup::GEnemyKillable};
@@ -29,7 +29,7 @@ namespace ob
 
 			OBCProjectile(OBCPhys& mCPhys, OBCDraw& mCDraw, float mSpeed, float mDegrees) noexcept : OBCActorBase{mCPhys, mCDraw}, speed{mSpeed}, degrees{mDegrees} { }
 
-			inline void init() override
+			inline void init()
 			{
 				body.addGroups(OBGroup::GProjectile);
 				body.addGroupsToCheck(OBGroup::GSolidGround, OBGroup::GSolidAir);
@@ -38,11 +38,11 @@ namespace ob
 				{
 					if(killDestructible && mDI.body.hasGroup(OBGroup::GEnvDestructible))
 					{
-						getEntityFromBody(mDI.body).getComponent<OBCHealth>().damage(100000);
+						getComponentFromBody<OBCHealth>(mDI.body).damage(100000);
 						destroy();
 					}
 
-					if(mDI.body.hasGroup(targetGroup) && getEntityFromBody(mDI.body).getComponent<OBCHealth>().damage(damage) && pierceOrganic-- == 0)
+					if(mDI.body.hasGroup(targetGroup) && getComponentFromBody<OBCHealth>(mDI.body).damage(dmg) && pierceOrganic-- == 0)
 					{
 						destroy();
 					}
@@ -73,18 +73,18 @@ namespace ob
 			inline void setSpeed(float mValue) noexcept				{ speed = mValue; }
 			inline void setDegrees(float mValue) noexcept			{ degrees = mValue; }
 			inline void setCurveSpeed(float mValue) noexcept		{ curveSpeed = mValue; }
-			inline void setDamage(float mValue) noexcept			{ damage = mValue; }
+			inline void setDamage(float mValue) noexcept			{ dmg = mValue; }
 			inline void setPierceOrganic(int mValue) noexcept		{ pierceOrganic = mValue; }
 			inline void setTargetGroup(OBGroup mValue) noexcept		{ targetGroup = mValue; }
 			inline void setKillDestructible(bool mValue) noexcept	{ killDestructible = mValue; }
 
-			inline float getLife() const noexcept				{ return tckLife.getCurrent(); }
-			inline float getSpeed() const noexcept				{ return speed; }
-			inline float getDeg() const noexcept				{ return degrees; }
-			inline float getCurveSpeed() const noexcept			{ return curveSpeed; }
-			inline float getDamage() const noexcept				{ return damage; }
-			inline int getPierceOrganic() const noexcept		{ return pierceOrganic; }
-			inline OBGroup getTargetGroup() const noexcept		{ return targetGroup; }
+			inline float getLife() const noexcept			{ return tckLife.getCurrent(); }
+			inline float getSpeed() const noexcept			{ return speed; }
+			inline float getDeg() const noexcept			{ return degrees; }
+			inline float getCurveSpeed() const noexcept		{ return curveSpeed; }
+			inline float getDamage() const noexcept			{ return dmg; }
+			inline int getPierceOrganic() const noexcept	{ return pierceOrganic; }
+			inline OBGroup getTargetGroup() const noexcept	{ return targetGroup; }
 	};
 }
 

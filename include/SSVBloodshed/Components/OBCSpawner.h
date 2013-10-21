@@ -44,16 +44,16 @@ namespace ob
 			OBCSpawner(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCIdReceiver& mCIdReceiver, int mType, float mDelayStart, float mDelaySpawn, int mSpawnCount) noexcept :
 				OBCActorBase{mCPhys, mCDraw}, cIdReceiver(mCIdReceiver), type{mType}, delayStart{mDelayStart}, delaySpawn{mDelaySpawn}, spawnCount{mSpawnCount} { delayStart.setLoop(false); }
 
-			inline void init() override
+			inline void init()
 			{
 				getEntity().addGroups(OBGroup::GEnemy);
-				cIdReceiver.onActivate += [this](OBIdAction mIdAction)
+				cIdReceiver.onActivate += [this](IdAction mIdAction)
 				{
 					switch(mIdAction)
 					{
-						case OBIdAction::Toggle: active = !active; break;
-						case OBIdAction::Open: active = true; break;
-						case OBIdAction::Close: active = false; break;
+						case IdAction::Toggle: active = !active; break;
+						case IdAction::Open: active = true; break;
+						case IdAction::Close: active = false; break;
 					}
 				};
 			}

@@ -24,8 +24,9 @@ namespace ob
 			OBCWielder(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCDir8& mCDir8, const sf::IntRect& mRectStand, const sf::IntRect& mRectShoot) noexcept
 				: OBCActorBase{mCPhys, mCDraw}, cDir8(mCDir8), rectStand{mRectStand}, rectShoot{mRectShoot} { }
 
-			inline void draw() override
+			inline void setShooting(bool mValue) noexcept
 			{
+				shooting = mValue;
 				if(shooting)
 				{
 					cDraw[0].setTextureRect(rectShoot);
@@ -39,16 +40,14 @@ namespace ob
 					cDraw.getOffsets()[1] = cDir8.getVec(holdDist);
 				}
 			}
+			inline void setHoldDist(float mValue) noexcept				{ holdDist = mValue; }
+			inline void setWieldDist(float mValue) noexcept				{ wieldDist = mValue; }
+			inline void setRectStand(const sf::IntRect& mRect) noexcept	{ rectStand = mRect; }
+			inline void setRectShoot(const sf::IntRect& mRect) noexcept	{ rectShoot = mRect; }
 
-			inline void setShooting(bool mValue) noexcept					{ shooting = mValue; }
-			inline void setHoldDist(float mValue) noexcept					{ holdDist = mValue; }
-			inline void setWieldDist(float mValue) noexcept					{ wieldDist = mValue; }
-			inline void setRectStand(const sf::IntRect& mRect) noexcept		{ rectStand = mRect; }
-			inline void setRectShoot(const sf::IntRect& mRect) noexcept		{ rectShoot = mRect; }
-
-			inline OBCDir8& getCDir8() const noexcept			{ return cDir8; }
-			inline bool isShooting() const noexcept				{ return shooting; }
-			inline Vec2i getShootingPos() const noexcept		{ return cPhys.getPosI() + Vec2i(cDir8.getVec(toCoords(wieldDist))); }
+			inline OBCDir8& getCDir8() const noexcept		{ return cDir8; }
+			inline bool isShooting() const noexcept			{ return shooting; }
+			inline Vec2i getShootingPos() const noexcept	{ return cPhys.getPosI() + Vec2i(cDir8.getVec(toCoords(wieldDist))); }
 	};
 }
 
