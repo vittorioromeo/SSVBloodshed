@@ -20,7 +20,7 @@ namespace ob
 			OBCKillable& cKillable;
 			OBCTargeter& cTargeter;
 			OBCBoid& cBoid;
-			float currentDeg{0.f}, snappedDeg{0.f}, turnSpeed{5.f}, minBounceVel{75.f};
+			float currentDeg{0.f}, snappedDeg{0.f}, turnSpeed{5.f}, minBounceVel{75.f}, targetDeg;
 			bool faceDirection{true}, bounced{false};
 
 		public:
@@ -54,10 +54,10 @@ namespace ob
 				snappedDeg = getDegFromDir8(getDir8FromDeg(currentDeg));
 
 				if(!cTargeter.hasTarget()) return;
-				float targetDeg(ssvs::getDegTowards(cPhys.getPosF(), cTargeter.getPosF()));
+				targetDeg = ssvs::getDegTowards(cPhys.getPosF(), cTargeter.getPosF());
 				currentDeg = ssvu::getRotatedDeg(currentDeg, targetDeg, turnSpeed * mFT);
 			}
-			inline void draw() override { if(faceDirection) cDraw.setRotation(snappedDeg); }
+			inline void draw() override { if(faceDirection) cDraw[0].setRotation(snappedDeg); }
 
 			inline void setFaceDirection(bool mValue) noexcept	{ faceDirection = mValue; }
 			inline void setMinBounceVel(float mMin) noexcept	{ minBounceVel = mMin; }
@@ -70,6 +70,7 @@ namespace ob
 			inline float getCurrentDeg() const noexcept			{ return currentDeg; }
 			inline float getSnappedDeg() const noexcept			{ return snappedDeg; }
 			inline float getTurnSpeed() const noexcept			{ return turnSpeed; }
+			inline float getDegDiff() const noexcept			{ return std::abs(ssvu::wrapDeg(currentDeg) - ssvu::wrapDeg(targetDeg)); }
 	};
 }
 

@@ -45,6 +45,7 @@ namespace ob
 
 			inline void setPos(const Vec2i& mPos) noexcept			{ body.setPosition(mPos); }
 			inline void setVel(const Vec2f& mVel) noexcept			{ body.setVelocity(mVel); }
+			inline void setMass(float mMass) noexcept				{ body.setMass(mMass); }
 
 			inline OBGame& getGame() const noexcept					{ return game; }
 			inline World& getWorld() const noexcept					{ return world; }

@@ -45,7 +45,7 @@ namespace ob
 			inline void update(float mFT) override
 			{
 				tlShoot.update(mFT);
-				if(tckShoot.getCurrent() > 90.f && tckShoot.getCurrent() < 115.f) { game.createPCharge(1, cPhys.getPosPx(), 20); }
+				if(tckShoot.getCurrent() > shootDelay / 1.5f && tckShoot.getCurrent() < shootDelay) game.createPCharge(1, cPhys.getPosPx(), 20);
 				if(tckShoot.update(mFT)) { tlShoot.reset(); tlShoot.start(); }
 			}
 			inline void draw() override { cDraw.setRotation(getDegFromDir8(direction)); }

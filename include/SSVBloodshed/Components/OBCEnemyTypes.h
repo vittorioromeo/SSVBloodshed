@@ -92,6 +92,7 @@ namespace ob
 
 			inline void init()
 			{
+				cPhys.setMass(1.f);
 				cWpnController.setWpn(OBWpnTypes::createEPlasmaBulletGun());
 				cEnemy.setMinBounceVel(125.f); cEnemy.setMaxVel(200.f);
 				cKillable.setType(OBCKillable::Type::Organic);
@@ -105,7 +106,7 @@ namespace ob
 					float distance{ssvs::getDistEuclidean(cTargeter.getPosF(), cPhys.getPosF())};
 					bool raycast{raycastToPlayer(cPhys, cTargeter.getTarget())};
 
-					cWielder.setShooting(armed && raycast);
+					cWielder.setShooting(armed && cEnemy.getDegDiff() < 50.f && raycast);
 					if(armed) faceShootDir();
 
 					if(cWielder.isShooting())
@@ -122,19 +123,31 @@ namespace ob
 
 	class OBCECharger : public OBCEArmedBase
 	{
+		public:
+			enum class Type{Unarmed, Plasma, Grenade};
+
 		private:
 			OBCFloorSmasher& cFloorSmasher;
 			ssvs::Ticker tckCharge{250.f};
 			ssvu::Timeline tlCharge{false};
 			float lastDeg{0};
+			Type type;
 
 		public:
-			OBCECharger(OBCEnemy& mCEnemy, OBCFloorSmasher& mCFloorSmasher, OBCWielder& mCWielder, OBCWpnController& mCWpnController, bool mArmed)
-				: OBCEArmedBase{mCEnemy, mCWielder, mCWpnController, mArmed, 7}, cFloorSmasher(mCFloorSmasher) { }
+			OBCECharger(OBCEnemy& mCEnemy, OBCFloorSmasher& mCFloorSmasher, OBCWielder& mCWielder, OBCWpnController& mCWpnController, Type mType)
+				: OBCEArmedBase{mCEnemy, mCWielder, mCWpnController, mType != Type::Unarmed, 7}, cFloorSmasher(mCFloorSmasher), type{mType} { }
 
 			inline void init()
 			{
+				cPhys.setMass(100.f);
+
 				cWpnController.setWpn(OBWpnTypes::createEPlasmaBulletGun(1, 8.f));
+				if(type == Type::Grenade)
+				{
+					cWpnController.setWpn(OBWpnTypes::createGrenadeLauncher());
+					cDraw[1].setTextureRect(assets.e2GunGL);
+				}
+
 				cEnemy.setMinBounceVel(20.f); cEnemy.setMaxVel(50.f);
 				cWielder.setHoldDist(5.f);
 				cWielder.setWieldDist(16.f);
@@ -158,7 +171,7 @@ namespace ob
 				if(cTargeter.hasTarget())
 				{
 					float distance{ssvs::getDistEuclidean(cTargeter.getPosF(), cPhys.getPosF())};
-					cWielder.setShooting(armed && raycastToPlayer(cPhys, cTargeter.getTarget()));
+					cWielder.setShooting(armed && cEnemy.getDegDiff() < 50.f && raycastToPlayer(cPhys, cTargeter.getTarget()));
 
 					if(armed)
 					{
@@ -179,18 +192,30 @@ namespace ob
 
 	class OBCEJuggernaut : public OBCEArmedBase
 	{
+		public:
+			enum class Type{Unarmed, Plasma, Rocket};
+
 		private:
 			ssvs::Ticker tckShoot{150.f};
 			ssvu::Timeline tlShoot{false};
 			float lastDeg{0};
 			OBWpn wpn{game, OBGroup::GFriendlyKillable, OBWpnTypes::createEPlasmaStarGun(0)};
+			Type type;
 
 		public:
-			OBCEJuggernaut(OBCEnemy& mCEnemy, OBCWielder& mCWielder, OBCWpnController& mCWpnController, bool mArmed) : OBCEArmedBase{mCEnemy, mCWielder, mCWpnController, mArmed, 18} { }
+			OBCEJuggernaut(OBCEnemy& mCEnemy, OBCWielder& mCWielder, OBCWpnController& mCWpnController, Type mType) : OBCEArmedBase{mCEnemy, mCWielder, mCWpnController, mType != Type::Unarmed, 18}, type{mType} { }
 
 			inline void init()
 			{
+				cPhys.setMass(10000.f);
+
 				cWpnController.setWpn(OBWpnTypes::createEPlasmaBulletGun(2, 8.f));
+				if(type == Type::Rocket)
+				{
+					cWpnController.setWpn(OBWpnTypes::createRocketLauncher());
+					cDraw[1].setTextureRect(assets.e3GunRL);
+				}
+
 				cEnemy.setMinBounceVel(15.f); cEnemy.setMaxVel(50.f);
 				cKillable.setParticleMult(4);
 				cKillable.onDeath += [this]{ assets.playSound("Sounds/alienDeath.wav"); };
@@ -212,7 +237,7 @@ namespace ob
 				if(cTargeter.hasTarget())
 				{
 					float distance{ssvs::getDistEuclidean(cTargeter.getPosF(), cPhys.getPosF())};
-					cWielder.setShooting(armed && raycastToPlayer(cPhys, cTargeter.getTarget()) && distance > distBodySlam);
+					cWielder.setShooting(armed && cEnemy.getDegDiff() < 50.f && raycastToPlayer(cPhys, cTargeter.getTarget()) && distance > distBodySlam);
 
 					if(armed && distance > distBodySlam)
 					{
@@ -249,6 +274,7 @@ namespace ob
 
 			inline void init()
 			{
+				cPhys.setMass(100.f);
 				if(!small)
 				{
 					cKillable.onDeath += [this]
@@ -289,7 +315,7 @@ namespace ob
 	class OBCEGiant : public OBCEBase
 	{
 		private:
-			ssvs::Ticker tckShoot{185.f};
+			ssvs::Ticker tckShoot{25000.f};
 			ssvu::Timeline tlShoot{false}, tlSummon{false}, tlCannon{true};
 			OBWpn wpn{game, OBGroup::GFriendlyKillable, OBWpnTypes::createEPlasmaStarGun()};
 			OBWpn wpnC{game, OBGroup::GFriendlyKillable, OBWpnTypes::createPlasmaCannon()};
@@ -366,6 +392,7 @@ namespace ob
 
 			inline void init()
 			{
+				cPhys.setMass(400.f);
 				cKillable.setParticleMult(3);
 				cEnemy.setMinBounceVel(45.f); cEnemy.setMaxVel(115.f);
 				tckShoot.setLoop(false);
@@ -376,7 +403,7 @@ namespace ob
 				{
 					tckShoot.update(mFT);
 					if(ssvs::getDistEuclidean(cTargeter.getPosF(), cPhys.getPosF()) > 10000) cBoid.pursuit(cTargeter.getTarget()); else cBoid.evade(cTargeter.getTarget());
-					if(raycastToPlayer(cPhys, cTargeter.getTarget())) shootCannon(0);
+					if(raycastToPlayer(cPhys, cTargeter.getTarget()) && cEnemy.getDegDiff() < 50.f) shootCannon(0);
 				}
 			}
 			inline void shootCannon(int mDeg)

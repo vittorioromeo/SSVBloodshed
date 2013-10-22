@@ -41,6 +41,7 @@ namespace ob
 			OBFactory(OBAssets& mAssets, OBGame& mGame, sses::Manager& mManager) : assets(mAssets), game(mGame), manager(mManager) { }
 
 			Entity& createParticleSystem(sf::RenderTexture& mRenderTexture, bool mClearOnDraw = false, unsigned char mOpacity = 255, int mDrawPriority = 1000, sf::BlendMode mBlendMode = sf::BlendMode::BlendAlpha);
+			Entity& createTrail(const Vec2i& mA, const Vec2i& mB, const sf::Color& mColor);
 
 			Entity& createFloor(const Vec2i& mPos, bool mGrate = false);
 			Entity& createPit(const Vec2i& mPos);
@@ -58,14 +59,15 @@ namespace ob
 
 			// Enemies
 			Entity& createERunner(const Vec2i& mPos, bool mArmed = false);
-			Entity& createECharger(const Vec2i& mPos, bool mArmed = false);
-			Entity& createEJuggernaut(const Vec2i& mPos, bool mArmed = false);
+			Entity& createECharger(const Vec2i& mPos, bool mArmed = false, bool mGL = false);
+			Entity& createEJuggernaut(const Vec2i& mPos, bool mArmed = false, bool mRL = false);
 			Entity& createEGiant(const Vec2i& mPos);
 			Entity& createEEnforcer(const Vec2i& mPos);
 			Entity& createEBall(const Vec2i& mPos, bool mFlying, bool mSmall = false);
 			Entity& createETurretStarPlasma(const Vec2i& mPos, Dir8 mDir);
 			Entity& createETurretCannonPlasma(const Vec2i& mPos, Dir8 mDir);
 			Entity& createETurretBulletPlasma(const Vec2i& mPos, Dir8 mDir);
+			Entity& createETurretRocket(const Vec2i& mPos, Dir8 mDir);
 
 			// Projectiles
 			Entity& createPJBullet(const Vec2i& mPos, float mDegrees);
@@ -74,6 +76,8 @@ namespace ob
 			Entity& createPJStar(const Vec2i& mPos, float mDegrees);
 			Entity& createPJStarPlasma(const Vec2i& mPos, float mDegrees);
 			Entity& createPJCannonPlasma(const Vec2i& mPos, float mDegrees);
+			Entity& createPJRocket(const Vec2i& mPos, float mDegrees);
+			Entity& createPJGrenade(const Vec2i& mPos, float mDegrees);
 			Entity& createPJExplosion(const Vec2i& mPos, float mDegrees, float mSpeed = 300.f);
 
 			// Vending machines
@@ -81,6 +85,22 @@ namespace ob
 
 			Entity& createPJTestBomb(const Vec2i& mPos, float mDegrees, float mSpeedMult = 1.f, float mCurveMult = 1.f);
 			Entity& createPJTestShell(const Vec2i& mPos, float mDegrees);
+
+			template<typename T> inline void deathExplode(T& mTpl, unsigned int mCount)
+			{
+				auto& cp(createPJExplosion(getCPhys(mTpl).getPosI(), 0, 0).template getComponent<OBCProjectile>());
+				cp.setTargetGroup(OBGroup::GKillable);
+				cp.setLife(16.f);
+				cp.setKillDestructible(true);
+
+				for(int i{0}; i < 360; i += 360 / mCount)
+				{
+					auto& cp(createPJExplosion(getCPhys(mTpl).getPosI() + Vec2i(ssvs::getVecFromDeg<float>(i) * 250.f), i).template getComponent<OBCProjectile>());
+					cp.setTargetGroup(OBGroup::GKillable);
+					cp.setLife(16.f);
+					cp.setKillDestructible(true);
+				}
+			}
 	};
 }
 

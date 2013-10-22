@@ -67,6 +67,22 @@ namespace ob
 				mWpn.shotProjectile(mGame.getFactory().createPJCannonPlasma(mPos, mDeg));
 			}};
 		}
+		inline OBWpnType createRocketLauncher()
+		{
+			return {80.f, 5.f, 25.f, "Sounds/machineGun.wav",
+			[](OBWpnType& mWpn, OBGame& mGame, const Vec2i& mPos, float mDeg)
+			{
+				mWpn.shotProjectile(mGame.getFactory().createPJRocket(mPos, mDeg));
+			}};
+		}
+		inline OBWpnType createGrenadeLauncher()
+		{
+			return {45.f, 5.f, 180.f, "Sounds/machineGun.wav",
+			[](OBWpnType& mWpn, OBGame& mGame, const Vec2i& mPos, float mDeg)
+			{
+				mWpn.shotProjectile(mGame.getFactory().createPJGrenade(mPos, mDeg));
+			}};
+		}
 	}
 }
 

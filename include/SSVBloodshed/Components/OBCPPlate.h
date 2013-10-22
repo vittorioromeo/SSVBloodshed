@@ -9,15 +9,25 @@
 #include "SSVBloodshed/OBGame.h"
 #include "SSVBloodshed/Components/OBCActorBase.h"
 #include "SSVBloodshed/Components/OBWeightable.h"
+#include "SSVBloodshed/Components/OBCTrail.h"
 
 namespace ob
 {
-	inline void activateIdReceivers(int mId, IdAction mIdAction, sses::Manager& mManager)
+	inline void activateIdReceivers(OBCPhys& mCaller, int mId, IdAction mIdAction, sses::Manager& mManager)
 	{
+		auto color(sf::Color::Yellow);
+		if(mIdAction == IdAction::Open) color = sf::Color::Green;
+		else if(mIdAction == IdAction::Close) color = sf::Color::Red;
+
 		for(auto& e : mManager.getEntities(OBGroup::GIdReceiver))
 		{
-			auto& c(e->getComponent<OBCIdReceiver>());
-			if(c.getId() == mId) c.activate(mIdAction);
+			auto& cIdReceiver(e->getComponent<OBCIdReceiver>());
+			if(cIdReceiver.getId() != mId) continue;
+
+			cIdReceiver.activate(mIdAction);
+
+			auto& cPhys(e->getComponent<OBCPhys>());
+			mCaller.getGame().getFactory().createTrail(mCaller.getPosI(), cPhys.getPosI(), color);
 		}
 	}
 
@@ -64,12 +74,12 @@ namespace ob
 			{
 				if(hasBeenWeighted() && !triggered)
 				{
-					trigger(); activateIdReceivers(id, idAction, manager);
+					trigger(); activateIdReceivers(cPhys, id, idAction, manager);
 				}
 				else if(hasBeenUnweighted())
 				{
 					if(type == PPlateType::Multi) unTrigger();
-					else if(type == PPlateType::OnOff) { unTrigger(); activateIdReceivers(id, idAction, manager); }
+					else if(type == PPlateType::OnOff) { unTrigger(); activateIdReceivers(cPhys, id, idAction, manager); }
 				}
 
 				OBWeightable::refresh();

@@ -221,6 +221,11 @@ namespace ob
 				createParticles(ob::createPBlood, particles.getPSPerm(), mCount, mPos, mMult);
 				createParticles(ob::createPGib, particles.getPSTemp(), mCount / 2, mPos);
 			}
+			inline void createPExplosion(unsigned int mCount, const Vec2f& mPos)
+			{
+				createParticles(ob::createPExplosion, particles.getPSTempAdd(), mCount, mPos);
+				createParticles(ob::createPExplosion, particles.getPSTemp(), mCount / 4 + 1, mPos);
+			}
 			inline void createPGib(unsigned int mCount, const Vec2f& mPos)					{ createParticles(ob::createPGib,			particles.getPSTemp(),		mCount, mPos); }
 			inline void createPDebris(unsigned int mCount, const Vec2f& mPos)				{ createParticles(ob::createPDebris,		particles.getPSTemp(),		mCount, mPos); }
 			inline void createPDebrisFloor(unsigned int mCount, const Vec2f& mPos)			{ createParticles(ob::createPDebrisFloor,	particles.getPSTemp(),		mCount, mPos); }
@@ -230,7 +235,6 @@ namespace ob
 			inline void createPElectric(unsigned int mCount, const Vec2f& mPos)				{ createParticles(ob::createPElectric,		particles.getPSTempAdd(),	mCount, mPos); }
 			inline void createPCharge(unsigned int mCount, const Vec2f& mPos, float mDist)	{ createParticles(ob::createPCharge,		particles.getPSTempAdd(),	mCount, mPos, mDist); }
 			inline void createPShard(unsigned int mCount, const Vec2f& mPos)				{ createParticles(ob::createPShard,			particles.getPSTempAdd(),	mCount, mPos); }
-			inline void createPExplosion(unsigned int mCount, const Vec2f& mPos)			{ createParticles(ob::createPExplosion,		particles.getPSTempAdd(),	mCount, mPos); }
 			inline void createPHeal(unsigned int mCount, const Vec2f& mPos)					{ createParticles(ob::createPHeal,			particles.getPSTempAdd(),	mCount, mPos); }
 
 			inline void createEShard(unsigned int mCount, const Vec2i& mPos) { for(auto i(0u); i < mCount; ++i) factory.createShard(mPos); }
@@ -243,5 +247,12 @@ namespace ob
 // TODO: bullet knockback? replicators? spawners?
 // TODO: major group/facotry refactoring!, fuses, ammunition
 // TODO: big enforcer variant that shoots a plasma cannon ball that splits in other plasma cannon balls
+// TODO: switches that can be pressed with X
+// TODO: multiple id actions (open 1, toggle 2...)
+// TODO: grenade launcher enemies
+// TODO: refactor everything, check code quality
+// TODO: customize turret rates in editor! (and projectile speed mult)
+// TODO: fix muzzle position
+// TODO: add small red gun asset and implement red bouncing laser shots
 
 #endif

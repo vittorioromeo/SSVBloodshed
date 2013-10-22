@@ -52,8 +52,8 @@ namespace ob
 				gs.addInput({{k::Num5}},	[this](float){ game.factory.createEGiant(game.getMousePosition()); }, t::Once);
 				gs.addInput({{k::Num6}},	[this](float){ game.factory.createEBall(game.getMousePosition(), false); }, t::Once);
 				gs.addInput({{k::Num7}},	[this](float){ game.factory.createERunner(game.getMousePosition(), true); });
-				gs.addInput({{k::Num8}},	[this](float){ game.factory.createECharger(game.getMousePosition(), true); }, t::Once);
-				gs.addInput({{k::Num9}},	[this](float){ game.factory.createEJuggernaut(game.getMousePosition(), true); }, t::Once);
+				gs.addInput({{k::Num8}},	[this](float){ game.factory.createECharger(game.getMousePosition(), true, true); }, t::Once);
+				gs.addInput({{k::Num9}},	[this](float){ game.factory.createEJuggernaut(game.getMousePosition(), true, true); }, t::Once);
 				gs.addInput({{k::P}},		[this](float){ game.factory.createEBall(game.getMousePosition(), true); }, t::Once);
 				gs.addInput({{k::O}},		[this](float){ game.factory.createEEnforcer(game.getMousePosition()); }, t::Once);
 

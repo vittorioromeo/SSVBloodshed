@@ -24,6 +24,11 @@ namespace ob
 			OBCWielder(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCDir8& mCDir8, const sf::IntRect& mRectStand, const sf::IntRect& mRectShoot) noexcept
 				: OBCActorBase{mCPhys, mCDraw}, cDir8(mCDir8), rectStand{mRectStand}, rectShoot{mRectShoot} { }
 
+			inline void draw() override
+			{
+
+			}
+
 			inline void setShooting(bool mValue) noexcept
 			{
 				shooting = mValue;
