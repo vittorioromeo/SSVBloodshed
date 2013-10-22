@@ -121,7 +121,8 @@ namespace ob
 		LETEnforcer			= 26,
 		LETGiant			= 27,
 		LETBall				= 28,
-		LETBallFlying		= 29
+		LETBallFlying		= 29,
+		LETTurretRL			= 30
 	};
 
 	// Direction utils

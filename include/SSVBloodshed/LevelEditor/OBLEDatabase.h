@@ -56,6 +56,7 @@ namespace ob
 				add(OBLETType::LETTurretSP,			a.txSmall,		a.eTurret0,				{{"rot", 0}},				[this](TLevel&, TTile& mT, const Vec2i& mP){ f->createETurretStarPlasma(mP, getDir8FromDeg(getP<float>(mT, "rot"))); });
 				add(OBLETType::LETTurretCP,			a.txSmall,		a.eTurret1,				{{"rot", 0}},				[this](TLevel&, TTile& mT, const Vec2i& mP){ f->createETurretCannonPlasma(mP, getDir8FromDeg(getP<float>(mT, "rot"))); });
 				add(OBLETType::LETTurretBP,			a.txSmall,		a.eTurret2,				{{"rot", 0}},				[this](TLevel&, TTile& mT, const Vec2i& mP){ f->createETurretBulletPlasma(mP, getDir8FromDeg(getP<float>(mT, "rot"))); });
+				add(OBLETType::LETTurretRL,			a.txSmall,		a.eTurret3,				{{"rot", 0}},				[this](TLevel&, TTile& mT, const Vec2i& mP){ f->createETurretRocket(mP, getDir8FromDeg(getP<float>(mT, "rot"))); });
 				add(OBLETType::LETPlayer,			a.txSmall,		a.p1Stand,				{{"rot", 0}},				[this](TLevel&, TTile&, const Vec2i& mP){ f->createPlayer(mP); });
 				add(OBLETType::LETRunner,			a.txSmall,		a.e1Stand,				{{"rot", 0}},				[this](TLevel&, TTile&, const Vec2i& mP){ f->createERunner(mP, false); });
 				add(OBLETType::LETRunnerArmed,		a.txSmall,		a.e1Shoot,				{{"rot", 0}},				[this](TLevel&, TTile&, const Vec2i& mP){ f->createERunner(mP, true); });
