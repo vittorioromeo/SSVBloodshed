@@ -39,9 +39,9 @@ namespace ob
 			sf::IntRect floorGrate,		floorGrateAlt1,	floorGrateAlt2;						// Floor grate
 			sf::IntRect pit,			trapdoor,		trapdoorPOnly;						// Pit and trapdoor
 			sf::IntRect pjBullet,		pjPlasma,		pjStar,			pjBulletPlasma;		// Projectiles
-			sf::IntRect pjStarPlasma,	pjCannonPlasma;										// Projectiles
+			sf::IntRect pjStarPlasma,	pjCannonPlasma,	pjRocket,		pjGrenade;			// Projectiles
 			sf::IntRect eBall,			eBallFlying;										// Ball enemy
-			sf::IntRect eTurret0,		eTurret1,		eTurret2;							// Turret enemy
+			sf::IntRect eTurret0,		eTurret1,		eTurret2,		eTurret3;			// Turret enemy
 			sf::IntRect pPlateSingle,	pPlateMulti,	pPlateOnOff;						// Pressure plates
 			sf::IntRect shard;																// Shard
 			sf::IntRect explosiveCrate;														// Explosive crate
@@ -50,11 +50,11 @@ namespace ob
 			sf::IntRect gunPCannon,		spawner;
 
 			// Medium tileset (20x20)
-			sf::IntRect e2Stand,		e2Shoot,		e2Gun;								// Charger alien
+			sf::IntRect e2Stand,		e2Shoot,		e2Gun,			e2GunGL;			// Charger alien
 			sf::IntRect e5Stand;															// Enforcer alien
 
 			// Big tileset (30x30)
-			sf::IntRect e3Stand,		e3Shoot,		e3Gun;								// Juggernaut alien
+			sf::IntRect e3Stand,		e3Shoot,		e3Gun,			e3GunRL;			// Juggernaut alien
 
 			// Giant tileset (40x40)
 			sf::IntRect e4Stand;															// Giant alien
@@ -119,9 +119,9 @@ namespace ob
 				T_TSSMALL(floorGrate);		T_TSSMALL(floorGrateAlt1);	T_TSSMALL(floorGrateAlt2);
 				T_TSSMALL(pit);				T_TSSMALL(trapdoor);		T_TSSMALL(trapdoorPOnly);
 				T_TSSMALL(pjBullet);		T_TSSMALL(pjPlasma);		T_TSSMALL(pjStar);			T_TSSMALL(pjBulletPlasma);
-				T_TSSMALL(pjStarPlasma);	T_TSSMALL(pjCannonPlasma);
+				T_TSSMALL(pjStarPlasma);	T_TSSMALL(pjCannonPlasma);	T_TSSMALL(pjRocket);		T_TSSMALL(pjGrenade);
 				T_TSSMALL(eBall);			T_TSSMALL(eBallFlying);
-				T_TSSMALL(eTurret0);		T_TSSMALL(eTurret1);		T_TSSMALL(eTurret2);
+				T_TSSMALL(eTurret0);		T_TSSMALL(eTurret1);		T_TSSMALL(eTurret2);		T_TSSMALL(eTurret3);
 				T_TSSMALL(pPlateSingle);	T_TSSMALL(pPlateMulti);		T_TSSMALL(pPlateOnOff);
 				T_TSSMALL(shard);
 				T_TSSMALL(explosiveCrate);
@@ -131,11 +131,11 @@ namespace ob
 				WALLTS(wall); WALLTS(wallD); WALLTS(door); WALLTS(doorG); WALLTS(doorR);
 
 				// Medium tileset (20x20)
-				T_TSMEDIUM(e2Stand); 		T_TSMEDIUM(e2Shoot);		T_TSMEDIUM(e2Gun);
+				T_TSMEDIUM(e2Stand); 		T_TSMEDIUM(e2Shoot);		T_TSMEDIUM(e2Gun);			T_TSMEDIUM(e2GunGL);
 				T_TSMEDIUM(e5Stand);
 
 				// Big tileset (30x30)
-				T_TSBIG(e3Stand);			T_TSBIG(e3Shoot);			T_TSBIG(e3Gun);
+				T_TSBIG(e3Stand);			T_TSBIG(e3Shoot);			T_TSBIG(e3Gun);				T_TSBIG(e3GunRL);
 
 				// Giant tileset (40x40)
 				T_TSGIANT(e4Stand);

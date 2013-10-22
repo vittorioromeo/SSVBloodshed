@@ -4,6 +4,6 @@
 	"labels": 
 	[
 		["e2Stand", "e2Shoot", "e2Gun"],		
-		["e5Stand"]
+		["e5Stand", "unused0", "e2GunGL"]
 	]
 }
