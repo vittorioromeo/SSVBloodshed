@@ -56,6 +56,12 @@ namespace ssvces
 		template<typename... TArgs> struct TypeIdsBitsetStorage{ static const TypeIdsBitset bitset; };
 		template<typename... TArgs> const TypeIdsBitset TypeIdsBitsetStorage<TArgs...>::bitset{getBuildBitset<TArgs...>()};
 		template<> const TypeIdsBitset TypeIdsBitsetStorage<>::bitset{};
+
+		SSVU_DEFINE_HAS_MEMBER_CHECKER(HasAdded, added);
+		SSVU_DEFINE_HAS_MEMBER_CHECKER(HasRemoved, removed);
+
+		SSVU_DEFINE_HAS_MEMBER_INVOKER(callAdded, added, (HasAdded<T, void(TArgs...)>::Value));
+		SSVU_DEFINE_HAS_MEMBER_INVOKER(callRemoved, removed, (HasRemoved<T, void(TArgs...)>::Value));
 	}
 
 	// Shortcut to get the bit index of a Component type

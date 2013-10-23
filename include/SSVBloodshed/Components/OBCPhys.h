@@ -27,9 +27,9 @@ namespace ob
 			inline void init()
 			{
 				body.setUserData(&getEntity());
-				body.onResolution += [this](const ResolutionInfo& mResolutionInfo)
+				body.onResolution += [this](const ResolutionInfo& mRI)
 				{
-					lastResolution = mResolutionInfo.resolution;
+					lastResolution = mRI.resolution;
 					if(lastResolution.x > 0) crushedLeft = crushedMax; else if(lastResolution.x < 0) crushedRight = crushedMax;
 					if(lastResolution.y > 0) crushedTop = crushedMax; else if(lastResolution.y < 0) crushedBottom = crushedMax;
 				};

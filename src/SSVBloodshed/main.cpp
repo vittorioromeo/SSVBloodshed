@@ -1,4 +1,4 @@
-#ifdef HGJSIOPHSJH
+#ifndef HGJSIOPHSJH
 
 #include <chrono>
 #include "SSVBloodshed/CESystem/CES.h"
@@ -50,6 +50,14 @@ struct SDraw : System<SDraw, Req<CPosition, CSprite>>
 	inline SDraw(sf::RenderTarget& mRenderTarget) : renderTarget(mRenderTarget) { }
 
 	inline void draw() { processAll(); }
+	inline void added(Entity&, CPosition&, CSprite&)
+	{
+
+	}
+	inline void removed(Entity&, CPosition&, CSprite&)
+	{
+
+	}
 	inline void process(Entity&, CPosition& cPosition, CSprite& cSprite)
 	{
 		cSprite.sprite.setPosition(cPosition.x, cPosition.y);
