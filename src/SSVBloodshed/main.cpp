@@ -177,7 +177,7 @@ int main()
 				e.createComponent<CAcceleration>(ssvu::getRndR(-0.5f, 1.5f), ssvu::getRndR(-0.5f, 1.5f));
 				e.createComponent<CSprite>();
 				e.createComponent<CLife>(ssvu::getRnd(50, 100));
-				e.createComponent<CColorInhibitor>(ssvu::getRnd(5, 85));
+				//e.createComponent<CColorInhibitor>(ssvu::getRnd(5, 85));
 				e.addGroups(0);
 			}
 		}
@@ -191,7 +191,7 @@ int main()
 		}
 		auto ums = ssvu::endBenchmark();
 
-		gameWindow.setTitle("up: " + ums + "\t dw: " + dms);
+		gameWindow.setTitle("up: " + ums + "\t dw: " + dms + "\t ent: " + toStr(manager.getEntityCount()) + "\t cmp: " + toStr(manager.getComponentCount()));
 
 		//if(gameWindow.getFPS() < 60) ssvu::lo<<gameWindow.getFPS()<<std::endl;
 		//ssvu::lo<<manager.getEntityCount(0)<<std::endl;
