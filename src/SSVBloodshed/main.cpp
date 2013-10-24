@@ -1,4 +1,4 @@
-#ifndef HGJSIOPHSJH
+#ifdef HGJSIOPHSJH
 
 #include <chrono>
 #include "SSVBloodshed/CESystem/CES.h"
@@ -87,7 +87,7 @@ struct SColorInhibitor : System<SColorInhibitor, Req<CSprite, CColorInhibitor>>
 
 	inline void removed(Entity&, CSprite& cSprite, CColorInhibitor&)
 	{
-		cSprite.sprite.scale(0.5f, 0.5f);
+		cSprite.sprite.scale(2.f, 2.f);
 	}
 };
 
