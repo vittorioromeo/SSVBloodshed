@@ -39,13 +39,13 @@ namespace ob
 	Sprite OBFactory::getSpriteByTile(const std::string& mTextureId, const IntRect& mRect) const					{ return {assets.get<Texture>(mTextureId), mRect}; }
 	void OBFactory::emplaceSpriteByTile(OBCDraw& mCDraw, sf::Texture* mTexture, const sf::IntRect& mRect) const		{ mCDraw.emplaceSprite(*mTexture, mRect); }
 
-	template<typename T> constexpr inline Entity& getEntity(const T& mTuple)				{ return std::get<0>(mTuple); }
-	template<typename T> constexpr inline OBCPhys& getCPhys(const T& mTuple)				{ return std::get<1>(mTuple); }
-	template<typename T> constexpr inline OBCDraw& getCDraw(const T& mTuple)				{ return std::get<2>(mTuple); }
-	template<typename T> constexpr inline OBCHealth& getCHealth(const T& mTuple)			{ return std::get<3>(mTuple); }
-	template<typename T> constexpr inline OBCProjectile& getCProjectile(const T& mTuple)	{ return std::get<3>(mTuple); }
-	template<typename T> constexpr inline OBCKillable& getCKillable(const T& mTuple)		{ return std::get<4>(mTuple); }
-	template<typename T> constexpr inline OBCEnemy& getCEnemy(const T& mTuple)				{ return std::get<5>(mTuple); }
+	template<typename T> constexpr inline Entity& getEntity(const T& mTpl)				{ return std::get<0>(mTpl); }
+	template<typename T> constexpr inline OBCPhys& getCPhys(const T& mTpl)				{ return std::get<1>(mTpl); }
+	template<typename T> constexpr inline OBCDraw& getCDraw(const T& mTpl)				{ return std::get<2>(mTpl); }
+	template<typename T> constexpr inline OBCHealth& getCHealth(const T& mTpl)			{ return std::get<3>(mTpl); }
+	template<typename T> constexpr inline OBCProjectile& getCProjectile(const T& mTpl)	{ return std::get<3>(mTpl); }
+	template<typename T> constexpr inline OBCKillable& getCKillable(const T& mTpl)		{ return std::get<4>(mTpl); }
+	template<typename T> constexpr inline OBCEnemy& getCEnemy(const T& mTpl)			{ return std::get<5>(mTpl); }
 
 
 
