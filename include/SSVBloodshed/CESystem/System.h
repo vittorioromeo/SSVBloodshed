@@ -32,7 +32,7 @@ namespace ssvces
 		using TplType = std::tuple<Entity*, TArgs*...>;
 		template<typename T, typename TSystem> static inline void emplaceTuple(TSystem& mSystem, T& mContainer, Entity& mEntity)
 		{
-			auto tpl(std::tuple_cat(std::tuple<Entity*>{&mEntity}, buildComponentsTuple<TArgs...>(mEntity)));
+			auto tpl(std::tuple_cat(std::tuple<Entity*>{&mEntity}, buildComponentsTpl<TArgs...>(mEntity)));
 			onAdded(mSystem, tpl);
 			mContainer.emplace_back(tpl);
 		}
@@ -65,20 +65,20 @@ namespace ssvces
 				{
 					if(getEntity(mTpl).mustDestroy || getEntity(mTpl).mustRematch)
 					{
-						TReq::template onRemoved<TDerived>(*reinterpret_cast<TDerived*>(this), mTpl);
+						TReq::onRemoved(*reinterpret_cast<TDerived*>(this), mTpl);
 						return true;
 					}
 
 					return false;
 				});
 			}
-			inline void registerEntity(Entity& mEntity) override { TReq::template emplaceTuple<decltype(tuples), TDerived>(*reinterpret_cast<TDerived*>(this), tuples, mEntity); }
+			inline void registerEntity(Entity& mEntity) override { TReq::emplaceTuple(*reinterpret_cast<TDerived*>(this), tuples, mEntity); }
 
 		public:
 			inline System() noexcept : SystemBase{TReq::getTypeIds(), TNot::getTypeIds()} { }
 			template<typename... TArgs> inline void processAll(TArgs&&... mArgs)
 			{
-				for(auto& t : tuples) TReq::template onProcess<TDerived>(*reinterpret_cast<TDerived*>(this), t, std::tuple<TArgs...>{std::forward<TArgs>(mArgs)...});
+				for(auto& t : tuples) TReq::onProcess(*reinterpret_cast<TDerived*>(this), t, std::tuple<TArgs...>{std::forward<TArgs>(mArgs)...});
 			}
 	};
 }
