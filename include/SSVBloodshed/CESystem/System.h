@@ -42,11 +42,11 @@ namespace ssvces
 		}
 		template<typename TSystem, typename TTpl> static inline void onAdded(TSystem& mSystem, TTpl mTpl)
 		{
-			ssvu::explode(&Internal::ExpHelper<ssvu::RemoveReference<decltype(mTpl)>, std::tuple<>>::template addedImpl<TSystem>, std::tuple_cat(std::tuple<TSystem&>(mSystem), mTpl));
+			ssvu::explode(&Internal::ExpHelper<TTpl, std::tuple<>>::template addedImpl<TSystem>, std::tuple_cat(std::tuple<TSystem&>(mSystem), mTpl));
 		}
 		template<typename TSystem, typename TTpl> static inline void onRemoved(TSystem& mSystem, TTpl mTpl)
 		{
-			ssvu::explode(&Internal::ExpHelper<ssvu::RemoveReference<decltype(mTpl)>, std::tuple<>>::template removedImpl<TSystem>, std::tuple_cat(std::tuple<TSystem&>(mSystem), mTpl));
+			ssvu::explode(&Internal::ExpHelper<TTpl, std::tuple<>>::template removedImpl<TSystem>, std::tuple_cat(std::tuple<TSystem&>(mSystem), mTpl));
 		}
 	};
 	template<typename... TArgs> struct Not : public Internal::Filter<TArgs...> { };
