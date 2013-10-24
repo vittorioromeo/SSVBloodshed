@@ -68,6 +68,7 @@ namespace ssvces
 	template<typename T> inline constexpr const std::size_t& getTypeIdBitIdx() noexcept { return Internal::TypeIdStorage<T>::bitIdx; }
 
 	// Shortcut to get the static Bitset of a pack of Component types
+	// TODO: BUG: g++ 4.8.2 fails if vvvvvvvvvvvv this constexpr is preserved!!
 	template<typename... TArgs> inline constexpr const TypeIdsBitset& getTypeIdsBitsetStorage() noexcept { return Internal::TypeIdsBitsetStorage<TArgs...>::bitset; }
 
 	// Returns whether the first bitset contains all the value of the second one
