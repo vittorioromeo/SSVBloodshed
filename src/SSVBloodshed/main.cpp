@@ -79,6 +79,16 @@ struct SColorInhibitor : System<SColorInhibitor, Req<CSprite, CColorInhibitor>>
 	{
 		cSprite.sprite.setFillColor(sf::Color::Blue);
 	}
+
+	inline void added(Entity&, CSprite& cSprite, CColorInhibitor&)
+	{
+		cSprite.sprite.scale(2.f, 2.f);
+	}
+
+	inline void removed(Entity&, CSprite& cSprite, CColorInhibitor&)
+	{
+		cSprite.sprite.scale(0.5f, 0.5f);
+	}
 };
 
 int main()
@@ -177,7 +187,7 @@ int main()
 				e.createComponent<CAcceleration>(ssvu::getRndR(-0.5f, 1.5f), ssvu::getRndR(-0.5f, 1.5f));
 				e.createComponent<CSprite>();
 				e.createComponent<CLife>(ssvu::getRnd(50, 100));
-				//e.createComponent<CColorInhibitor>(ssvu::getRnd(5, 85));
+				e.createComponent<CColorInhibitor>(ssvu::getRnd(5, 85));
 				e.addGroups(0);
 			}
 		}
