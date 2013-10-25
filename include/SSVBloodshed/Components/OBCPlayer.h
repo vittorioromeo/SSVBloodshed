@@ -41,8 +41,8 @@ namespace ob
 			OBCVMachine* currentVM{nullptr};
 
 			int currentWpn{0}, currentShards{0}, shards{0};
-			std::vector<OBWpnType> weaponTypes{OBWpnTypes::createMachineGun(), OBWpnTypes::createPlasmaBolter(), OBWpnTypes::createPlasmaCannon()};
-			std::vector<sf::IntRect> weaponRects{assets.p1Gun, assets.e1Gun, assets.gunPCannon};
+			std::vector<OBWpnType> weaponTypes{OBWpnTypes::createMachineGun(), OBWpnTypes::createPlasmaBolter(), OBWpnTypes::createPlasmaCannon(), OBWpnTypes::createRocketLauncher(), OBWpnTypes::createRocketLauncher()};
+			std::vector<sf::IntRect> weaponRects{assets.p1Gun, assets.e1Gun, assets.gunPCannon, assets.p2Gun, assets.p2Gun};
 
 			inline void cycleWeapons(int mDir) noexcept
 			{

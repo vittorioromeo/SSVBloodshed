@@ -30,6 +30,7 @@ namespace ob
 
 	class OBGame
 	{
+		template<typename> friend class OBGDebugText;
 		template<typename> friend class OBGInput;
 
 		private:
@@ -45,6 +46,7 @@ namespace ob
 			OBGParticles particles;
 
 			OBGDebugText<OBGame> debugText{*this};
+			std::string lastMsUpdate, lastMsDraw;
 			sf::Sprite hudSprite{assets.get<sf::Texture>("tempHud.png")};
 
 			ssvs::BitmapText testAmmoTxt{*assets.obStroked};
@@ -57,6 +59,7 @@ namespace ob
 			OBLELevel* currentLevel{nullptr};
 			int currentLevelX{0}, currentLevelY{0};
 
+
 			template<typename T, typename... TArgs> inline void createParticles(const T& mFunc, OBParticleSystem& mPS, unsigned int mCount, const Vec2f& mPos, TArgs&&... mArgs)
 			{
 				for(auto i(0u); i < mCount; ++i) mFunc(mPS, mPos, std::forward<TArgs>(mArgs)...);
@@ -67,8 +70,6 @@ namespace ob
 
 			OBBarCounter testhp{2, 6, 13};
 			ssvs::BitmapText txtShards{*assets.obStroked}, txtVM{*assets.obStroked}, txtInfo{*assets.obStroked};
-
-			std::string lastMsUpdate, lastMsDraw;
 
 			inline OBGame(ssvs::GameWindow& mGameWindow, OBAssets& mAssets) : gameWindow(mGameWindow), assets(mAssets)
 			{

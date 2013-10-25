@@ -15,9 +15,12 @@ namespace ob
 {
 	inline void activateIdReceivers(OBCPhys& mCaller, int mId, IdAction mIdAction, sses::Manager& mManager)
 	{
-		auto color(sf::Color::Yellow);
-		if(mIdAction == IdAction::Open) color = sf::Color::Green;
-		else if(mIdAction == IdAction::Close) color = sf::Color::Red;
+		static std::map<IdAction, sf::Color> actionColors
+		{
+			{IdAction::Close,	sf::Color::Red},
+			{IdAction::Open,	sf::Color::Green},
+			{IdAction::Toggle,	sf::Color::Yellow}
+		};
 
 		for(auto& e : mManager.getEntities(OBGroup::GIdReceiver))
 		{
@@ -25,9 +28,7 @@ namespace ob
 			if(cIdReceiver.getId() != mId) continue;
 
 			cIdReceiver.activate(mIdAction);
-
-			auto& cPhys(e->getComponent<OBCPhys>());
-			mCaller.getGame().getFactory().createTrail(mCaller.getPosI(), cPhys.getPosI(), color);
+			mCaller.getFactory().createTrail(mCaller.getPosI(), e->getComponent<OBCPhys>().getPosI(), actionColors[mIdAction]);
 		}
 	}
 
@@ -58,18 +59,14 @@ namespace ob
 				}
 			}
 
-			inline void trigger()	{ if(!triggered) { triggered = true; triggerNeighbors(true); } }
-			inline void unTrigger()	{ if(triggered) { triggered = false; triggerNeighbors(false); } }
+			inline void trigger()	{ if(!triggered) { triggered = true; triggerNeighbors(true); cDraw[0].setColor(sf::Color(100, 100, 100, 255)); } }
+			inline void unTrigger()	{ if(triggered) { triggered = false; triggerNeighbors(false); cDraw[0].setColor(sf::Color::White); } }
 
 		public:
 			OBCPPlate(OBCPhys& mCPhys, OBCDraw& mCDraw, int mId, PPlateType mType, IdAction mIdAction, bool mPlayerOnly) noexcept
 				: OBCActorBase{mCPhys, mCDraw}, OBWeightable{mCPhys, mPlayerOnly}, id{mId}, type{mType}, idAction{mIdAction} { }
 
-			inline void init()
-			{
-				if(type == PPlateType::Single) triggered = false;
-				OBWeightable::init();
-			}
+			inline void init() { OBWeightable::init(); }
 			inline void update(float) override
 			{
 				if(hasBeenWeighted() && !triggered)
@@ -84,7 +81,7 @@ namespace ob
 
 				OBWeightable::refresh();
 			}
-			inline void draw() override { cDraw[0].setColor(triggered ? sf::Color(100, 100, 100, 255) : sf::Color::White); }
+			inline void draw() override {  }
 
 			inline void setId(int mId) noexcept	{ id = mId; }
 			inline int getId() const noexcept	{ return id; }

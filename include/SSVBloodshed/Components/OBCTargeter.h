@@ -17,6 +17,7 @@ namespace ob
 			OBCPhys* target{nullptr};
 			OBGroup targetGroup;
 			sses::EntityStat targetStat;
+			float distance;
 
 		public:
 			OBCTargeter(OBCPhys& mCPhys, OBGroup mTargetGroup) noexcept : OBCActorNoDrawBase{mCPhys}, targetGroup(mTargetGroup) { }
@@ -27,6 +28,7 @@ namespace ob
 				{
 					const auto& e(manager.getEntities(targetGroup).front());
 					targetStat = e->getStat(); target = &e->getComponent<OBCPhys>();
+					distance = ssvs::getDistEuclidean(target->getPosF(), cPhys.getPosF());
 				}
 				else if(!manager.isAlive(targetStat)) target = nullptr;
 			}
@@ -36,6 +38,7 @@ namespace ob
 			inline Vec2f getPosF() const noexcept			{ return target->getPosF(); }
 			inline const Vec2i& getPosI() const noexcept	{ return target->getPosI(); }
 			inline const Vec2f& getVel() const noexcept		{ return target->getVel(); }
+			inline float getDist() const noexcept			{ return distance; }
 	};
 }
 

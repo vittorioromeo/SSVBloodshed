@@ -21,7 +21,6 @@ namespace ob
 			{
 				openStatus = mOpen;
 				cDraw[0].setColor(sf::Color(255, 255, 255, openStatus ? 100 : 255));
-
 				body.setGroups(!openStatus, OBGroup::GSolidGround, OBGroup::GSolidAir);
 			}
 

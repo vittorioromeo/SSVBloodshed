@@ -47,7 +47,9 @@ namespace ob
 			inline void pushSprite(const sf::Sprite& mSprite)						{ sprites.push_back(mSprite); offsets.emplace_back(); }
 			template<typename... TArgs> inline void emplaceSprite(TArgs&&... mArgs)	{ sprites.emplace_back(std::forward<TArgs>(mArgs)...); offsets.emplace_back(); }
 
-			inline void setRotation(float mDegrees)	noexcept			{ for(auto& s : sprites) s.setRotation(mDegrees); }
+			inline void rotate(float mDeg) noexcept						{ for(auto& s : sprites) s.rotate(mDeg); }
+
+			inline void setRotation(float mDeg)	noexcept				{ for(auto& s : sprites) s.setRotation(mDeg); }
 			inline void setFlippedX(bool mFlippedX)	noexcept			{ flippedX = mFlippedX ? -1 : 1; }
 			inline void setFlippedY(bool mFlippedY)	noexcept			{ flippedY = mFlippedY ? -1 : 1; }
 			inline void setScaleWithBody(bool mScale) noexcept			{ scaleWithBody = mScale; }

@@ -129,10 +129,10 @@ namespace ob
 	constexpr float dir8Step{45.f};
 	enum Dir8 : int {E = 0, SE = 1, S = 2, SW = 3, W = 4, NW = 5, N = 6, NE = 7};
 	template<typename T = float> inline T getDegFromDir8(Dir8 mDir) noexcept { return T(int(mDir) * dir8Step); }
-	template<typename T> inline Dir8 getDir8FromDeg(T mDegrees) noexcept
+	template<typename T> inline Dir8 getDir8FromDeg(T mDeg) noexcept
 	{
-		mDegrees = ssvu::wrapDeg(mDegrees);
-		int i{static_cast<int>((mDegrees + dir8Step / 2) / dir8Step)};
+		mDeg = ssvu::wrapDeg(mDeg);
+		int i{static_cast<int>((mDeg + dir8Step / 2) / dir8Step)};
 		return Dir8(i % 8);
 	}
 	template<typename T> inline Dir8 getDir8FromXY(T mX, T mY) noexcept

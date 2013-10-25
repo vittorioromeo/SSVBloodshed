@@ -24,11 +24,6 @@ namespace ob
 			OBCWielder(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCDir8& mCDir8, const sf::IntRect& mRectStand, const sf::IntRect& mRectShoot) noexcept
 				: OBCActorBase{mCPhys, mCDraw}, cDir8(mCDir8), rectStand{mRectStand}, rectShoot{mRectShoot} { }
 
-			inline void draw() override
-			{
-
-			}
-
 			inline void setShooting(bool mValue) noexcept
 			{
 				shooting = mValue;
@@ -52,7 +47,7 @@ namespace ob
 
 			inline OBCDir8& getCDir8() const noexcept		{ return cDir8; }
 			inline bool isShooting() const noexcept			{ return shooting; }
-			inline Vec2i getShootingPos() const noexcept	{ return cPhys.getPosI() + Vec2i(cDir8.getVec(toCoords(wieldDist))); }
+			inline Vec2i getShootingPos() const noexcept	{ return cPhys.getPosI() + Vec2i(cDir8.getVec(toCoords(wieldDist)) * 1.3f); }
 	};
 }
 

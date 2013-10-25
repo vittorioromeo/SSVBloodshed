@@ -48,6 +48,7 @@ namespace ob
 			inline void setMass(float mMass) noexcept				{ body.setMass(mMass); }
 
 			inline OBGame& getGame() const noexcept					{ return game; }
+			inline OBFactory& getFactory() const noexcept			{ return game.getFactory(); }
 			inline World& getWorld() const noexcept					{ return world; }
 			inline Body& getBody() const noexcept					{ return body; }
 			inline const Vec2i& getLastResolution() const noexcept	{ return lastResolution; }

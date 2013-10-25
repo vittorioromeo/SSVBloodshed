@@ -72,20 +72,20 @@ namespace ob
 		getEntity(tpl).createComponent<OBCDamageOnTouch>(getCPhys(tpl), 1.f, OBGroup::GFriendlyKillable);
 		return std::forward_as_tuple(getEntity(tpl), getCPhys(tpl), getCDraw(tpl), getCHealth(tpl), getCKillable(tpl), cEnemy);
 	}
-	std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCProjectile&> OBFactory::createProjectileBase(const Vec2i& mPos, const Vec2i& mSize, float mSpeed, float mDegrees, const IntRect& mIntRect)
+	std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCProjectile&> OBFactory::createProjectileBase(const Vec2i& mPos, const Vec2i& mSize, float mSpeed, float mDeg, const IntRect& mIntRect)
 	{
 		auto tpl(createActorBase(mPos, mSize, OBLayer::LProjectile));
-		auto& cProjectile(getEntity(tpl).createComponent<OBCProjectile>(getCPhys(tpl), getCDraw(tpl), mSpeed, mDegrees));
 		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, mIntRect);
+		auto& cProjectile(getEntity(tpl).createComponent<OBCProjectile>(getCPhys(tpl), getCDraw(tpl), mSpeed, mDeg));
 		return std::forward_as_tuple(getEntity(tpl), getCPhys(tpl), getCDraw(tpl), cProjectile);
 	}
 	Entity& OBFactory::createETurretBase(const Vec2i& mPos, Dir8 mDir, const sf::IntRect& mIntRect, const OBWpnType& mWpn, float mShootDelay, float mPJDelay, int mShootCount)
 	{
 		auto tpl(createKillableBase(mPos, {1000, 1000}, OBLayer::LEnemy, 18));
+		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, mIntRect);
 		getCKillable(tpl).setType(OBCKillable::Type::Robotic);
 		getCKillable(tpl).setParticleMult(0.35f);
 		getEntity(tpl).createComponent<OBCTurret>(getCPhys(tpl), getCDraw(tpl), getCKillable(tpl), mDir, mWpn, mShootDelay, mPJDelay, mShootCount);
-		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, mIntRect);
 		return getEntity(tpl);
 	}
 
@@ -112,31 +112,31 @@ namespace ob
 	Entity& OBFactory::createPit(const Vec2i& mPos)
 	{
 		auto tpl(createActorBase(mPos, {1000, 1000}, OBLayer::LPit, true));
-		getCPhys(tpl).getBody().addGroups(OBGroup::GSolidGround, OBGroup::GPit);
 		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.pit);
+		getCPhys(tpl).getBody().addGroups(OBGroup::GSolidGround, OBGroup::GPit);
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createTrapdoor(const Vec2i& mPos, bool mPlayerOnly)
 	{
 		auto tpl(createActorBase(mPos, {1000, 1000}, OBLayer::LTrapdoor));
-		getEntity(tpl).createComponent<OBCTrapdoor>(getCPhys(tpl), getCDraw(tpl), mPlayerOnly);
 		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, mPlayerOnly ? assets.trapdoorPOnly : assets.trapdoor);
+		getEntity(tpl).createComponent<OBCTrapdoor>(getCPhys(tpl), getCDraw(tpl), mPlayerOnly);
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createWall(const Vec2i& mPos, const sf::IntRect& mIntRect)
 	{
 		auto tpl(createActorBase(mPos, {1000, 1000}, OBLayer::LWall, true));
-		getCPhys(tpl).getBody().addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir);
 		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, mIntRect);
+		getCPhys(tpl).getBody().addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir);
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createWallDestructible(const Vec2i& mPos, const sf::IntRect& mIntRect)
 	{
 		auto tpl(createKillableBase(mPos, {1000, 1000}, OBLayer::LWall, 20));
+		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, mIntRect);
 		getCPhys(tpl).getBody().addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir, OBGroup::GKillable, OBGroup::GFriendlyKillable, OBGroup::GEnemyKillable, OBGroup::GEnvDestructible);
 		getCPhys(tpl).getBody().setStatic(true);
 		getCKillable(tpl).setType(OBCKillable::Type::Wall);
-		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, mIntRect);
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createDoor(const Vec2i& mPos, const sf::IntRect& mIntRect, int mId, bool mOpen)
@@ -164,9 +164,9 @@ namespace ob
 	Entity& OBFactory::createPPlate(const Vec2i& mPos, int mId, PPlateType mType, IdAction mIdAction, bool mPlayerOnly)
 	{
 		auto tpl(createActorBase(mPos, {1000, 1000}, OBLayer::LFloor));
-		getEntity(tpl).createComponent<OBCPPlate>(getCPhys(tpl), getCDraw(tpl), mId, mType, mIdAction, mPlayerOnly);
 		const auto& intRect(mType == PPlateType::Single ? assets.pPlateSingle : (mType == PPlateType::Multi ? assets.pPlateMulti : assets.pPlateOnOff));
 		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, intRect);
+		getEntity(tpl).createComponent<OBCPPlate>(getCPhys(tpl), getCDraw(tpl), mId, mType, mIdAction, mPlayerOnly);
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createPlayer(const Vec2i& mPos)
@@ -183,11 +183,11 @@ namespace ob
 	Entity& OBFactory::createExplosiveCrate(const Vec2i& mPos, int mId)
 	{
 		auto tpl(createKillableBase(mPos, {1000, 1000}, OBLayer::LWall, 10));
+		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.explosiveCrate);
 		auto& cIdReceiver(getEntity(tpl).createComponent<OBCIdReceiver>(mId));
 		getCPhys(tpl).getBody().addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir, OBGroup::GKillable, OBGroup::GFriendlyKillable, OBGroup::GEnemyKillable, OBGroup::GEnvDestructible);
 		getCPhys(tpl).getBody().setStatic(true);
 		getCKillable(tpl).setType(OBCKillable::Type::ExplosiveCrate);
-		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.explosiveCrate);
 
 		cIdReceiver.onActivate += [tpl](IdAction){ getCKillable(tpl).kill(); };
 		getCKillable(tpl).onDeath += [this, tpl]
@@ -200,16 +200,16 @@ namespace ob
 	Entity& OBFactory::createShard(const Vec2i& mPos)
 	{
 		auto tpl(createActorBase(mPos, {400, 400}, OBLayer::LShard));
-		getEntity(tpl).createComponent<OBCShard>(getCPhys(tpl), getCDraw(tpl));
 		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.shard);
+		getEntity(tpl).createComponent<OBCShard>(getCPhys(tpl), getCDraw(tpl));
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createSpawner(const Vec2i& mPos, int mType, int mId, float mDelayStart, float mDelaySpawn, int mSpawnCount)
 	{
 		auto tpl(createActorBase(mPos, {400, 400}, OBLayer::LShard));
+		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.spawner);
 		auto& cIdReceiver(getEntity(tpl).createComponent<OBCIdReceiver>(mId));
 		auto& cSpawner(getEntity(tpl).createComponent<OBCSpawner>(getCPhys(tpl), getCDraw(tpl), cIdReceiver, mType, mDelayStart, mDelaySpawn, mSpawnCount));
-		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.spawner);
 
 		if(mId != -1) cSpawner.setActive(false);
 		return getEntity(tpl);
@@ -218,21 +218,21 @@ namespace ob
 	Entity& OBFactory::createEBall(const Vec2i& mPos, bool mFlying, bool mSmall)
 	{
 		auto tpl(createEnemyBase(mPos, {750, 750}, mSmall ? 2 : 5));
+		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, mFlying ? assets.eBallFlying : assets.eBall);
 		if(!mSmall && !mFlying) getEntity(tpl).createComponent<OBCFloorSmasher>(getCPhys(tpl)).setActive(true);
 		getEntity(tpl).createComponent<OBCEBall>(getCEnemy(tpl), mFlying, mSmall);
-		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, mFlying ? assets.eBallFlying : assets.eBall);
 		if(mSmall) getCDraw(tpl).setGlobalScale(0.7f);
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createERunner(const Vec2i& mPos, bool mArmed)
 	{
 		auto tpl(createEnemyBase(mPos, {600, 600}, 4));
+		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.e1Shoot);
+		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.e1Gun);
 		auto& cDir8(getEntity(tpl).createComponent<OBCDir8>());
 		auto& cWielder(getEntity(tpl).createComponent<OBCWielder>(getCPhys(tpl), getCDraw(tpl), cDir8, assets.e1Stand, assets.e1Shoot));
 		auto& cWpnController(getEntity(tpl).createComponent<OBCWpnController>(getCPhys(tpl), OBGroup::GFriendly));
 		getEntity(tpl).createComponent<OBCERunner>(getCEnemy(tpl), cWielder, cWpnController, mArmed);
-		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.e1Shoot);
-		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.e1Gun);
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createECharger(const Vec2i& mPos, bool mArmed, bool mGL)
@@ -267,16 +267,16 @@ namespace ob
 	Entity& OBFactory::createEGiant(const Vec2i& mPos)
 	{
 		auto tpl(createEnemyBase(mPos, {2400, 2400}, 100));
+		emplaceSpriteByTile(getCDraw(tpl), assets.txGiant, assets.e4Stand);
 		getEntity(tpl).createComponent<OBCFloorSmasher>(getCPhys(tpl), true);
 		getEntity(tpl).createComponent<OBCEGiant>(getCEnemy(tpl));
-		emplaceSpriteByTile(getCDraw(tpl), assets.txGiant, assets.e4Stand);
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createEEnforcer(const Vec2i& mPos)
 	{
 		auto tpl(createEnemyBase(mPos, {1200, 1200}, 30));
-		getEntity(tpl).createComponent<OBCEEnforcer>(getCEnemy(tpl));
 		emplaceSpriteByTile(getCDraw(tpl), assets.txMedium, assets.e5Stand);
+		getEntity(tpl).createComponent<OBCEEnforcer>(getCEnemy(tpl));
 		return getEntity(tpl);
 	}
 	Entity& OBFactory::createETurretStarPlasma(const Vec2i& mPos, Dir8 mDir)
@@ -298,41 +298,41 @@ namespace ob
 
 
 
-	Entity& OBFactory::createPJBullet(const Vec2i& mPos, float mDegrees)
+	Entity& OBFactory::createPJBullet(const Vec2i& mPos, float mDeg)
 	{
-		auto tpl(createProjectileBase(mPos, {150, 150}, 420.f, mDegrees, assets.pjBullet));
+		auto tpl(createProjectileBase(mPos, {150, 150}, 420.f, mDeg, assets.pjBullet));
 		return getEntity(tpl);
 	}
-	Entity& OBFactory::createPJBulletPlasma(const Vec2i& mPos, float mDegrees)
+	Entity& OBFactory::createPJBulletPlasma(const Vec2i& mPos, float mDeg)
 	{
-		auto tpl(createProjectileBase(mPos, {150, 150}, 360.f, mDegrees, assets.pjBulletPlasma));
+		auto tpl(createProjectileBase(mPos, {150, 150}, 360.f, mDeg, assets.pjBulletPlasma));
 		getEntity(tpl).createComponent<OBCParticleEmitter>(getCPhys(tpl), &OBGame::createPPlasma);
 		getCDraw(tpl).setBlendMode(sf::BlendMode::BlendAdd);
 		return getEntity(tpl);
 	}
-	Entity& OBFactory::createPJBoltPlasma(const Vec2i& mPos, float mDegrees)
+	Entity& OBFactory::createPJBoltPlasma(const Vec2i& mPos, float mDeg)
 	{
-		auto tpl(createProjectileBase(mPos, {150, 150}, 260.f, mDegrees, assets.pjPlasma));
+		auto tpl(createProjectileBase(mPos, {150, 150}, 260.f, mDeg, assets.pjPlasma));
 		getEntity(tpl).createComponent<OBCParticleEmitter>(getCPhys(tpl), &OBGame::createPPlasma);
 		getCProjectile(tpl).setPierceOrganic(-1);
 		getCDraw(tpl).setBlendMode(sf::BlendMode::BlendAdd);
 		return getEntity(tpl);
 	}
-	Entity& OBFactory::createPJStar(const Vec2i& mPos, float mDegrees)
+	Entity& OBFactory::createPJStar(const Vec2i& mPos, float mDeg)
 	{
-		auto tpl(createProjectileBase(mPos, {150, 150}, 320.f, mDegrees, assets.pjStar));
+		auto tpl(createProjectileBase(mPos, {150, 150}, 320.f, mDeg, assets.pjStar));
 		return getEntity(tpl);
 	}
-	Entity& OBFactory::createPJStarPlasma(const Vec2i& mPos, float mDegrees)
+	Entity& OBFactory::createPJStarPlasma(const Vec2i& mPos, float mDeg)
 	{
-		auto tpl(createProjectileBase(mPos, {150, 150}, 270.f, mDegrees, assets.pjStarPlasma));
+		auto tpl(createProjectileBase(mPos, {150, 150}, 270.f, mDeg, assets.pjStarPlasma));
 		getEntity(tpl).createComponent<OBCParticleEmitter>(getCPhys(tpl), &OBGame::createPPlasma);
 		getCDraw(tpl).setBlendMode(sf::BlendMode::BlendAdd);
 		return getEntity(tpl);
 	}
-	Entity& OBFactory::createPJCannonPlasma(const Vec2i& mPos, float mDegrees)
+	Entity& OBFactory::createPJCannonPlasma(const Vec2i& mPos, float mDeg)
 	{
-		auto tpl(createProjectileBase(mPos, {150, 150}, 120.f, mDegrees, assets.pjCannonPlasma));
+		auto tpl(createProjectileBase(mPos, {150, 150}, 120.f, mDeg, assets.pjCannonPlasma));
 		getEntity(tpl).createComponent<OBCFloorSmasher>(getCPhys(tpl)).setActive(true);
 		getEntity(tpl).createComponent<OBCParticleEmitter>(getCPhys(tpl), &OBGame::createPPlasma, 5);
 		getCProjectile(tpl).setPierceOrganic(-1);
@@ -347,9 +347,9 @@ namespace ob
 		getCDraw(tpl).setBlendMode(sf::BlendMode::BlendAdd);
 		return getEntity(tpl);
 	}
-	Entity& OBFactory::createPJRocket(const Vec2i& mPos, float mDegrees)
+	Entity& OBFactory::createPJRocket(const Vec2i& mPos, float mDeg)
 	{
-		auto tpl(createProjectileBase(mPos, {150, 150}, 25.f, mDegrees, assets.pjRocket));
+		auto tpl(createProjectileBase(mPos, {150, 150}, 25.f, mDeg, assets.pjRocket));
 		getEntity(tpl).createComponent<OBCParticleEmitter>(getCPhys(tpl), &OBGame::createPSmoke, 4);
 		getCProjectile(tpl).setPierceOrganic(0);
 		getCProjectile(tpl).setDamage(0);
@@ -361,9 +361,9 @@ namespace ob
 		};
 		return getEntity(tpl);
 	}
-	Entity& OBFactory::createPJGrenade(const Vec2i& mPos, float mDegrees)
+	Entity& OBFactory::createPJGrenade(const Vec2i& mPos, float mDeg)
 	{
-		auto tpl(createProjectileBase(mPos, {150, 150}, 180.f, mDegrees, assets.pjGrenade));
+		auto tpl(createProjectileBase(mPos, {150, 150}, 180.f, mDeg, assets.pjGrenade));
 		getEntity(tpl).createComponent<OBCParticleEmitter>(getCPhys(tpl), &OBGame::createPSmoke, 3);
 		getCProjectile(tpl).setPierceOrganic(0);
 		getCProjectile(tpl).setDamage(0);
@@ -372,13 +372,13 @@ namespace ob
 		getCProjectile(tpl).setFallInPit(true);
 		getCProjectile(tpl).onDestroy += [this, tpl]
 		{
-			deathExplode(tpl, 16);
+			deathExplode(tpl, 16, 0.5f);
 		};
 		return getEntity(tpl);
 	}
-	Entity& OBFactory::createPJExplosion(const Vec2i& mPos, float mDegrees, float mSpeed)
+	Entity& OBFactory::createPJExplosion(const Vec2i& mPos, float mDeg, float mSpeed)
 	{
-		auto tpl(createProjectileBase(mPos, {500, 500}, mSpeed, mDegrees, assets.null0));
+		auto tpl(createProjectileBase(mPos, {500, 500}, mSpeed, mDeg, assets.null0));
 		getEntity(tpl).createComponent<OBCFloorSmasher>(getCPhys(tpl)).setActive(true);
 		getEntity(tpl).createComponent<OBCParticleEmitter>(getCPhys(tpl), &OBGame::createPExplosion, 2);
 		getCProjectile(tpl).setPierceOrganic(-1);
@@ -387,9 +387,9 @@ namespace ob
 	}
 
 
-	Entity& OBFactory::createPJTestBomb(const Vec2i& mPos, float mDegrees, float mSpeedMult, float mCurveMult)
+	Entity& OBFactory::createPJTestBomb(const Vec2i& mPos, float mDeg, float mSpeedMult, float mCurveMult)
 	{
-		auto tpl(createProjectileBase(mPos, {150, 150}, 150.f * mSpeedMult, mDegrees, assets.pjStar));
+		auto tpl(createProjectileBase(mPos, {150, 150}, 150.f * mSpeedMult, mDeg, assets.pjStar));
 		getEntity(tpl).createComponent<OBCFloorSmasher>(getCPhys(tpl)).setActive(true);
 		getCProjectile(tpl).setCurveSpeed(2.f * mCurveMult);
 		getCProjectile(tpl).setPierceOrganic(-1);
@@ -403,9 +403,9 @@ namespace ob
 		};
 		return getEntity(tpl);
 	}
-	Entity& OBFactory::createPJTestShell(const Vec2i& mPos, float mDegrees)
+	Entity& OBFactory::createPJTestShell(const Vec2i& mPos, float mDeg)
 	{
-		auto tpl(createProjectileBase(mPos, {150, 150}, 320.f + getRnd(-5, 25), mDegrees, assets.pjBullet));
+		auto tpl(createProjectileBase(mPos, {150, 150}, 320.f + getRnd(-5, 25), mDeg, assets.pjBullet));
 		getCProjectile(tpl).setLife(10.f + getRnd(-5, 15));
 		getCProjectile(tpl).setPierceOrganic(3);
 		return getEntity(tpl);
@@ -414,9 +414,9 @@ namespace ob
 	Entity& OBFactory::createVMHealth(const Vec2i& mPos)
 	{
 		auto tpl(createActorBase(mPos, {1000, 1000}, OBLayer::LWall, false));
+		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.vmHealth);
 		getCPhys(tpl).getBody().addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir);
 		getEntity(tpl).createComponent<OBCVMachine>(getCPhys(tpl), getCDraw(tpl));
-		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.vmHealth);
 		return getEntity(tpl);
 	}
 }

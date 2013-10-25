@@ -29,7 +29,7 @@ namespace ob
 		public:
 			ssvu::Delegate<void()> onDestroy;
 
-			OBCProjectile(OBCPhys& mCPhys, OBCDraw& mCDraw, float mSpeed, float mDegrees) noexcept : OBCActorBase{mCPhys, mCDraw} { body.setVelocity(ssvs::getVecFromDeg(mDegrees, mSpeed)); }
+			OBCProjectile(OBCPhys& mCPhys, OBCDraw& mCDraw, float mSpeed, float mDeg) noexcept : OBCActorBase{mCPhys, mCDraw} { body.setVelocity(ssvs::getVecFromDeg(mDeg, mSpeed)); }
 
 			inline void init()
 			{

@@ -55,9 +55,11 @@ namespace ob
 
 				if(!cTargeter.hasTarget()) return;
 				targetDeg = ssvs::getDegTowards(cPhys.getPosF(), cTargeter.getPosF());
-				currentDeg = ssvu::getRotatedDeg(currentDeg, targetDeg, turnSpeed * mFT);
+				turnTowards(mFT, targetDeg);
 			}
 			inline void draw() override { if(faceDirection) cDraw[0].setRotation(snappedDeg); }
+
+			inline void turnTowards(float mFT, float mTargetDeg) noexcept { currentDeg = ssvu::getRotatedDeg(currentDeg, mTargetDeg, turnSpeed * mFT); }
 
 			inline void setFaceDirection(bool mValue) noexcept	{ faceDirection = mValue; }
 			inline void setMinBounceVel(float mMin) noexcept	{ minBounceVel = mMin; }

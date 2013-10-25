@@ -46,9 +46,13 @@ namespace ob
 			OBCKillable& cKillable;
 			OBCBoid& cBoid;
 			OBCTargeter& cTargeter;
+			OBCHealth& cHealth;
 
 		public:
-			OBCEBase(OBCEnemy& mCEnemy) : OBCActorBase{mCEnemy.getCPhys(), mCEnemy.getCDraw()}, cEnemy(mCEnemy), cKillable(cEnemy.getCKillable()), cBoid(cEnemy.getCBoid()), cTargeter(cEnemy.getCTargeter()) { }
+			OBCEBase(OBCEnemy& mCEnemy) : OBCActorBase{mCEnemy.getCPhys(), mCEnemy.getCDraw()}, cEnemy(mCEnemy), cKillable(cEnemy.getCKillable()), cBoid(cEnemy.getCBoid()),
+				cTargeter(cEnemy.getCTargeter()), cHealth(mCEnemy.getCKillable().getCHealth()) { }
+
+			inline bool isPlayerInSight() const noexcept { return raycastToPlayer(cPhys, cTargeter.getTarget()); }
 	};
 
 	class OBCEArmedBase : public OBCEBase
@@ -57,14 +61,14 @@ namespace ob
 			OBCWielder& cWielder;
 			OBCDir8& cDir8;
 			OBCWpnController& cWpnController;
-			bool armed{false};
-			int wpnHealth{1};
+			bool armed;
+			int wpnHealth;
 
 		public:
 			OBCEArmedBase(OBCEnemy& mCEnemy, OBCWielder& mCWielder, OBCWpnController& mCWpnController, bool mArmed, int mWpnHealth)
 				: OBCEBase{mCEnemy}, cWielder(mCWielder), cDir8(mCWielder.getCDir8()), cWpnController(mCWpnController), armed{mArmed}, wpnHealth(mWpnHealth)
 			{
-				cKillable.getCHealth().onDamage += [this]{ if(armed && wpnHealth-- <= 0) { armed = false; game.createPElectric(10, toPixels(cPhys.getPosF())); } };
+				cHealth.onDamage += [this]{ if(armed && wpnHealth-- <= 0) { armed = false; game.createPElectric(10, toPixels(cPhys.getPosF())); } };
 			}
 
 			inline void pursuitOrAlign(float mDist, float mPursuitDist)
@@ -72,11 +76,10 @@ namespace ob
 				if(mDist > mPursuitDist) cBoid.pursuit(cTargeter.getTarget());
 				else cBoid.seek(ssvs::getOrbitFromDeg(cTargeter.getPosF(), cDir8.getDeg() + 180, mPursuitDist), 0.02f, 750.f);
 			}
-			inline void faceShootDir() { cDir8 = getDir8FromDeg(cEnemy.getCurrentDeg()); }
 			inline void recalculateTile()
 			{
-				if(armed) cDraw[0].setRotation(cDir8.getDeg());
-				else cDraw[1].setColor(sf::Color::Transparent);
+				if(!armed) cDraw[1].setColor(sf::Color::Transparent);
+				else cDir8 = getDir8FromDeg(cEnemy.getCurrentDeg());
 			}
 
 			inline void shootGun()
@@ -96,29 +99,19 @@ namespace ob
 				cWpnController.setWpn(OBWpnTypes::createEPlasmaBulletGun());
 				cEnemy.setMinBounceVel(125.f); cEnemy.setMaxVel(200.f);
 				cKillable.setType(OBCKillable::Type::Organic);
-				cWielder.setHoldDist(2.f);
-				cWielder.setWieldDist(8.f);
+				cWielder.setHoldDist(2.f); cWielder.setWieldDist(8.f);
 			}
 			inline void update(float) override
 			{
-				if(cTargeter.hasTarget())
-				{
-					float distance{ssvs::getDistEuclidean(cTargeter.getPosF(), cPhys.getPosF())};
-					bool raycast{raycastToPlayer(cPhys, cTargeter.getTarget())};
+				recalculateTile();
 
-					cWielder.setShooting(armed && cEnemy.getDegDiff() < 50.f && raycast);
-					if(armed) faceShootDir();
+				if(!cTargeter.hasTarget()) { cWielder.setShooting(false); return; }
 
-					if(cWielder.isShooting())
-					{
-						pursuitOrAlign(distance, 9000.f);
-						if(cWielder.isShooting()) shootGun();
-					}
-					else cBoid.pursuit(cTargeter.getTarget());
-				}
-				else cWielder.setShooting(false);
+				cWielder.setShooting(armed && cEnemy.getDegDiff() < 50.f && isPlayerInSight());
+
+				if(cWielder.isShooting()) { pursuitOrAlign(cTargeter.getDist(), 9000.f); shootGun(); }
+				else cBoid.pursuit(cTargeter.getTarget());
 			}
-			inline void draw() override { recalculateTile(); }
 	};
 
 	class OBCECharger : public OBCEArmedBase
@@ -159,7 +152,7 @@ namespace ob
 					body.setVelocity(cPhys.getVel() * 0.8f);
 					game.createPCharge(4, cPhys.getPosPx(), 45);
 				}, 10, 2.5f);
-				tlCharge.append<ssvu::WaitUntil>([this]{ return raycastToPlayer(cPhys, cTargeter.getTarget()); });
+				tlCharge.append<ssvu::WaitUntil>([this]{ return isPlayerInSight(); });
 				tlCharge.append<ssvu::Do>([this]{ cFloorSmasher.setActive(true); lastDeg = cEnemy.getCurrentDeg(); body.applyForce(ssvs::getVecFromDeg(lastDeg, 1250.f)); });
 				tlCharge.append<ssvu::Wait>(10.f);
 				tlCharge.append<ssvu::Do>([this]{ body.applyForce(ssvs::getVecFromDeg(lastDeg, -150.f)); });
@@ -168,26 +161,20 @@ namespace ob
 			}
 			inline void update(float mFT) override
 			{
-				if(cTargeter.hasTarget())
-				{
-					float distance{ssvs::getDistEuclidean(cTargeter.getPosF(), cPhys.getPosF())};
-					cWielder.setShooting(armed && cEnemy.getDegDiff() < 50.f && raycastToPlayer(cPhys, cTargeter.getTarget()));
+				recalculateTile();
 
-					if(armed)
-					{
-						pursuitOrAlign(distance, 9000.f); faceShootDir();
-						if(cWielder.isShooting()) shootGun();
-					}
-					else
-					{
-						cBoid.pursuit(cTargeter.getTarget());
-						tlCharge.update(mFT);
-						if(tckCharge.update(mFT)) { tlCharge.reset(); tlCharge.start(); }
-					}
+				if(!cTargeter.hasTarget()) { cWielder.setShooting(false); return; }
+
+				cWielder.setShooting(armed && cEnemy.getDegDiff() < 50.f && isPlayerInSight());
+
+				if(cWielder.isShooting()) { pursuitOrAlign(cTargeter.getDist(), 9000.f); shootGun(); }
+				else
+				{
+					cBoid.pursuit(cTargeter.getTarget());
+					tlCharge.update(mFT);
+					if(tckCharge.update(mFT)) { tlCharge.reset(); tlCharge.start(); }
 				}
-				else cWielder.setShooting(false);
 			}
-			inline void draw() override { recalculateTile(); }
 	};
 
 	class OBCEJuggernaut : public OBCEArmedBase
@@ -234,27 +221,26 @@ namespace ob
 				constexpr float distBodySlam{2750.f};
 				constexpr float distEvade{10000.f};
 
-				if(cTargeter.hasTarget())
+				recalculateTile();
+
+				if(!cTargeter.hasTarget()) { cWielder.setShooting(false); return; }
+
+				const auto& dist(cTargeter.getDist());
+				cWielder.setShooting(armed && cEnemy.getDegDiff() < 50.f && isPlayerInSight() && dist > distBodySlam);
+
+				if(cWielder.isShooting())
 				{
-					float distance{ssvs::getDistEuclidean(cTargeter.getPosF(), cPhys.getPosF())};
-					cWielder.setShooting(armed && cEnemy.getDegDiff() < 50.f && raycastToPlayer(cPhys, cTargeter.getTarget()) && distance > distBodySlam);
-
-					if(armed && distance > distBodySlam)
-					{
-						pursuitOrAlign(distance, distEvade - 1000.f); faceShootDir();
-						if(cWielder.isShooting()) shootGun();
-					}
-					else
-					{
-						if(distance > distEvade || distance < distBodySlam) cBoid.pursuit(cTargeter.getTarget()); else cBoid.evade(cTargeter.getTarget());
-
-						tlShoot.update(mFT);
-						if(tckShoot.update(mFT)) { tlShoot.reset(); tlShoot.start(); }
-					}
+					if(dist < distBodySlam) cBoid.pursuit(cTargeter.getTarget());
+					pursuitOrAlign(dist, distEvade - 1000.f); shootGun();
 				}
-				else cWielder.setShooting(false);
+				else
+				{
+					if(dist > distEvade || dist < distBodySlam) cBoid.pursuit(cTargeter.getTarget()); else cBoid.evade(cTargeter.getTarget());
+
+					tlShoot.update(mFT);
+					if(tckShoot.update(mFT)) { tlShoot.reset(); tlShoot.start(); }
+				}
 			}
-			inline void draw() override { recalculateTile(); }
 
 			inline void shootUnarmed(int mDeg)
 			{
@@ -266,7 +252,6 @@ namespace ob
 	class OBCEBall : public OBCEBase
 	{
 		private:
-			float spin{0};
 			bool flying{false}, small{false};
 
 		public:
@@ -307,9 +292,8 @@ namespace ob
 			{
 				if(flying && !small && ssvu::getRnd(0, 9) > 7) game.createPElectric(1, cPhys.getPosPx());
 				if(cTargeter.hasTarget()) cBoid.pursuit(cTargeter.getTarget());
-				spin += mFT * 15.f;
+				cDraw.rotate(15.f * mFT);
 			}
-			inline void draw() override { cDraw.setRotation(spin); }
 	};
 
 	class OBCEGiant : public OBCEBase
@@ -350,16 +334,15 @@ namespace ob
 			}
 			inline void update(float mFT) override
 			{
-				if(cTargeter.hasTarget())
-				{
-					if(ssvs::getDistEuclidean(cTargeter.getPosF(), cPhys.getPosF()) > 10000) cBoid.pursuit(cTargeter.getTarget()); else cBoid.evade(cTargeter.getTarget());
+				if(!cTargeter.hasTarget()) return;
 
-					tlCannon.update(mFT); tlShoot.update(mFT); tlSummon.update(mFT);
-					if(tckShoot.update(mFT))
-					{
-						if(ssvu::getRnd(0, 2) > 0) { tlShoot.reset(); tlShoot.start(); }
-						else { tlSummon.reset(); tlSummon.start(); }
-					}
+				if(ssvs::getDistEuclidean(cTargeter.getPosF(), cPhys.getPosF()) > 10000) cBoid.pursuit(cTargeter.getTarget()); else cBoid.evade(cTargeter.getTarget());
+
+				tlCannon.update(mFT); tlShoot.update(mFT); tlSummon.update(mFT);
+				if(tckShoot.update(mFT))
+				{
+					if(ssvu::getRnd(0, 2) > 0) { tlShoot.reset(); tlShoot.start(); }
+					else { tlSummon.reset(); tlSummon.start(); }
 				}
 			}
 			inline void shoot(int mDeg)
@@ -399,12 +382,11 @@ namespace ob
 			}
 			inline void update(float mFT) override
 			{
-				if(cTargeter.hasTarget())
-				{
-					tckShoot.update(mFT);
-					if(ssvs::getDistEuclidean(cTargeter.getPosF(), cPhys.getPosF()) > 10000) cBoid.pursuit(cTargeter.getTarget()); else cBoid.evade(cTargeter.getTarget());
-					if(raycastToPlayer(cPhys, cTargeter.getTarget()) && cEnemy.getDegDiff() < 50.f) shootCannon(0);
-				}
+				if(!cTargeter.hasTarget()) return;
+
+				tckShoot.update(mFT);
+				if(cTargeter.getDist() > 10000) cBoid.pursuit(cTargeter.getTarget()); else cBoid.evade(cTargeter.getTarget());
+				if(isPlayerInSight() && cEnemy.getDegDiff() < 50.f) shootCannon(0);
 			}
 			inline void shootCannon(int mDeg)
 			{
