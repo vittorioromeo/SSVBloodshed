@@ -233,7 +233,7 @@ namespace ob
 					if(dist < distBodySlam) cBoid.pursuit(cTargeter.getTarget());
 					pursuitOrAlign(dist, distEvade - 1000.f); shootGun();
 				}
-				else
+				else if(!armed)
 				{
 					if(dist > distEvade || dist < distBodySlam) cBoid.pursuit(cTargeter.getTarget()); else cBoid.evade(cTargeter.getTarget());
 
@@ -299,7 +299,7 @@ namespace ob
 	class OBCEGiant : public OBCEBase
 	{
 		private:
-			ssvs::Ticker tckShoot{25000.f};
+			ssvs::Ticker tckShoot{250.f};
 			ssvu::Timeline tlShoot{false}, tlSummon{false}, tlCannon{true};
 			OBWpn wpn{game, OBGroup::GFriendlyKillable, OBWpnTypes::createEPlasmaStarGun()};
 			OBWpn wpnC{game, OBGroup::GFriendlyKillable, OBWpnTypes::createPlasmaCannon()};
