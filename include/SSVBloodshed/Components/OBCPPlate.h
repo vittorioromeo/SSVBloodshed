@@ -47,15 +47,14 @@ namespace ob
 				Body* body;
 				while((body = query.next()) != nullptr)
 				{
-					if(body->hasGroup(OBGroup::GPPlate))
-					{
-						auto& cPPlate(getEntityFromBody(*body).getComponent<OBCPPlate>());
-						if(cPPlate.cPhys.getPosI().x == cPhys.getPosI().x || cPPlate.cPhys.getPosI().y == cPhys.getPosI().y)
-							if(cPPlate.id == id && cPPlate.type == type)
-							{
-								if(mTrigger) cPPlate.trigger(); else cPPlate.unTrigger();
-							}
-					}
+					if(!body->hasGroup(OBGroup::GPPlate)) continue;
+
+					auto& cPPlate(getEntityFromBody(*body).getComponent<OBCPPlate>());
+					if(cPPlate.cPhys.getPosI().x == cPhys.getPosI().x || cPPlate.cPhys.getPosI().y == cPhys.getPosI().y)
+						if(cPPlate.id == id && cPPlate.type == type)
+						{
+							if(mTrigger) cPPlate.trigger(); else cPPlate.unTrigger();
+						}
 				}
 			}
 
@@ -66,7 +65,7 @@ namespace ob
 			OBCPPlate(OBCPhys& mCPhys, OBCDraw& mCDraw, int mId, PPlateType mType, IdAction mIdAction, bool mPlayerOnly) noexcept
 				: OBCActorBase{mCPhys, mCDraw}, OBWeightable{mCPhys, mPlayerOnly}, id{mId}, type{mType}, idAction{mIdAction} { }
 
-			inline void init() { OBWeightable::init(); }
+			inline void init() { OBWeightable::init(); body.addGroups(OBGroup::GPPlate); }
 			inline void update(float) override
 			{
 				if(hasBeenWeighted() && !triggered)
