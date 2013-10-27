@@ -108,7 +108,7 @@ namespace ob
 					f->createFloor(mP, true); f->createDoorR(mP, *a.doorRBitMask[mask], bool(getP<int>(mT, "open")));
 				});
 
-				add(OBLETType::LETSpawner,			a.txSmall,		a.shard,				{{"id", -1}, {"type", 0}, {"delayStart", 0.f}, {"delaySpawn", 200.f}, {"spawnCount", 1}},
+				add(OBLETType::LETSpawner,			a.txSmall,		a.spawner,				{{"id", -1}, {"type", 0}, {"delayStart", 0.f}, {"delaySpawn", 200.f}, {"spawnCount", 1}},
 				[this](TLevel&, TTile& mT, const Vec2i& mP)
 				{
 					f->createSpawner(mP, getP<int>(mT, "type"), getP<int>(mT, "id"), getP<float>(mT, "delayStart"), getP<float>(mT, "delaySpawn"), getP<int>(mT, "spawnCount"));
