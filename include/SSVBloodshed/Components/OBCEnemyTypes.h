@@ -23,7 +23,7 @@ namespace ob
 	{
 		const auto& startPos(mSeeker.getPosI());
 		Vec2f direction(mTarget.getPosI() - startPos);
-		if(direction.x == 0 && direction.y == 0) return false;
+		//direction = Vec2f(getVecFromDir8(getDir8FromDeg(ssvs::getDeg(direction))));
 
 		auto gridQuery(mSeeker.getWorld().getQuery<ssvsc::QueryType::RayCast>(startPos, direction));
 
