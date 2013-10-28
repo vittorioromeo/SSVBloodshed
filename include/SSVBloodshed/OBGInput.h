@@ -22,7 +22,7 @@ namespace ob
 			{
 				using k = ssvs::KKey;
 				//using b = ssvs::MBtn;
-				using t = ssvs::Input::TriggerType;
+				using t = ssvs::Input::Type;
 
 				auto& gs(game.getGameState());
 

@@ -22,8 +22,8 @@ namespace ob
 			{
 				using k = ssvs::KKey;
 				using b = ssvs::MBtn;
-				using t = ssvs::Input::TriggerType;
-				using m = ssvs::Input::TriggerMode;
+				using t = ssvs::Input::Type;
+				using m = ssvs::Input::Mode;
 				auto& gs(editor.getGameState());
 
 				ssvs::add2StateInput(gs, {{b::Left}}, painting);
@@ -43,8 +43,7 @@ namespace ob
 				gs.addInput({{k::W}},		[this](float){ editor.cycleParam(1); }, t::Once);
 				gs.addInput({{k::T}},		[this](float){ editor.cycleCurrentParam(-100); }, t::Once);
 				gs.addInput({{k::Y}},		[this](float){ editor.cycleCurrentParam(100); }, t::Once);
-				gs.addInput({{k::N}},		[this](float){ editor.copyParams(); });
-				gs.addInput({{k::M}},		[this](float){ editor.pasteParams(); });
+
 				gs.addInput({{b::Middle}},	[this](float){ editor.pick(); }, t::Once);
 				gs.addInput({{k::F1}},		[this](float){ editor.getGameWindow().setGameState(editor.game->getGameState()); }, t::Once);
 
