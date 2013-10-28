@@ -33,7 +33,7 @@ namespace ob
 
 				gs.addInput({{k::Escape}},	[this](float){ editor.assets.musicPlayer.stop(); std::terminate(); });
 				gs.addInput({{k::R}},		[this](float){ editor.clearCurrentLevel(); }, t::Once);
-				gs.addInput({{k::C}},		[this](float){ ssvu::lo<<"save"<<std::endl;editor.saveToFile("./level.txt"); }, t::Once, m::Exclusive);
+				gs.addInput({{k::C}},		[this](float){ editor.saveToFile("./level.txt"); }, t::Once, m::Exclusive);
 				gs.addInput({{k::V}},		[this](float){ editor.loadFromFile("./level.txt"); }, t::Once, m::Exclusive);
 				gs.addInput({{k::Z}},		[this](float){ editor.cycleZ(-1); }, t::Once);
 				gs.addInput({{k::X}},		[this](float){ editor.cycleZ(1); }, t::Once);
@@ -48,7 +48,7 @@ namespace ob
 				gs.addInput({{b::Middle}},	[this](float){ editor.pick(); }, t::Once);
 				gs.addInput({{k::F1}},		[this](float){ editor.getGameWindow().setGameState(editor.game->getGameState()); }, t::Once);
 
-				gs.addInput({{k::LControl, k::C}}, [this](float){ ssvu::lo<<"copy"<<std::endl;editor.copyTiles(); }, t::Once, m::Exclusive);
+				gs.addInput({{k::LControl, k::C}}, [this](float){ editor.copyTiles(); }, t::Once, m::Exclusive);
 				gs.addInput({{k::LControl, k::V}}, [this](float){ editor.pasteTiles(); }, t::Always, m::Exclusive);
 
 				gs.addInput({{k::Numpad4}},	[this](float){ editor.cycleLevel(-1, 0); }, t::Once);
