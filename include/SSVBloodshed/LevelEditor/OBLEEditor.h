@@ -104,9 +104,6 @@ namespace ob
 			inline void paint()	{ for(auto& t : currentTiles) { t->initFromEntry(getCurrentEntry()); t->setRot(currentRot); t->setId(assets, currentId); } }
 			inline void del()	{ for(auto& t : currentTiles) { currentLevel->del(*t); } }
 			inline void pick()	{ brush.idx = int(getPickTile().getType()); }
-\
-			inline void copyParams()	{ auto& t(getPickTile()); copiedParams = std::make_pair(t.getType(), t.getParams()); }
-			inline void pasteParams()	{ for(auto& t : currentTiles) { if(t->getType() == copiedParams.first) t->setParams(copiedParams.second); } }
 
 			inline void copyTiles()		{ auto& t(getPickTile()); copiedTile = t; }
 			inline void pasteTiles()	{ for(auto& t : currentTiles) { t->initFromEntry(database.get(copiedTile.getType())); t->setParams(copiedTile.getParams()); t->refreshIdText(assets); } }
