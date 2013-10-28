@@ -161,8 +161,10 @@ namespace ob
 		}
 		return {{0, 0}};
 	}
-	template<typename T> inline Dir8 getDir8FromVec(const Vec2<T>& mVec) noexcept	{ return getDir8FromXY(mVec.x, mVec.y); }
-	template<typename T = int> inline Vec2<T> getVecFromDir8(Dir8 mDir) noexcept	{ const auto& xy(getXYFromDir8<T>(mDir)); return {xy[0], xy[1]}; }
+	template<typename T> inline Dir8 getDir8FromVec(const Vec2<T>& mVec) noexcept		{ return getDir8FromXY(mVec.x, mVec.y); }
+	template<typename T = int> inline Vec2<T> getVecFromDir8(Dir8 mDir) noexcept		{ const auto& xy(getXYFromDir8<T>(mDir)); return {xy[0], xy[1]}; }
+	template<typename T> inline T getSnappedDeg(const T& mDeg) noexcept					{ return getDegFromDir8(getDir8FromDeg(mDeg)); }
+	template<typename T> inline Vec2<T> getSnappedVec(const Vec2<T>& mVec) noexcept		{ return Vec2<T>(getVecFromDir8(getDir8FromDeg(ssvs::getDeg(mVec)))); }
 
 	// Timeline shortcuts
 	inline void repeat(ssvu::Timeline& mTimeline, const ssvu::Action& mAction, unsigned int mTimes, float mWait)
