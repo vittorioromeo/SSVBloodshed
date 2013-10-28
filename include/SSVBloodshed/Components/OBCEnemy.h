@@ -51,7 +51,7 @@ namespace ob
 
 			inline void update(float mFT) override
 			{
-				snappedDeg = getDegFromDir8(getDir8FromDeg(currentDeg));
+				snappedDeg = ob::getSnappedDeg(currentDeg);
 
 				if(!cTargeter.hasTarget()) return;
 				targetDeg = ssvs::getDegTowards(cPhys.getPosF(), cTargeter.getPosF());
