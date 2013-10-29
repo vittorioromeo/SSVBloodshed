@@ -65,10 +65,10 @@ namespace ob
 			inline void update(float mFT) override
 			{
 				auto newVel(body.getVelocity());
-				ssvs::resize(newVel, ssvs::getMagnitude(newVel) + acceleration * mFT);
+				ssvs::resize(newVel, ssvs::getMag(newVel) + acceleration * mFT);
 				ssvs::mClamp(newVel, minSpeed, maxSpeed);
 
-				body.setVelocity(ssvs::getVecFromDeg(ssvs::getDeg(newVel) + curveSpeed * mFT, ssvs::getMagnitude(newVel)));
+				body.setVelocity(ssvs::getVecFromDeg(ssvs::getDeg(newVel) + curveSpeed * mFT, ssvs::getMag(newVel)));
 
 				if(tckLife.update(mFT)) destroy();
 			}
@@ -97,7 +97,7 @@ namespace ob
 			inline float getLife() const noexcept			{ return tckLife.getCurrent(); }
 			inline float getCurveSpeed() const noexcept		{ return curveSpeed; }
 			inline float getDamage() const noexcept			{ return dmg; }
-			inline float getSpeed() const noexcept			{ return ssvs::getMagnitude(body.getVelocity()); }
+			inline float getSpeed() const noexcept			{ return ssvs::getMag(body.getVelocity()); }
 			inline int getPierceOrganic() const noexcept	{ return pierceOrganic; }
 			inline OBGroup getTargetGroup() const noexcept	{ return targetGroup; }
 	};

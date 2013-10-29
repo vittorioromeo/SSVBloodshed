@@ -93,7 +93,7 @@ namespace ob
 	}
 	inline void createPCharge(OBParticleSystem& mPS, const Vec2f& mPosition, float mDist)
 	{
-		Vec2f pos{ssvs::getOrbitFromDeg(mPosition, ssvu::getRndR<float>(0.f, 360.f), mDist)};
+		Vec2f pos{ssvs::getOrbitDeg(mPosition, ssvu::getRndR<float>(0.f, 360.f), mDist)};
 
 		mPS.emplace(pos,
 				ssvs::getNormalized(mPosition - pos) * (mDist / 15.f),

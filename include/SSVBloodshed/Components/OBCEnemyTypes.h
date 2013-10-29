@@ -74,7 +74,7 @@ namespace ob
 			inline void pursuitOrAlign(float mDist, float mPursuitDist)
 			{
 				if(mDist > mPursuitDist) cBoid.pursuit(cTargeter.getTarget());
-				else cBoid.seek(ssvs::getOrbitFromDeg(cTargeter.getPosF(), cDir8.getDeg() + 180, mPursuitDist), 0.02f, 750.f);
+				else cBoid.seek(ssvs::getOrbitDeg(cTargeter.getPosF(), cDir8.getDeg() + 180, mPursuitDist), 0.02f, 750.f);
 			}
 			inline void recalculateTile()
 			{

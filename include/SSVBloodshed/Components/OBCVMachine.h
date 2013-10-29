@@ -40,12 +40,17 @@ namespace ob
 			inline std::string getMsg() const noexcept	{ return "[" + ssvu::toStr(shardCost) + "] Heal <" + ssvu::toStr(healAmount) + "> hp"; }
 	};
 
-	inline void OBCPlayer::setCurrentVM(OBCVMachine* mVMachine)
+	inline void OBCPlayer::updateHUD()
 	{
-		currentVM = mVMachine;
-		game.txtVM.setString(currentVM == nullptr ? "" :currentVM->getMsg());
+		// TODO:
+		auto& cHealth(cKillable.getCHealth());
+		game.testhp.setValue(cHealth.getHealth());
+		game.testhp.setMaxValue(cHealth.getMaxHealth());
+		game.txtShards.setString(ssvu::toStr(shards + currentShards));
+		game.txtVM.setString(currentVM == nullptr ? weaponNames[currentWpn] :currentVM->getMsg());
 	}
 
+	inline void OBCPlayer::setCurrentVM(OBCVMachine* mVMachine) { currentVM = mVMachine; }
 	inline void OBCPlayer::useVM()
 	{
 		if(currentVM->getShardCost() > shards + currentShards) return;

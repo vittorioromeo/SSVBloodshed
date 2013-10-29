@@ -19,7 +19,7 @@ namespace ob
 			inline Vec2f getSeekForce(Vec2f mTarget, float mSlowRadius) const noexcept
 			{
 				mTarget -= cPhys.getPosF();
-				float distance{ssvs::getMagnitude(mTarget)};
+				float distance{ssvs::getMag(mTarget)};
 				ssvs::resize(mTarget, distance <= mSlowRadius ? maxVel * distance / mSlowRadius : maxVel);
 				return mTarget - cPhys.getVel();
 			}
@@ -33,13 +33,13 @@ namespace ob
 			inline Vec2f getPursuitForce(const Vec2f& mTargetPos, const Vec2f& mTargetVel, float mPredictionMult, float mSlowRadius) const noexcept
 			{
 				Vec2f distance{mTargetPos - cPhys.getPosF()};
-				float prediction{ssvs::getMagnitude(distance) / maxVel};
+				float prediction{ssvs::getMag(distance) / maxVel};
 				return getSeekForce(mTargetPos + mTargetVel * (prediction * mPredictionMult), mSlowRadius);
 			}
 			inline Vec2f getEvadeForce(const Vec2f& mTargetPos, const Vec2f& mTargetVel) const noexcept
 			{
 				Vec2f distance{mTargetPos - cPhys.getPosF()};
-				float prediction{ssvs::getMagnitude(distance) / maxVel};
+				float prediction{ssvs::getMag(distance) / maxVel};
 				return getFleeForce(mTargetPos + mTargetVel * prediction);
 			}
 

@@ -43,13 +43,13 @@ namespace ob
 			int currentWpn{0}, currentShards{0}, shards{0};
 			std::vector<OBWpnType> weaponTypes{OBWpnTypes::createMachineGun(), OBWpnTypes::createPlasmaBolter(), OBWpnTypes::createPlasmaCannon(), OBWpnTypes::createRocketLauncher(), OBWpnTypes::createGrenadeLauncher()};
 			std::vector<sf::IntRect> weaponRects{assets.p1Gun, assets.e1Gun, assets.gunPCannon, assets.p2Gun, assets.p2Gun};
+			std::vector<std::string> weaponNames{"machine gun", "plasma bolter", "plasma cannon", "rocket launcher", "grenade launcher"};
 
 			inline void cycleWeapons(int mDir) noexcept
 			{
-				currentWpn += mDir;
-				const auto& i(ssvu::getWrapIdx(currentWpn, weaponTypes.size()));
-				cWpnController.setWpn(weaponTypes[i]);
-				cDraw[1].setTextureRect(weaponRects[i]);
+				currentWpn = ssvu::getWrapIdx(currentWpn + mDir, weaponTypes.size());
+				cWpnController.setWpn(weaponTypes[currentWpn]);
+				cDraw[1].setTextureRect(weaponRects[currentWpn]);
 			}
 			inline void useVM();
 
@@ -106,21 +106,14 @@ namespace ob
 						c.getBody().addGroupsNoResolve(OBGroup::GSolidGround);
 						if(ssvs::getDistEuclidean(c.getPosI(), cPhys.getPosI()) > 6500)
 						{
-							if(ssvs::getMagnitude(c.getVel()) < 650.f) c.getBody().applyForce(Vec2f(cPhys.getPosI() - c.getPosI()) * 0.002f);
+							if(ssvs::getMag(c.getVel()) < 650.f) c.getBody().applyForce(Vec2f(cPhys.getPosI() - c.getPosI()) * 0.002f);
 						}
 						else c.setVel(ssvs::getMClampedMax(Vec2f(cPhys.getPosI() - c.getPosI()) / 1.5f, 400.f));
 					}
 				}
 			}
 
-			inline void updateHUD()
-			{
-				// TODO:
-				auto& cHealth(cKillable.getCHealth());
-				game.testhp.setValue(cHealth.getHealth());
-				game.testhp.setMaxValue(cHealth.getMaxHealth());
-				game.txtShards.setString(ssvu::toStr(shards + currentShards));
-			}
+			void updateHUD();
 			inline void checkTransitions()
 			{
 				if(cPhys.getLeft() + cPhys.getVel().x < 0)							game.changeLevel(*this, -1, 0);

@@ -256,5 +256,7 @@ namespace ob
 // fix muzzle position
 // add small red gun asset and implement red bouncing laser shots
 // one way projectile shields
+// bullet shells (single particle?)
+// lock room until clear? (remove green doors?)
 
 #endif
