@@ -243,17 +243,18 @@ namespace ob
 }
 
 // TODO: bullet sensor pressure plates, SSVSC refactoring/optimization
-// TODO  enemy orientation, organic group?, do not pierce breakable wall etc
-// TODO: tripwires, laserwires, powerups, classes, weapon sets, etc
-// TODO: bullet knockback? replicators? spawners?
-// TODO: major group/facotry refactoring!, fuses, ammunition
-// TODO: big enforcer variant that shoots a plasma cannon ball that splits in other plasma cannon balls
-// TODO: switches that can be pressed with X
-// TODO: multiple id actions (open 1, toggle 2...)
-// TODO: grenade launcher enemies
-// TODO: refactor everything, check code quality
-// TODO: customize turret rates in editor! (and projectile speed mult)
-// TODO: fix muzzle position
-// TODO: add small red gun asset and implement red bouncing laser shots
+// enemy orientation, organic group?, do not pierce breakable wall etc
+// tripwires, laserwires, powerups, classes, weapon sets, etc
+// bullet knockback? replicators? spawners?
+// major group/facotry refactoring!, fuses, ammunition
+// big enforcer variant that shoots a plasma cannon ball that splits in other plasma cannon balls
+// switches that can be pressed with X
+// multiple id actions (open 1, toggle 2...)
+// grenade launcher enemies
+// refactor everything, check code quality
+// customize turret rates in editor! (and projectile speed mult)
+// fix muzzle position
+// add small red gun asset and implement red bouncing laser shots
+// one way projectile shields
 
 #endif
