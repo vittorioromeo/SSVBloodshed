@@ -242,6 +242,8 @@ namespace ob
 	};
 }
 
+// TODO: add final where it makes sense
+
 // TODO: bullet sensor pressure plates, SSVSC refactoring/optimization
 // enemy orientation, organic group?, do not pierce breakable wall etc
 // tripwires, laserwires, powerups, classes, weapon sets, etc

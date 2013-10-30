@@ -99,7 +99,7 @@ int main()
 
 	ssvs::GameWindow gameWindow;
 	gameWindow.setTitle("component tests");
-	gameWindow.setTimer<ssvs::StaticTimer>(0.5f, 0.5f);
+	gameWindow.setTimer<ssvs::TimerStatic>(0.5f, 0.5f);
 	gameWindow.setSize(1024, 768);
 	gameWindow.setFullscreen(false);
 	gameWindow.setFPSLimited(true);
@@ -256,7 +256,7 @@ int main()
 
 	GameWindow gameWindow;
 	gameWindow.setTitle("operation bloodshed");
-	gameWindow.setTimer<StaticTimer>(0.5f, 0.5f);
+	gameWindow.setTimer<TimerStatic>(0.5f, 0.5f);
 	gameWindow.setSize(width, height);
 	gameWindow.setFullscreen(false);
 	gameWindow.setFPSLimited(true);
