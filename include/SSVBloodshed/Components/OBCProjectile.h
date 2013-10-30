@@ -68,7 +68,7 @@ namespace ob
 				ssvs::resize(newVel, ssvs::getMag(newVel) + acceleration * mFT);
 				ssvs::mClamp(newVel, minSpeed, maxSpeed);
 
-				body.setVelocity(ssvs::getVecFromDeg(ssvs::getDeg(newVel) + curveSpeed * mFT, ssvs::getMag(newVel)));
+				body.setVelocity(ssvs::getVecFromRad(ssvs::getRad(newVel) + curveSpeed * mFT, ssvs::getMag(newVel)));
 
 				if(tckLife.update(mFT)) destroy();
 			}

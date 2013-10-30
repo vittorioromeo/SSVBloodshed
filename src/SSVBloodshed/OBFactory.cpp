@@ -391,7 +391,7 @@ namespace ob
 	{
 		auto tpl(createProjectileBase(mPos, {150, 150}, 150.f * mSpeedMult, mDeg, assets.pjStar));
 		getEntity(tpl).createComponent<OBCFloorSmasher>(getCPhys(tpl)).setActive(true);
-		getCProjectile(tpl).setCurveSpeed(2.f * mCurveMult);
+		getCProjectile(tpl).setCurveSpeed(0.04f * mCurveMult);
 		getCProjectile(tpl).setPierceOrganic(-1);
 		getCProjectile(tpl).setDamage(10);
 		getCProjectile(tpl).onDestroy += [this, tpl]

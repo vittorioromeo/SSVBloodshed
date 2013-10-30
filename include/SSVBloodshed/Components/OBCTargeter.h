@@ -17,20 +17,26 @@ namespace ob
 			OBCPhys* target{nullptr};
 			OBGroup targetGroup;
 			sses::EntityStat targetStat;
-			float distance;
+			float distance{0.f};
 
 		public:
 			OBCTargeter(OBCPhys& mCPhys, OBGroup mTargetGroup) noexcept : OBCActorNoDrawBase{mCPhys}, targetGroup(mTargetGroup) { }
 
 			inline void update(float) override
 			{
-				if(target == nullptr && manager.hasEntity(targetGroup))
+				if(target == nullptr)
 				{
-					const auto& e(manager.getEntities(targetGroup).front());
-					targetStat = e->getStat(); target = &e->getComponent<OBCPhys>();
-					distance = ssvs::getDistEuclidean(target->getPosF(), cPhys.getPosF());
+					if(manager.hasEntity(targetGroup))
+					{
+						const auto& e(manager.getEntities(targetGroup).front());
+						targetStat = e->getStat(); target = &e->getComponent<OBCPhys>();
+					}
 				}
-				else if(!manager.isAlive(targetStat)) target = nullptr;
+				else
+				{
+					distance = ssvs::getDistEuclidean(target->getPosF(), cPhys.getPosF());
+					if(!manager.isAlive(targetStat)) target = nullptr;
+				}
 			}
 
 			inline bool hasTarget() const noexcept			{ return target != nullptr && manager.isAlive(targetStat); }

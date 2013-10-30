@@ -385,7 +385,7 @@ namespace ob
 				if(!cTargeter.hasTarget()) return;
 
 				tckShoot.update(mFT);
-				if(cTargeter.getDist() > 10000) cBoid.pursuit(cTargeter.getTarget()); else cBoid.evade(cTargeter.getTarget());
+				if(cTargeter.getDist() > 9000.f) cBoid.pursuit(cTargeter.getTarget()); else cBoid.evade(cTargeter.getTarget());
 				if(isPlayerInSight() && cEnemy.getDegDiff() < 50.f) shootCannon(0);
 			}
 			inline void shootCannon(int mDeg)

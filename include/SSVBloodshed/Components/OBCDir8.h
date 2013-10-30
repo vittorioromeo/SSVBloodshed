@@ -13,15 +13,15 @@ namespace ob
 	class OBCDir8 : public sses::Component
 	{
 		private:
-			Dir8 direction{Dir8::E};
+			Dir8 dir{Dir8::E};
 
 		public:
 			inline OBCDir8& operator=(Dir8 mValue) noexcept	{ setDir(mValue); return *this; }
-			inline void setDir(Dir8 mValue) noexcept		{ direction = mValue; }
+			inline void setDir(Dir8 mValue) noexcept		{ dir = mValue; }
 
-			inline operator Dir8() const noexcept						{ return direction; }
-			inline int getInt() const noexcept							{ return int(direction); }
-			inline float getDeg() const noexcept						{ return getDegFromDir8(direction); }
+			inline operator Dir8() const noexcept					{ return dir; }
+			inline int getInt() const noexcept						{ return int(dir); }
+			inline float getDeg() const noexcept					{ return getDegFromDir8(dir); }
 			inline Vec2f getVec(float mMag = 1.f) const noexcept	{ return ssvs::getVecFromDeg(getDeg(), mMag); }
 	};
 }
