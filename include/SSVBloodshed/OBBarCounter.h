@@ -16,14 +16,16 @@ namespace ob
 			float barWidth, barHeight;
 			unsigned int barCount;
 			float value, minValue, maxValue;
-			ssvs::VertexVector<sf::PrimitiveType::Quads> vertices;
-			sf::FloatRect bounds;
+			mutable ssvs::VertexVector<sf::PrimitiveType::Quads> vertices;
+			mutable sf::FloatRect bounds;
 			sf::Color color{sf::Color::White};
 			int tracking{0};
-			bool mustRefreshGeometry{true}, mustRefreshColor{true};
+			mutable bool mustRefreshGeometry{true}, mustRefreshColor{true};
 
-			void refreshGeometry()
+			inline void refreshGeometry() const
 			{
+				if(!mustRefreshGeometry) return;
+
 				unsigned int iX{0}, iY{0};
 				float xMin{0}, xMax{0}, yMin{0}, yMax{0};
 
@@ -52,12 +54,7 @@ namespace ob
 				bounds = {xMin, yMin, xMax - xMin, yMax - yMin};
 				mustRefreshGeometry = false;
 			}
-			void refreshColor() { for(auto& v : vertices) v.color = color; mustRefreshColor = false; }
-			void refresh() const
-			{
-				if(mustRefreshGeometry) const_cast<OBBarCounter*>(this)->refreshGeometry();
-				if(mustRefreshColor) const_cast<OBBarCounter*>(this)->refreshColor();
-			}
+			inline void refreshColor() const { if(!mustRefreshColor) return; for(auto& v : vertices) v.color = color; mustRefreshColor = false; }
 
 		public:
 			inline OBBarCounter(float mBarWidth, float mBarHeight, unsigned int mBarCount, float mValue = 0.f, float mMinValue = 0.f, float mMaxValue = 0.f)
@@ -65,7 +62,7 @@ namespace ob
 
 			inline void draw(sf::RenderTarget& mRenderTarget, sf::RenderStates mRenderStates) const override
 			{
-				refresh();
+				refreshGeometry(); refreshColor();
 				mRenderStates.transform *= getTransform();
 				mRenderTarget.draw(vertices, mRenderStates);
 			}
@@ -81,7 +78,7 @@ namespace ob
 			inline float getMinValue() const noexcept			{ return minValue; }
 			inline const sf::Color& getColor() const noexcept	{ return color; }
 			inline int getTracking() const noexcept				{ return tracking; }
-			inline sf::FloatRect getLocalBounds() const			{ refresh(); return bounds; }
+			inline sf::FloatRect getLocalBounds() const			{ refreshGeometry(); return bounds; }
 			inline sf::FloatRect getGlobalBounds() const		{ return getTransform().transformRect(getLocalBounds()); }
 	};
 }
