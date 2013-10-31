@@ -227,16 +227,20 @@ namespace ob
 				createParticles(ob::createPExplosion, particles.getPSTempAdd(), mCount, mPos);
 				createParticles(ob::createPExplosion, particles.getPSTemp(), mCount / 4 + 1, mPos);
 			}
-			inline void createPGib(unsigned int mCount, const Vec2f& mPos)					{ createParticles(ob::createPGib,			particles.getPSTemp(),		mCount, mPos); }
-			inline void createPDebris(unsigned int mCount, const Vec2f& mPos)				{ createParticles(ob::createPDebris,		particles.getPSTemp(),		mCount, mPos); }
-			inline void createPDebrisFloor(unsigned int mCount, const Vec2f& mPos)			{ createParticles(ob::createPDebrisFloor,	particles.getPSTemp(),		mCount, mPos); }
-			inline void createPMuzzle(unsigned int mCount, const Vec2f& mPos)				{ createParticles(ob::createPMuzzle,		particles.getPSTempAdd(),	mCount, mPos); }
-			inline void createPPlasma(unsigned int mCount, const Vec2f& mPos)				{ createParticles(ob::createPPlasma,		particles.getPSTempAdd(),	mCount, mPos); }
-			inline void createPSmoke(unsigned int mCount, const Vec2f& mPos)				{ createParticles(ob::createPSmoke,			particles.getPSTemp(),		mCount, mPos); }
-			inline void createPElectric(unsigned int mCount, const Vec2f& mPos)				{ createParticles(ob::createPElectric,		particles.getPSTempAdd(),	mCount, mPos); }
-			inline void createPCharge(unsigned int mCount, const Vec2f& mPos, float mDist)	{ createParticles(ob::createPCharge,		particles.getPSTempAdd(),	mCount, mPos, mDist); }
-			inline void createPShard(unsigned int mCount, const Vec2f& mPos)				{ createParticles(ob::createPShard,			particles.getPSTempAdd(),	mCount, mPos); }
-			inline void createPHeal(unsigned int mCount, const Vec2f& mPos)					{ createParticles(ob::createPHeal,			particles.getPSTempAdd(),	mCount, mPos); }
+			inline void createPGib(unsigned int mCount, const Vec2f& mPos)						{ createParticles(ob::createPGib,			particles.getPSTemp(),		mCount, mPos); }
+			inline void createPDebris(unsigned int mCount, const Vec2f& mPos)					{ createParticles(ob::createPDebris,		particles.getPSTemp(),		mCount, mPos); }
+			inline void createPDebrisFloor(unsigned int mCount, const Vec2f& mPos)				{ createParticles(ob::createPDebrisFloor,	particles.getPSTemp(),		mCount, mPos); }
+			inline void createPMuzzleBullet(unsigned int mCount, const Vec2f& mPos)				{ createParticles(ob::createPMuzzleBullet,	particles.getPSTempAdd(),	mCount, mPos); }
+			inline void createPMuzzlePlasma(unsigned int mCount, const Vec2f& mPos)				{ createParticles(ob::createPMuzzlePlasma,	particles.getPSTempAdd(),	mCount, mPos); }
+			inline void createPMuzzleRocket(unsigned int mCount, const Vec2f& mPos)				{ createParticles(ob::createPMuzzleRocket,	particles.getPSTempAdd(),	mCount, mPos); }
+			inline void createPPlasma(unsigned int mCount, const Vec2f& mPos)					{ createParticles(ob::createPPlasma,		particles.getPSTempAdd(),	mCount, mPos); }
+			inline void createPSmoke(unsigned int mCount, const Vec2f& mPos)					{ createParticles(ob::createPSmoke,			particles.getPSTemp(),		mCount, mPos); }
+			inline void createPElectric(unsigned int mCount, const Vec2f& mPos)					{ createParticles(ob::createPElectric,		particles.getPSTempAdd(),	mCount, mPos); }
+			inline void createPCharge(unsigned int mCount, const Vec2f& mPos, float mDist)		{ createParticles(ob::createPCharge,		particles.getPSTempAdd(),	mCount, mPos, mDist); }
+			inline void createPShard(unsigned int mCount, const Vec2f& mPos)					{ createParticles(ob::createPShard,			particles.getPSTempAdd(),	mCount, mPos); }
+			inline void createPHeal(unsigned int mCount, const Vec2f& mPos)						{ createParticles(ob::createPHeal,			particles.getPSTempAdd(),	mCount, mPos); }
+			inline void createPCaseBullet(unsigned int mCount, const Vec2f& mPos, float mDeg)	{ createParticles(ob::createPCaseBullet,	particles.getPSTemp(),		mCount, mPos, mDeg); }
+			inline void createPCaseRocket(unsigned int mCount, const Vec2f& mPos, float mDeg)	{ createParticles(ob::createPCaseRocket,	particles.getPSTemp(),		mCount, mPos, mDeg); }
 
 			inline void createEShard(unsigned int mCount, const Vec2i& mPos) { for(auto i(0u); i < mCount; ++i) factory.createShard(mPos); }
 	};
@@ -252,13 +256,10 @@ namespace ob
 // big enforcer variant that shoots a plasma cannon ball that splits in other plasma cannon balls
 // switches that can be pressed with X
 // multiple id actions (open 1, toggle 2...)
-// grenade launcher enemies
 // refactor everything, check code quality
 // customize turret rates in editor! (and projectile speed mult)
-// fix muzzle position
 // add small red gun asset and implement red bouncing laser shots
 // one way projectile shields
-// bullet shells (single particle?)
 // lock room until clear? (remove green doors?)
 
 #endif

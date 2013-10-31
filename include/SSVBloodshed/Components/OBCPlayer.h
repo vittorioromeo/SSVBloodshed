@@ -127,7 +127,7 @@ namespace ob
 				updateInput(); updateHUD(); attractShards();
 
 				if(game.isLevelClear()) { shards += currentShards; currentShards = 0; }
-				if(cWielder.isShooting() && cWpnController.shoot(cWielder.getShootingPos(), cDir8.getDeg())) game.createPMuzzle(20, toPixels(cWielder.getShootingPos()));
+				if(cWielder.isShooting()) cWpnController.shoot(cWielder.getShootingPos(), cDir8.getDeg());
 			}
 			inline void draw() override { cDraw[0].setRotation(cDir8.getDeg()); }
 

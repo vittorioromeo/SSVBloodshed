@@ -69,7 +69,8 @@ namespace ob
 		GPit,
 		GKillable,
 		GEnvDestructible,
-		GFlying
+		GFlying,
+		GForceField
 	};
 	enum OBLayer : int
 	{
@@ -122,7 +123,8 @@ namespace ob
 		LETGiant			= 27,
 		LETBall				= 28,
 		LETBallFlying		= 29,
-		LETTurretRL			= 30
+		LETTurretRL			= 30,
+		LETForceField		= 31
 	};
 
 	// Direction utils

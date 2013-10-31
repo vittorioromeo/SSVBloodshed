@@ -84,7 +84,7 @@ namespace ob
 
 			inline void shootGun()
 			{
-				if(cWpnController.shoot(cWielder.getShootingPos(), cDir8.getDeg())) game.createPMuzzle(20, toPixels(cWielder.getShootingPos()));
+				cWpnController.shoot(cWielder.getShootingPos(), cDir8.getDeg());
 			}
 	};
 
@@ -244,7 +244,7 @@ namespace ob
 
 			inline void shootUnarmed(int mDeg)
 			{
-				assets.playSound("Sounds/spark.wav"); game.createPMuzzle(20, cPhys.getPosPx());
+				assets.playSound("Sounds/spark.wav"); game.createPMuzzleBullet(20, cPhys.getPosPx());
 				wpn.shoot(cPhys.getPosI(), cEnemy.getCurrentDeg() + mDeg);
 			}
 	};
@@ -350,7 +350,7 @@ namespace ob
 				assets.playSound("Sounds/spark.wav");
 				Vec2i shootPos{body.getPosition() + Vec2i(ssvs::getVecFromDeg<float>(cEnemy.getCurrentDeg()) * 100.f)};
 				wpn.shoot(shootPos, cEnemy.getCurrentDeg() + mDeg);
-				game.createPMuzzle(20, cPhys.getPosPx());
+				game.createPMuzzleBullet(20, cPhys.getPosPx());
 			}
 			inline void shootCannon(int mDeg)
 			{
@@ -359,8 +359,8 @@ namespace ob
 				Vec2i shootPos2{body.getPosition() + Vec2i(ssvs::getVecFromDeg<float>(cEnemy.getSnappedDeg() - 40) * 1400.f)};
 				wpnC.shoot(shootPos1, cEnemy.getCurrentDeg() + mDeg);
 				wpnC.shoot(shootPos2, cEnemy.getCurrentDeg() + mDeg);
-				game.createPMuzzle(35, toPixels(shootPos1));
-				game.createPMuzzle(35, toPixels(shootPos2));
+				game.createPMuzzleBullet(35, toPixels(shootPos1));
+				game.createPMuzzleBullet(35, toPixels(shootPos2));
 			}
 	};
 
@@ -396,7 +396,7 @@ namespace ob
 				assets.playSound("Sounds/spark.wav");
 				Vec2i shootPos{body.getPosition() + Vec2i(ssvs::getVecFromDeg<float>(cEnemy.getSnappedDeg() - 40) * 700.f)};
 				wpn.shoot(shootPos, cEnemy.getCurrentDeg() + mDeg);
-				game.createPMuzzle(35, toPixels(shootPos));
+				game.createPMuzzleBullet(35, toPixels(shootPos));
 			}
 	};
 }

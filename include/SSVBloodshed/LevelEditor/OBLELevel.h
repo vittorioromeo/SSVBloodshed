@@ -19,15 +19,15 @@ namespace ob
 		template<typename> friend struct ssvuj::Converter;
 
 		private:
-			int columns{0}, rows{0}, depth{5}, x{0}, y{0};
+			int cols{0}, rows{0}, depth{5}, x{0}, y{0};
 			std::unordered_map<int, OBLETile> tiles;
 
 		public:
 			inline OBLELevel() = default;
-			inline OBLELevel(int mColumns, int mRows) noexcept : columns{mColumns}, rows{mRows} { }
-			inline OBLELevel(int mColumns, int mRows, const OBLEDatabaseEntry& mDefaultEntry) : OBLELevel{mColumns, mRows}
+			inline OBLELevel(int mCols, int mRows) noexcept : cols{mCols}, rows{mRows} { }
+			inline OBLELevel(int mCols, int mRows, const OBLEDatabaseEntry& mDefaultEntry) : OBLELevel{mCols, mRows}
 			{
-				for(int iY{0}; iY < mRows; ++iY) for(int iX{0}; iX < mColumns; ++iX) getTile(iX, iY, 0).initFromEntry(mDefaultEntry);
+				for(int iY{0}; iY < mRows; ++iY) for(int iX{0}; iX < mCols; ++iX) getTile(iX, iY, 0).initFromEntry(mDefaultEntry);
 			}
 
 			inline void clear() { tiles.clear(); }
@@ -43,7 +43,7 @@ namespace ob
 				}
 			}
 
-			inline void del(int mX, int mY, int mZ) { tiles.erase(ssvu::get1DIdxFrom3D(mX, mY, mZ, columns, rows)); }
+			inline void del(int mX, int mY, int mZ) { tiles.erase(ssvu::get1DIdxFrom3D(mX, mY, mZ, cols, rows)); }
 			inline void del(OBLETile& mTile)		{ del(mTile.getX(), mTile.getY(), mTile.getZ()); }
 
 			inline void update() { for(auto& t : tiles) t.second.update(); }
@@ -62,18 +62,18 @@ namespace ob
 				for(auto& t : tiles) if(t.second.getIdText() != nullptr) mRenderTarget.draw(*t.second.getIdText());
 			}
 
-			inline int getColumns() const noexcept						{ return columns; }
+			inline int getColumns() const noexcept						{ return cols; }
 			inline int getRows() const noexcept							{ return rows; }
 			inline int getDepth() const noexcept						{ return depth; }
-			inline int getWidth() const noexcept						{ return columns * 10; }
+			inline int getWidth() const noexcept						{ return cols * 10; }
 			inline int getHeight() const noexcept						{ return rows * 10; }
 			inline int getX() const noexcept							{ return x; }
 			inline int getY() const noexcept							{ return y; }
-			inline bool isValid(int mX, int mY, int mZ) const noexcept	{ return mX >= 0 && mY >= 0 && mZ >= -depth && mX < columns && mY < rows && mZ < depth; }
+			inline bool isValid(int mX, int mY, int mZ) const noexcept	{ return mX >= 0 && mY >= 0 && mZ >= -depth && mX < cols && mY < rows && mZ < depth; }
 			inline const decltype(tiles)& getTiles() const noexcept		{ return tiles; }
 			inline decltype(tiles)& getTiles() noexcept					{ return tiles; }
 			inline decltype(tiles) getTilesNonNull() const noexcept		{ decltype(tiles) result; for(const auto& p : tiles) if(!p.second.isNull()) result.insert(p); return result; }
-			inline OBLETile& getTile(int mX, int mY, int mZ) noexcept	{ auto& t(tiles[ssvu::get1DIdxFrom3D(mX, mY, mZ, columns, rows)]); t.setX(mX); t.setY(mY); t.setZ(mZ); return t; }
+			inline OBLETile& getTile(int mX, int mY, int mZ) noexcept	{ auto& t(tiles[ssvu::get1DIdxFrom3D(mX, mY, mZ, cols, rows)]); t.setX(mX); t.setY(mY); t.setZ(mZ); return t; }
 	};
 }
 

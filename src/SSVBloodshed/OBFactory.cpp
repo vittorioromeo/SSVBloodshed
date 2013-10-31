@@ -214,6 +214,16 @@ namespace ob
 		if(mId != -1) cSpawner.setActive(false);
 		return getEntity(tpl);
 	}
+	Entity& OBFactory::createForceField(const Vec2i& mPos, Dir8 mDir)
+	{
+		auto tpl(createActorBase(mPos, {1000, 1000}, OBLayer::LWall, false));
+		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.wallCross);
+		getEntity(tpl).createComponent<OBCForceField>(getCPhys(tpl), getCDraw(tpl), mDir);
+		getCDraw(tpl)[0].setColor({255, 0, 0, 150});
+		getCDraw(tpl).setRotation(getDegFromDir8(mDir));
+		getCDraw(tpl).setGlobalScale(0.35f, 1.f);
+		return getEntity(tpl);
+	}
 
 	Entity& OBFactory::createEBall(const Vec2i& mPos, bool mFlying, bool mSmall)
 	{

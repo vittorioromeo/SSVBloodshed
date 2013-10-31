@@ -33,6 +33,8 @@ namespace ob
 			[](OBWpnType& mWpn, OBGame& mGame, const Vec2i& mPos, float mDeg)
 			{
 				mWpn.shotProjectile(mGame.getFactory().createPJBullet(mPos, mDeg));
+				mGame.createPCaseBullet(1, toPixels(mPos), mDeg);
+				mGame.createPMuzzleBullet(16, toPixels(mPos));
 			}};
 		}
 		inline OBWpnType createPlasmaBolter()
@@ -41,6 +43,7 @@ namespace ob
 			[](OBWpnType& mWpn, OBGame& mGame, const Vec2i& mPos, float mDeg)
 			{
 				mWpn.shotProjectile(mGame.getFactory().createPJBoltPlasma(mPos, mDeg));
+				mGame.createPMuzzlePlasma(20, toPixels(mPos));
 			}};
 		}
 		inline OBWpnType createEPlasmaBulletGun(int mFanCount = 0, float mStep = 12.f)
@@ -49,6 +52,7 @@ namespace ob
 			[mFanCount, mStep](OBWpnType& mWpn, OBGame& mGame, const Vec2i& mPos, float mDeg)
 			{
 				fanShoot(&OBFactory::createPJBulletPlasma, mWpn, mGame, mPos, mDeg, mFanCount, mStep, 40.f);
+				mGame.createPMuzzlePlasma(16, toPixels(mPos));
 			}};
 		}
 		inline OBWpnType createEPlasmaStarGun(int mFanCount = 0, float mStep = 12.f)
@@ -57,6 +61,7 @@ namespace ob
 			[mFanCount, mStep](OBWpnType& mWpn, OBGame& mGame, const Vec2i& mPos, float mDeg)
 			{
 				fanShoot(&OBFactory::createPJStarPlasma, mWpn, mGame, mPos, mDeg, mFanCount, mStep, 40.f);
+				mGame.createPMuzzlePlasma(16, toPixels(mPos));
 			}};
 		}
 		inline OBWpnType createPlasmaCannon()
@@ -65,6 +70,7 @@ namespace ob
 			[](OBWpnType& mWpn, OBGame& mGame, const Vec2i& mPos, float mDeg)
 			{
 				mWpn.shotProjectile(mGame.getFactory().createPJCannonPlasma(mPos, mDeg));
+				mGame.createPMuzzlePlasma(30, toPixels(mPos));
 			}};
 		}
 		inline OBWpnType createRocketLauncher()
@@ -73,6 +79,8 @@ namespace ob
 			[](OBWpnType& mWpn, OBGame& mGame, const Vec2i& mPos, float mDeg)
 			{
 				mWpn.shotProjectile(mGame.getFactory().createPJRocket(mPos, mDeg));
+				mGame.createPCaseRocket(1, toPixels(mPos), mDeg);
+				mGame.createPMuzzleRocket(14, toPixels(mPos));
 			}};
 		}
 		inline OBWpnType createGrenadeLauncher()
@@ -81,6 +89,8 @@ namespace ob
 			[](OBWpnType& mWpn, OBGame& mGame, const Vec2i& mPos, float mDeg)
 			{
 				mWpn.shotProjectile(mGame.getFactory().createPJGrenade(mPos, mDeg));
+				mGame.createPCaseRocket(1, toPixels(mPos), mDeg);
+				mGame.createPMuzzleRocket(8, toPixels(mPos));
 			}};
 		}
 	}

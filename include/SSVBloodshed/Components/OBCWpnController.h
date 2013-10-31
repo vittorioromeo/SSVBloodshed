@@ -26,7 +26,7 @@ namespace ob
 		public:
 			OBCWpnController(OBCPhys& mCPhys, OBGroup mTargetGroup) noexcept : OBCActorNoDrawBase{mCPhys}, wpn{game, mTargetGroup} { }
 
-			inline void init()				{ tckShoot.setLoop(false); }
+			inline void init()						{ tckShoot.setLoop(false); }
 			inline void update(float mFT) override	{ tckShoot.update(mFT); }
 
 			inline bool shoot(const Vec2i& mPos, float mDeg)
@@ -37,7 +37,7 @@ namespace ob
 				return true;
 			}
 
-			inline void setWpn(const OBWpnType& mWpn) noexcept		{ wpn.setWpn(mWpn); }
+			inline void setWpn(OBWpnType mWpn) noexcept				{ wpn.setWpn(std::move(mWpn)); }
 
 			inline OBWpnType& getWpn() noexcept						{ return wpn.getWpnType(); }
 			inline const ssvs::Ticker& getTicker() const noexcept	{ return tckShoot; }

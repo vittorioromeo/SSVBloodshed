@@ -33,6 +33,8 @@ namespace ob
 
 			inline void init()
 			{
+				cDraw.setRotation(getDegFromDir8(direction));
+
 				getEntity().addGroups(OBGroup::GEnemy, OBGroup::GEnemyKillable);
 				body.setResolve(false);
 				body.addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir, OBGroup::GEnemy, OBGroup::GKillable, OBGroup::GEnemyKillable);
@@ -48,17 +50,42 @@ namespace ob
 				if(tckShoot.getCurrent() > shootDelay / 1.5f && tckShoot.getCurrent() < shootDelay) game.createPCharge(1, cPhys.getPosPx(), 20);
 				if(tckShoot.update(mFT)) { tlShoot.reset(); tlShoot.start(); }
 			}
-			inline void draw() override { cDraw.setRotation(getDegFromDir8(direction)); }
 
 			inline void shoot()
 			{
 				assets.playSound("Sounds/spark.wav");
 				Vec2i shootPos{body.getPosition() + getVecFromDir8<int>(direction) * 600};
 				wpn.shoot(shootPos, getDegFromDir8(direction));
-				game.createPMuzzle(20, cPhys.getPosPx());
 			}
 
 			inline OBCKillable& getCKillable() const noexcept { return cKillable; }
+	};
+
+	class OBCForceField : public OBCActorBase
+	{
+		private:
+			Dir8 dir;
+
+		public:
+			OBCForceField(OBCPhys& mCPhys, OBCDraw& mCDraw, Dir8 mDir) noexcept
+				: OBCActorBase{mCPhys, mCDraw}, dir{mDir} { }
+
+			inline void init()
+			{
+				cDraw.setRotation(getDegFromDir8(dir));
+				getEntity().addGroups(OBGroup::GForceField);
+				body.setResolve(false);
+				body.addGroups(OBGroup::GForceField);
+				body.addGroupsToCheck(OBGroup::GProjectile);
+
+				body.onDetection += [this](const DetectionInfo& mDI)
+				{
+					if(!mDI.body.hasGroup(OBGroup::GProjectile)) return;
+
+					auto& cProjectile(getEntityFromBody(mDI.body).getComponent<OBCProjectile>());
+					if(ssvu::getDiffDeg(cProjectile.getDeg(), getDegFromDir8(dir)) <= 50.f) cProjectile.destroy();
+				};
+			}
 	};
 }
 

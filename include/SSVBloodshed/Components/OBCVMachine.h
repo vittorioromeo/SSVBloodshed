@@ -17,6 +17,7 @@ namespace ob
 		private:
 			float healAmount{1};
 			int shardCost{10};
+			std::string msg{"[" + ssvu::toStr(shardCost) + "] Heal <" + ssvu::toStr(healAmount) + "> hp"};
 
 		public:
 			OBCVMachine(OBCPhys& mCPhys, OBCDraw& mCDraw) noexcept : OBCActorBase{mCPhys, mCDraw} { }
@@ -35,9 +36,9 @@ namespace ob
 				}
 			}
 
-			inline float getHealAmount() const noexcept	{ return healAmount; }
-			inline int getShardCost() const noexcept	{ return shardCost; }
-			inline std::string getMsg() const noexcept	{ return "[" + ssvu::toStr(shardCost) + "] Heal <" + ssvu::toStr(healAmount) + "> hp"; }
+			inline float getHealAmount() const noexcept			{ return healAmount; }
+			inline int getShardCost() const noexcept			{ return shardCost; }
+			inline const std::string& getMsg() const noexcept	{ return msg; }
 	};
 
 	inline void OBCPlayer::updateHUD()

@@ -24,7 +24,6 @@ namespace ob
 			float acceleration{0.f}, minSpeed{0}, maxSpeed{1000};
 			bool bounce{false}, fallInPit{false};
 
-			inline void destroy() { getEntity().destroy(); onDestroy(); }
 
 		public:
 			ssvu::Delegate<void()> onDestroy;
@@ -62,6 +61,8 @@ namespace ob
 				body.setRestitutionX(1.f);
 				body.setRestitutionY(1.f);
 			}
+			inline void destroy() { getEntity().destroy(); onDestroy(); }
+
 			inline void update(float mFT) override
 			{
 				auto newVel(body.getVelocity());
@@ -100,6 +101,8 @@ namespace ob
 			inline float getSpeed() const noexcept			{ return ssvs::getMag(body.getVelocity()); }
 			inline int getPierceOrganic() const noexcept	{ return pierceOrganic; }
 			inline OBGroup getTargetGroup() const noexcept	{ return targetGroup; }
+			inline float getRad() const noexcept			{ return ssvs::getRad(body.getVelocity()); }
+			inline float getDeg() const noexcept			{ return ssvs::getDeg(body.getVelocity()); }
 	};
 }
 

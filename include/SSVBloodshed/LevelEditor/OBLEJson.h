@@ -29,8 +29,8 @@ namespace ssvuj
 	template<> struct Converter<ob::OBLELevel>
 	{
 		using T = ob::OBLELevel;
-		inline static void fromObj(T& mValue, const Obj& mObj)	{ ssvuj::extrArray(mObj, mValue.x, mValue.y, mValue.columns, mValue.rows, mValue.depth, mValue.tiles); }
-		inline static void toObj(Obj& mObj, const T& mValue)	{ ssvuj::archArray(mObj, mValue.x, mValue.y, mValue.columns, mValue.rows, mValue.depth, mValue.getTilesNonNull()); }
+		inline static void fromObj(T& mValue, const Obj& mObj)	{ ssvuj::extrArray(mObj, mValue.x, mValue.y, mValue.cols, mValue.rows, mValue.depth, mValue.tiles); }
+		inline static void toObj(Obj& mObj, const T& mValue)	{ ssvuj::archArray(mObj, mValue.x, mValue.y, mValue.cols, mValue.rows, mValue.depth, mValue.getTilesNonNull()); }
 	};
 
 	template<> struct Converter<ob::OBLESector>
