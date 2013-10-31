@@ -144,6 +144,8 @@ namespace ob
 
 			inline Dir8 getDir() const noexcept		{ return dir; }
 			inline float getDeg() const noexcept	{ return getDegFromDir8(dir); }
+
+			inline bool destroysProjectiles() const noexcept { return destroyProjectiles; }
 	};
 }
 

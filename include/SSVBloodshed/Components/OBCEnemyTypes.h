@@ -35,7 +35,11 @@ namespace ob
 			if(body == &mSeeker.getBody() || body->hasGroup(OBGroup::GEnemy)) continue;
 
 			// If the detected body is a force field, check if the angle is valid
-			if(body->hasGroup(OBGroup::GForceField) && getComponentFromBody<OBCForceField>(*body).isDegBlocked(ssvs::getDeg(dir))) return false;
+			if(body->hasGroup(OBGroup::GForceField))
+			{
+				auto& cForceField(getComponentFromBody<OBCForceField>(*body));
+				if(cForceField.destroysProjectiles() && cForceField.isDegBlocked(ssvs::getDeg(dir))) return false;
+			}
 
 			// If the detected body is a target, return true
 			if(body->hasGroup(OBGroup::GFriendly)) return true;
