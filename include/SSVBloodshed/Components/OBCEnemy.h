@@ -72,7 +72,7 @@ namespace ob
 			inline float getCurrentDeg() const noexcept			{ return currentDeg; }
 			inline float getSnappedDeg() const noexcept			{ return snappedDeg; }
 			inline float getTurnSpeed() const noexcept			{ return turnSpeed; }
-			inline float getDegDiff() const noexcept			{ return ssvu::getDiffDeg(currentDeg, targetDeg); }
+			inline float getDegDiff() const noexcept			{ return ssvu::getDistDeg(currentDeg, targetDeg); }
 	};
 }
 

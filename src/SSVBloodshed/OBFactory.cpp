@@ -221,7 +221,6 @@ namespace ob
 		getEntity(tpl).createComponent<OBCForceField>(getCPhys(tpl), getCDraw(tpl), mDir);
 		getCDraw(tpl)[0].setColor({255, 0, 0, 150});
 		getCDraw(tpl).setRotation(getDegFromDir8(mDir));
-		getCDraw(tpl).setGlobalScale(0.35f, 1.f);
 		return getEntity(tpl);
 	}
 

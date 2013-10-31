@@ -241,6 +241,7 @@ namespace ob
 			inline void createPHeal(unsigned int mCount, const Vec2f& mPos)						{ createParticles(ob::createPHeal,			particles.getPSTempAdd(),	mCount, mPos); }
 			inline void createPCaseBullet(unsigned int mCount, const Vec2f& mPos, float mDeg)	{ createParticles(ob::createPCaseBullet,	particles.getPSTemp(),		mCount, mPos, mDeg); }
 			inline void createPCaseRocket(unsigned int mCount, const Vec2f& mPos, float mDeg)	{ createParticles(ob::createPCaseRocket,	particles.getPSTemp(),		mCount, mPos, mDeg); }
+			inline void createPForceField(unsigned int mCount, const Vec2f& mPos)				{ createParticles(ob::createPForceField,	particles.getPSTempAdd(),	mCount, mPos); }
 
 			inline void createEShard(unsigned int mCount, const Vec2i& mPos) { for(auto i(0u); i < mCount; ++i) factory.createShard(mPos); }
 	};

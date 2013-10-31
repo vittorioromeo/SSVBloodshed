@@ -247,6 +247,8 @@ using namespace ssvms;
 
 int main()
 {
+	SSVU_TEST_RUN_ALL();
+
 	OBConfig::setSoundEnabled(false);
 
 	unsigned int width{VideoMode::getDesktopMode().width}, height{VideoMode::getDesktopMode().height};

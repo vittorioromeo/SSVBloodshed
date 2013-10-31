@@ -180,6 +180,17 @@ namespace ob
 				7.f,
 				ssvu::getRndR(-1.5f, 1.5f));
 	}
+	inline void createPForceField(OBParticleSystem& mPS, const Vec2f& mPos)
+	{
+		mPS.emplace(mPos,
+				ssvs::getVecFromDeg(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(0.3f, 5.4f)),
+				0.91f,
+				(ssvu::getRnd(0, 9) > 4) ? sf::Color::Red : sf::Color::Blue,
+				1.1f + ssvu::getRndR<float>(-0.3f, 0.3f),
+				35 + ssvu::getRnd(-25, 25),
+				1.5f,
+				ssvu::getRndR(-3.5f, 3.5f));
+	}
 }
 
 #endif
