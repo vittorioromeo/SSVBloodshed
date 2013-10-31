@@ -18,6 +18,7 @@
 		["doorGV",			"doorGTW",			"doorGCross",		"doorGTE",			"doorRV",			"doorRTW",			"doorRCross",		"doorRTE"],
 		["doorGVEndS",		"doorGCornerSW",	"doorGTS",			"doorGCornerSE",	"doorRVEndS",		"doorRCornerSW",	"doorRTS",			"doorRCornerSE"],
 		["doorGSingle",		"doorGHEndW",		"doorGH",			"doorGHEndE",		"doorRSingle",		"doorRHEndW",		"doorRH",			"doorRHEndE"],
-		["explosiveCrate",	"vmHealth",			"trapdoorPOnly",	"pPlateOnOff",		"shard",			"pjRocket",			"pjGrenade",		"eTurret3"]
+		["explosiveCrate",	"vmHealth",			"trapdoorPOnly",	"pPlateOnOff",		"shard",			"pjRocket",			"pjGrenade",		"eTurret3"],
+		["forceArrow"]
 	]
 } 

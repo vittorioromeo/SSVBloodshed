@@ -47,7 +47,7 @@ namespace ob
 			sf::IntRect explosiveCrate;														// Explosive crate
 			sf::IntRect vmHealth;															// Vending machines
 			sf::IntRect null0;																// Empty tile
-			sf::IntRect gunPCannon,		spawner;
+			sf::IntRect gunPCannon,		spawner,		forceArrow;
 
 			// Medium tileset (20x20)
 			sf::IntRect e2Stand,		e2Shoot,		e2Gun,			e2GunGL;			// Charger alien
@@ -127,7 +127,7 @@ namespace ob
 				T_TSSMALL(explosiveCrate);
 				T_TSSMALL(vmHealth);
 				T_TSSMALL(null0);
-				T_TSSMALL(gunPCannon);		T_TSSMALL(spawner);
+				T_TSSMALL(gunPCannon);		T_TSSMALL(spawner);			T_TSSMALL(forceArrow);
 				WALLTS(wall); WALLTS(wallD); WALLTS(door); WALLTS(doorG); WALLTS(doorR);
 
 				// Medium tileset (20x20)

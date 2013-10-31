@@ -15,6 +15,7 @@
 #include "SSVBloodshed/Components/OBCKillable.h"
 #include "SSVBloodshed/Components/OBCWielder.h"
 #include "SSVBloodshed/Components/OBCWpnController.h"
+#include "SSVBloodshed/Components/OBCTurret.h"
 #include "SSVBloodshed/Weapons/OBWpnTypes.h"
 
 namespace ob
@@ -22,17 +23,24 @@ namespace ob
 	inline bool raycastToPlayer(OBCPhys& mSeeker, OBCPhys& mTarget)
 	{
 		const auto& startPos(mSeeker.getPosI());
-		Vec2f direction(mTarget.getPosI() - startPos);
+		Vec2f dir(mTarget.getPosI() - startPos);
 		//direction = Vec2f(getVecFromDir8(getDir8FromDeg(ssvs::getDeg(direction))));
 
-		auto gridQuery(mSeeker.getWorld().getQuery<ssvsc::QueryType::RayCast>(startPos, direction));
+		auto gridQuery(mSeeker.getWorld().getQuery<ssvsc::QueryType::RayCast>(startPos, dir));
 
 		Body* body;
 		while((body = gridQuery.next()) != nullptr)
 		{
-			if(body == &mSeeker.getBody()) continue;
-			if(body->hasGroup(OBGroup::GEnemy)) continue;
+			// If the detected body is the seeker or a friend of the seeker, continue
+			if(body == &mSeeker.getBody() || body->hasGroup(OBGroup::GEnemy)) continue;
+
+			// If the detected body is a force field, check if the angle is valid
+			if(body->hasGroup(OBGroup::GForceField) && getComponentFromBody<OBCForceField>(*body).isDegBlocked(ssvs::getDeg(dir))) return false;
+
+			// If the detected body is a target, return true
 			if(body->hasGroup(OBGroup::GFriendly)) return true;
+
+			// If the detected body is an obstacle, return false
 			if(body->hasGroup(OBGroup::GSolidAir)) return false;
 		}
 

@@ -72,7 +72,6 @@ namespace ob
 				add(OBLETType::LETTrapdoorPOnly,	a.txSmall,		a.trapdoorPOnly,		{},							[this](TLevel&, TTile&, const Vec2i& mP){ f->createTrapdoor(mP, true); });
 				add(OBLETType::LETExplosiveCrate,	a.txSmall,		a.explosiveCrate,		{{"id", -1}},				[this](TLevel&, TTile& mT, const Vec2i& mP){ f->createFloor(mP, true); f->createExplosiveCrate(mP, getP<int>(mT, "id")); });
 				add(OBLETType::LETVMHealth,			a.txSmall,		a.vmHealth,				{},							[this](TLevel&, TTile&, const Vec2i& mP){ f->createVMHealth(mP); });
-				add(OBLETType::LETForceField,		a.txSmall,		a.wallCross,			{{"rot", 0}},				[this](TLevel&, TTile& mT, const Vec2i& mP){ f->createForceField(mP, getDir8FromDeg(getP<float>(mT, "rot"))); });
 
 				add(OBLETType::LETWall,				a.txSmall,		a.wallSingle,			{},
 				[this](TLevel& mL, TTile& mT, const Vec2i& mP)
@@ -133,6 +132,11 @@ namespace ob
 					f->createPPlate(mP, getP<int>(mT, "id"), PPlateType::OnOff, IdAction(getP<int>(mT, "action")), getP<bool>(mT, "playerOnly"));
 				});
 
+				add(OBLETType::LETForceField,		a.txSmall,		a.forceArrow,			{{"rot", 0}, {"destroyProj", true}, {"blockFriendly", true}, {"blockEnemy", true}},
+				[this](TLevel&, TTile& mT, const Vec2i& mP)
+				{
+					f->createForceField(mP, getDir8FromDeg(getP<float>(mT, "rot")), getP<bool>(mT, "destroyProj"), getP<bool>(mT, "blockFriendly"), getP<bool>(mT, "blockEnemy"));
+				});
 			}
 
 			template<typename T> inline void add(OBLETType mType, sf::Texture* mTexture, const sf::IntRect& mIntRect, const std::map<std::string, ssvuj::Obj>& mDefaultParams, T mSpawn)

@@ -61,31 +61,89 @@ namespace ob
 			inline OBCKillable& getCKillable() const noexcept { return cKillable; }
 	};
 
+	// TODO: move to its own file
 	class OBCForceField : public OBCActorBase
 	{
 		private:
 			Dir8 dir;
+			ssvsc::Segment<float> segment;
+			bool destroyProjectiles, blockFriendly, blockEnemy;
+			bool booster{false};
+			float distortion{0}, alpha{0};
 
 		public:
-			OBCForceField(OBCPhys& mCPhys, OBCDraw& mCDraw, Dir8 mDir) noexcept
-				: OBCActorBase{mCPhys, mCDraw}, dir{mDir} { }
+			OBCForceField(OBCPhys& mCPhys, OBCDraw& mCDraw, Dir8 mDir, bool mDestroyProjectiles, bool mBlockFriendly, bool mBlockEnemy) noexcept
+				: OBCActorBase{mCPhys, mCDraw}, dir{mDir}, destroyProjectiles{mDestroyProjectiles}, blockFriendly{mBlockFriendly}, blockEnemy{mBlockEnemy} { }
 
 			inline void init()
 			{
+				booster = !destroyProjectiles && !blockFriendly && !blockEnemy;
+
 				cDraw.setRotation(getDegFromDir8(dir));
 				getEntity().addGroups(OBGroup::GForceField);
 				body.setResolve(false);
 				body.addGroups(OBGroup::GForceField);
-				body.addGroupsToCheck(OBGroup::GProjectile);
+				body.addGroupsToCheck(OBGroup::GProjectile, OBGroup::GFriendly, OBGroup::GEnemy);
+
+				// Calculate the segment by orbiting the center point
+				segment = {ssvs::getOrbitDeg(body.getPosition(), getDeg() + 90.f, 1500.f), ssvs::getOrbitDeg(body.getPosition(), getDeg() - 90.f, 1500.f)};
 
 				body.onDetection += [this](const DetectionInfo& mDI)
 				{
-					if(!mDI.body.hasGroup(OBGroup::GProjectile)) return;
+					// When something touches the force field, spawn particles
+					game.createPForceField(1, toPixels(mDI.body.getPosition()));
 
-					auto& cProjectile(getEntityFromBody(mDI.body).getComponent<OBCProjectile>());
-					if(ssvu::getDiffDeg(cProjectile.getDeg(), getDegFromDir8(dir)) <= 50.f) cProjectile.destroy();
+					if(!booster)
+					{
+						distortion = 10;
+
+						// If this force field blocks friendlies or enemies and the detected body matches...
+						if((blockFriendly && mDI.body.hasGroup(OBGroup::GFriendly)) || (blockEnemy && mDI.body.hasGroup(OBGroup::GEnemy)))
+						{
+							const auto& dirVec(getVecFromDir8<float>(dir));
+							bool isMoving{mDI.body.getVelocity().x != 0 || mDI.body.getVelocity().y != 0};
+
+							// Check if the body is "inside" the force field (check if it's on the right side of the segment)
+							if(!segment.isPointLeft(Vec2f(mDI.body.getPosition())))
+							{
+								// If it's not inside, push it away from the force field
+								mDI.body.applyForce(dirVec * -25.f);
+
+								// If it's moving and it's not inside, treat the collision as a solid one
+								if(isMoving && isDegBlocked(ssvs::getDeg(mDI.body.getVelocity()))) mDI.body.resolvePosition(ssvsc::Utils::getMin1DIntersection(mDI.body.getShape(), body.getShape()));
+							}
+							else if(!isMoving) mDI.body.applyForce(dirVec * 25.f);
+						}
+
+						// Eventually destroy projectiles that move against the force field
+						if(destroyProjectiles && mDI.body.hasGroup(OBGroup::GProjectile))
+						{
+							auto& cProjectile(getComponentFromBody<OBCProjectile>(mDI.body));
+							if(isDegBlocked(cProjectile.getDeg())) cProjectile.destroy();
+						}
+					}
+					else if(mDI.body.hasGroup(OBGroup::GProjectile)) mDI.body.applyForce(getVecFromDir8<float>(dir) * -30.f);
 				};
 			}
+
+			inline void update(float mFT) override
+			{
+				if(!booster && distortion > 0.f)
+				{
+					distortion -= mFT;
+					cDraw.setGlobalScale(distortion <= 0.f ? 1.f : ssvu::getRndR(0.9f, 2.1f));
+				}
+
+				alpha = std::fmod(alpha + mFT * 0.06f, ssvu::pi);
+				auto color(cDraw[0].getColor());
+				color.a = 255 - std::sin(alpha) * 125;
+				cDraw[0].setColor(color);
+			}
+
+			inline bool isDegBlocked(float mDeg) const noexcept { return ssvu::getDistDeg(mDeg, getDeg()) <= 90.f; }
+
+			inline Dir8 getDir() const noexcept		{ return dir; }
+			inline float getDeg() const noexcept	{ return getDegFromDir8(dir); }
 	};
 }
 

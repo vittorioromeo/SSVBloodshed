@@ -214,12 +214,25 @@ namespace ob
 		if(mId != -1) cSpawner.setActive(false);
 		return getEntity(tpl);
 	}
-	Entity& OBFactory::createForceField(const Vec2i& mPos, Dir8 mDir)
+	Entity& OBFactory::createForceField(const Vec2i& mPos, Dir8 mDir, bool mDestroyProjectiles, bool mBlockFriendly, bool mBlockEnemy)
 	{
 		auto tpl(createActorBase(mPos, {1000, 1000}, OBLayer::LWall, false));
-		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.wallCross);
-		getEntity(tpl).createComponent<OBCForceField>(getCPhys(tpl), getCDraw(tpl), mDir);
-		getCDraw(tpl)[0].setColor({255, 0, 0, 150});
+		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.forceArrow);
+		getEntity(tpl).createComponent<OBCForceField>(getCPhys(tpl), getCDraw(tpl), mDir, mDestroyProjectiles, mBlockFriendly, mBlockEnemy);
+		getCDraw(tpl).setBlendMode(sf::BlendMode::BlendAdd);
+		sf::Color color{0, 0, 0, 255};
+		color.r = 255 * static_cast<int>(mDestroyProjectiles);
+		color.g = 255 * static_cast<int>(mBlockFriendly);
+		color.b = 255 * static_cast<int>(mBlockEnemy);
+
+		if(!mDestroyProjectiles && !mBlockFriendly && !mBlockEnemy)
+		{
+			color = {25, 25, 25, 255};
+			getCDraw(tpl).setGlobalScale(0.5f);
+			getCDraw(tpl).setBlendMode(sf::BlendMode::BlendAlpha);
+		}
+
+		getCDraw(tpl)[0].setColor(color);
 		getCDraw(tpl).setRotation(getDegFromDir8(mDir));
 		return getEntity(tpl);
 	}
