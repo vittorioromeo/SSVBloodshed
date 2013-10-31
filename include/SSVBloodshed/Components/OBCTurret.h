@@ -9,6 +9,7 @@
 #include "SSVBloodshed/OBGame.h"
 #include "SSVBloodshed/Components/OBCActorBase.h"
 #include "SSVBloodshed/Components/OBCKillable.h"
+#include "SSVBloodshed/Components/OBCIdReceiver.h"
 #include "SSVBloodshed/Components/OBCWpnController.h"
 #include "SSVBloodshed/Weapons/OBWpnTypes.h"
 #include "SSVBloodshed/Weapons/OBWpn.h"
@@ -65,19 +66,29 @@ namespace ob
 	class OBCForceField : public OBCActorBase
 	{
 		private:
+			OBCIdReceiver& cIdReceiver;
 			Dir8 dir;
 			ssvsc::Segment<float> segment;
-			bool destroyProjectiles, blockFriendly, blockEnemy;
-			bool booster{false};
-			float distortion{0}, alpha{0};
+			bool active{true}, destroyProjectiles, blockFriendly, blockEnemy, booster{false};
+			float distortion{0}, alpha{0}, forceMult;
 
 		public:
-			OBCForceField(OBCPhys& mCPhys, OBCDraw& mCDraw, Dir8 mDir, bool mDestroyProjectiles, bool mBlockFriendly, bool mBlockEnemy) noexcept
-				: OBCActorBase{mCPhys, mCDraw}, dir{mDir}, destroyProjectiles{mDestroyProjectiles}, blockFriendly{mBlockFriendly}, blockEnemy{mBlockEnemy} { }
+			OBCForceField(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCIdReceiver& mCIdReceiver, Dir8 mDir, bool mDestroyProjectiles, bool mBlockFriendly, bool mBlockEnemy, float mForceMult) noexcept
+				: OBCActorBase{mCPhys, mCDraw}, cIdReceiver(mCIdReceiver), dir{mDir}, destroyProjectiles{mDestroyProjectiles}, blockFriendly{mBlockFriendly}, blockEnemy{mBlockEnemy}, forceMult{mForceMult} { }
 
 			inline void init()
 			{
 				booster = !destroyProjectiles && !blockFriendly && !blockEnemy;
+
+				cIdReceiver.onActivate += [this](IdAction mIdAction)
+				{
+					switch(mIdAction)
+					{
+						case IdAction::Toggle: active = !active; break;
+						case IdAction::Open: active = true; break;
+						case IdAction::Close: active = false; break;
+					}
+				};
 
 				cDraw.setRotation(getDegFromDir8(dir));
 				getEntity().addGroups(OBGroup::GForceField);
@@ -90,6 +101,10 @@ namespace ob
 
 				body.onDetection += [this](const DetectionInfo& mDI)
 				{
+					if(!active) return;
+
+					const auto& dirVec(-getVecFromDir8<float>(dir));
+
 					// When something touches the force field, spawn particles
 					game.createPForceField(1, toPixels(mDI.body.getPosition()));
 
@@ -100,19 +115,18 @@ namespace ob
 						// If this force field blocks friendlies or enemies and the detected body matches...
 						if((blockFriendly && mDI.body.hasGroup(OBGroup::GFriendly)) || (blockEnemy && mDI.body.hasGroup(OBGroup::GEnemy)))
 						{
-							const auto& dirVec(getVecFromDir8<float>(dir));
 							bool isMoving{mDI.body.getVelocity().x != 0 || mDI.body.getVelocity().y != 0};
 
 							// Check if the body is "inside" the force field (check if it's on the right side of the segment)
 							if(!segment.isPointLeft(Vec2f(mDI.body.getPosition())))
 							{
 								// If it's not inside, push it away from the force field
-								mDI.body.applyForce(dirVec * -25.f);
+								mDI.body.applyForce(dirVec * 25.f * forceMult);
 
 								// If it's moving and it's not inside, treat the collision as a solid one
 								if(isMoving && isDegBlocked(ssvs::getDeg(mDI.body.getVelocity()))) mDI.body.resolvePosition(ssvsc::Utils::getMin1DIntersection(mDI.body.getShape(), body.getShape()));
 							}
-							else if(!isMoving) mDI.body.applyForce(dirVec * 25.f);
+							else if(!isMoving) mDI.body.applyForce(dirVec * -25.f * forceMult);
 						}
 
 						// Eventually destroy projectiles that move against the force field
@@ -122,21 +136,38 @@ namespace ob
 							if(isDegBlocked(cProjectile.getDeg())) cProjectile.destroy();
 						}
 					}
-					else if(mDI.body.hasGroup(OBGroup::GProjectile)) mDI.body.applyForce(getVecFromDir8<float>(dir) * -30.f);
+					else if(mDI.body.hasGroup(OBGroup::GProjectile))
+					{
+						if(forceMult > 0.f)
+						{
+							mDI.body.applyForce(dirVec * 30.f * forceMult);
+						}
+						else if(ssvs::getDeg(mDI.body.getVelocity()) != ssvs::getDeg(dirVec))
+						{
+							mDI.body.setVelocity(dirVec * ssvs::getMag(mDI.body.getVelocity()));
+							mDI.body.setPosition(body.getPosition());
+						}
+					}
 				};
 			}
 
 			inline void update(float mFT) override
 			{
-				if(!booster && distortion > 0.f)
+				auto color(cDraw[0].getColor());
+
+				if(!active) color.a = 45;
+				else
 				{
-					distortion -= mFT;
-					cDraw.setGlobalScale(distortion <= 0.f ? 1.f : ssvu::getRndR(0.9f, 2.1f));
+					if(!booster && distortion > 0.f)
+					{
+						distortion -= mFT;
+						cDraw.setGlobalScale(distortion <= 0.f ? 1.f : ssvu::getRndR(0.9f, 2.1f));
+					}
+
+					alpha = std::fmod(alpha + mFT * 0.06f, ssvu::pi);
+					color.a = 255 - std::sin(alpha) * 125;
 				}
 
-				alpha = std::fmod(alpha + mFT * 0.06f, ssvu::pi);
-				auto color(cDraw[0].getColor());
-				color.a = 255 - std::sin(alpha) * 125;
 				cDraw[0].setColor(color);
 			}
 

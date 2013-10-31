@@ -132,10 +132,10 @@ namespace ob
 					f->createPPlate(mP, getP<int>(mT, "id"), PPlateType::OnOff, IdAction(getP<int>(mT, "action")), getP<bool>(mT, "playerOnly"));
 				});
 
-				add(OBLETType::LETForceField,		a.txSmall,		a.forceArrow,			{{"rot", 0}, {"destroyProj", true}, {"blockFriendly", true}, {"blockEnemy", true}},
+				add(OBLETType::LETForceField,		a.txSmall,		a.forceArrow,			{{"id", 0}, {"rot", 0}, {"destroyProj", true}, {"blockFriendly", true}, {"blockEnemy", true}, {"forceMult", 100.f}},
 				[this](TLevel&, TTile& mT, const Vec2i& mP)
 				{
-					f->createForceField(mP, getDir8FromDeg(getP<float>(mT, "rot")), getP<bool>(mT, "destroyProj"), getP<bool>(mT, "blockFriendly"), getP<bool>(mT, "blockEnemy"));
+					f->createForceField(mP, getP<int>(mT, "id"), getDir8FromDeg(getP<float>(mT, "rot")), getP<bool>(mT, "destroyProj"), getP<bool>(mT, "blockFriendly"), getP<bool>(mT, "blockEnemy"), getP<float>(mT, "forceMult") / 100.f);
 				});
 			}
 

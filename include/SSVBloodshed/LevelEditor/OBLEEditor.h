@@ -148,13 +148,12 @@ namespace ob
 				for(const auto& p : t.getParams())
 				{
 					bool cp{ssvu::getWrapIdx(currentParamIdx, static_cast<int>(t.getParams().size())) == idx++};
-					if(cp) str += " >";
-					str += p.first + "(" + ssvu::getReplacedAll(ssvu::toStr(p.second), "\n", "") + ")";
-					if(cp) str += "< ";
+					const auto& temp(p.first + "(" + ssvu::getReplacedAll(ssvu::toStr(p.second), "\n", "") + ")");
+					str += cp ? " >> " + ssvu::toUpper(temp) + " <<  " : temp + " ";
 				}
 
 				paramsText.setString(str);
-				paramsText.setScale(t.getParams().size() < 3 ? Vec2f(0.8f, 0.8f) : Vec2f(0.65f, 0.65f));
+				paramsText.setScale(t.getParams().size() < 3 ? Vec2f(1.f, 1.f) : Vec2f(0.5f, 0.5f));
 			}
 
 			inline void update(float mFT)
@@ -176,8 +175,7 @@ namespace ob
 					rsBrush.setSize({brush.size * 10.f, brush.size * 10.f});
 					rsBrush.setPosition(brush.left * 10.f, brush.top * 10.f);
 					rsBrushSingle.setPosition(brush.x * 10.f, brush.y * 10.f);
-					render(rsBrush);
-					render(rsBrushSingle);
+					render(rsBrush); render(rsBrushSingle);
 				}
 				gameCamera.unapply();
 
