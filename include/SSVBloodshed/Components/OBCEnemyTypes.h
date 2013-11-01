@@ -339,7 +339,7 @@ namespace ob
 				{
 					game.createPCharge(5, cPhys.getPosPx(), 65);
 					body.setVelocity(body.getVelocity() * 0.8f);
-					factory.createERunner(body.getPosition() + Vec2i(ssvs::getVecFromDeg<float>(lastDeg) * 1000.f), true);
+					factory.createERunner(body.getPosition() + Vec2i(ssvs::getVecFromDeg<float>(lastDeg) * 1500.f), true);
 					lastDeg += 360 / 6;
 				}, 6, 4.5f);
 				tlSummon.append<ssvu::Wait>(19.f);
