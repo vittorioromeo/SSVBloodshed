@@ -248,6 +248,8 @@ namespace ob
 }
 
 // TODO: add final where it makes sense
+// TODO: ssvs::networking from testupdchat
+// TODO: autoupdater "download_only_if_unexistant":[] ...
 
 // TODO: bullet sensor pressure plates, SSVSC refactoring/optimization
 // enemy orientation, organic group?, do not pierce breakable wall etc
