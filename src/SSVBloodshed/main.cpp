@@ -82,12 +82,12 @@ struct SColorInhibitor : System<SColorInhibitor, Req<CSprite, CColorInhibitor>>
 
 	inline void added(Entity&, CSprite& cSprite, CColorInhibitor&)
 	{
-		cSprite.sprite.scale(2.f, 2.f);
+		cSprite.sprite.scale(1.f, 1.f);
 	}
 
 	inline void removed(Entity&, CSprite& cSprite, CColorInhibitor&)
 	{
-		cSprite.sprite.scale(2.f, 2.f);
+		cSprite.sprite.scale(1.f, 1.f);
 	}
 };
 
@@ -126,8 +126,8 @@ int main()
 			{
 				auto e = manager.createEntity();
 				e.createComponent<CPosition>(ssvu::getRnd(512 - 100, 512 + 100), ssvu::getRnd(384 - 100, 384 + 100));
-				e.createComponent<CVelocity>(ssvu::getRndR(-1.f, 2.f), ssvu::getRndR(-1.f, 2.f));
-				e.createComponent<CAcceleration>(ssvu::getRndR(-1.f, 2.f), ssvu::getRndR(-1.f, 2.f));
+				e.createComponent<CVelocity>(ssvu::getRndR(-1.f, 1.f), ssvu::getRndR(-1.f, 1.f));
+				e.createComponent<CAcceleration>(ssvu::getRndR(-1.f, 1.f), ssvu::getRndR(-1.f, 1.f));
 				e.createComponent<CLife>(1);
 			}
 
@@ -150,8 +150,8 @@ int main()
 			{
 				auto e = manager.createEntity();
 				e.createComponent<CPosition>(ssvu::getRnd(512 - 100, 512 + 100), ssvu::getRnd(384 - 100, 384 + 100));
-				e.createComponent<CVelocity>(ssvu::getRndR(-1.f, 2.f), ssvu::getRndR(-1.f, 2.f));
-				e.createComponent<CAcceleration>(ssvu::getRndR(-1.f, 2.f), ssvu::getRndR(-1.f, 2.f));
+				e.createComponent<CVelocity>(ssvu::getRndR(-1.f, 1.f), ssvu::getRndR(-1.f, 1.f));
+				e.createComponent<CAcceleration>(ssvu::getRndR(-1.f, 1.f), ssvu::getRndR(-1.f, 1.f));
 				e.createComponent<CLife>(25);
 			}
 
@@ -183,8 +183,8 @@ int main()
 			{
 				auto e = manager.createEntity();
 				e.createComponent<CPosition>(ssvu::getRnd(512 - 100, 512 + 100), ssvu::getRnd(384 - 100, 384 + 100));
-				e.createComponent<CVelocity>(ssvu::getRndR(-1.f, 2.f), ssvu::getRndR(-1.f, 2.f));
-				e.createComponent<CAcceleration>(ssvu::getRndR(-0.5f, 1.5f), ssvu::getRndR(-0.5f, 1.5f));
+				e.createComponent<CVelocity>(ssvu::getRndR(-1.f, 1.f), ssvu::getRndR(-1.f, 1.f));
+				e.createComponent<CAcceleration>(ssvu::getRndR(-0.5f, 0.5f), ssvu::getRndR(-0.5f, 0.5f));
 				e.createComponent<CSprite>();
 				e.createComponent<CLife>(ssvu::getRnd(50, 100));
 				e.createComponent<CColorInhibitor>(ssvu::getRnd(5, 85));

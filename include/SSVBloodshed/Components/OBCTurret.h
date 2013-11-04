@@ -161,7 +161,7 @@ namespace ob
 					if(!booster && distortion > 0.f)
 					{
 						distortion -= mFT;
-						cDraw.setGlobalScale(distortion <= 0.f ? 1.f : ssvu::getRndR(0.9f, 2.1f));
+						cDraw.setGlobalScale(distortion <= 0.f ? 1.f : ssvu::getRndR(0.9f, 1.1f));
 					}
 
 					alpha = std::fmod(alpha + mFT * 0.06f, ssvu::pi);
