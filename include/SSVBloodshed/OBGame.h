@@ -123,7 +123,7 @@ namespace ob
 			}
 			inline void loadLevel()
 			{
-				auto getTilePos = [](int mX, int mY) -> Vec2i { return toCoords(Vec2i{mX * 10 + 5, mY * 10 + 5}); };
+				auto getTilePos = [](int mX, int mY){ return toCoords(Vec2i{mX * 10 + 5, mY * 10 + 5}); };
 				manager.clear(); world.clear(); particles.clear(factory);
 
 				try
@@ -202,7 +202,7 @@ namespace ob
 
 			template<typename... TArgs> inline void render(const sf::Drawable& mDrawable, TArgs&&... mArgs)	{ gameWindow.draw(mDrawable, std::forward<TArgs>(mArgs)...); }
 
-			inline void setEditor(OBLEEditor& mEditor) { editor = &mEditor; }
+			inline void setEditor(OBLEEditor& mEditor) noexcept { editor = &mEditor; }
 
 			inline Vec2i getMousePosition() const						{ return toCoords(gameCamera.getMousePosition()); }
 			inline ssvs::GameWindow& getGameWindow() noexcept			{ return gameWindow; }

@@ -11,6 +11,7 @@
 #include "SSVBloodshed/Components/OBCFloor.h"
 #include "SSVBloodshed/Components/OBCActorBase.h"
 #include "SSVBloodshed/Components/OBCEnemy.h"
+#include "SSVBloodshed/Components/OBCForceField.h"
 #include "SSVBloodshed/Components/OBCFloorSmasher.h"
 #include "SSVBloodshed/Components/OBCKillable.h"
 #include "SSVBloodshed/Components/OBCWielder.h"

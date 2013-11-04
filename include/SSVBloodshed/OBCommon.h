@@ -150,18 +150,19 @@ namespace ob
 	}
 	template<typename T = int> inline std::array<T, 2> getXYFromDir8(Dir8 mDir) noexcept
 	{
-		switch(mDir)
-		{
-			case Dir8::E:	return {{1, 0}};
-			case Dir8::SE:	return {{1, 1}};
-			case Dir8::S:	return {{0, 1}};
-			case Dir8::SW:	return {{-1, 1}};
-			case Dir8::W:	return {{-1, 0}};
-			case Dir8::NW:	return {{-1, -1}};
-			case Dir8::N:	return {{0, -1}};
-			case Dir8::NE:	return {{1, -1}};
-		}
-		return {{0, 0}};
+		static std::array<std::array<T, 2>, 8> xys
+		{{
+			{{1, 0}},
+			{{1, 1}},
+			{{0, 1}},
+			{{-1, 1}},
+			{{-1, 0}},
+			{{-1, -1}},
+			{{0, -1}},
+			{{1, -1}}
+		}};
+
+		return xys[int(mDir)];
 	}
 	template<typename T> inline Dir8 getDir8FromVec(const Vec2<T>& mVec) noexcept		{ return getDir8FromXY(mVec.x, mVec.y); }
 	template<typename T = int> inline Vec2<T> getVecFromDir8(Dir8 mDir) noexcept		{ const auto& xy(getXYFromDir8<T>(mDir)); return {xy[0], xy[1]}; }

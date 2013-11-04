@@ -35,6 +35,7 @@ namespace ssvces
 
 				for(auto i(0u); i < maxGroups; ++i) ssvu::eraseRemoveIf(grouped[i], [i](const Entity* mEntity){ return mEntity->mustDestroy || !mEntity->hasGroup(i); });
 
+				// This loop below is roughly implemented like std::remove_if
 				auto itr(std::begin(entities)), last(std::end(entities)), result(itr);
 				for(; itr != last; ++itr)
 				{
@@ -61,7 +62,7 @@ namespace ssvces
 
 			inline const decltype(entities)& getEntities() const noexcept				{ return entities; }
 			inline decltype(entities)& getEntities() noexcept							{ return entities; }
-			inline const std::vector<Entity*>& getEntities(Group mGroup) const noexcept { assert(mGroup <= maxGroups); return grouped[mGroup]; }
+			inline const std::vector<Entity*>& getEntities(Group mGroup) const noexcept	{ assert(mGroup <= maxGroups); return grouped[mGroup]; }
 			inline std::vector<Entity*>& getEntities(Group mGroup) noexcept				{ assert(mGroup <= maxGroups); return grouped[mGroup]; }
 			inline std::vector<EntityHandle> getEntityHandles(Group mGroup) noexcept
 			{
