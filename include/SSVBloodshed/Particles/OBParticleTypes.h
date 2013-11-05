@@ -139,8 +139,8 @@ namespace ob
 	inline void createPExplosion(OBParticleSystem& mPS, const Vec2f& mPos)
 	{
 		mPS.emplace(mPos,
-				ssvs::getVecFromDeg(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(0.3f, 8.7f)),
-				0.97f,
+				ssvs::getVecFromDeg(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(0.3f, 6.7f)),
+				0.965f,
 				(ssvu::getRnd(0, 10) > 7) ? sf::Color::Yellow : sf::Color::Red,
 				0.7f + ssvu::getRndR<float>(-1.2f, 1.8f),
 				20 + ssvu::getRnd(-15, 25),
