@@ -18,6 +18,158 @@
 
 namespace ob
 {
+	namespace GUI
+	{
+		class Context;
+		class WidgetBase;
+
+		class Form;
+		class Label;
+		class Button;
+
+		class AABB
+		{
+			protected:
+				Vec2f position, halfSize;
+
+			public:
+				AABB(const Vec2f& mPosition, const Vec2f& mHalfSize) : position{mPosition}, halfSize{mHalfSize} { }
+
+				inline void setPosition(const Vec2f& mPosition) noexcept	{ position = mPosition; }
+				inline void setX(float mX) noexcept							{ position.x = mX; }
+				inline void setY(float mY) noexcept							{ position.y = mY; }
+				inline void setHalfSize(const Vec2f& mHalfSize) noexcept	{ halfSize = mHalfSize; }
+				inline void setSize(const Vec2f& mSize) noexcept			{ halfSize = mSize / 2.f; }
+				inline void setWidth(float mWidth) noexcept					{ halfSize.x = mWidth / 2.f; }
+				inline void setHeight(float mHeight) noexcept				{ halfSize.y = mHeight / 2.f; }
+
+				inline const Vec2f& getPosition() const noexcept	{ return position; }
+				inline float getX() const noexcept					{ return position.x; }
+				inline float getY() const noexcept					{ return position.y; }
+				inline float getLeft() const noexcept				{ return position.x - halfSize.x; }
+				inline float getRight() const noexcept				{ return position.x + halfSize.x; }
+				inline float getTop() const noexcept				{ return position.y - halfSize.y; }
+				inline float getBottom() const noexcept				{ return position.y + halfSize.y; }
+				inline const Vec2f& getHalfSize() const noexcept	{ return halfSize; }
+				inline float getHalfWidth() const noexcept			{ return halfSize.x; }
+				inline float getHalfHeight() const noexcept			{ return halfSize.y; }
+				inline Vec2f getSize() const noexcept				{ return halfSize * 2.f; }
+				inline float getWidth() const noexcept				{ return halfSize.x * 2.f; }
+				inline float getHeight() const noexcept				{ return halfSize.y * 2.f; }
+
+				inline bool isOverlapping(const Vec2f& mPoint) const noexcept	{ return mPoint.x >= getLeft() && mPoint.x < getRight() && mPoint.y >= getTop() && mPoint.y < getBottom(); }
+				inline bool contains(const Vec2f& mPoint) const noexcept		{ return isOverlapping(mPoint); }
+		};
+
+		struct AABBShape : public sf::RectangleShape, public AABB
+		{
+			using AABB::AABB;
+			using sf::RectangleShape::RectangleShape;
+
+			AABBShape() : AABB{{0.f, 0.f}, {1.f, 1.f}} { }
+
+			inline void setPosition(const Vec2f& mPosition) { AABB::setPosition(mPosition); sf::RectangleShape::setPosition(mPosition); }
+			inline void setSize(const Vec2f& mSize)
+			{
+				AABB::setSize(mSize);
+				sf::RectangleShape::setSize(mSize);
+				sf::RectangleShape::setOrigin(AABB::halfSize);
+			}
+			inline void setOrigin(const Vec2f& mOrigin) = delete;
+		};
+
+		class WidgetBase : public AABB
+		{
+			protected:
+				Context& context;
+
+			public:
+				using AABB::AABB;
+
+				WidgetBase(Context& mContext, const Vec2f& mPosition, const Vec2f& mHalfSize)
+					: AABB{mPosition, mHalfSize}, context(mContext) { }
+
+				inline virtual void update(float) { }
+				inline virtual void draw() { }
+		};
+
+		class Context
+		{
+			private:
+				ssvs::GameWindow& gameWindow;
+				std::vector<Uptr<WidgetBase>> widgets;
+
+			public:
+				Context(ssvs::GameWindow& mGameWindow) : gameWindow(mGameWindow) { }
+
+				inline void update(float mFT)	{ for(auto& w : widgets) w->update(mFT); }
+				inline void draw()				{ for(auto& w : widgets) w->draw(); }
+
+				inline void render(const sf::Drawable& mDrawable) { gameWindow.draw(mDrawable); }
+
+				inline ssvs::GameWindow& getGameWindow() const noexcept { return gameWindow; }
+
+				template<typename T, typename... TArgs> inline T& create(TArgs&&... mArgs)
+				{
+					// TODO: shortcut for is_base_of
+					static_assert(std::is_base_of<WidgetBase, T>::value, "T must be derived from WidgetBase");
+
+					auto result(new T(*this, std::forward<TArgs>(mArgs)...));
+					widgets.emplace_back(result);
+					return *result;
+				}
+		};
+
+		class Form : public WidgetBase
+		{
+			private:
+				sf::Text title;
+				AABBShape body, bar;
+
+				inline void setPosition(const Vec2f& mPosition)
+				{
+					body.setPosition(mPosition);
+					bar.setPosition({mPosition.x, ssvs::getGlobalTop(body) + bar.getHalfSize().y});
+				}
+
+				inline void setSize(const Vec2f& mSize)
+				{
+					body.setSize(mSize);
+					bar.setSize({mSize.x, 8});
+				}
+
+			public:
+				Form(Context& mContext, const Vec2f& mPosition, const Vec2f& mSize) : WidgetBase{mContext, mPosition, mSize / 2.f}
+				{
+					bar.setFillColor(sf::Color::Black);
+					title.setColor(sf::Color::White);
+					body.setFillColor(sf::Color{190, 190, 190, 255});
+					body.setOutlineThickness(2);
+					body.setOutlineColor(sf::Color::Black);
+
+					Form::setSize(getSize());
+					Form::setPosition(position);
+				}
+
+				inline void update(float) override
+				{
+					if(bar.isOverlapping(context.getGameWindow().getMousePosition()) && context.getGameWindow().isBtnPressed(ssvs::MBtn::Left))
+					{
+						Form::setPosition(context.getGameWindow().getMousePosition());
+					}
+				}
+				inline void draw() override
+				{
+					context.render(body);
+					context.render(bar);
+				}
+
+				inline void setTitle(std::string mTitle) { title.setString(std::move(mTitle)); }
+
+				inline std::string getTitle() noexcept { return title.getString(); }
+		};
+	}
+
 	class OBLEEditor
 	{
 		template<typename> friend class OBLEGInput;
@@ -49,8 +201,11 @@ namespace ob
 
 			sf::RectangleShape rsBrush{Vec2f{10.f * brush.size, 10.f * brush.size}}, rsBrushSingle{Vec2f{10.f, 10.f}};
 
+			GUI::Context guiCtx;
+
 		public:
-			inline OBLEEditor(ssvs::GameWindow& mGameWindow, OBAssets& mAssets) : gameWindow(mGameWindow), assets(mAssets), database{assets}
+			inline OBLEEditor(ssvs::GameWindow& mGameWindow, OBAssets& mAssets) : gameWindow(mGameWindow), assets(mAssets), database{assets},
+				guiCtx(gameWindow)
 			{
 				gameCamera.pan(-5, -5);
 				gameState.onUpdate += [this](float mFT){ update(mFT); };
@@ -70,6 +225,8 @@ namespace ob
 				paramsText.setPosition(55, 240 - 15);
 
 				newSector();
+
+				guiCtx.create<GUI::Form>(Vec2f{100, 100}, Vec2f{150, 80});
 			}
 
 			inline void newSector() { sector.clear(); sector.init(database); refreshCurrentLevel(); clearCurrentLevel(); }
@@ -158,6 +315,8 @@ namespace ob
 
 			inline void update(float mFT)
 			{
+				guiCtx.update(mFT);
+
 				currentLevel->update();
 				updateXY(); grabTiles(); updateParamsText();
 
@@ -176,6 +335,7 @@ namespace ob
 					rsBrush.setPosition(brush.left * 10.f, brush.top * 10.f);
 					rsBrushSingle.setPosition(brush.x * 10.f, brush.y * 10.f);
 					render(rsBrush); render(rsBrushSingle);
+					guiCtx.draw();
 				}
 				gameCamera.unapply();
 
@@ -199,6 +359,7 @@ namespace ob
 					}
 
 					render(paramsText);
+
 				}
 				overlayCamera.unapply();
 
@@ -218,3 +379,4 @@ namespace ob
 }
 
 #endif
+
