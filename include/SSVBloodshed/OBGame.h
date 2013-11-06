@@ -264,5 +264,8 @@ namespace ob
 // add small red gun asset and implement red bouncing laser shots
 // one way projectile shields
 // lock room until clear? (remove green doors?)
+// global particle mult
+
+// BUG: summoned enemies may get stuck? debug SSVSC
 
 #endif

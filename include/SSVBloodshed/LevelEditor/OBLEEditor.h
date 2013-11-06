@@ -35,6 +35,8 @@ namespace ob
 			public:
 				AABB(const Vec2f& mPosition, const Vec2f& mHalfSize) : position{mPosition}, halfSize{mHalfSize} { }
 
+				inline void move(const Vec2f& mOffset) noexcept				{ position += mOffset; }
+
 				inline void setPosition(const Vec2f& mPosition) noexcept	{ position = mPosition; }
 				inline void setX(float mX) noexcept							{ position.x = mX; }
 				inline void setY(float mY) noexcept							{ position.y = mY; }
@@ -57,6 +59,11 @@ namespace ob
 				inline float getWidth() const noexcept				{ return halfSize.x * 2.f; }
 				inline float getHeight() const noexcept				{ return halfSize.y * 2.f; }
 
+				template<typename T> inline Vec2<T> getVertexNW() const noexcept { return Vec2<T>(getLeft(), getTop()); }
+				template<typename T> inline Vec2<T> getVertexNE() const noexcept { return Vec2<T>(getRight(), getTop()); }
+				template<typename T> inline Vec2<T> getVertexSW() const noexcept { return Vec2<T>(getLeft(), getBottom()); }
+				template<typename T> inline Vec2<T> getVertexSE() const noexcept { return Vec2<T>(getRight(), getBottom()); }
+
 				inline bool isOverlapping(const Vec2f& mPoint) const noexcept	{ return mPoint.x >= getLeft() && mPoint.x < getRight() && mPoint.y >= getTop() && mPoint.y < getBottom(); }
 				inline bool contains(const Vec2f& mPoint) const noexcept		{ return isOverlapping(mPoint); }
 		};
@@ -76,6 +83,8 @@ namespace ob
 				sf::RectangleShape::setOrigin(AABB::halfSize);
 			}
 			inline void setOrigin(const Vec2f& mOrigin) = delete;
+
+			inline const Vec2f& getPosition() const noexcept { return AABB::getPosition(); }
 		};
 
 		class WidgetBase : public AABB
@@ -91,22 +100,27 @@ namespace ob
 
 				inline virtual void update(float) { }
 				inline virtual void draw() { }
+
+				Vec2f getMousePos() const noexcept;
+				bool isMBtnLeftDown() const noexcept;
 		};
 
 		class Context
 		{
 			private:
+				OBAssets& assets;
 				ssvs::GameWindow& gameWindow;
 				std::vector<Uptr<WidgetBase>> widgets;
 
 			public:
-				Context(ssvs::GameWindow& mGameWindow) : gameWindow(mGameWindow) { }
+				Context(OBAssets& mAssets, ssvs::GameWindow& mGameWindow) : assets(mAssets), gameWindow(mGameWindow) { }
 
-				inline void update(float mFT)	{ for(auto& w : widgets) w->update(mFT); }
-				inline void draw()				{ for(auto& w : widgets) w->draw(); }
+				inline void update(float mFT)	{ for(auto itr(std::rbegin(widgets)); itr != std::rend(widgets); ++itr) (*itr)->update(mFT); }// for(auto& w : widgets) w->update(mFT); }
+				inline void draw()				{ for(auto itr(std::rbegin(widgets)); itr != std::rend(widgets); ++itr) (*itr)->draw(); }// for(auto& w : widgets) w->draw(); }
 
 				inline void render(const sf::Drawable& mDrawable) { gameWindow.draw(mDrawable); }
 
+				inline OBAssets& getAssets() const noexcept { return assets; }
 				inline ssvs::GameWindow& getGameWindow() const noexcept { return gameWindow; }
 
 				template<typename T, typename... TArgs> inline T& create(TArgs&&... mArgs)
@@ -120,48 +134,107 @@ namespace ob
 				}
 		};
 
-		class Form : public WidgetBase
+		inline Vec2f WidgetBase::getMousePos() const noexcept { return context.getGameWindow().getMousePosition(); }
+		inline bool WidgetBase::isMBtnLeftDown() const noexcept { return context.getGameWindow().isBtnPressed(ssvs::MBtn::Left); }
+
+		class Button : public WidgetBase
 		{
 			private:
-				sf::Text title;
-				AABBShape body, bar;
+				bool used{false};
+				ssvs::BitmapText label;
+				AABBShape body;
 
-				inline void setPosition(const Vec2f& mPosition)
-				{
-					body.setPosition(mPosition);
-					bar.setPosition({mPosition.x, ssvs::getGlobalTop(body) + bar.getHalfSize().y});
-				}
-
-				inline void setSize(const Vec2f& mSize)
-				{
-					body.setSize(mSize);
-					bar.setSize({mSize.x, 8});
-				}
+				inline void refreshPosition()	{ body.setPosition(position); label.setPosition(position - Vec2f{0.f, 1.f}); }
+				inline void refreshSize()		{ body.setSize(getSize()); }
 
 			public:
-				Form(Context& mContext, const Vec2f& mPosition, const Vec2f& mSize) : WidgetBase{mContext, mPosition, mSize / 2.f}
+				ssvu::Delegate<void()> onUse;
+
+				Button(Context& mContext, const Vec2f& mPosition, const Vec2f& mSize) : WidgetBase{mContext, mPosition, mSize / 2.f},
+					label{*context.getAssets().obStroked}
 				{
-					bar.setFillColor(sf::Color::Black);
-					title.setColor(sf::Color::White);
-					body.setFillColor(sf::Color{190, 190, 190, 255});
+					body.setFillColor(sf::Color::Red);
 					body.setOutlineThickness(2);
 					body.setOutlineColor(sf::Color::Black);
-
-					Form::setSize(getSize());
-					Form::setPosition(position);
+					label.setColor(sf::Color::White);
+					label.setString("x");
+					label.setTracking(-3);
+					label.setOrigin(ssvs::getGlobalSize(label) / 2.f);
 				}
 
 				inline void update(float) override
 				{
-					if(bar.isOverlapping(context.getGameWindow().getMousePosition()) && context.getGameWindow().isBtnPressed(ssvs::MBtn::Left))
+					refreshSize(); refreshPosition();
+					if(body.isOverlapping(getMousePos()) && isMBtnLeftDown())
 					{
-						Form::setPosition(context.getGameWindow().getMousePosition());
+						if(!used) { used = true; onUse(); }
 					}
+					else if(used && !isMBtnLeftDown()) used = false;
+				}
+				inline void draw() override { context.render(body); context.render(label); }
+
+				inline void setLabel(std::string mLabel) { label.setString(std::move(mLabel)); }
+				inline std::string getLabel() noexcept { return label.getString(); }
+		};
+
+		class Form : public WidgetBase
+		{
+			private:
+				Button& btnClose;
+				ssvs::BitmapText title;
+				AABBShape body, bar;
+
+				bool dragging{false};
+				Vec2f dragPos;
+
+				inline void refreshPosition()
+				{
+					body.setPosition(position);
+					bar.setPosition({position.x, ssvs::getGlobalTop(body) + bar.getHalfSize().y});
+					title.setPosition(bar.getVertexNW<float>() + Vec2f{0.f, 1.f});
+					btnClose.setPosition({bar.getRight() - 4.f, bar.getY()});
+				}
+
+				inline void refreshSize()
+				{
+					body.setSize(getSize());
+					bar.setSize({getSize().x, 12.f});
+					btnClose.setSize({8.f, 8.f});
+				}
+
+			public:
+				Form(Context& mContext, const Vec2f& mPosition, const Vec2f& mSize) : WidgetBase{mContext, mPosition, mSize / 2.f},
+					btnClose(context.create<Button>(Vec2f{0.f, 0.f}, Vec2f{8.f, 8.f})),
+					title{*context.getAssets().obStroked}
+				{
+					body.setFillColor(sf::Color{190, 190, 190, 255});
+					body.setOutlineThickness(2);
+					body.setOutlineColor(sf::Color::Black);
+					bar.setFillColor(sf::Color::Black);
+					title.setColor(sf::Color::White);
+					title.setString("form 1");
+					title.setTracking(-3);
+					btnClose.setLabel("x");
+				}
+
+				inline void update(float) override
+				{
+					if(dragging) { setPosition(getMousePos() - (dragPos - getPosition())); }
+					dragPos = getMousePos();
+					if(bar.isOverlapping(getMousePos()) && isMBtnLeftDown())
+					{
+						dragging = true;
+					}
+					else if(!isMBtnLeftDown()) dragging = false;
+
+					refreshSize();
+					refreshPosition();
 				}
 				inline void draw() override
 				{
 					context.render(body);
 					context.render(bar);
+					context.render(title);
 				}
 
 				inline void setTitle(std::string mTitle) { title.setString(std::move(mTitle)); }
@@ -205,7 +278,7 @@ namespace ob
 
 		public:
 			inline OBLEEditor(ssvs::GameWindow& mGameWindow, OBAssets& mAssets) : gameWindow(mGameWindow), assets(mAssets), database{assets},
-				guiCtx(gameWindow)
+				guiCtx(assets, gameWindow)
 			{
 				gameCamera.pan(-5, -5);
 				gameState.onUpdate += [this](float mFT){ update(mFT); };
@@ -335,7 +408,6 @@ namespace ob
 					rsBrush.setPosition(brush.left * 10.f, brush.top * 10.f);
 					rsBrushSingle.setPosition(brush.x * 10.f, brush.y * 10.f);
 					render(rsBrush); render(rsBrushSingle);
-					guiCtx.draw();
 				}
 				gameCamera.unapply();
 
@@ -363,6 +435,7 @@ namespace ob
 				}
 				overlayCamera.unapply();
 
+				guiCtx.draw();
 				debugText.draw();
 			}
 
