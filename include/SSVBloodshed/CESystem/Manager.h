@@ -56,7 +56,7 @@ namespace ssvces
 			inline EntityHandle createEntity() { return {*create(*this, entityIdPool)}; }
 			template<typename T> inline void registerSystem(T& mSystem)
 			{
-				static_assert(std::is_base_of<SystemBase, T>::value, "Type must derive from SystemBase");
+				static_assert(ssvu::isBaseOf<SystemBase, T>(), "Type must derive from SystemBase");
 				systems.push_back(&mSystem);
 			}
 

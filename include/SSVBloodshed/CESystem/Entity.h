@@ -37,12 +37,12 @@ namespace ssvces
 			template<typename T> inline void removeComponent();
 			template<typename T> inline bool hasComponent() const noexcept
 			{
-				static_assert(std::is_base_of<Component, T>::value, "Type must derive from Component");
+				static_assert(ssvu::isBaseOf<Component, T>(), "Type must derive from Component");
 				return typeIds[getTypeIdBitIdx<T>()];
 			}
 			template<typename T> inline T& getComponent() noexcept
 			{
-				static_assert(std::is_base_of<Component, T>::value, "Type must derive from Component");
+				static_assert(ssvu::isBaseOf<Component, T>(), "Type must derive from Component");
 				assert(componentCount > 0 && hasComponent<T>());
 				return reinterpret_cast<T&>(*components[getTypeIdBitIdx<T>()]);
 			}

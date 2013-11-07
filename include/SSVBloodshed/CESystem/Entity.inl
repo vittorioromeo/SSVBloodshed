@@ -9,7 +9,7 @@ namespace ssvces
 {
 	template<typename T, typename... TArgs> inline void Entity::createComponent(TArgs&&... mArgs)
 	{
-		static_assert(std::is_base_of<Component, T>::value, "Type must derive from Component");
+		static_assert(ssvu::isBaseOf<Component, T>(), "Type must derive from Component");
 		assert(!hasComponent<T>() && componentCount <= maxComponents);
 
 		components[getTypeIdBitIdx<T>()] = std::make_unique<T>(std::forward<TArgs>(mArgs)...);
@@ -20,7 +20,7 @@ namespace ssvces
 	}
 	template<typename T> inline void Entity::removeComponent()
 	{
-		static_assert(std::is_base_of<Component, T>::value, "Type must derive from Component");
+		static_assert(ssvu::isBaseOf<Component, T>(), "Type must derive from Component");
 		assert(hasComponent<T>() && componentCount > 0);
 
 		components[getTypeIdBitIdx<T>()].reset();
