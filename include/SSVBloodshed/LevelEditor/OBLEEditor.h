@@ -33,15 +33,18 @@ namespace ob
 				Vec2f position, halfSize;
 
 			public:
+				AABB() = default;
 				AABB(const Vec2f& mPosition, const Vec2f& mHalfSize) : position{mPosition}, halfSize{mHalfSize} { }
 
 				inline void move(const Vec2f& mOffset) noexcept				{ position += mOffset; }
 
 				inline void setPosition(const Vec2f& mPosition) noexcept	{ position = mPosition; }
+				inline void setPosition(float mX, float mY)					{ setPosition(Vec2f{mX, mY}); }
 				inline void setX(float mX) noexcept							{ position.x = mX; }
 				inline void setY(float mY) noexcept							{ position.y = mY; }
 				inline void setHalfSize(const Vec2f& mHalfSize) noexcept	{ halfSize = mHalfSize; }
 				inline void setSize(const Vec2f& mSize) noexcept			{ halfSize = mSize / 2.f; }
+				inline void setSize(float mX, float mY)						{ setSize(Vec2f{mX, mY}); }
 				inline void setWidth(float mWidth) noexcept					{ halfSize.x = mWidth / 2.f; }
 				inline void setHeight(float mHeight) noexcept				{ halfSize.y = mHeight / 2.f; }
 
@@ -68,74 +71,147 @@ namespace ob
 				inline bool contains(const Vec2f& mPoint) const noexcept		{ return isOverlapping(mPoint); }
 		};
 
-		struct AABBShape : public sf::RectangleShape, public AABB
+		struct AABBShape : public sf::RectangleShape
 		{
-			using AABB::AABB;
 			using sf::RectangleShape::RectangleShape;
 
-			AABBShape() : AABB{{0.f, 0.f}, {1.f, 1.f}} { }
+			inline void setPosition(const Vec2f& mPosition)		{ sf::RectangleShape::setPosition(mPosition); }
+			inline void setPosition(float mX, float mY)			{ sf::RectangleShape::setPosition(Vec2f{mX, mY}); }
+			inline void setSize(const Vec2f& mSize)				{ sf::RectangleShape::setSize(mSize); sf::RectangleShape::setOrigin(getHalfSize()); }
+			inline void setSize(float mX, float mY)				{ sf::RectangleShape::setSize(Vec2f{mX, mY}); sf::RectangleShape::setOrigin(getHalfSize()); }
 
-			inline void setPosition(const Vec2f& mPosition) { AABB::setPosition(mPosition); sf::RectangleShape::setPosition(mPosition); }
-			inline void setSize(const Vec2f& mSize)
-			{
-				AABB::setSize(mSize);
-				sf::RectangleShape::setSize(mSize);
-				sf::RectangleShape::setOrigin(AABB::halfSize);
-			}
-			inline void setOrigin(const Vec2f& mOrigin) = delete;
+			inline float getX() const noexcept					{ return getPosition().x; }
+			inline float getY() const noexcept					{ return getPosition().y; }
+			inline float getLeft() const noexcept				{ return getPosition().x - getHalfSize().x; }
+			inline float getRight() const noexcept				{ return getPosition().x + getHalfSize().x; }
+			inline float getTop() const noexcept				{ return getPosition().y - getHalfSize().y; }
+			inline float getBottom() const noexcept				{ return getPosition().y + getHalfSize().y; }
+			inline Vec2f getHalfSize() const noexcept			{ return getSize() / 2.f; }
+			inline float getHalfWidth() const noexcept			{ return getHalfSize().x; }
+			inline float getHalfHeight() const noexcept			{ return getHalfSize().y; }
+			inline float getWidth() const noexcept				{ return getHalfSize().x * 2.f; }
+			inline float getHeight() const noexcept				{ return getHalfSize().y * 2.f; }
 
-			inline const Vec2f& getPosition() const noexcept { return AABB::getPosition(); }
+			template<typename T> inline Vec2<T> getVertexNW() const noexcept { return Vec2<T>(getLeft(), getTop()); }
+			template<typename T> inline Vec2<T> getVertexNE() const noexcept { return Vec2<T>(getRight(), getTop()); }
+			template<typename T> inline Vec2<T> getVertexSW() const noexcept { return Vec2<T>(getLeft(), getBottom()); }
+			template<typename T> inline Vec2<T> getVertexSE() const noexcept { return Vec2<T>(getRight(), getBottom()); }
+
+			inline bool isOverlapping(const Vec2f& mPoint) const noexcept	{ return mPoint.x >= getLeft() && mPoint.x < getRight() && mPoint.y >= getTop() && mPoint.y < getBottom(); }
+			inline bool contains(const Vec2f& mPoint) const noexcept		{ return isOverlapping(mPoint); }
 		};
 
-		class WidgetBase : public AABB
+		class WidgetBase : public AABB, public ssvu::MemoryManageable
 		{
+			friend class Context;
+
 			protected:
 				Context& context;
+				std::vector<WidgetBase*> children;
 
-			public:
-				using AABB::AABB;
-
-				WidgetBase(Context& mContext, const Vec2f& mPosition, const Vec2f& mHalfSize)
-					: AABB{mPosition, mHalfSize}, context(mContext) { }
+				WidgetBase* neighbor{nullptr};
+				Vec2f offset;
+				bool hovered{false};
 
 				inline virtual void update(float) { }
 				inline virtual void draw() { }
 
+				inline void updateNeighbor() { if(neighbor != nullptr) setPosition(neighbor->getPosition() + offset); }
+				void refresh();
+
+			public:
+				using AABB::AABB;
+
+				WidgetBase(Context& mContext) : context(mContext) { }
+				WidgetBase(Context& mContext, const Vec2f& mPosition, const Vec2f& mHalfSize) : AABB{mPosition, mHalfSize}, context(mContext) { }
+
+				void destroy();
+
+				inline void refreshBody(AABBShape& mShape) { mShape.setPosition(getPosition()); mShape.setSize(getSize()); }
+
+				inline void attachTo(WidgetBase& mNeigh, const Vec2f& mOffset) noexcept		{ neighbor = &mNeigh; offset = mOffset; }
+				inline void attachToAt(WidgetBase& mNeigh, const Vec2f& mPosition) noexcept	{ neighbor = &mNeigh; offset = mPosition - neighbor->getPosition(); }
+
 				Vec2f getMousePos() const noexcept;
 				bool isMBtnLeftDown() const noexcept;
+				inline bool isHovered() const noexcept { return hovered; }
+
+				template<typename T, typename... TArgs> T& createChild(TArgs&&... mArgs);
 		};
 
 		class Context
 		{
+			friend class WidgetBase;
+
 			private:
 				OBAssets& assets;
 				ssvs::GameWindow& gameWindow;
-				std::vector<Uptr<WidgetBase>> widgets;
+				sf::RenderTexture renderTexture;
+				sf::Sprite sprite;
+				ssvu::MemoryManager<WidgetBase> widgets;
+				bool busy{false};
+
+				inline void del(WidgetBase& mWidget) { widgets.del(mWidget); }
 
 			public:
-				Context(OBAssets& mAssets, ssvs::GameWindow& mGameWindow) : assets(mAssets), gameWindow(mGameWindow) { }
+				Context(OBAssets& mAssets, ssvs::GameWindow& mGameWindow) : assets(mAssets), gameWindow(mGameWindow)
+				{
+					renderTexture.create(gameWindow.getWidth(), gameWindow.getHeight());
+					sprite = sf::Sprite{renderTexture.getTexture()};
+				}
 
-				inline void update(float mFT)	{ for(auto itr(std::rbegin(widgets)); itr != std::rend(widgets); ++itr) (*itr)->update(mFT); }// for(auto& w : widgets) w->update(mFT); }
-				inline void draw()				{ for(auto itr(std::rbegin(widgets)); itr != std::rend(widgets); ++itr) (*itr)->draw(); }// for(auto& w : widgets) w->draw(); }
+				inline void update(float mFT)
+				{
+					widgets.refresh();
+					for(auto itr(std::rbegin(widgets)); itr != std::rend(widgets); ++itr)
+					{
+						(*itr)->updateNeighbor();
+						(*itr)->update(mFT);
+					}
 
-				inline void render(const sf::Drawable& mDrawable) { gameWindow.draw(mDrawable); }
+					busy = false;
+					for(auto& w : widgets) w->refresh();
+				}
+				inline void draw()
+				{
+					renderTexture.clear(sf::Color::Transparent);
+					for(auto itr(std::rbegin(widgets)); itr != std::rend(widgets); ++itr) (*itr)->draw();
+					renderTexture.display();
 
-				inline OBAssets& getAssets() const noexcept { return assets; }
-				inline ssvs::GameWindow& getGameWindow() const noexcept { return gameWindow; }
+					sprite.setColor(busy ? sf::Color::White : sf::Color{255, 255, 255, 125});
+					gameWindow.draw(sprite);
+				}
+
+				inline void render(const sf::Drawable& mDrawable) { renderTexture.draw(mDrawable); }
+
+				inline OBAssets& getAssets() const noexcept				{ return assets; }
+				inline ssvs::GameWindow& getGameWindow() const noexcept	{ return gameWindow; }
+				inline bool isBusy() const noexcept						{ return busy; }
 
 				template<typename T, typename... TArgs> inline T& create(TArgs&&... mArgs)
 				{
-					// TODO: shortcut for is_base_of
-					static_assert(std::is_base_of<WidgetBase, T>::value, "T must be derived from WidgetBase");
-
-					auto result(new T(*this, std::forward<TArgs>(mArgs)...));
-					widgets.emplace_back(result);
-					return *result;
+					static_assert(ssvu::isBaseOf<WidgetBase, T>(), "T must be derived from WidgetBase");
+					return widgets.create<T>(*this, std::forward<TArgs>(mArgs)...);
 				}
 		};
 
+		inline void WidgetBase::destroy()
+		{
+			for(const auto& c : children) context.del(*c);
+			context.del(*this);
+		}
+		inline void WidgetBase::refresh()
+		{
+			hovered = isOverlapping(getMousePos());
+			if(hovered) context.busy = true;
+		}
 		inline Vec2f WidgetBase::getMousePos() const noexcept { return context.getGameWindow().getMousePosition(); }
 		inline bool WidgetBase::isMBtnLeftDown() const noexcept { return context.getGameWindow().isBtnPressed(ssvs::MBtn::Left); }
+		template<typename T, typename... TArgs> inline T& WidgetBase::createChild(TArgs&&... mArgs)
+		{
+			auto& result(context.create<T>(std::forward<TArgs>(mArgs)...));
+			children.push_back(&result); return result;
+		}
 
 		class Button : public WidgetBase
 		{
@@ -144,8 +220,18 @@ namespace ob
 				ssvs::BitmapText label;
 				AABBShape body;
 
-				inline void refreshPosition()	{ body.setPosition(position); label.setPosition(position - Vec2f{0.f, 1.f}); }
-				inline void refreshSize()		{ body.setSize(getSize()); }
+				inline void update(float) override
+				{
+					refreshBody(body);
+					label.setPosition(position - Vec2f{0.f, 1.f});
+
+					if(hovered && isMBtnLeftDown())
+					{
+						if(!used) { used = true; onUse(); }
+					}
+					else if(!isMBtnLeftDown()) used = false;
+				}
+				inline void draw() override { context.render(body); context.render(label); }
 
 			public:
 				ssvu::Delegate<void()> onUse;
@@ -162,84 +248,119 @@ namespace ob
 					label.setOrigin(ssvs::getGlobalSize(label) / 2.f);
 				}
 
-				inline void update(float) override
-				{
-					refreshSize(); refreshPosition();
-					if(body.isOverlapping(getMousePos()) && isMBtnLeftDown())
-					{
-						if(!used) { used = true; onUse(); }
-					}
-					else if(used && !isMBtnLeftDown()) used = false;
-				}
-				inline void draw() override { context.render(body); context.render(label); }
+				inline void setLabel(std::string mLabel)	{ label.setString(std::move(mLabel)); }
+				inline std::string getLabel() noexcept		{ return label.getString(); }
+		};
 
-				inline void setLabel(std::string mLabel) { label.setString(std::move(mLabel)); }
-				inline std::string getLabel() noexcept { return label.getString(); }
+		class FormBar : public WidgetBase
+		{
+			private:
+				Button& btnClose;
+				Button& btnMinimize;
+				AABBShape body;
+				ssvs::BitmapText title;
+
+				inline void update(float) override	{ refreshBody(body); refreshPosition(); }
+				inline void draw() override			{ context.render(body); context.render(title); }
+
+				inline void refreshPosition()
+				{
+					title.setPosition(getVertexNW<float>() + Vec2f{0.f, 0.f});
+					btnClose.attachToAt(*this, Vec2f{getRight() - 4.f, getY() - 1.f});
+					btnMinimize.attachTo(btnClose, Vec2f{-10.f, 0.f});
+				}
+
+			public:
+				FormBar(Context& mContext) : WidgetBase{mContext},
+					btnClose(createChild<Button>(Vec2f{0.f, 0.f}, Vec2f{8.f, 8.f})),
+					btnMinimize(createChild<Button>(Vec2f{0.f, 0.f}, Vec2f{8.f, 8.f})),
+					title{*context.getAssets().obStroked}
+				{
+					body.setFillColor(sf::Color::Black);
+					btnClose.setLabel("x");
+					btnClose.onUse += [this]{ ; };
+					btnMinimize.setLabel("_");
+					title.setColor(sf::Color::White);
+					title.setString("FORM 1");
+					title.setTracking(-3);
+				}
+
+				inline void setTitle(std::string mTitle)	{ title.setString(std::move(mTitle)); }
+				inline std::string getTitle() noexcept		{ return title.getString(); }
 		};
 
 		class Form : public WidgetBase
 		{
 			private:
-				Button& btnClose;
-				ssvs::BitmapText title;
-				AABBShape body, bar;
+				enum class Action{None, Move, Resize};
 
-				bool dragging{false};
+				FormBar& fbBar;
+				AABBShape body, resizer;
+
+				Action action;
 				Vec2f dragPos;
 
 				inline void refreshPosition()
 				{
-					body.setPosition(position);
-					bar.setPosition({position.x, ssvs::getGlobalTop(body) + bar.getHalfSize().y});
-					title.setPosition(bar.getVertexNW<float>() + Vec2f{0.f, 1.f});
-					btnClose.setPosition({bar.getRight() - 4.f, bar.getY()});
+					fbBar.attachToAt(*this, {position.x, body.getTop() + fbBar.getHalfHeight()});
+					resizer.setPosition(getVertexSE<float>() - resizer.getHalfSize());
 				}
-
 				inline void refreshSize()
 				{
-					body.setSize(getSize());
-					bar.setSize({getSize().x, 12.f});
-					btnClose.setSize({8.f, 8.f});
-				}
-
-			public:
-				Form(Context& mContext, const Vec2f& mPosition, const Vec2f& mSize) : WidgetBase{mContext, mPosition, mSize / 2.f},
-					btnClose(context.create<Button>(Vec2f{0.f, 0.f}, Vec2f{8.f, 8.f})),
-					title{*context.getAssets().obStroked}
-				{
-					body.setFillColor(sf::Color{190, 190, 190, 255});
-					body.setOutlineThickness(2);
-					body.setOutlineColor(sf::Color::Black);
-					bar.setFillColor(sf::Color::Black);
-					title.setColor(sf::Color::White);
-					title.setString("form 1");
-					title.setTracking(-3);
-					btnClose.setLabel("x");
+					fbBar.setSize(getSize().x, 12.f);
+					resizer.setSize(8.f, 8.f);
 				}
 
 				inline void update(float) override
 				{
-					if(dragging) { setPosition(getMousePos() - (dragPos - getPosition())); }
-					dragPos = getMousePos();
-					if(bar.isOverlapping(getMousePos()) && isMBtnLeftDown())
+					switch(action)
 					{
-						dragging = true;
+						case Action::Move:
+						{
+							setPosition(getMousePos() - (dragPos - getPosition()));
+							break;
+						}
+						case Action::Resize:
+						{
+							ssvu::clampMin(halfSize.x, 35.f);
+							ssvu::clampMin(halfSize.y, 35.f);
+
+							auto oldNW(getVertexNW<float>());
+							setSize(getMousePos() - (dragPos - getSize()));
+							setPosition(oldNW + getHalfSize());
+							break;
+						}
+						default: break;
 					}
-					else if(!isMBtnLeftDown()) dragging = false;
 
-					refreshSize();
-					refreshPosition();
+					dragPos = getMousePos();
+
+					if(isMBtnLeftDown())
+					{
+						if(fbBar.isHovered()) action = Action::Move;
+//						else if(resizer.isOverlapping(getMousePos())) action = Action::Resize;
+					}
+					else action = Action::None;
+
+					refreshBody(body); refreshSize(); refreshPosition();
 				}
-				inline void draw() override
+
+				inline void draw() override { context.render(body); context.render(resizer); }
+
+			public:
+				Form(Context& mContext, const Vec2f& mPosition, const Vec2f& mSize) : WidgetBase{mContext, mPosition, mSize / 2.f},
+					fbBar(createChild<FormBar>())
 				{
-					context.render(body);
-					context.render(bar);
-					context.render(title);
+					body.setFillColor(sf::Color{190, 190, 190, 255});
+					body.setOutlineThickness(2);
+					body.setOutlineColor(sf::Color::Black);
+					resizer.setFillColor(sf::Color{140, 140, 140, 255});
 				}
 
-				inline void setTitle(std::string mTitle) { title.setString(std::move(mTitle)); }
+				inline void close() { destroy(); }
 
-				inline std::string getTitle() noexcept { return title.getString(); }
+				inline void setTitle(std::string mTitle)	{ fbBar.setTitle(std::move(mTitle)); }
+				inline std::string getTitle() noexcept		{ return fbBar.getTitle(); }
 		};
 	}
 
@@ -393,8 +514,11 @@ namespace ob
 				currentLevel->update();
 				updateXY(); grabTiles(); updateParamsText();
 
-				if(input.painting) paint();
-				else if(input.deleting) del();
+				if(!guiCtx.isBusy())
+				{
+					if(input.painting) paint();
+					else if(input.deleting) del();
+				}
 
 				debugText.update(mFT);
 				gameCamera.update<int>(mFT);
