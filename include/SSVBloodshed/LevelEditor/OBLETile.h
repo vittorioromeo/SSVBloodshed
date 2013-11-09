@@ -70,7 +70,7 @@ namespace ob
 			inline void setY(int mY) noexcept								{ y = mY; }
 			inline void setZ(int mZ) noexcept								{ z = mZ; }
 			inline void setType(OBLETType mType) noexcept					{ type = mType; null = false; }
-			inline void setParams(const decltype(params)& mParams)			{ params = mParams; }
+			inline void setParams(decltype(params) mParams)					{ params = std::move(mParams); }
 			template<typename T> inline T getParam(const std::string& mKey)	{ return ssvuj::as<T>(params[mKey]); }
 			inline bool hasParam(const std::string& mKey) const noexcept	{ return params.count(mKey) > 0; }
 

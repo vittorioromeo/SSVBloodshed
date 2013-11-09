@@ -31,7 +31,7 @@ namespace ob
 			}
 
 			inline void setPosition(const Vec2f& mPosition) noexcept	{ position = mPosition; }
-			inline void setColor(const sf::Color& mColor) noexcept		{ color = mColor; }
+			inline void setColor(sf::Color mColor) noexcept				{ color = std::move(mColor); }
 			inline void setVelocity(const Vec2f& mVelocity) noexcept	{ velocity = mVelocity; }
 			inline void setAcceleration(float mAcceleration) noexcept	{ acceleration = mAcceleration; }
 			inline void setCurveSpeed(float mCurveSpeed) noexcept		{ curveSpeed = mCurveSpeed; }
