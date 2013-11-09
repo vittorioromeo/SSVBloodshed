@@ -82,12 +82,12 @@ struct SColorInhibitor : System<SColorInhibitor, Req<CSprite, CColorInhibitor>>
 
 	inline void added(Entity&, CSprite& cSprite, CColorInhibitor&)
 	{
-		cSprite.sprite.scale(1.f, 1.f);
+		cSprite.sprite.scale(2.f, 2.f);
 	}
 
 	inline void removed(Entity&, CSprite& cSprite, CColorInhibitor&)
 	{
-		cSprite.sprite.scale(1.f, 1.f);
+		cSprite.sprite.scale(2.f, 2.f);
 	}
 };
 
