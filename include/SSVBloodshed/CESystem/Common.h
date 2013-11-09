@@ -37,18 +37,18 @@ namespace ssvces
 
 	namespace Internal
 	{
+		class SystemBase;
+
+		// Returns the next unique bit index for a type
 		inline TypeIdIdx getNextTypeIdBitIdx() noexcept { static TypeIdIdx lastIdx{0}; return lastIdx++; }
-	}
 
-	// Shortcut to get the bit index of a Component type
-	template<typename T> inline const TypeIdIdx& getTypeIdBitIdx() noexcept
-	{
-		static_assert(ssvu::isBaseOf<Component, T>(), "Type must derive from Component");
-		static TypeIdIdx idx{Internal::getNextTypeIdBitIdx()}; return idx;
-	}
+		// Shortcut to get the bit index of a Component type
+		template<typename T> inline const TypeIdIdx& getTypeIdBitIdx() noexcept
+		{
+			static_assert(ssvu::isBaseOf<Component, T>(), "Type must derive from Component");
+			static TypeIdIdx idx{getNextTypeIdBitIdx()}; return idx;
+		}
 
-	namespace Internal
-	{
 		// These functions use variadic template recursion to "build" a bitset for a set of Component types
 		template<typename T> inline void buildBitsetHelper(TypeIdsBitset& mBitset) noexcept { mBitset[getTypeIdBitIdx<T>()] = true; }
 		template<typename T1, typename T2, typename... TArgs> inline void buildBitsetHelper(TypeIdsBitset& mBitset) noexcept { buildBitsetHelper<T1>(mBitset); buildBitsetHelper<T2, TArgs...>(mBitset); }
@@ -60,16 +60,16 @@ namespace ssvces
 
 		SSVU_DEFINE_HAS_MEMBER_INVOKER(callAdded, added, (HasAdded<T, void(TArgs...)>::Value));
 		SSVU_DEFINE_HAS_MEMBER_INVOKER(callRemoved, removed, (HasRemoved<T, void(TArgs...)>::Value));
+
+		// Shortcut to get the static Bitset of a pack of Component types
+		template<typename... TArgs> inline const TypeIdsBitset& getTypeIdsBitset() noexcept { static TypeIdsBitset bitset{Internal::getBuildBitset<TArgs...>()}; return bitset; }
+
+		// Returns whether the first bitset contains all the value of the second one
+		inline bool containsAll(const TypeIdsBitset& mA, const TypeIdsBitset& mB) noexcept { return (mA & mB) == mB; }
+
+		// Returns whether a type id bitset matches a system's type id bitset
+		inline bool matchesSystem(const TypeIdsBitset& mTypeIds, const SystemBase& mSystem) noexcept;
 	}
-
-	// Shortcut to get the static Bitset of a pack of Component types
-	template<typename... TArgs> inline const TypeIdsBitset& getTypeIdsBitset() noexcept { static TypeIdsBitset bitset{Internal::getBuildBitset<TArgs...>()}; return bitset; }
-
-	// Returns whether the first bitset contains all the value of the second one
-	inline bool containsAll(const TypeIdsBitset& mA, const TypeIdsBitset& mB) noexcept { return (mA & mB) == mB; }
-
-	class SystemBase;
-	inline bool matchesSystem(const TypeIdsBitset& mTypeIds, const SystemBase& mSystem) noexcept;
 }
 
 #endif

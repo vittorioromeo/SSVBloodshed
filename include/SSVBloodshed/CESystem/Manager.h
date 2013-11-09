@@ -13,18 +13,18 @@
 
 namespace ssvces
 {
-	class Manager
+	class Manager : ssvu::NoCopy
 	{
 		friend class Entity;
 		friend class EntityHandle;
 
 		private:
-			IdPool entityIdPool;
-			std::vector<SystemBase*> systems;
+			Internal::IdPool entityIdPool;
+			std::vector<Internal::SystemBase*> systems;
 			std::vector<Uptr<Entity>> entities;
 			std::array<std::vector<Entity*>, maxGroups> grouped;
 
-			inline Entity* create(Manager& mManager, IdPool& mIdPool) { auto entity(new Entity{mManager, mIdPool.getAvailable()}); entities.emplace_back(entity); return entity; }
+			inline Entity* create(Manager& mManager, Internal::IdPool& mIdPool) { auto entity(new Entity{mManager, mIdPool.getAvailable()}); entities.emplace_back(entity); return entity; }
 
 			inline void addToGroup(Entity* mEntity, Group mGroup) { assert(mGroup <= maxGroups); grouped[mGroup].push_back(mEntity); }
 
@@ -44,7 +44,7 @@ namespace ssvces
 					if(e.mustDestroy) continue;
 					if(e.mustRematch)
 					{
-						for(auto& s : systems) if(matchesSystem(e.typeIds, *s)) s->registerEntity(e);
+						for(auto& s : systems) if(Internal::matchesSystem(e.typeIds, *s)) s->registerEntity(e);
 						e.mustRematch = false;
 					}
 
@@ -56,7 +56,7 @@ namespace ssvces
 			inline EntityHandle createEntity() { return {*create(*this, entityIdPool)}; }
 			template<typename T> inline void registerSystem(T& mSystem)
 			{
-				static_assert(ssvu::isBaseOf<SystemBase, T>(), "Type must derive from SystemBase");
+				static_assert(ssvu::isBaseOf<Internal::SystemBase, T>(), "Type must derive from SystemBase");
 				systems.push_back(&mSystem);
 			}
 
@@ -79,9 +79,12 @@ namespace ssvces
 			inline std::size_t getComponentCount() const noexcept			{ std::size_t result{0}; for(auto& e : getEntities()) result += e->componentCount; return result; }
 	};
 
-	inline bool matchesSystem(const TypeIdsBitset& mTypeIds, const SystemBase& mSystem) noexcept
+	namespace Internal
 	{
-		return (mTypeIds & mSystem.typeIdsNot).none() && containsAll(mTypeIds, mSystem.typeIdsReq);
+		inline bool matchesSystem(const TypeIdsBitset& mTypeIds, const SystemBase& mSystem) noexcept
+		{
+			return (mTypeIds & mSystem.typeIdsNot).none() && containsAll(mTypeIds, mSystem.typeIdsReq);
+		}
 	}
 }
 

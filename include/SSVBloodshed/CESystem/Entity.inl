@@ -12,8 +12,8 @@ namespace ssvces
 		static_assert(ssvu::isBaseOf<Component, T>(), "Type must derive from Component");
 		assert(!hasComponent<T>() && componentCount <= maxComponents);
 
-		components[getTypeIdBitIdx<T>()] = std::make_unique<T>(std::forward<TArgs>(mArgs)...);
-		typeIds[getTypeIdBitIdx<T>()] = true;
+		components[Internal::getTypeIdBitIdx<T>()] = std::make_unique<T>(std::forward<TArgs>(mArgs)...);
+		typeIds[Internal::getTypeIdBitIdx<T>()] = true;
 		++componentCount;
 
 		mustRematch = true;
@@ -23,8 +23,8 @@ namespace ssvces
 		static_assert(ssvu::isBaseOf<Component, T>(), "Type must derive from Component");
 		assert(hasComponent<T>() && componentCount > 0);
 
-		components[getTypeIdBitIdx<T>()].reset();
-		typeIds[getTypeIdBitIdx<T>()] = false;
+		components[Internal::getTypeIdBitIdx<T>()].reset();
+		typeIds[Internal::getTypeIdBitIdx<T>()] = false;
 		--componentCount;
 
 		mustRematch = true;

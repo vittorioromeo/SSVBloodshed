@@ -15,7 +15,7 @@ namespace ssvces
 	{
 		template<typename... TArgs> struct Filter
 		{
-			static constexpr const TypeIdsBitset& getTypeIds() noexcept { return getTypeIdsBitset<TArgs...>(); }
+			static constexpr const TypeIdsBitset& getTypeIds() noexcept { return Internal::getTypeIdsBitset<TArgs...>(); }
 		};
 
 		template<typename TPReq, typename TPArgs> struct ExpHelper;
@@ -46,7 +46,7 @@ namespace ssvces
 	};
 	template<typename... TArgs> struct Not : public Internal::Filter<TArgs...> { };
 
-	template<typename TDerived, typename TReq, typename TNot = Not<>> class System : public SystemBase
+	template<typename TDerived, typename TReq, typename TNot = Not<>> class System : public Internal::SystemBase
 	{
 		private:
 			using Tpl = typename TReq::TplType;

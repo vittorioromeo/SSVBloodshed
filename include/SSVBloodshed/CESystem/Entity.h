@@ -11,14 +11,13 @@ namespace ssvces
 {
 	class Manager;
 	class EntityHandle;
-	class SystemBase;
 	template<typename, typename, typename> class System;
 
-	class Entity
+	class Entity : ssvu::NoCopy
 	{
 		friend class Manager;
 		friend class EntityHandle;
-		friend class SystemBase;
+		friend class Internal::SystemBase;
 		template<typename, typename, typename> friend class System;
 
 		private:
@@ -38,13 +37,13 @@ namespace ssvces
 			template<typename T> inline bool hasComponent() const noexcept
 			{
 				static_assert(ssvu::isBaseOf<Component, T>(), "Type must derive from Component");
-				return typeIds[getTypeIdBitIdx<T>()];
+				return typeIds[Internal::getTypeIdBitIdx<T>()];
 			}
 			template<typename T> inline T& getComponent() noexcept
 			{
 				static_assert(ssvu::isBaseOf<Component, T>(), "Type must derive from Component");
 				assert(componentCount > 0 && hasComponent<T>());
-				return reinterpret_cast<T&>(*components[getTypeIdBitIdx<T>()]);
+				return reinterpret_cast<T&>(*components[Internal::getTypeIdBitIdx<T>()]);
 			}
 
 			inline void destroy() noexcept;

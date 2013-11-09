@@ -9,23 +9,27 @@
 
 namespace ssvces
 {
+	class Manager;
 	class Entity;
 
-	class SystemBase
+	namespace Internal
 	{
-		friend bool matchesSystem(const TypeIdsBitset&, const SystemBase&) noexcept;
-		friend class Manager;
+		class SystemBase : ssvu::NoCopy
+		{
+			friend bool matchesSystem(const TypeIdsBitset&, const SystemBase&) noexcept;
+			friend class ssvces::Manager;
 
-		private:
-			TypeIdsBitset typeIdsReq, typeIdsNot;
+			private:
+				TypeIdsBitset typeIdsReq, typeIdsNot;
 
-		protected:
-			inline SystemBase(TypeIdsBitset mTypeIdsReq) : typeIdsReq{std::move(mTypeIdsReq)} { }
-			inline SystemBase(TypeIdsBitset mTypeIdsReq, TypeIdsBitset mTypeIdsNot) : typeIdsReq{std::move(mTypeIdsReq)}, typeIdsNot{std::move(mTypeIdsNot)} { }
+			protected:
+				inline SystemBase(TypeIdsBitset mTypeIdsReq) : typeIdsReq{std::move(mTypeIdsReq)} { }
+				inline SystemBase(TypeIdsBitset mTypeIdsReq, TypeIdsBitset mTypeIdsNot) : typeIdsReq{std::move(mTypeIdsReq)}, typeIdsNot{std::move(mTypeIdsNot)} { }
 
-			virtual void registerEntity(Entity&) = 0;
-			virtual void refresh() = 0;
-	};
+				virtual void registerEntity(Entity&) = 0;
+				virtual void refresh() = 0;
+		};
+	}
 }
 
 #endif
