@@ -24,11 +24,7 @@ namespace ob
 		enum class At{Left, Right, Top, Bottom, NW, NE, SW, SE, Center};
 
 		class Context;
-		class WidgetBase;
-
-		class Form;
-		class Label;
-		class Button;
+		class Widget;
 
 		struct AABBShape : public sf::RectangleShape
 		{
@@ -66,21 +62,27 @@ namespace ob
 			inline bool contains(const Vec2f& mPoint) const noexcept		{ return isOverlapping(mPoint); }
 		};
 
-		class WidgetBase : public AABBShape, public ssvu::MemoryManageable
+		class Widget : public AABBShape, public ssvu::MemoryManageable
 		{
 			friend class Context;
 
 			protected:
 				Context& context;
 				void render(const sf::Drawable& mDrawable);
+				void setBusy(bool mValue);
 
 			private:
-				int depth{0};
-				ssvu::MemoryManager<WidgetBase> children;
-				WidgetBase* neighbor{nullptr};
+				ssvu::MemoryManager<Widget> children;
+				int zOrder{0};
+
+				// Status
+				bool focused{false}, visible{true}, active{true};
+				bool hovered{false}, pressed{false}, pressedPreviously{false};
+
+				// Positioning
+				Widget* neighbor{nullptr};
 				At from{At::Center}, to{At::Center};
 				Vec2f offsetTo;
-				bool hovered{false}, visible{true}, active{true};
 
 				inline virtual void update(float) { }
 				inline virtual void draw() { }
@@ -93,7 +95,7 @@ namespace ob
 					if(neighbor == nullptr) return;
 					neighbor->updateNeighbor();
 
-					auto getVecPos = [](At mAt, WidgetBase& mWidget) -> Vec2f
+					auto getVecPos = [](At mAt, Widget& mWidget) -> Vec2f
 					{
 						switch(mAt)
 						{
@@ -113,48 +115,55 @@ namespace ob
 					setPosition(getVecPos(to, *neighbor) + offsetTo + (this->getPosition() - getVecPos(from, *this)));
 				}
 
-				void refresh();
+				void checkUse();
 
 			public:
 				using AABBShape::AABBShape;
 
-				WidgetBase(Context& mContext) : context(mContext) { }
-				WidgetBase(Context& mContext, const Vec2f& mPosition, const Vec2f& mHalfSize) : AABBShape(mPosition, mHalfSize), context(mContext) { }
+				Widget(Context& mContext) : context(mContext) { }
+				Widget(Context& mContext, const Vec2f& mHalfSize) : AABBShape(Vec2f{0.f, 0.f}, mHalfSize), context(mContext) { }
+				Widget(Context& mContext, const Vec2f& mPosition, const Vec2f& mHalfSize) : AABBShape(mPosition, mHalfSize), context(mContext) { }
 
 				template<typename T, typename... TArgs> T& createChild(TArgs&&... mArgs);
 				void destroy();
 
-				inline void attach(At mFrom, WidgetBase &mNeigh, At mTo, const Vec2f& mOffsetTo = Vec2f{0.f, 0.f}) { from = mFrom; neighbor = &mNeigh; to = mTo; offsetTo = mOffsetTo; }
+				inline void attach(At mFrom, Widget &mNeigh, At mTo, const Vec2f& mOffsetTo = Vec2f{0.f, 0.f}) { from = mFrom; neighbor = &mNeigh; to = mTo; offsetTo = mOffsetTo; }
 				inline void show() { setVisible(true); setActive(true); }
 				inline void hide() { setVisible(false); setActive(false); }
 
-				inline void setDepth(int mDepth)	{ depth = mDepth;	for(auto& w : children) w->setDepth(mDepth + 1); }
+				inline void setFocused(bool mValue)	{ focused = mValue;	for(auto& w : children) w->setFocused(mValue); }
 				inline void setVisible(bool mValue)	{ visible = mValue;	for(auto& w : children) w->setVisible(mValue); }
 				inline void setActive(bool mValue)	{ active = mValue;	for(auto& w : children) w->setActive(mValue); }
 
-				inline bool isHovered() const noexcept	{ return active && hovered; }
-				inline bool isVisible() const noexcept	{ return visible; }
-				inline bool isActive() const noexcept	{ return active; }
+				inline bool isFocused() const noexcept			{ return focused; }
+				inline bool isHovered() const noexcept			{ return active && hovered; }
+				inline bool isVisible() const noexcept			{ return visible; }
+				inline bool isActive() const noexcept			{ return active; }
+				inline bool isPressed() const noexcept			{ return isHovered() && pressed; }
+				bool wasPressed() const noexcept;
+				inline bool isAnyChildPressed() const noexcept	{ for(const auto& w : children) if(w->isPressed()) return true; return isPressed(); }
 				Vec2f getMousePos() const noexcept;
 				bool isMBtnLeftDown() const noexcept;
-				bool isPressed() const noexcept;
 		};
 
 		class Context
 		{
-			friend class WidgetBase;
+			friend class Widget;
 
 			private:
 				OBAssets& assets;
 				ssvs::GameWindow& gameWindow;
 				sf::RenderTexture renderTexture;
 				sf::Sprite sprite;
-				ssvu::MemoryManager<WidgetBase> widgets;
-				std::vector<WidgetBase*> sorted;
-				bool busy{false};
+				ssvu::MemoryManager<Widget> widgets;
+				std::vector<Widget*> sorted;
+				bool hovered{false}, busy{false};
+				Vec2f mousePos; bool mouseDown{false}, mousePreviouslyDown{false};
 
-				inline void del(WidgetBase& mWidget) { widgets.del(mWidget); }
+				inline void del(Widget& mWidget) { widgets.del(mWidget); }
 				inline void render(const sf::Drawable& mDrawable) { renderTexture.draw(mDrawable); }
+				inline void unFocusAll() { for(auto& w : widgets) w->setFocused(false); }
+				inline void bringToFront(Widget& mWidget) { for(auto& w : widgets) w->zOrder = 0; mWidget.zOrder = -1; }
 
 			public:
 				Context(OBAssets& mAssets, ssvs::GameWindow& mGameWindow) : assets(mAssets), gameWindow(mGameWindow)
@@ -165,47 +174,80 @@ namespace ob
 
 				template<typename T, typename... TArgs> inline T& create(TArgs&&... mArgs)
 				{
-					static_assert(ssvu::isBaseOf<WidgetBase, T>(), "T must be derived from WidgetBase");
+					static_assert(ssvu::isBaseOf<Widget, T>(), "T must be derived from Widget");
 					return widgets.create<T>(*this, std::forward<TArgs>(mArgs)...);
 				}
 
 				inline void update(float mFT)
 				{
+					mousePreviouslyDown = mouseDown;
+					mouseDown = gameWindow.isBtnPressed(ssvs::MBtn::Left);
+					mousePos = gameWindow.getMousePosition();
+
 					widgets.refresh();
-					for(auto& w : widgets) w->updateWithChildren(mFT);
+
+					sorted.clear();
+					for(auto& w : widgets) sorted.push_back(w.get());
+					ssvu::sort(sorted, [](const Widget* mA, const Widget* mB){ return mA->zOrder < mB->zOrder; });
+
+					hovered = false;
+					for(auto& w : sorted) w->checkUse();
+
+					if(!isBusy())
+					{
+						for(auto& w : sorted)
+							if(w->isAnyChildPressed())
+							{
+								unFocusAll();
+								w->setFocused(true);
+								bringToFront(*w);
+								break;
+							}
+					}
 
 					busy = false;
-					for(auto& w : widgets) w->refresh();
+					for(auto& w : sorted) w->updateWithChildren(mFT);
+
 				}
 				inline void draw()
 				{
 					renderTexture.clear(sf::Color::Transparent);
-					for(const auto& w : widgets) w->drawWithChildren();
+					for(auto itr(std::rbegin(sorted)); itr != std::rend(sorted); ++itr) (*itr)->drawWithChildren();
 					renderTexture.display();
 
-					sprite.setColor(sf::Color(255, 255, 255, busy ? 255 : 175));
+					sprite.setColor(sf::Color(255, 255, 255, isInUse() ? 255 : 175));
 					gameWindow.draw(sprite);
 				}
 
 				inline OBAssets& getAssets() const noexcept				{ return assets; }
 				inline ssvs::GameWindow& getGameWindow() const noexcept	{ return gameWindow; }
+				inline bool isHovered() const noexcept					{ return hovered; }
 				inline bool isBusy() const noexcept						{ return busy; }
+				inline bool isInUse() const noexcept					{ return hovered || busy; }
 		};
 
-		inline void WidgetBase::render(const sf::Drawable& mDrawable) { context.render(mDrawable); }
-		inline void WidgetBase::destroy() { context.del(*this); for(const auto& c : children) c->destroy();  }
-		inline void WidgetBase::refresh() { hovered = isOverlapping(getMousePos()); if(hovered) context.busy = true; for(const auto& c : children) c->refresh(); }
-		inline Vec2f WidgetBase::getMousePos() const noexcept	{ return context.getGameWindow().getMousePosition(); }
-		inline bool WidgetBase::isMBtnLeftDown() const noexcept { return active && context.getGameWindow().isBtnPressed(ssvs::MBtn::Left); }
-		inline bool WidgetBase::isPressed() const noexcept		{ return active && hovered && isMBtnLeftDown(); }
-		template<typename T, typename... TArgs> inline T& WidgetBase::createChild(TArgs&&... mArgs)
+		inline void Widget::render(const sf::Drawable& mDrawable) { context.render(mDrawable); }
+		inline void Widget::destroy() { ssvu::MemoryManageable::destroy(*this); for(const auto& c : children) c->destroy(); }
+		inline void Widget::checkUse()
 		{
-			static_assert(ssvu::isBaseOf<WidgetBase, T>(), "T must be derived from WidgetBase");
-			auto& result(children.create<T>(context, std::forward<TArgs>(mArgs)...));
-			result.setDepth(depth + 1); return result;
+			hovered = isOverlapping(getMousePos());
+			if(hovered) context.hovered = true;
+			pressedPreviously = pressed;
+			pressed = isMBtnLeftDown() && hovered;
+			for(const auto& c : children) c->checkUse();
+		}
+		inline Vec2f Widget::getMousePos() const noexcept		{ return context.mousePos; }
+		inline bool Widget::isMBtnLeftDown() const noexcept		{ return active && context.mouseDown; }
+		inline void Widget::setBusy(bool mValue)				{ context.busy = mValue; }
+		inline bool Widget::wasPressed() const noexcept			{ return context.mousePreviouslyDown || (isHovered() && pressedPreviously); }
+
+		template<typename T, typename... TArgs> inline T& Widget::createChild(TArgs&&... mArgs)
+		{
+			static_assert(ssvu::isBaseOf<Widget, T>(), "T must be derived from Widget");
+			return children.create<T>(context, std::forward<TArgs>(mArgs)...);
 		}
 
-		class Label : public WidgetBase
+		class Label : public Widget
 		{
 			private:
 				ssvs::BitmapText text;
@@ -213,12 +255,12 @@ namespace ob
 				inline void draw() override { text.setPosition(getPosition() - Vec2f{0.f, 1.f}); render(text); }
 
 			public:
-				Label(Context& mContext, std::string mText = "") : WidgetBase{mContext}, text{*context.getAssets().obStroked}
+				Label(Context& mContext, std::string mText = "") : Widget{mContext}, text{*context.getAssets().obStroked}
 				{
 					setFillColor(sf::Color::Transparent);
 					text.setColor(sf::Color::White);
 					text.setTracking(-3);
-					setString(mText);
+					setString(std::move(mText));
 				}
 
 				inline void setString(std::string mLabel)
@@ -230,28 +272,37 @@ namespace ob
 				inline const std::string& getString() const noexcept { return text.getString(); }
 		};
 
-		class Button : public WidgetBase
+		class Button : public Widget
 		{
 			private:
 				bool used{false};
 				Label& lblLabel;
+				float green{0.f};
 
-				inline void update(float) override
+				inline void update(float mFT) override
 				{
-					if(isPressed())
-					{
-						if(!used) { used = true; onUse(); }
-					}
+					setFillColor(sf::Color(255, green, 0, 255));
+					green = ssvu::getClampedMin(green - mFT * 15.f, 0.f);
+
+					if(!isFocused()) return;
+
+					if(!wasPressed() && isPressed()) use();
 					else if(!isMBtnLeftDown()) used = false;
+				}
+
+				inline void use()
+				{
+					setBusy(true);
+					if(used) return;
+					used = true; onUse(); green = 255;
 				}
 
 			public:
 				ssvu::Delegate<void()> onUse;
 
-				Button(Context& mContext, std::string mLabel, const Vec2f& mSize) : WidgetBase{mContext, Vec2f{0.f, 0.f}, mSize / 2.f},
+				Button(Context& mContext, std::string mLabel, const Vec2f& mSize) : Widget{mContext, mSize / 2.f},
 					lblLabel(createChild<Label>("button"))
 				{
-					setFillColor(sf::Color::Red);
 					setOutlineThickness(2);
 					setOutlineColor(sf::Color::Black);
 					setLabel(mLabel);
@@ -262,7 +313,7 @@ namespace ob
 				inline const std::string& getLabel() const noexcept	{ return lblLabel.getString(); }
 		};
 
-		class FormBar : public WidgetBase
+		class FormBar : public Widget
 		{
 			private:
 				Button& btnClose;
@@ -270,7 +321,7 @@ namespace ob
 				Label& lblTitle;
 
 			public:
-				FormBar(Context& mContext) : WidgetBase{mContext},
+				FormBar(Context& mContext) : Widget{mContext},
 					btnClose(createChild<Button>("x", Vec2f{8.f, 8.f})),
 					btnMinimize(createChild<Button>("_", Vec2f{8.f, 8.f})),
 					lblTitle(createChild<Label>("UNNAMED FORM"))
@@ -291,13 +342,13 @@ namespace ob
 				inline const std::string& getTitle() noexcept	{ return lblTitle.getString(); }
 		};
 
-		class Form : public WidgetBase
+		class Form : public Widget
 		{
 			private:
 				enum class Action{None, Move, Resize};
 
 				FormBar& fbBar;
-				WidgetBase& fbResizer;
+				Widget& fbResizer;
 				bool draggable{true}, resizable{true};
 
 				Action action;
@@ -305,15 +356,27 @@ namespace ob
 
 				inline void update(float) override
 				{
+					fbBar.setSize(getSize().x + 4.f, 12.f);
+
+					if(!isFocused())
+					{
+						setFillColor(sf::Color{165, 165, 165, 255});
+						return;
+					}
+
+					setFillColor(sf::Color{190, 190, 190, 255});
+
 					switch(action)
 					{
 						case Action::Move:
 						{
+							setBusy(true);
 							setPosition(getMousePos() - (dragPos - getPosition()));
 							break;
 						}
 						case Action::Resize:
 						{
+							setBusy(true);
 							setWidth(ssvu::getClampedMin(getWidth(), 70.f));
 							setHeight(ssvu::getClampedMin(getHeight(), 70.f));
 
@@ -327,18 +390,15 @@ namespace ob
 
 					dragPos = getMousePos();
 
-					if(draggable && fbBar.isPressed()) action = Action::Move;
-					else if(resizable && fbResizer.isPressed()) action = Action::Resize;
-					else action = Action::None;
-
-					fbBar.setSize(getSize().x + 4.f, 12.f);
+					if(draggable && !context.isBusy() && fbBar.isPressed()) action = Action::Move;
+					else if(resizable && !context.isBusy() && fbResizer.isPressed()) action = Action::Resize;
+					else if(!isMBtnLeftDown()) action = Action::None;
 				}
 
 			public:
-				Form(Context& mContext, const Vec2f& mPosition, const Vec2f& mSize) : WidgetBase{mContext, mPosition, mSize / 2.f},
-					fbBar(createChild<FormBar>()), fbResizer(createChild<WidgetBase>(Vec2f{0.f, 0.f}, Vec2f{8.f, 8.f}))
+				Form(Context& mContext, const Vec2f& mPosition, const Vec2f& mSize) : Widget{mContext, mPosition, mSize / 2.f},
+					fbBar(createChild<FormBar>()), fbResizer(createChild<Widget>(Vec2f{4.f, 4.f}))
 				{
-					setFillColor(sf::Color{190, 190, 190, 255});
 					setOutlineThickness(2);
 					setOutlineColor(sf::Color::Black);
 					fbBar.getBtnClose().onUse += [this]{ hide(); };
@@ -349,6 +409,8 @@ namespace ob
 					fbResizer.attach(At::SE, *this, At::SE);
 				}
 
+				inline void setDraggable(bool mValue)		{ draggable = mValue; }
+				inline void setResizable(bool mValue)		{ resizable = mValue; fbBar.getBtnMinimize().setActive(mValue); fbBar.getBtnMinimize().setVisible(mValue); fbResizer.setVisible(mValue); }
 				inline void setTitle(std::string mTitle)	{ fbBar.setTitle(std::move(mTitle)); }
 				inline std::string getTitle() noexcept		{ return fbBar.getTitle(); }
 		};
@@ -391,6 +453,9 @@ namespace ob
 			GUI::Form* formParams{nullptr};
 			GUI::Label* lblParams{nullptr};
 
+			GUI::Form* formInfo{nullptr};
+			GUI::Label* lblInfo{nullptr};
+
 		public:
 			inline OBLEEditor(ssvs::GameWindow& mGameWindow, OBAssets& mAssets) : gameWindow(mGameWindow), assets(mAssets), database{assets},
 				guiCtx(assets, gameWindow)
@@ -413,15 +478,26 @@ namespace ob
 
 				formMenu = &guiCtx.create<GUI::Form>(Vec2f{400, 100}, Vec2f{64, 80});
 				formMenu->setTitle("MENU");
+				formMenu->setResizable(false);
+				formMenu->show();
 
 				auto& btnParams(formMenu->createChild<GUI::Button>("parameters", Vec2f{56, 8}));
 				btnParams.onUse += [this]{ formParams->show(); };
 				btnParams.attach(GUI::At::NW, *formMenu, GUI::At::NW, Vec2f{4.f, 4.f});
 
+				auto& btnInfo(formMenu->createChild<GUI::Button>("info", Vec2f{56, 8}));
+				btnInfo.onUse += [this]{ formInfo->show(); };
+				btnInfo.attach(GUI::At::Top, btnParams, GUI::At::Bottom, Vec2f{0.f, 6.f});
+
 				formParams = &guiCtx.create<GUI::Form>(Vec2f{100, 100}, Vec2f{150, 80});
 				formParams->setTitle("PARAMETERS");
 				lblParams = &formParams->createChild<GUI::Label>();
-				lblParams->attach(GUI::At::NW, *formParams, GUI::At::NW, Vec2f{0.f, 2.f});
+				lblParams->attach(GUI::At::NW, *formParams, GUI::At::NW, Vec2f{2.f, 2.f});
+
+				formInfo = &guiCtx.create<GUI::Form>(Vec2f{100, 100}, Vec2f{150, 80});
+				formInfo->setTitle("INFO");
+				lblInfo = &formInfo->createChild<GUI::Label>();
+				lblInfo->attach(GUI::At::NW, *formInfo, GUI::At::NW, Vec2f{2.f, 2.f});
 			}
 
 			inline void newSector() { sector.clear(); sector.init(database); refreshCurrentLevel(); clearCurrentLevel(); }
@@ -506,7 +582,7 @@ namespace ob
 				}
 
 				lblParams->setString(ss.str());
-				if(idx > 0) formParams->setSize(lblParams->getSize() * 1.2f);
+				if(idx > 0 && (formParams->getWidth() < lblParams->getWidth() * 1.2f || formParams->getHeight() < lblParams->getHeight() * 1.2f)) formParams->setSize(lblParams->getSize() * 1.2f);
 			}
 
 			inline void update(float mFT)
@@ -516,13 +592,16 @@ namespace ob
 				currentLevel->update();
 				updateXY(); grabTiles(); updateParamsText();
 
-				if(!guiCtx.isBusy())
+				if(!guiCtx.isInUse())
 				{
 					if(input.painting) paint();
 					else if(input.deleting) del();
 				}
 
 				debugText.update(mFT);
+				lblInfo->setString(debugText.getStr());
+				if(formInfo->getWidth() < lblInfo->getWidth() * 1.2f || formInfo->getHeight() < lblInfo->getHeight() * 1.2f) formInfo->setSize(lblInfo->getSize() * 1.2f);
+
 				gameCamera.update<int>(mFT);
 			}
 			inline void draw()
@@ -559,7 +638,6 @@ namespace ob
 				overlayCamera.unapply();
 
 				guiCtx.draw();
-				debugText.draw();
 			}
 
 			template<typename... TArgs> inline void render(const sf::Drawable& mDrawable, TArgs&&... mArgs)	{ gameWindow.draw(mDrawable, std::forward<TArgs>(mArgs)...); }

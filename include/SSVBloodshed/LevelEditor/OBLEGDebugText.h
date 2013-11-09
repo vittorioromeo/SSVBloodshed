@@ -14,10 +14,10 @@ namespace ob
 	{
 		private:
 			TGame& editor;
-			ssvs::BitmapText debugText;
+			std::string str;
 
 		public:
-			OBLEGDebugText(TGame& mGame) noexcept : editor(mGame), debugText{*editor.getAssets().obStroked} { debugText.setTracking(-3); }
+			OBLEGDebugText(TGame& mGame) noexcept : editor(mGame) { }
 
 			inline void update(float)
 			{
@@ -32,9 +32,9 @@ namespace ob
 					<< "LShift: pick" << "\n" << "N/M: copy/paste params" << "\n\n"
 					<< copiedParamsStr << std::endl;
 
-				debugText.setString(s.str());
+				str = s.str();
 			}
-			inline void draw() const { editor.render(debugText); }
+			inline const std::string& getStr() { return str; }
 	};
 }
 
