@@ -52,9 +52,15 @@ namespace ob
 			inline float getWidth() const noexcept				{ return sf::RectangleShape::getSize().x; }
 			inline float getHeight() const noexcept				{ return sf::RectangleShape::getSize().y; }
 
+			inline void resizeFrom(const Vec2f& mOrigin, const Vec2f& mSize)
+			{
+				setSize(mSize);
+				auto diff(mOrigin - getPosition());
+				setPosition(getPosition() + diff);
+			}
+
 			template<typename T> inline Vec2<T> getVertexNW() const noexcept { return Vec2<T>(getLeft(), getTop()); }
 			template<typename T> inline Vec2<T> getVertexNE() const noexcept { return Vec2<T>(getRight(), getTop()); }
-
 			template<typename T> inline Vec2<T> getVertexSW() const noexcept { return Vec2<T>(getLeft(), getBottom()); }
 			template<typename T> inline Vec2<T> getVertexSE() const noexcept { return Vec2<T>(getRight(), getBottom()); }
 
@@ -68,11 +74,11 @@ namespace ob
 
 			protected:
 				Context& context;
+				ssvu::MemoryManager<Widget> children;
 				void render(const sf::Drawable& mDrawable);
 				void setBusy(bool mValue);
 
 			private:
-				ssvu::MemoryManager<Widget> children;
 				int zOrder{0};
 
 				// Status
@@ -82,7 +88,7 @@ namespace ob
 				// Positioning
 				Widget* neighbor{nullptr};
 				At from{At::Center}, to{At::Center};
-				Vec2f offsetTo;
+				Vec2f offset;
 
 				inline virtual void update(float) { }
 				inline virtual void draw() { }
@@ -90,29 +96,26 @@ namespace ob
 				inline void updateWithChildren(float mFT)	{ children.refresh(); update(mFT); updateNeighbor(); for(auto& w : children) w->updateWithChildren(mFT); }
 				inline void drawWithChildren()				{ if(!visible) return; draw(); render(*this); for(auto& w : children) w->drawWithChildren(); }
 
+				inline static Vec2f getVecPos(At mAt, Widget& mWidget)
+				{
+					switch(mAt)
+					{
+						case At::Left:		return {mWidget.getLeft(), mWidget.getY()};
+						case At::Right:		return {mWidget.getRight(), mWidget.getY()};
+						case At::Top:		return {mWidget.getX(), mWidget.getTop()};
+						case At::Bottom:	return {mWidget.getX(), mWidget.getBottom()};
+						case At::NW:		return mWidget.getVertexNW<float>();
+						case At::NE:		return mWidget.getVertexNE<float>();
+						case At::SW:		return mWidget.getVertexSW<float>();
+						case At::SE:		return mWidget.getVertexSE<float>();
+						case At::Center:	return mWidget.getPosition();
+					}
+					return mWidget.getPosition();
+				}
+
 				inline void updateNeighbor()
 				{
-					if(neighbor == nullptr) return;
-					neighbor->updateNeighbor();
-
-					auto getVecPos = [](At mAt, Widget& mWidget) -> Vec2f
-					{
-						switch(mAt)
-						{
-							case At::Left:		return {mWidget.getLeft(), mWidget.getY()};
-							case At::Right:		return {mWidget.getRight(), mWidget.getY()};
-							case At::Top:		return {mWidget.getX(), mWidget.getTop()};
-							case At::Bottom:	return {mWidget.getX(), mWidget.getBottom()};
-							case At::NW:		return mWidget.getVertexNW<float>();
-							case At::NE:		return mWidget.getVertexNE<float>();
-							case At::SW:		return mWidget.getVertexSW<float>();
-							case At::SE:		return mWidget.getVertexSE<float>();
-							case At::Center:	return mWidget.getPosition();
-						}
-						return mWidget.getPosition();
-					};
-
-					setPosition(getVecPos(to, *neighbor) + offsetTo + (this->getPosition() - getVecPos(from, *this)));
+					if(neighbor != nullptr) setPosition(getVecPos(to, *neighbor) + offset + (this->getPosition() - getVecPos(from, *this)));
 				}
 
 				void checkUse();
@@ -124,10 +127,14 @@ namespace ob
 				Widget(Context& mContext, const Vec2f& mHalfSize) : AABBShape(Vec2f{0.f, 0.f}, mHalfSize), context(mContext) { }
 				Widget(Context& mContext, const Vec2f& mPosition, const Vec2f& mHalfSize) : AABBShape(mPosition, mHalfSize), context(mContext) { }
 
-				template<typename T, typename... TArgs> T& createChild(TArgs&&... mArgs);
-				void destroy();
+				template<typename T, typename... TArgs> inline T& createChild(TArgs&&... mArgs)
+				{
+					static_assert(ssvu::isBaseOf<Widget, T>(), "T must be derived from Widget");
+					return children.create<T>(context, std::forward<TArgs>(mArgs)...);
+				}
+				inline void destroy() noexcept { ssvu::MemoryManageable::destroy(*this); for(const auto& c : children) c->destroy(); }
 
-				inline void attach(At mFrom, Widget &mNeigh, At mTo, const Vec2f& mOffsetTo = Vec2f{0.f, 0.f}) { from = mFrom; neighbor = &mNeigh; to = mTo; offsetTo = mOffsetTo; }
+				inline void attach(At mFrom, Widget &mNeighbor, At mTo, const Vec2f& mOffset = Vec2f{0.f, 0.f}) { from = mFrom; neighbor = &mNeighbor; to = mTo; offset = mOffset; }
 				inline void show() { setVisible(true); setActive(true); }
 				inline void hide() { setVisible(false); setActive(false); }
 
@@ -140,9 +147,10 @@ namespace ob
 				inline bool isVisible() const noexcept			{ return visible; }
 				inline bool isActive() const noexcept			{ return active; }
 				inline bool isPressed() const noexcept			{ return isHovered() && pressed; }
-				bool wasPressed() const noexcept;
 				inline bool isAnyChildPressed() const noexcept	{ for(const auto& w : children) if(w->isPressed()) return true; return isPressed(); }
-				Vec2f getMousePos() const noexcept;
+				bool wasPressed() const noexcept;
+				const Vec2f& getMousePos() const noexcept;
+				const Vec2f& getMousePosOld() const noexcept;
 				bool isMBtnLeftDown() const noexcept;
 		};
 
@@ -158,7 +166,8 @@ namespace ob
 				ssvu::MemoryManager<Widget> widgets;
 				std::vector<Widget*> sorted;
 				bool hovered{false}, busy{false};
-				Vec2f mousePos; bool mouseDown{false}, mousePreviouslyDown{false};
+				Vec2f mousePos, mousePosOld;
+				bool mouseDown{false}, mouseDownOld{false};
 
 				inline void del(Widget& mWidget) { widgets.del(mWidget); }
 				inline void render(const sf::Drawable& mDrawable) { renderTexture.draw(mDrawable); }
@@ -180,8 +189,9 @@ namespace ob
 
 				inline void update(float mFT)
 				{
-					mousePreviouslyDown = mouseDown;
+					mouseDownOld = mouseDown;
 					mouseDown = gameWindow.isBtnPressed(ssvs::MBtn::Left);
+					mousePosOld = mousePos;
 					mousePos = gameWindow.getMousePosition();
 
 					widgets.refresh();
@@ -226,8 +236,12 @@ namespace ob
 				inline bool isInUse() const noexcept					{ return hovered || busy; }
 		};
 
-		inline void Widget::render(const sf::Drawable& mDrawable) { context.render(mDrawable); }
-		inline void Widget::destroy() { ssvu::MemoryManageable::destroy(*this); for(const auto& c : children) c->destroy(); }
+		inline void Widget::render(const sf::Drawable& mDrawable)	{ context.render(mDrawable); }
+		inline void Widget::setBusy(bool mValue)					{ context.busy = mValue; }
+		inline bool Widget::isMBtnLeftDown() const noexcept			{ return active && context.mouseDown; }
+		inline bool Widget::wasPressed() const noexcept				{ return context.mouseDownOld || (isHovered() && pressedPreviously); }
+		inline const Vec2f& Widget::getMousePos() const noexcept	{ return context.mousePos; }
+		inline const Vec2f& Widget::getMousePosOld() const noexcept	{ return context.mousePosOld; }
 		inline void Widget::checkUse()
 		{
 			hovered = isOverlapping(getMousePos());
@@ -235,16 +249,6 @@ namespace ob
 			pressedPreviously = pressed;
 			pressed = isMBtnLeftDown() && hovered;
 			for(const auto& c : children) c->checkUse();
-		}
-		inline Vec2f Widget::getMousePos() const noexcept		{ return context.mousePos; }
-		inline bool Widget::isMBtnLeftDown() const noexcept		{ return active && context.mouseDown; }
-		inline void Widget::setBusy(bool mValue)				{ context.busy = mValue; }
-		inline bool Widget::wasPressed() const noexcept			{ return context.mousePreviouslyDown || (isHovered() && pressedPreviously); }
-
-		template<typename T, typename... TArgs> inline T& Widget::createChild(TArgs&&... mArgs)
-		{
-			static_assert(ssvu::isBaseOf<Widget, T>(), "T must be derived from Widget");
-			return children.create<T>(context, std::forward<TArgs>(mArgs)...);
 		}
 
 		class Label : public Widget
@@ -303,8 +307,7 @@ namespace ob
 				Button(Context& mContext, std::string mLabel, const Vec2f& mSize) : Widget{mContext, mSize / 2.f},
 					lblLabel(createChild<Label>("button"))
 				{
-					setOutlineThickness(2);
-					setOutlineColor(sf::Color::Black);
+					setOutlineThickness(2); setOutlineColor(sf::Color::Black);
 					setLabel(mLabel);
 					lblLabel.attach(At::Center, *this, At::Center);
 				}
@@ -318,25 +321,27 @@ namespace ob
 			private:
 				Button& btnClose;
 				Button& btnMinimize;
+				Button& btnCollapse;
 				Label& lblTitle;
 
 			public:
 				FormBar(Context& mContext) : Widget{mContext},
 					btnClose(createChild<Button>("x", Vec2f{8.f, 8.f})),
 					btnMinimize(createChild<Button>("_", Vec2f{8.f, 8.f})),
+					btnCollapse(createChild<Button>("^", Vec2f{8.f, 8.f})),
 					lblTitle(createChild<Label>("UNNAMED FORM"))
 				{
 					setFillColor(sf::Color::Black);
-					btnClose.setLabel("x");
-					btnMinimize.setLabel("_");
 
 					btnClose.attach(At::Right, *this, At::Right, Vec2f{-2.f, 0.f});
 					btnMinimize.attach(At::Right, btnClose, At::Left, Vec2f{-2.f, 0.f});
+					btnCollapse.attach(At::Right, btnMinimize, At::Left, Vec2f{-2.f, 0.f});
 					lblTitle.attach(At::NW, *this, At::NW, Vec2f{0.f, 2.f});
 				}
 
 				inline Button& getBtnClose() const noexcept		{ return btnClose; }
 				inline Button& getBtnMinimize() const noexcept	{ return btnMinimize; }
+				inline Button& getBtnCollapse() const noexcept	{ return btnCollapse; }
 
 				inline void setTitle(std::string mTitle)		{ lblTitle.setString(std::move(mTitle)); }
 				inline const std::string& getTitle() noexcept	{ return lblTitle.getString(); }
@@ -347,62 +352,51 @@ namespace ob
 			private:
 				enum class Action{None, Move, Resize};
 
-				FormBar& fbBar;
-				Widget& fbResizer;
-				bool draggable{true}, resizable{true};
+				const sf::Color fillFocused{190, 190, 190, 255};
+				const sf::Color fillUnfocused{165, 165, 165, 255};
 
+				Widget& fbResizer;
+				FormBar& fbBar;
+				bool draggable{true}, resizable{true}, collapsed{false};
 				Action action;
-				Vec2f dragPos;
+				float previousHeight;
 
 				inline void update(float) override
 				{
-					fbBar.setSize(getSize().x + 4.f, 12.f);
+					if(!isFocused()) { setFillColor(fillUnfocused); return; }
 
-					if(!isFocused())
+					setFillColor(fillFocused);
+
+					if(action == Action::Move)
 					{
-						setFillColor(sf::Color{165, 165, 165, 255});
-						return;
+						setBusy(true);
+						setPosition(getMousePos() - (getMousePosOld() - getPosition()));
 					}
-
-					setFillColor(sf::Color{190, 190, 190, 255});
-
-					switch(action)
+					else if(action == Action::Resize)
 					{
-						case Action::Move:
-						{
-							setBusy(true);
-							setPosition(getMousePos() - (dragPos - getPosition()));
-							break;
-						}
-						case Action::Resize:
-						{
-							setBusy(true);
-							setWidth(ssvu::getClampedMin(getWidth(), 70.f));
-							setHeight(ssvu::getClampedMin(getHeight(), 70.f));
+						setBusy(true);
+						setWidth(ssvu::getClampedMin(getWidth(), 70.f));
+						setHeight(ssvu::getClampedMin(getHeight(), 70.f));
 
-							auto oldNW(getVertexNW<float>());
-							setSize(getMousePos() - (dragPos - getSize()));
-							setPosition(oldNW + getHalfSize());
-							break;
-						}
-						default: break;
+						auto oldNW(getVertexNW<float>());
+						setSize(getMousePos() - (getMousePosOld() - getSize()));
+						setPosition(oldNW + getHalfSize());
 					}
-
-					dragPos = getMousePos();
 
 					if(draggable && !context.isBusy() && fbBar.isPressed()) action = Action::Move;
 					else if(resizable && !context.isBusy() && fbResizer.isPressed()) action = Action::Resize;
 					else if(!isMBtnLeftDown()) action = Action::None;
 				}
+				inline void draw() override { fbBar.setSize(getSize().x + 4.f, 12.f); }
 
 			public:
 				Form(Context& mContext, const Vec2f& mPosition, const Vec2f& mSize) : Widget{mContext, mPosition, mSize / 2.f},
-					fbBar(createChild<FormBar>()), fbResizer(createChild<Widget>(Vec2f{4.f, 4.f}))
+					fbResizer(createChild<Widget>(Vec2f{4.f, 4.f})), fbBar(createChild<FormBar>())
 				{
-					setOutlineThickness(2);
-					setOutlineColor(sf::Color::Black);
+					setOutlineThickness(2); setOutlineColor(sf::Color::Black);
 					fbBar.getBtnClose().onUse += [this]{ hide(); };
 					fbBar.getBtnMinimize().onUse += [this]{ setSize(70.f, 70.f); };
+					fbBar.getBtnCollapse().onUse += [this]{ toggleCollapsed(); };
 					fbResizer.setFillColor(sf::Color{140, 140, 140, 255});
 
 					fbBar.attach(At::Bottom, *this, At::Top);
@@ -412,6 +406,19 @@ namespace ob
 				inline void setDraggable(bool mValue)		{ draggable = mValue; }
 				inline void setResizable(bool mValue)		{ resizable = mValue; fbBar.getBtnMinimize().setActive(mValue); fbBar.getBtnMinimize().setVisible(mValue); fbResizer.setVisible(mValue); }
 				inline void setTitle(std::string mTitle)	{ fbBar.setTitle(std::move(mTitle)); }
+				inline void toggleCollapsed()
+				{
+					if(!collapsed)
+					{
+						previousHeight = getHeight();
+						resizeFrom(Vec2f{getX(), getTop()}, Vec2f{getWidth(), 0.f});
+					}
+					else resizeFrom(Vec2f{getX(), getTop() + previousHeight / 2.f}, Vec2f{getWidth(), previousHeight});
+
+					collapsed = !collapsed;
+					for(auto& w : children) if(w.get() != &fbBar) { w->setVisible(!collapsed); w->setActive(!collapsed); }
+				}
+
 				inline std::string getTitle() noexcept		{ return fbBar.getTitle(); }
 		};
 	}
