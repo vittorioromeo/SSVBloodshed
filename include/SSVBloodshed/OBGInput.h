@@ -32,7 +32,7 @@ namespace ob
 				ssvs::add3StateInput(gs, OBConfig::getTLeft(), OBConfig::getTRight(), iX);
 				ssvs::add3StateInput(gs, OBConfig::getTUp(), OBConfig::getTDown(), iY);
 
-				gs.addInput({{k::Escape}},	[this](float){ game.assets.musicPlayer.stop(); std::terminate(); });
+				gs.addInput({{k::Escape}},	[this](float){ game.assets.musicPlayer.stop(); game.getGameWindow().stop(); });
 
 				gs.addInput({{k::A}},		[this](float){ game.gameCamera.pan(-4, 0); });
 				gs.addInput({{k::D}},		[this](float){ game.gameCamera.pan(4, 0); });

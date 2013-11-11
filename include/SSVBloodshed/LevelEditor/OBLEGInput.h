@@ -31,7 +31,7 @@ namespace ob
 				ssvs::add2StateInput(gs, {{k::LControl}}, modCtrl);
 				ssvs::add2StateInput(gs, {{k::LShift}}, modShift);
 
-				gs.addInput({{k::Escape}},	[this](float){ editor.assets.musicPlayer.stop(); std::terminate(); });
+				gs.addInput({{k::Escape}},	[this](float){ editor.assets.musicPlayer.stop(); editor.getGameWindow().stop(); });
 				gs.addInput({{k::R}},		[this](float){ editor.clearCurrentLevel(); }, t::Once);
 				gs.addInput({{k::C}},		[this](float){ editor.saveToFile("./level.txt"); }, t::Once, m::Exclusive);
 				gs.addInput({{k::V}},		[this](float){ editor.loadFromFile("./level.txt"); }, t::Once, m::Exclusive);
