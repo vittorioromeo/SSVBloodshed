@@ -47,7 +47,7 @@ namespace ob
 			inline void del(OBLETile& mTile)		{ del(mTile.getX(), mTile.getY(), mTile.getZ()); }
 
 			inline void update() { for(auto& t : tiles) t.second.update(); }
-			inline void draw(sf::RenderTarget& mRenderTarget, bool mOnion = false, int mCurrentZ = 0)
+			inline void draw(sf::RenderTarget& mRenderTarget, bool mOnion, bool mShowId, int mCurrentZ = 0)
 			{
 				std::vector<std::pair<int, sf::Sprite>> toDraw;
 				for(auto& t : tiles)
@@ -59,7 +59,7 @@ namespace ob
 
 				ssvu::sortStable(toDraw, [](const std::pair<int, sf::Sprite>& mA, const std::pair<int, sf::Sprite>& mB){ return mA.first > mB.first; });
 				for(auto& td : toDraw) mRenderTarget.draw(td.second);
-				for(auto& t : tiles) if(t.second.getIdText() != nullptr) mRenderTarget.draw(*t.second.getIdText());
+				if(mShowId) for(auto& t : tiles) if(t.second.getIdText() != nullptr) mRenderTarget.draw(*t.second.getIdText());
 			}
 
 			inline int getColumns() const noexcept						{ return cols; }
