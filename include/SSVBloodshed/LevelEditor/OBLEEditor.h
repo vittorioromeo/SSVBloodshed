@@ -21,10 +21,62 @@ namespace ob
 {
 	namespace GUI
 	{
-		enum class At{Left, Right, Top, Bottom, NW, NE, SW, SE, Center};
-
 		class Context;
 		class Widget;
+
+		enum class At{Left, Right, Top, Bottom, NW, NE, SW, SE, Center};
+
+		inline At getAtOpposite(At mAt) noexcept
+		{
+			switch(mAt)
+			{
+				case At::Left:		return At::Right;
+				case At::Right:		return At::Left;
+				case At::Top:		return At::Bottom;
+				case At::Bottom:	return At::Top;
+				case At::NW:		return At::SE;
+				case At::NE:		return At::SW;
+				case At::SW:		return At::NE;
+				case At::SE:		return At::NW;
+				case At::Center:	return At::Center;
+			}
+
+			return At::Center;
+		}
+		inline Vec2f getAtVec(At mAt, float mMag) noexcept
+		{
+			switch(mAt)
+			{
+				case At::Left:		return Vec2f{-mMag, 0.f};
+				case At::Right:		return Vec2f{mMag, 0.f};
+				case At::Top:		return Vec2f{0.f, -mMag};
+				case At::Bottom:	return Vec2f{0.f, mMag};
+				case At::NW:		return Vec2f{-mMag, -mMag};
+				case At::NE:		return Vec2f{-mMag, mMag};
+				case At::SW:		return Vec2f{mMag, -mMag};
+				case At::SE:		return Vec2f{mMag, mMag};
+				case At::Center:	return Vec2f{0.f, 0.f};
+			}
+
+			return Vec2f{0.f, 0.f};
+		}
+		template<typename T> inline Vec2f getVecPos(At mAt, T& mWidget) noexcept
+		{
+			switch(mAt)
+			{
+				case At::Left:		return {mWidget.getLeft(), mWidget.getY()};
+				case At::Right:		return {mWidget.getRight(), mWidget.getY()};
+				case At::Top:		return {mWidget.getX(), mWidget.getTop()};
+				case At::Bottom:	return {mWidget.getX(), mWidget.getBottom()};
+				case At::NW:		return mWidget.template getVertexNW<float>();
+				case At::NE:		return mWidget.template getVertexNE<float>();
+				case At::SW:		return mWidget.template getVertexSW<float>();
+				case At::SE:		return mWidget.template getVertexSE<float>();
+				case At::Center:	return mWidget.getPosition();
+			}
+
+			return mWidget.getPosition();
+		}
 
 		struct AABBShape : public sf::RectangleShape
 		{
@@ -94,10 +146,13 @@ namespace ob
 			private:
 				int zOrder{0};
 
-				// Status
+				// Settings
 				bool hidden{false}; // Controlled by hide/show: if true, it makes the widget implicitly invisible and inactive
-				bool focused{false}, visible{true}, active{true};
-				bool hovered{false}, pressed{false}, pressedPreviously{false};
+				bool excluded{false}; // Controlled by setExcluded: if true, it makes the widget implicitly invisible and inactive
+				bool active{true}, visible{true};
+
+				// Status
+				bool focused{false}, hovered{false}, pressed{false}, pressedPreviously{false};
 
 				// Positioning
 				Widget* neighbor{nullptr};
@@ -113,24 +168,6 @@ namespace ob
 					if(!isVisible()) return;
 					recalculatePosition(); draw(); render(*this);
 					for(auto& w : children) w->drawWithChildren();
-				}
-
-				inline Vec2f getVecPos(At mAt, Widget& mWidget)
-				{
-					switch(mAt)
-					{
-						case At::Left:		return {mWidget.getLeft(), mWidget.getY()};
-						case At::Right:		return {mWidget.getRight(), mWidget.getY()};
-						case At::Top:		return {mWidget.getX(), mWidget.getTop()};
-						case At::Bottom:	return {mWidget.getX(), mWidget.getBottom()};
-						case At::NW:		return mWidget.getVertexNW<float>();
-						case At::NE:		return mWidget.getVertexNE<float>();
-						case At::SW:		return mWidget.getVertexSW<float>();
-						case At::SE:		return mWidget.getVertexSE<float>();
-						case At::Center:	return mWidget.getPosition();
-					}
-
-					return mWidget.getPosition();
 				}
 
 				inline void recalculatePosition() { if(neighbor != nullptr) setPosition(getVecPos(to, *neighbor) + offset + (this->getPosition() - getVecPos(from, *this))); }
@@ -158,20 +195,22 @@ namespace ob
 				inline void show() { setHidden(false); }
 				inline void hide() { setHidden(true); }
 
-				// An hidden widget is both invisible and inactive
-				inline void setHidden(bool mValue)	{ hidden = mValue;	for(auto& w : children) w->setHidden(mValue); }
+				// An hidden widget is both invisible and inactive (should be controlled by collapsing windows)
+				inline void setHidden(bool mValue) { hidden = mValue; for(auto& w : children) w->setHidden(mValue); }
 
-				// An invisible widget is only "graphically hidden"
-				inline void setVisible(bool mValue)	{ visible = mValue;	for(auto& w : children) w->setVisible(mValue); }
+				// An excluded widget is both invisible and inactive (should be used to completely disable a widget)
+				inline void setExcluded(bool mValue) { excluded = mValue; for(auto& w : children) w->setExcluded(mValue); }
 
-				// A widget can be used only when active
-				inline void setActive(bool mValue)	{ active = mValue;	for(auto& w : children) w->setActive(mValue); }
+				inline void setActive(bool mValue)		{ active = mValue; for(auto& w : children) w->setActive(mValue); }
+				inline void setVisible(bool mValue)		{ visible = mValue; for(auto& w : children) w->setVisible(mValue); }
 
 				inline bool isFocused() const noexcept	{ return focused; }
 				inline bool isHovered() const noexcept	{ return isActive() && hovered; }
-				inline bool isVisible() const noexcept	{ return !hidden && visible; }
-				inline bool isActive() const noexcept	{ return !hidden && active; }
+				inline bool isVisible() const noexcept	{ return visible && !isHidden() && !isExcluded(); }
+				inline bool isActive() const noexcept	{ return active && !isHidden() && !isExcluded(); }
 				inline bool isPressed() const noexcept	{ return isHovered() && pressed; }
+				inline bool isHidden() const noexcept	{ return hidden; }
+				inline bool isExcluded() const noexcept	{ return excluded; }
 
 				// Only these two should be used in widget code
 				inline bool isClickedAlways() const noexcept 	{ return isFocused() && isPressed(); }
@@ -201,10 +240,7 @@ namespace ob
 				inline void del(Widget& mWidget) 					{ widgets.del(mWidget); }
 				inline void render(const sf::Drawable& mDrawable) 	{ renderTexture.draw(mDrawable); }
 				inline void unFocusAll() 							{ for(auto& w : children) w->setFocused(false); }
-				inline void bringToFront(Widget& mWidget)
-				{
-					for(auto& w : children) if(w == &mWidget) std::swap(w, children.front());
-				}
+				inline void bringToFront(Widget& mWidget)			{ for(auto& w : children) if(w == &mWidget) std::swap(w, children[0]); }
 
 				template<typename T, typename... TArgs> inline T& allocateWidget(TArgs&&... mArgs)
 				{
@@ -350,8 +386,7 @@ namespace ob
 				Button(Context& mContext, std::string mLabel, const Vec2f& mSize) : Widget{mContext, mSize / 2.f},
 					lblLabel(create<Label>("button"))
 				{
-					setOutlineThickness(2); setOutlineColor(sf::Color::Black);
-					setLabel(mLabel);
+					setOutlineThickness(2); setOutlineColor(sf::Color::Black); setLabel(mLabel);
 					lblLabel.attach(At::Center, *this, At::Center);
 				}
 
@@ -378,7 +413,7 @@ namespace ob
 					lblState.attach(At::Center, *this, At::Center);
 				}
 
-				inline void use() { green = 255.f; }
+				inline void setState(bool mValue) { green = 255.f; setLabel(mValue ? "x" : ""); }
 
 				inline void setLabel(std::string mLabel) 			{ lblState.setString(std::move(mLabel)); }
 				inline const std::string& getLabel() const noexcept	{ return lblState.getString(); }
@@ -414,7 +449,7 @@ namespace ob
 				}
 
 				inline void setLabel(std::string mLabel) 	{ lblLabel.setString(std::move(mLabel)); mustRefresh = true; }
-				inline void setState(bool mValue) 			{ state = mValue; cbsbBox.setLabel(state ? "x" : ""); cbsbBox.use(); }
+				inline void setState(bool mValue) 			{ state = mValue; cbsbBox.setState(mValue); }
 
 				inline const std::string& getLabel() const noexcept	{ return lblLabel.getString(); }
 				inline bool getState() const noexcept 				{ return state; }
@@ -422,9 +457,42 @@ namespace ob
 
 		class Form;
 
+		class WidgetStrip : public Widget
+		{
+			private:
+				std::vector<Widget*> widgets;
+				At alignFirst{At::Left}, alignNext{At::Right};
+
+				inline void refreshPositions()
+				{
+					if(widgets.empty()) return;
+
+					auto prev(widgets[0]);
+					prev->attach(alignFirst, *this, alignFirst);
+
+					for(auto itr(std::begin(widgets) + 1); itr != std::end(widgets); ++itr)
+					{
+						auto& w(*itr);
+
+						if(w->isHidden() || w->isExcluded()) continue;
+						w->attach(alignFirst, *prev, alignNext, getAtVec(alignNext, 2.f));
+						prev = w;
+					}
+				}
+
+				inline void update(float) override { refreshPositions(); }
+
+			public:
+				WidgetStrip(Context& mContext, At mAlignFirst, At mAlignNext) : Widget{mContext}, alignFirst{mAlignFirst}, alignNext{mAlignNext} { setFillColor(sf::Color::Transparent); }
+
+				inline WidgetStrip& operator+=(Widget& mWidget) { widgets.push_back(&mWidget); return *this; }
+				inline WidgetStrip& operator+=(const std::initializer_list<Widget*> mWidgets) { for(const auto& w : mWidgets) *this += *w; return *this; }
+		};
+
 		class FormBar : public Widget
 		{
 			private:
+				WidgetStrip& wsBtns;
 				Button& btnClose;
 				Button& btnMinimize;
 				Button& btnCollapse;
@@ -432,6 +500,7 @@ namespace ob
 
 			public:
 				FormBar(Context& mContext) : Widget{mContext},
+					wsBtns(create<WidgetStrip>(At::Right, At::Left)),
 					btnClose(create<Button>("x", Vec2f{8.f, 8.f})),
 					btnMinimize(create<Button>("_", Vec2f{8.f, 8.f})),
 					btnCollapse(create<Button>("^", Vec2f{8.f, 8.f})),
@@ -439,9 +508,9 @@ namespace ob
 				{
 					setFillColor(sf::Color::Black);
 
-					btnClose.attach(At::Right, *this, At::Right, Vec2f{-2.f, 0.f});
-					btnMinimize.attach(At::Right, btnClose, At::Left, Vec2f{-2.f, 0.f});
-					btnCollapse.attach(At::Right, btnMinimize, At::Left, Vec2f{-2.f, 0.f});
+					wsBtns += {&btnClose, &btnMinimize, &btnCollapse};
+
+					wsBtns.attach(At::Right, *this, At::Right, Vec2f{-2.f, 0.f});
 					lblTitle.attach(At::NW, *this, At::NW, Vec2f{0.f, 2.f});
 				}
 
@@ -526,9 +595,8 @@ namespace ob
 				inline void setResizable(bool mValue)
 				{
 					resizable = mValue;
-					fbBar.getBtnMinimize().setActive(mValue);
-					fbBar.getBtnMinimize().setVisible(mValue);
-					fbResizer.setVisible(mValue);
+					fbBar.getBtnMinimize().setExcluded(!mValue);
+					fbResizer.setExcluded(!mValue);
 				}
 				inline void setTitle(std::string mTitle)		{ fbBar.setTitle(std::move(mTitle)); }
 				inline const std::string& getTitle() noexcept	{ return fbBar.getTitle(); }
