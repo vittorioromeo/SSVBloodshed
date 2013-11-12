@@ -217,7 +217,7 @@ namespace ob
 	Entity& OBFactory::createForceField(const Vec2i& mPos, int mId, Dir8 mDir, bool mDestroyProjectiles, bool mBlockFriendly, bool mBlockEnemy, float mForceMult)
 	{
 		auto tpl(createActorBase(mPos, {1000, 1000}, OBLayer::LWall, false));
-		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.forceArrow);
+		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.ff0);
 		auto& cIdReceiver(getEntity(tpl).createComponent<OBCIdReceiver>(mId));
 		getEntity(tpl).createComponent<OBCForceField>(getCPhys(tpl), getCDraw(tpl), cIdReceiver, mDir, mDestroyProjectiles, mBlockFriendly, mBlockEnemy, mForceMult);
 		getCDraw(tpl).setBlendMode(sf::BlendMode::BlendAdd);
@@ -228,10 +228,8 @@ namespace ob
 
 		if(!mDestroyProjectiles && !mBlockFriendly && !mBlockEnemy)
 		{
-			if(mForceMult > 0) color = {55, 55, 55, 245};
-			else color = {255, 255, 255, 245};
-			getCDraw(tpl).setGlobalScale(0.5f);
-			getCDraw(tpl).setBlendMode(sf::BlendMode::BlendAlpha);
+			color = {255, 255, 255, 245};
+			getCDraw(tpl)[0].setTextureRect(mForceMult > 0 ? assets.bulletBooster : assets.bulletChanger);
 		}
 
 		if(mDestroyProjectiles) emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.forceArrowMark);
