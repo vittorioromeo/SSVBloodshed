@@ -64,7 +64,7 @@ namespace ob
 			inline void resizeFromSE(const Vec2f& mSize) 		{ resizeFrom(Vec2f{1.f, 1.f}, mSize); }
 
 			inline void resizeFrom(const Vec2f& mOrigin, const Vec2f& mSize)
-			{				
+			{
 				assert(mOrigin.x >= 0.f && mOrigin.x <= 1.f);
 				assert(mOrigin.y >= 0.f && mOrigin.y <= 1.f);
 
@@ -94,7 +94,7 @@ namespace ob
 			private:
 				int zOrder{0};
 
-				// Status 
+				// Status
 				bool hidden{false}; // Controlled by hide/show: if true, it makes the widget implicitly invisible and inactive
 				bool focused{false}, visible{true}, active{true};
 				bool hovered{false}, pressed{false}, pressedPreviously{false};
@@ -108,23 +108,12 @@ namespace ob
 				inline virtual void draw() { }
 
 				void updateWithChildren(float mFT);
-				inline void drawWithChildren() 
-				{ 
-					if(!isVisible()) return; 
-					draw(); render(*this); 
-					for(auto& w : children) w->drawWithChildren(); 
+				inline void drawWithChildren()
+				{
+					if(!isVisible()) return;
+					recalculatePosition(); draw(); render(*this);
+					for(auto& w : children) w->drawWithChildren();
 				}
-
-				/*template<At TAt> struct VecPosHelper;
-				template<> struct VecPosHelper<At::Left> 	{ inline static Vec2f get(Widget& mWidget) { return {mWidget.getLeft(), mWidget.getY()}; } };
-				template<> struct VecPosHelper<At::Right> 	{ inline static Vec2f get(Widget& mWidget) { return {mWidget.getRight(), mWidget.getY()}; } };
-				template<> struct VecPosHelper<At::Top> 	{ inline static Vec2f get(Widget& mWidget) { return {mWidget.getX(), mWidget.getTop()}; } };
-				template<> struct VecPosHelper<At::Bottom> 	{ inline static Vec2f get(Widget& mWidget) { return {mWidget.getX(), mWidget.getBottom()}; } };
-				template<> struct VecPosHelper<At::NW> 		{ inline static Vec2f get(Widget& mWidget) { return mWidget.getVertexNW<float>(); } };
-				template<> struct VecPosHelper<At::NE> 		{ inline static Vec2f get(Widget& mWidget) { return mWidget.getVertexNE<float>(); } };
-				template<> struct VecPosHelper<At::SW> 		{ inline static Vec2f get(Widget& mWidget) { return mWidget.getVertexSW<float>(); } };
-				template<> struct VecPosHelper<At::SE> 		{ inline static Vec2f get(Widget& mWidget) { return mWidget.getVertexSE<float>(); } };
-				template<> struct VecPosHelper<At::Center>	{ inline static Vec2f get(Widget& mWidget) { return mWidget.getPosition(); } };*/
 
 				inline Vec2f getVecPos(At mAt, Widget& mWidget)
 				{
@@ -139,13 +128,13 @@ namespace ob
 						case At::SW:		return mWidget.getVertexSW<float>();
 						case At::SE:		return mWidget.getVertexSE<float>();
 						case At::Center:	return mWidget.getPosition();
-					}				
+					}
 
 					return mWidget.getPosition();
 				}
 
-				inline void updateNeighbor() { if(neighbor != nullptr) setPosition(getVecPos(to, *neighbor) + offset + (this->getPosition() - getVecPos(from, *this))); }
-				
+				inline void recalculatePosition() { if(neighbor != nullptr) setPosition(getVecPos(to, *neighbor) + offset + (this->getPosition() - getVecPos(from, *this))); }
+
 				void checkHover();
 				inline void checkUse()
 				{
@@ -171,24 +160,24 @@ namespace ob
 
 				// An hidden widget is both invisible and inactive
 				inline void setHidden(bool mValue)	{ hidden = mValue;	for(auto& w : children) w->setHidden(mValue); }
-				
+
 				// An invisible widget is only "graphically hidden"
 				inline void setVisible(bool mValue)	{ visible = mValue;	for(auto& w : children) w->setVisible(mValue); }
-				
+
 				// A widget can be used only when active
 				inline void setActive(bool mValue)	{ active = mValue;	for(auto& w : children) w->setActive(mValue); }
-				
+
 				inline bool isFocused() const noexcept	{ return focused; }
 				inline bool isHovered() const noexcept	{ return isActive() && hovered; }
 				inline bool isVisible() const noexcept	{ return !hidden && visible; }
 				inline bool isActive() const noexcept	{ return !hidden && active; }
 				inline bool isPressed() const noexcept	{ return isHovered() && pressed; }
-				
+
 				// Only these two should be used in widget code
 				inline bool isClickedAlways() const noexcept 	{ return isFocused() && isPressed(); }
 				inline bool isClickedOnce() const noexcept 		{ return isClickedAlways() && !wasPressed(); }
-				
-				inline bool isAnyChildPressed() const noexcept	{ for(const auto& w : children) if(w->isPressed()) return true; return isPressed(); }				
+
+				inline bool isAnyChildPressed() const noexcept	{ for(const auto& w : children) if(w->isPressed()) return true; return isPressed(); }
 				bool wasPressed() const noexcept;
 				const Vec2f& getMousePos() const noexcept;
 				const Vec2f& getMousePosOld() const noexcept;
@@ -212,12 +201,9 @@ namespace ob
 				inline void del(Widget& mWidget) 					{ widgets.del(mWidget); }
 				inline void render(const sf::Drawable& mDrawable) 	{ renderTexture.draw(mDrawable); }
 				inline void unFocusAll() 							{ for(auto& w : children) w->setFocused(false); }
-				inline void bringToFront(Widget& mWidget) 			
-				{ 
-					//std::swap(&mWidget, children.front());
-					for(auto& w : children) w->zOrder = 0; 
-					mWidget.zOrder = -1; 
-					ssvu::sort(children, [](const Widget* mA, const Widget* mB){ return mA->zOrder < mB->zOrder; });
+				inline void bringToFront(Widget& mWidget)
+				{
+					for(auto& w : children) if(w == &mWidget) std::swap(w, children.front());
 				}
 
 				template<typename T, typename... TArgs> inline T& allocateWidget(TArgs&&... mArgs)
@@ -237,7 +223,7 @@ namespace ob
 				inline void updateFocus()
 				{
 					if(isBusy()) return;
-					
+
 					for(auto& w : children)
 						if(w->isAnyChildPressed())
 						{
@@ -245,7 +231,7 @@ namespace ob
 							w->setFocused(true);
 							bringToFront(*w);
 							return;
-						}					
+						}
 				}
 
 			public:
@@ -259,13 +245,13 @@ namespace ob
 				{
 					auto& result(allocateWidget<T>(std::forward<TArgs>(mArgs)...));
 					children.push_back(&result); return result;
-				}			
+				}
 
 				inline void update(float mFT)
 				{
 					updateMouse();
 
-					ssvu::eraseRemoveIf(children, [](const Widget* mW){ return ssvu::MemoryManager<Widget>::isDead(mW); }); 
+					ssvu::eraseRemoveIf(children, [](const Widget* mW){ return ssvu::MemoryManager<Widget>::isDead(mW); });
 					widgets.refresh();
 
 					hovered = false;
@@ -296,19 +282,19 @@ namespace ob
 
 		inline void Widget::render(const sf::Drawable& mDrawable) { context.render(mDrawable); }
 		inline void Widget::destroy() { context.del(*this); for(const auto& c : children) c->destroy(); }
-		inline void Widget::checkHover() 
+		inline void Widget::checkHover()
 		{
 			hovered = isOverlapping(getMousePos());
 			if(hovered) context.hovered = true;
 			for(auto& w : children) w->checkHover();
 		}
-		
-		inline void Widget::updateWithChildren(float mFT)	
-		{ 
-			ssvu::eraseRemoveIf(children, [](const Widget* mW){ return ssvu::MemoryManager<Widget>::isDead(mW); }); 
-			update(mFT); updateNeighbor(); 
+
+		inline void Widget::updateWithChildren(float mFT)
+		{
+			ssvu::eraseRemoveIf(children, [](const Widget* mW){ return ssvu::MemoryManager<Widget>::isDead(mW); });
+			update(mFT);
 			if(isPressed()) context.busy = true;
-			for(auto& w : children) w->updateWithChildren(mFT); 
+			for(auto& w : children) w->updateWithChildren(mFT);
 		}
 		inline const Vec2f& Widget::getMousePos() const noexcept	{ return context.mousePos; }
 		inline const Vec2f& Widget::getMousePosOld() const noexcept	{ return context.mousePosOld; }
@@ -347,7 +333,7 @@ namespace ob
 
 		class Button : public Widget
 		{
-			private:				
+			private:
 				Label& lblLabel;
 				float green{0.f};
 
@@ -375,8 +361,8 @@ namespace ob
 
 		class CheckBoxStateBox : public Widget
 		{
-			private:				
-				Label& lblState;			
+			private:
+				Label& lblState;
 				float green{0.f};
 
 				inline void update(float mFT) override
@@ -385,11 +371,11 @@ namespace ob
 					green = ssvu::getClampedMin(green - mFT * 15.f, 0.f);
 				}
 
-			public:				
+			public:
 				CheckBoxStateBox(Context& mContext) : Widget{mContext, Vec2f{4.f, 4.f}}, lblState(create<Label>(""))
 				{
 					setOutlineThickness(2); setOutlineColor(sf::Color::Black);
-					lblState.attach(At::Center, *this, At::Center);				
+					lblState.attach(At::Center, *this, At::Center);
 				}
 
 				inline void use() { green = 255.f; }
@@ -400,7 +386,7 @@ namespace ob
 
 		class CheckBox : public Widget
 		{
-			private:				
+			private:
 				CheckBoxStateBox& cbsbBox;
 				Label& lblLabel;
 				bool state{false}, mustRefresh{false};
@@ -411,13 +397,13 @@ namespace ob
 					{
 						float w{lblLabel.getRight() - cbsbBox.getLeft()};
 						float h{lblLabel.getBottom() - cbsbBox.getTop()};
-						setSize(w, h); 
+						setSize(w, h);
 					}
 
-					if(isClickedOnce()) setState(!state);					
+					if(isClickedOnce()) setState(!state);
 				}
 
-			public:				
+			public:
 				CheckBox(Context& mContext, std::string mLabel, bool mState = false) : Widget{mContext},
 					cbsbBox(create<CheckBoxStateBox>()), lblLabel(create<Label>("checkbox"))
 				{
@@ -482,10 +468,10 @@ namespace ob
 				float minWidth{65.f}, minHeight{65.f}, previousHeight;
 
 				inline void update(float) override
-				{					
+				{
 					if(!isFocused()) { setFillColor(colorUnfocused); return; }
 
-					setFillColor(colorFocused);					
+					setFillColor(colorFocused);
 
 					if(action == Action::Move)
 					{
@@ -511,7 +497,7 @@ namespace ob
 					fbBar(create<FormBar>()), fbResizer(create<Widget>(Vec2f{4.f, 4.f}))
 				{
 					setOutlineThickness(2); setOutlineColor(sf::Color::Black);
-					
+
 					fbBar.getBtnClose().onUse += [this]{ hide(); };
 					fbBar.getBtnMinimize().onUse += [this]{ /* TODO */ };
 					fbBar.getBtnCollapse().onUse += [this]{ toggleCollapsed(); };
@@ -533,16 +519,16 @@ namespace ob
 					else resizeFromBottom(previousHeight);
 
 					collapsed = !collapsed;
-					for(const auto& w : children) if(w != &fbBar) w->setHidden(collapsed);	
+					for(const auto& w : children) if(w != &fbBar) w->setHidden(collapsed);
 				}
 
 				inline void setDraggable(bool mValue) noexcept { draggable = mValue; }
-				inline void setResizable(bool mValue)		
-				{ 
-					resizable = mValue; 
-					fbBar.getBtnMinimize().setActive(mValue); 
-					fbBar.getBtnMinimize().setVisible(mValue); 
-					fbResizer.setVisible(mValue); 
+				inline void setResizable(bool mValue)
+				{
+					resizable = mValue;
+					fbBar.getBtnMinimize().setActive(mValue);
+					fbBar.getBtnMinimize().setVisible(mValue);
+					fbResizer.setVisible(mValue);
 				}
 				inline void setTitle(std::string mTitle)		{ fbBar.setTitle(std::move(mTitle)); }
 				inline const std::string& getTitle() noexcept	{ return fbBar.getTitle(); }
@@ -629,7 +615,7 @@ namespace ob
 
 				chbOnion = &formMenu->create<GUI::CheckBox>("onion", true);
 				chbOnion->attach(GUI::At::NW, *chbShowId, GUI::At::SW, Vec2f{0.f, 6.f});
-				
+
 				formParams = &guiCtx.create<GUI::Form>(Vec2f{100, 100}, Vec2f{150, 80});
 				formParams->setTitle("PARAMETERS");
 				lblParams = &formParams->create<GUI::Label>();
