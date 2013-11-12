@@ -20,10 +20,12 @@ namespace ob
 			ssvsc::Segment<float> segment;
 			bool active{true}, destroyProjectiles, blockFriendly, blockEnemy, booster{false};
 			float distortion{0}, alpha{0}, forceMult;
+			ssvs::Animation animation;
 
 		public:
 			OBCForceField(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCIdReceiver& mCIdReceiver, Dir8 mDir, bool mDestroyProjectiles, bool mBlockFriendly, bool mBlockEnemy, float mForceMult) noexcept
-				: OBCActorBase{mCPhys, mCDraw}, cIdReceiver(mCIdReceiver), dir{mDir}, destroyProjectiles{mDestroyProjectiles}, blockFriendly{mBlockFriendly}, blockEnemy{mBlockEnemy}, forceMult{mForceMult} { }
+				: OBCActorBase{mCPhys, mCDraw}, cIdReceiver(mCIdReceiver), dir{mDir}, destroyProjectiles{mDestroyProjectiles}, blockFriendly{mBlockFriendly}, blockEnemy{mBlockEnemy},
+				  forceMult{mForceMult}, animation{assets.aForceField} { }
 
 			inline void init()
 			{
@@ -104,13 +106,20 @@ namespace ob
 			{
 				auto color(cDraw[0].getColor());
 
-				if(!active) color.a = 45;
+				if(!active) color.a = 100;
 				else
 				{
-					if(!booster && distortion > 0.f)
+					animation.update(mFT);
+
+					if(!booster)
 					{
-						distortion -= mFT;
-						cDraw.setGlobalScale(distortion <= 0.f ? 1.f : ssvu::getRndR(0.9f, 1.1f));
+						cDraw[0].setTextureRect((*assets.tsSmall)(animation.getTileIndex()));
+
+						if(distortion > 0.f)
+						{
+							distortion -= mFT;
+							cDraw.setGlobalScale(distortion <= 0.f ? 1.f : ssvu::getRndR(0.9f, 1.1f));
+						}
 					}
 
 					alpha = std::fmod(alpha + mFT * 0.06f, ssvu::pi);

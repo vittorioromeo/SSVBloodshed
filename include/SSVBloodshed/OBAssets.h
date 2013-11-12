@@ -23,6 +23,12 @@ namespace ob
 			ssvs::BitmapFont* obStroked{nullptr};
 			ssvs::BitmapFont* obBigStroked{nullptr};
 
+			// Tilesets
+			ssvs::Tileset* tsSmall{nullptr};
+			ssvs::Tileset* tsMedium{nullptr};
+			ssvs::Tileset* tsBig{nullptr};
+			ssvs::Tileset* tsGiant{nullptr};
+
 			// Textures
 			sf::Texture* txSmall{nullptr};
 			sf::Texture* txMedium{nullptr};
@@ -48,6 +54,8 @@ namespace ob
 			sf::IntRect vmHealth;															// Vending machines
 			sf::IntRect null0;																// Empty tile
 			sf::IntRect gunPCannon,		spawner,		forceArrow,		forceArrowMark;
+			sf::IntRect bulletBooster,	bulletChanger;
+			sf::IntRect ff0,			ff1,			ff2,			ff3,			ff4;	// Force field frames
 
 			// Medium tileset (20x20)
 			sf::IntRect e2Stand,		e2Shoot,		e2Gun,			e2GunGL;			// Charger alien
@@ -58,6 +66,9 @@ namespace ob
 
 			// Giant tileset (40x40)
 			sf::IntRect e4Stand;															// Giant alien
+
+			// Animations
+			ssvs::Animation aForceField;
 
 			#define WALLTSDECL(x)	sf::IntRect x ## Single,	x ## Cross,		x ## V,			x ## H, \
 												x ## CornerSW,	x ## CornerSE,	x ## CornerNW,	x ## CornerNE, \
@@ -75,16 +86,16 @@ namespace ob
 
 				ssvs::loadAssetsFromJson(assetManager, "Data/", ssvuj::readFromFile("Data/assets.json"));
 
-				// Tileset references
-				const auto& tsSmall(assetManager.get<ssvs::Tileset>("tsSmall"));
-				const auto& tsMedium(assetManager.get<ssvs::Tileset>("tsMedium"));
-				const auto& tsBig(assetManager.get<ssvs::Tileset>("tsBig"));
-				const auto& tsGiant(assetManager.get<ssvs::Tileset>("tsGiant"));
+				// Tilesets
+				tsSmall = &assetManager.get<ssvs::Tileset>("tsSmall");
+				tsMedium = &assetManager.get<ssvs::Tileset>("tsMedium");
+				tsBig = &assetManager.get<ssvs::Tileset>("tsBig");
+				tsGiant = &assetManager.get<ssvs::Tileset>("tsGiant");
 
-				#define T_TSSMALL(x)	x = tsSmall(#x)
-				#define T_TSMEDIUM(x)	x = tsMedium(#x)
-				#define T_TSBIG(x)		x = tsBig(#x)
-				#define T_TSGIANT(x)	x = tsGiant(#x)
+				#define T_TSSMALL(x)	x = (*tsSmall)(#x)
+				#define T_TSMEDIUM(x)	x = (*tsMedium)(#x)
+				#define T_TSBIG(x)		x = (*tsBig)(#x)
+				#define T_TSGIANT(x)	x = (*tsGiant)(#x)
 
 				#define WALLTS(x)	do { \
 									T_TSSMALL(x ## Single);		T_TSSMALL(x ## Cross);		T_TSSMALL(x ## V);			T_TSSMALL(x ## H); \
@@ -128,6 +139,8 @@ namespace ob
 				T_TSSMALL(vmHealth);
 				T_TSSMALL(null0);
 				T_TSSMALL(gunPCannon);		T_TSSMALL(spawner);			T_TSSMALL(forceArrow);		T_TSSMALL(forceArrowMark);
+				T_TSSMALL(bulletBooster);	T_TSSMALL(bulletChanger);
+				T_TSSMALL(ff0);				T_TSSMALL(ff1);				T_TSSMALL(ff2);				T_TSSMALL(ff3);				T_TSSMALL(ff4);
 				WALLTS(wall); WALLTS(wallD); WALLTS(door); WALLTS(doorG); WALLTS(doorR);
 
 				// Medium tileset (20x20)
@@ -140,11 +153,16 @@ namespace ob
 				// Giant tileset (40x40)
 				T_TSGIANT(e4Stand);
 
+				// Animations
+				ssvuj::Obj jAForceField{ssvuj::readFromFile("Data/Animations/forceField.json")};
+				aForceField = ssvs::getAnimationFromJson(*tsSmall, jAForceField["on"]);
+
 				#undef T_TSSMALL
 				#undef T_TSMEDIUM
 				#undef T_TSBIG
 				#undef T_TSGIANT
 				#undef WALLTS
+
 			}
 
 			inline ssvs::AssetManager& operator()() noexcept { return assetManager; }
