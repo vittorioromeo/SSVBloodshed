@@ -5,6 +5,7 @@
 #ifndef SSVOB_GUI_CONTEXT
 #define SSVOB_GUI_CONTEXT
 
+#include <map>
 #include "SSVBloodshed/OBCommon.h"
 #include "SSVBloodshed/OBAssets.h"
 
@@ -28,8 +29,8 @@ namespace ob
 
 				inline void del(Widget& mWidget) noexcept			{ widgets.del(mWidget); }
 				inline void render(const sf::Drawable& mDrawable)	{ renderTexture.draw(mDrawable); }
-				inline void unFocusAll()							{ for(auto& w : children) w->setFocused(false); }
-				inline void bringToFront(Widget& mWidget)			{ for(auto& w : children) if(w == &mWidget) std::swap(w, children[0]); }
+				inline void unFocusAll()							{ for(auto& w : children) w->setFocusedRecursive(false); }
+				inline void bringToFront(Widget& mWidget)			{ for(auto& w : children) if(w == &mWidget) { std::swap(w, children[0]); return; } }
 
 				template<typename T, typename... TArgs> inline T& allocateWidget(TArgs&&... mArgs)
 				{
@@ -45,33 +46,36 @@ namespace ob
 					mousePos = gameWindow.getMousePosition();
 				}
 
-				inline void recalculateDepth()
-				{
-					for(auto& w : children) w->recalculateDepth();
-				}
-
 				inline void updateFocus()
 				{
 					if(isBusy()) return;
 
-					for(auto& w : children)
+					Widget* found{nullptr};
+
+					for(auto& c : children)
 					{
-						bool gainFocus{false};
+						if(!c->isAnyChildPressed()) continue;
 
-						// If any child is pressed and has exclusive focus, go to next container widget
-						if(w->isAnyChildExclusiveFocusPressed()) continue;
-
-						// If the container widget or any child is pressed, gain focus
-						if(w->isPressed()) gainFocus = true;
-						else for(auto& c : w->children) if(c->isPressed()) { gainFocus = true; break; }
-
-						if(!gainFocus) continue;
-
-						unFocusAll();
-						w->setFocused(true);
-						bringToFront(*w);
-						return;
+						found = c;
+						bringToFront(*c);
+						break;
 					}
+
+					if(found == nullptr) return;
+					for(auto& c : children) if(found != c) c->setFocusedRecursive(false);
+
+					const auto& hierarchy(found->getAllRecursive());
+					int maxPressedDepth{-1};
+
+					for(auto& w : hierarchy)
+					{
+						if(!w->isPressed()) continue;
+						maxPressedDepth = std::max(maxPressedDepth, w->depth);
+					}
+
+					if(maxPressedDepth == -1) return;
+
+					for(auto& w : hierarchy) if(w->depth == maxPressedDepth) w->focused = true; else w->focused = false;
 				}
 
 			public:
@@ -89,7 +93,7 @@ namespace ob
 
 				inline void update(float mFT)
 				{
-					recalculateDepth();
+					for(auto& w : widgets) w->recalculateDepth();
 
 					updateMouse();
 
@@ -97,18 +101,27 @@ namespace ob
 					widgets.refresh();
 
 					hovered = false;
-					for(auto& w : children) { w->checkHover(); w->checkUse(); }
+					for(auto& w : widgets) { w->checkHover(); w->checkPressed(); }
 
 					updateFocus();
 
 					busy = false;
-					for(auto& w : children) { w->updateWithChildren(mFT); w->checkHover(); }
+					for(auto& w : children) { w->updateRecursive(mFT); w->checkHover(); }
+					for(auto& w : widgets) w->checkHover();
 
 				}
 				inline void draw()
 				{
+					/*for(auto& w : widgets)
+					{
+						auto c(w->getFillColor());
+						c.a = 255;
+						c.b = w->isFocused() ? 255 : 0;
+						w->setFillColor(c);
+					}*/
+
 					renderTexture.clear(sf::Color::Transparent);
-					for(auto itr(std::rbegin(children)); itr != std::rend(children); ++itr) (*itr)->drawWithChildren();
+					for(auto itr(std::rbegin(children)); itr != std::rend(children); ++itr) (*itr)->drawRecursive();
 					renderTexture.display();
 
 					sprite.setColor(sf::Color(255, 255, 255, isInUse() ? 255 : 175));

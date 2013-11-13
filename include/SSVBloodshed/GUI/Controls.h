@@ -20,7 +20,7 @@ namespace ob
 			private:
 				ssvs::BitmapText text;
 
-				inline void draw() override { text.setPosition(getPosition() - Vec2f{0.f, 1.f}); render(text); }
+				inline void draw() override { text.setPosition(getX(), getY() - 1.f); render(text); }
 
 			public:
 				Label(Context& mContext, std::string mText = "") : Widget{mContext}, text{*context.getAssets().obStroked}
@@ -56,14 +56,13 @@ namespace ob
 				ssvu::Delegate<void()> onUse;
 
 				Button(Context& mContext, std::string mLabel, const Vec2f& mSize) : Widget{mContext, mSize / 2.f},
-					lblLabel(create<Label>("button"))
+					lblLabel(create<Label>(std::move(mLabel)))
 				{
-					setOutlineThickness(2); setOutlineColor(sf::Color::Black); setLabel(mLabel);
+					setOutlineThickness(2); setOutlineColor(sf::Color::Black);
 					lblLabel.attach(At::Center, *this, At::Center);
 				}
 
-				inline void setLabel(std::string mLabel)			{ lblLabel.setString(std::move(mLabel)); }
-				inline const std::string& getLabel() const noexcept	{ return lblLabel.getString(); }
+				inline Label& getLabel() noexcept { return lblLabel; }
 		};
 
 		class CheckBoxStateBox : public Widget
@@ -85,10 +84,8 @@ namespace ob
 					lblState.attach(At::Center, *this, At::Center);
 				}
 
-				inline void setState(bool mValue) { green = 255.f; setLabel(mValue ? "x" : ""); }
-
-				inline void setLabel(std::string mLabel) 			{ lblState.setString(std::move(mLabel)); }
-				inline const std::string& getLabel() const noexcept	{ return lblState.getString(); }
+				inline void setState(bool mValue) { green = 255.f; lblState.setString(mValue ? "x" : ""); }
+				inline Label& getLabel() noexcept { return lblState; }
 		};
 
 		class CheckBox : public Widget
@@ -96,35 +93,30 @@ namespace ob
 			private:
 				CheckBoxStateBox& cbsbBox;
 				Label& lblLabel;
-				bool state{false}, mustRefresh{false};
+				bool state{false};
 
 				inline void update(float) override
 				{
-					if(mustRefresh)
-					{
-						float w{lblLabel.getRight() - cbsbBox.getLeft()};
-						float h{lblLabel.getBottom() - cbsbBox.getTop()};
-						setSize(w, h);
-					}
+					float w{lblLabel.getRight() - cbsbBox.getLeft()};
+					float h{lblLabel.getBottom() - cbsbBox.getTop()};
+					setSize(w, h);
 
 					if(isClickedOnce()) setState(!state);
 				}
 
 			public:
 				CheckBox(Context& mContext, std::string mLabel, bool mState = false) : Widget{mContext},
-					cbsbBox(create<CheckBoxStateBox>()), lblLabel(create<Label>("checkbox"))
+					cbsbBox(create<CheckBoxStateBox>()), lblLabel(create<Label>(std::move(mLabel)))
 				{
-					setFillColor(sf::Color::Transparent); setState(mState); setLabel(mLabel);
+					setFillColor(sf::Color::Transparent); setState(mState);
 
 					cbsbBox.attach(At::NW, *this, At::NW);
 					lblLabel.attach(At::Left, cbsbBox, At::Right, Vec2f{2.f, 0.f});
 				}
 
-				inline void setLabel(std::string mLabel) 	{ lblLabel.setString(std::move(mLabel)); mustRefresh = true; }
-				inline void setState(bool mValue) 			{ state = mValue; cbsbBox.setState(mValue); }
-
-				inline const std::string& getLabel() const noexcept	{ return lblLabel.getString(); }
-				inline bool getState() const noexcept 				{ return state; }
+				inline void setState(bool mValue) 		{ state = mValue; cbsbBox.setState(mValue); }
+				inline bool getState() const noexcept	{ return state; }
+				inline Label& getLabel() noexcept		{ return lblLabel; }
 		};
 
 		class Form;
@@ -134,46 +126,45 @@ namespace ob
 			private:
 				std::vector<Widget*> widgets;
 				At alignFirst{At::Left}, alignNext{At::Right};
+				Vec2f padding;
+				float widgetOffset{6.f};
 
-				inline void refreshPositions()
+				inline void update(float) override
 				{
 					if(widgets.empty()) return;
 
 					auto prev(widgets[0]);
-					prev->attach(alignFirst, *this, alignFirst);
+					prev->attach(alignFirst, *this, alignFirst, getAtVec(alignFirst, -ssvs::getMag(padding / 4.f)));
+
+					float xMin{prev->getLeft()}, xMax{prev->getRight()};
+					float yMin{prev->getTop()}, yMax{prev->getBottom()};
 
 					for(auto itr(std::begin(widgets) + 1); itr != std::end(widgets); ++itr)
 					{
 						auto& w(*itr);
-
 						if(w->isHidden() || w->isExcluded()) continue;
-						w->attach(alignFirst, *prev, alignNext, getAtVec(alignNext, 2.f));
-						prev = w;
-					}
-				}
-				inline void refreshSize()
-				{
-					float xMin{std::numeric_limits<float>::max()}, xMax{std::numeric_limits<float>::min()};
-					float yMin{std::numeric_limits<float>::max()}, yMax{std::numeric_limits<float>::min()};
 
-					for(const auto& w : widgets)
-					{
+						w->attach(alignFirst, *prev, alignNext, getAtVec(alignNext, widgetOffset));
+
 						xMin = std::min(xMin, w->getLeft());
 						xMax = std::max(xMax, w->getRight());
 						yMin = std::min(yMin, w->getTop());
 						yMax = std::max(yMax, w->getBottom());
+
+						prev = w;
 					}
 
-					setSize(xMax - xMin, yMax - yMin);
+					setSize(xMax - xMin + padding.x, yMax - yMin + padding.y);
 				}
-
-				inline void update(float) override { refreshPositions(); refreshSize(); }
 
 			public:
 				WidgetStrip(Context& mContext, At mAlignFirst, At mAlignNext) : Widget{mContext}, alignFirst{mAlignFirst}, alignNext{mAlignNext} { setFillColor(sf::Color::Transparent); }
 
 				inline WidgetStrip& operator+=(Widget& mWidget) { widgets.push_back(&mWidget); return *this; }
 				inline WidgetStrip& operator+=(const std::initializer_list<Widget*> mWidgets) { for(const auto& w : mWidgets) *this += *w; return *this; }
+
+				inline void setPadding(const Vec2f& mValue) noexcept	{ padding = mValue; }
+				inline void setWidgetOffset(float mValue) noexcept		{ widgetOffset = mValue; }
 		};
 
 		class ShutterList : public Widget
@@ -187,15 +178,17 @@ namespace ob
 				inline void update(float) override
 				{
 					setSize(wsThis.getSize());
-					if(!wsShutter.isFocused()) wsShutter.setExcluded(true);
+					wsShutter.setFillColor(wsShutter.isFocused() ? colorFocused : colorUnfocused);
+
+					if(!wsShutter.isAnyChildFocused()) wsShutter.setExcludedRecursive(true);
 				}
-				inline void postUpdate() override { wsShutter.setWidth(wsThis.getWidth()); }
+				inline void postUpdate() override { }
 
 			public:
-				ShutterList(Context& mContext) : Widget{mContext},
+				ShutterList(Context& mContext, std::string mLabel) : Widget{mContext},
 					wsThis(create<WidgetStrip>(At::Right, At::Left)),
 					wsShutter(create<WidgetStrip>(At::Top, At::Bottom)),
-					lblLabel(create<Label>("shutter")),
+					lblLabel(create<Label>(std::move(mLabel))),
 					btnOpen(create<Button>("v", Vec2f{8.f, 8.f}))
 				{
 					setFillColor(sf::Color::Transparent);
@@ -206,19 +199,24 @@ namespace ob
 
 					wsThis += {&btnOpen, &lblLabel};
 
-					wsShutter.setFillColor(colorFocused);
 					wsShutter.setOutlineColor(sf::Color::Black);
 					wsShutter.setOutlineThickness(2);
-					wsShutter.setExcluded(true);
-					wsShutter.depthOffset = 1;
+					wsShutter.setExcludedRecursive(true);
+					wsShutter.setContainer(true);
+					wsShutter.setPadding(Vec2f{8.f, 8.f});
 
 					wsThis.attach(At::Right, *this, At::Right);
 					wsShutter.attach(At::Top, wsThis, At::Bottom, Vec2f{0.f, 2.f});
 
-					btnOpen.onUse += [this]{ wsShutter.setExcluded(!wsShutter.isExcluded()); if(!wsShutter.isExcluded()) wsShutter.gainExclusiveFocus(); };
+					btnOpen.onUse += [this]
+					{
+						wsShutter.setExcludedSameDepth(false);
+						wsShutter.gainExclusiveFocus();
+					};
 				}
 
 				inline WidgetStrip& getShutter() const noexcept { return wsShutter; }
+				inline Label& getLabel() noexcept				{ return lblLabel; }
 		};
 
 		class FormBar : public Widget
@@ -231,27 +229,26 @@ namespace ob
 				Label& lblTitle;
 
 			public:
-				FormBar(Context& mContext) : Widget{mContext},
+				FormBar(Context& mContext, std::string mTitle) : Widget{mContext},
 					wsBtns(create<WidgetStrip>(At::Right, At::Left)),
 					btnClose(create<Button>("x", Vec2f{8.f, 8.f})),
 					btnMinimize(create<Button>("_", Vec2f{8.f, 8.f})),
 					btnCollapse(create<Button>("^", Vec2f{8.f, 8.f})),
-					lblTitle(create<Label>("UNNAMED FORM"))
+					lblTitle(create<Label>(std::move(mTitle)))
 				{
 					setFillColor(sf::Color::Black);
 
 					wsBtns += {&btnClose, &btnMinimize, &btnCollapse};
+					wsBtns.setWidgetOffset(2.f);
 
 					wsBtns.attach(At::Right, *this, At::Right, Vec2f{-2.f, 0.f});
 					lblTitle.attach(At::NW, *this, At::NW, Vec2f{0.f, 2.f});
 				}
 
-				inline void setTitle(std::string mTitle)			{ lblTitle.setString(std::move(mTitle)); }
-
-				inline Button& getBtnClose() const noexcept			{ return btnClose; }
-				inline Button& getBtnMinimize() const noexcept		{ return btnMinimize; }
-				inline Button& getBtnCollapse() const noexcept		{ return btnCollapse; }
-				inline const std::string& getTitle() const noexcept	{ return lblTitle.getString(); }
+				inline Button& getBtnClose() const noexcept		{ return btnClose; }
+				inline Button& getBtnMinimize() const noexcept	{ return btnMinimize; }
+				inline Button& getBtnCollapse() const noexcept	{ return btnCollapse; }
+				inline Label& getTitle() noexcept				{ return lblTitle; }
 		};
 
 		class Form : public Widget
@@ -267,9 +264,7 @@ namespace ob
 
 				inline void update(float) override
 				{
-					if(!isFocused()) { setFillColor(colorUnfocused); return; }
-
-					setFillColor(colorFocused);
+					setFillColor(isFocused() ? colorFocused : colorUnfocused);
 
 					if(action == Action::Move)
 					{
@@ -291,8 +286,8 @@ namespace ob
 				inline void draw() override { fbBar.setSize(getSize().x + 4.f, 12.f); }
 
 			public:
-				Form(Context& mContext, const Vec2f& mPosition, const Vec2f& mSize) : Widget{mContext, mPosition, mSize / 2.f},
-					fbBar(create<FormBar>()), fbResizer(create<Widget>(Vec2f{4.f, 4.f}))
+				Form(Context& mContext, std::string mTitle, const Vec2f& mPosition, const Vec2f& mSize) : Widget{mContext, mPosition, mSize / 2.f},
+					fbBar(create<FormBar>(std::move(mTitle))), fbResizer(create<Widget>(Vec2f{4.f, 4.f}))
 				{
 					setOutlineThickness(2); setOutlineColor(sf::Color::Black);
 
@@ -311,24 +306,30 @@ namespace ob
 				{
 					if(!collapsed)
 					{
+						fbBar.getBtnCollapse().getLabel().setString("v");
 						previousHeight = getHeight();
 						resizeFromBottom(0.f);
 					}
-					else resizeFromBottom(previousHeight);
+					else
+					{
+						fbBar.getBtnCollapse().getLabel().setString("^");
+						resizeFromBottom(previousHeight);
+					}
 
 					collapsed = !collapsed;
-					for(const auto& w : children) if(w != &fbBar) w->setHidden(collapsed);
+					for(const auto& w : children) if(w != &fbBar) w->setHiddenRecursive(collapsed);
 				}
 
 				inline void setDraggable(bool mValue) noexcept { draggable = mValue; }
 				inline void setResizable(bool mValue)
 				{
 					resizable = mValue;
-					fbBar.getBtnMinimize().setExcluded(!mValue);
-					fbResizer.setExcluded(!mValue);
+					fbBar.getBtnMinimize().setExcludedRecursive(!mValue);
+					fbResizer.setExcludedRecursive(!mValue);
 				}
-				inline void setTitle(std::string mTitle)		{ fbBar.setTitle(std::move(mTitle)); }
-				inline const std::string& getTitle() noexcept	{ return fbBar.getTitle(); }
+				inline void setTitle(std::string mTitle)		{ fbBar.getTitle().setString(std::move(mTitle)); }
+				inline const std::string& getTitle() noexcept	{ return fbBar.getTitle().getString(); }
+				inline bool isCollapsed() const noexcept		{ return collapsed; }
 		};
 	}
 }

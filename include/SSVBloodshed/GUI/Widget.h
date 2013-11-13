@@ -23,19 +23,20 @@ namespace ob
 			protected:
 				Context& context;
 				std::vector<Widget*> children;
-				int depth{0};
+				Widget* parent{nullptr};
 				void render(const sf::Drawable& mDrawable);
 
 			private:
-				int zOrder{0};
+				int depth{0};
+				bool container{false}; // If true, children have a deeper depth
 
 				// Settings
 				bool hidden{false}; // Controlled by hide/show: if true, it makes the widget implicitly invisible and inactive
-				bool excluded{false}; // Controlled by setExcluded: if true, it makes the widget implicitly invisible and inactive
+				bool excluded{false}; // Controlled by setExcludedRecursive: if true, it makes the widget implicitly invisible and inactive
 				bool active{true}, visible{true};
 
 				// Status
-				bool focused{false}, hovered{false}, pressed{false}, pressedPreviously{false};
+				bool focused{false}, hovered{false}, pressed{false}, pressedOld{false};
 
 				// Positioning
 				Widget* neighbor{nullptr};
@@ -46,34 +47,33 @@ namespace ob
 				inline virtual void postUpdate() { }
 				inline virtual void draw() { }
 
-				void updateWithChildren(float mFT);
-				inline void drawWithChildren()
+				void updateRecursive(float mFT);
+				inline void drawRecursive()
 				{
-					if(!isVisible()) return;
-					recalculatePosition(); draw(); render(*this);
-					for(auto& w : children) w->drawWithChildren();
+					auto hierarchy(getAllRecursive());
+					ssvu::sortStable(hierarchy, [](const Widget* mA, const Widget* mB){ return mA->depth < mB->depth; });
+					for(auto& w : hierarchy)
+					{
+						if(!w->isVisible()) continue;
+						w->recalculatePosition(); w->draw(); render(*w);
+					}
 				}
 
 				inline void recalculatePosition() { if(neighbor != nullptr) setPosition(getVecPos(to, *neighbor) + offset + (this->getPosition() - getVecPos(from, *this))); }
 
 				void checkHover();
-				inline void checkUse()
+				inline void checkPressed()
 				{
-					pressedPreviously = pressed;
+					pressedOld = pressed;
 					pressed = isMBtnLeftDown() && hovered;
-					for(const auto& c : children) c->checkUse();
 				}
-				inline void setFocused(bool mValue) { focused = mValue; for(auto& w : children) w->setFocused(w->depth >= depth && mValue); }
 
-				inline void recalculateDepth(int mParentDepth = 0, int mParentDepthOffset = 0)
-				{
-					depth = mParentDepth + mParentDepthOffset;
-					for(auto& w : children) w->recalculateDepth(depth, depthOffset);
-				}
+				inline void setFocusedRecursive(bool mValue) { focused = mValue; for(auto& w : children) w->setFocusedRecursive(mValue); }
+				inline void setFocusedSameDepth(bool mValue) { focused = mValue; for(auto& w : children) if(w->depth == depth) w->setFocusedSameDepth(mValue); }
+
+				inline void recalculateDepth() { depth = parent == nullptr ? 0 : parent->depth + static_cast<int>(container); }
 
 			public:
-				int depthOffset{0};
-
 				using AABBShape::AABBShape;
 
 				Widget(Context& mContext) : context(mContext) { }
@@ -81,41 +81,44 @@ namespace ob
 				Widget(Context& mContext, const Vec2f& mPosition, const Vec2f& mHalfSize) : AABBShape(mPosition, mHalfSize), context(mContext) { }
 
 				template<typename T, typename... TArgs> T& create(TArgs&&... mArgs);
-				void destroy();
+				void destroyRecursive();
 
 				void gainExclusiveFocus();
 
 				inline void attach(At mFrom, Widget &mNeigh, At mTo, const Vec2f& mOffset = Vec2f{0.f, 0.f}) { from = mFrom; neighbor = &mNeigh; to = mTo; offset = mOffset; }
-				inline void show() { setHidden(false); }
-				inline void hide() { setHidden(true); }
+				inline void show() { setHiddenRecursive(false); }
+				inline void hide() { setHiddenRecursive(true); }
 
 				// An hidden widget is both invisible and inactive (should be controlled by collapsing windows)
-				inline void setHidden(bool mValue)		{ hidden = mValue; for(auto& w : children) w->setHidden(mValue); }
+				inline void setHiddenRecursive(bool mValue)		{ hidden = mValue; for(auto& w : children) w->setHiddenRecursive(mValue); }
 
 				// An excluded widget is both invisible and inactive (should be used to completely disable a widget)
-				inline void setExcluded(bool mValue)	{ excluded = mValue; for(auto& w : children) w->setExcluded(mValue); }
+				inline void setExcludedRecursive(bool mValue)	{ excluded = mValue; for(auto& w : children) w->setExcludedRecursive(mValue); }
+				inline void setExcludedSameDepth(bool mValue)	{ excluded = mValue; for(auto& w : children) if(w->depth == depth) w->setExcludedSameDepth(mValue); }
 
-				inline void setActive(bool mValue) { active = mValue; for(auto& w : children) w->setActive(mValue); }
-				inline void setVisible(bool mValue) { visible = mValue; for(auto& w : children) w->setVisible(mValue); }
+				inline void setActiveRecursive(bool mValue)		{ active = mValue; for(auto& w : children) w->setActiveRecursive(mValue); }
+				inline void setVisibleRecursive(bool mValue)	{ visible = mValue; for(auto& w : children) w->setVisibleRecursive(mValue); }
+				inline void setContainer(bool mValue)			{ container = mValue; }
 
-				inline bool isFocused() const noexcept	{ return focused; }
-				inline bool isHovered() const noexcept	{ return isActive() && hovered; }
-				inline bool isVisible() const noexcept	{ return visible && !isHidden() && !isExcluded(); }
-				inline bool isActive() const noexcept	{ return active && !isHidden() && !isExcluded(); }
-				inline bool isPressed() const noexcept	{ return isHovered() && pressed; }
-				inline bool isHidden() const noexcept	{ return hidden; }
-				inline bool isExcluded() const noexcept	{ return excluded; }
+				inline bool isFocused() const noexcept		{ return focused; }
+				inline bool isHovered() const noexcept		{ return isActive() && hovered; }
+				inline bool isVisible() const noexcept		{ return visible && !isHidden() && !isExcluded(); }
+				inline bool isActive() const noexcept		{ return active && !isHidden() && !isExcluded(); }
+				inline bool isPressed() const noexcept		{ return isHovered() && pressed; }
+				inline bool isHidden() const noexcept		{ return hidden; }
+				inline bool isExcluded() const noexcept		{ return excluded; }
+				inline bool isContainer() const noexcept	{ return container; }
 
 				// Only these two should be used in widget code
 				inline bool isClickedAlways() const noexcept 	{ return isFocused() && isPressed(); }
 				inline bool isClickedOnce() const noexcept 		{ return isClickedAlways() && !wasPressed(); }
 
-				inline bool isAnyChildPressed() const noexcept	{ for(const auto& w : children) if(w->isPressed()) return true; return isPressed(); }
-				inline bool isAnyChildExclusiveFocusPressed(int mParentDepth = 0) const noexcept
-				{
-					for(const auto& w : children) if(w->isAnyChildExclusiveFocusPressed(depth)) return true;
-					return depth > mParentDepth && isPressed();
-				}
+				inline bool isAnyChildFocused() const noexcept	{ for(auto& w : children) if(w->isAnyChildFocused()) return true; if(isFocused()) return true; for(auto& w : children) if(w->isFocused()) return true; return false; }
+				inline bool isAnyChildPressed() const noexcept	{ for(auto& w : children) if(w->isAnyChildPressed()) return true; if(isPressed()) return true; for(auto& w : children) if(w->isPressed()) return true; return false; }
+				inline decltype(children)& getChildren() noexcept { return children; }
+
+				inline void fillAllRecursive(std::vector<Widget*>& mTarget)		{ mTarget.push_back(this); for(const auto& w : children) w->fillAllRecursive(mTarget); }
+				inline std::vector<Widget*> getAllRecursive() 					{ std::vector<Widget*> result; fillAllRecursive(result); return result; }
 
 				bool wasPressed() const noexcept;
 				const Vec2f& getMousePos() const noexcept;

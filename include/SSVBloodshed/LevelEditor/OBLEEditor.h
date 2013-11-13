@@ -82,8 +82,7 @@ namespace ob
 
 				newSector();
 
-				formMenu = &guiCtx.create<GUI::Form>(Vec2f{400, 100}, Vec2f{164, 180});
-				formMenu->setTitle("MENU");
+				formMenu = &guiCtx.create<GUI::Form>("MENU", Vec2f{400, 100}, Vec2f{164, 180});
 				formMenu->setResizable(false);
 				formMenu->show();
 
@@ -102,28 +101,27 @@ namespace ob
 				chbOnion = &formMenu->create<GUI::CheckBox>("onion", true);
 				chbOnion->attach(GUI::At::NW, *chbShowId, GUI::At::SW, Vec2f{0.f, 6.f});
 
-				auto& shtrList(formMenu->create<GUI::ShutterList>());
+				auto& shtrList(formMenu->create<GUI::ShutterList>("list 1"));
 				shtrList.attach(GUI::At::Top, *chbOnion, GUI::At::Bottom, Vec2f{4.f, 6.f});
 				shtrList.getShutter() += shtrList.getShutter().create<GUI::Label>("hello");
 				shtrList.getShutter() += shtrList.getShutter().create<GUI::Label>("how");
 				shtrList.getShutter() += shtrList.getShutter().create<GUI::Label>("are");
 				shtrList.getShutter() += shtrList.getShutter().create<GUI::Label>("you");
 
-				auto& shtrList2(shtrList.getShutter().create<GUI::ShutterList>());
+				auto& shtrList2(shtrList.getShutter().create<GUI::ShutterList>("list 2"));
 				shtrList2.getShutter() += shtrList2.getShutter().create<GUI::Label>("2hello");
 				shtrList2.getShutter() += shtrList2.getShutter().create<GUI::Label>("2how");
 				shtrList2.getShutter() += shtrList2.getShutter().create<GUI::Label>("2are");
 				shtrList2.getShutter() += shtrList2.getShutter().create<GUI::Label>("2you");
 
 				shtrList.getShutter() += shtrList2;
+				shtrList.getShutter() += shtrList.getShutter().create<GUI::Button>("yomrwhite", Vec2f{56, 8});
 
-				formParams = &guiCtx.create<GUI::Form>(Vec2f{100, 100}, Vec2f{150, 80});
-				formParams->setTitle("PARAMETERS");
+				formParams = &guiCtx.create<GUI::Form>("PARAMETERS", Vec2f{100, 100}, Vec2f{150, 80});
 				lblParams = &formParams->create<GUI::Label>();
 				lblParams->attach(GUI::At::NW, *formParams, GUI::At::NW, Vec2f{2.f, 2.f});
 
-				formInfo = &guiCtx.create<GUI::Form>(Vec2f{100, 100}, Vec2f{150, 80});
-				formInfo->setTitle("INFO");
+				formInfo = &guiCtx.create<GUI::Form>("INFO", Vec2f{100, 100}, Vec2f{150, 80});
 				lblInfo = &formInfo->create<GUI::Label>();
 				lblInfo->attach(GUI::At::NW, *formInfo, GUI::At::NW, Vec2f{2.f, 2.f});
 			}
@@ -210,7 +208,7 @@ namespace ob
 				}
 
 				lblParams->setString(ss.str());
-				if(idx > 0 && (formParams->getWidth() < lblParams->getWidth() * 1.2f || formParams->getHeight() < lblParams->getHeight() * 1.2f)) formParams->setSize(lblParams->getSize() * 1.2f);
+				if(!formParams->isCollapsed()) if(idx > 0 && (formParams->getWidth() < lblParams->getWidth() * 1.2f || formParams->getHeight() < lblParams->getHeight() * 1.2f)) formParams->setSize(lblParams->getSize() * 1.2f);
 			}
 
 			inline void update(float mFT)
@@ -228,7 +226,7 @@ namespace ob
 
 				debugText.update(mFT);
 				lblInfo->setString(debugText.getStr());
-				if(formInfo->getWidth() < lblInfo->getWidth() * 1.2f || formInfo->getHeight() < lblInfo->getHeight() * 1.2f) formInfo->setSize(lblInfo->getSize() * 1.2f);
+				if(!formInfo->isCollapsed()) if(formInfo->getWidth() < lblInfo->getWidth() * 1.2f || formInfo->getHeight() < lblInfo->getHeight() * 1.2f) formInfo->setSize(lblInfo->getSize() * 1.2f);
 
 				gameCamera.update<int>(mFT);
 			}
