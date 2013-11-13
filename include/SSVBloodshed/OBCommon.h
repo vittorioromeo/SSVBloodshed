@@ -124,7 +124,9 @@ namespace ob
 		LETBall				= 28,
 		LETBallFlying		= 29,
 		LETTurretRL			= 30,
-		LETForceField		= 31
+		LETForceField		= 31,
+		LETPjBooster		= 32,
+		LETPjChanger		= 33
 	};
 
 	// Direction utils

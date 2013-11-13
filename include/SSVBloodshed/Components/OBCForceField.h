@@ -30,6 +30,7 @@ namespace ob
 			inline void init()
 			{
 				booster = !destroyProjectiles && !blockFriendly && !blockEnemy;
+				if(booster) animation = assets.aBulletBooster;
 
 				cIdReceiver.onActivate += [this](IdAction mIdAction)
 				{
@@ -121,6 +122,10 @@ namespace ob
 							cDraw.setGlobalScale(distortion <= 0.f ? 1.f : ssvu::getRndR(0.9f, 1.1f));
 						}
 					}
+					else if(forceMult != 0)
+					{
+						cDraw[0].setTextureRect((*assets.tsSmall)(animation.getTileIndex()));
+					}
 
 					alpha = std::fmod(alpha + mFT * 0.06f, ssvu::pi);
 					color.a = 255 - std::sin(alpha) * 125;
@@ -140,3 +145,4 @@ namespace ob
 
 #endif
 
+// TODO: divide in other entities/components

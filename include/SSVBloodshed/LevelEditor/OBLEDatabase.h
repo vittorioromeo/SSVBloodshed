@@ -132,10 +132,22 @@ namespace ob
 					f->createPPlate(mP, getP<int>(mT, "id"), PPlateType::OnOff, IdAction(getP<int>(mT, "action")), getP<bool>(mT, "playerOnly"));
 				});
 
-				add(OBLETType::LETForceField,		a.txSmall,		a.forceArrow,			{{"id", 0}, {"rot", 0}, {"destroyProj", true}, {"blockFriendly", true}, {"blockEnemy", true}, {"forceMult", 100.f}},
+				add(OBLETType::LETForceField,		a.txSmall,		a.ff0,					{{"id", 0}, {"rot", 0}, {"destroyProj", true}, {"blockFriendly", true}, {"blockEnemy", true}, {"forceMult", 100.f}},
 				[this](TLevel&, TTile& mT, const Vec2i& mP)
 				{
 					f->createForceField(mP, getP<int>(mT, "id"), getDir8FromDeg(getP<float>(mT, "rot")), getP<bool>(mT, "destroyProj"), getP<bool>(mT, "blockFriendly"), getP<bool>(mT, "blockEnemy"), getP<float>(mT, "forceMult") / 100.f);
+				});
+
+				add(OBLETType::LETPjBooster,		a.txSmall,		a.bulletBooster,		{{"id", 0}, {"rot", 0}, {"forceMult", 100.f}},
+				[this](TLevel&, TTile& mT, const Vec2i& mP)
+				{
+					f->createForceField(mP, getP<int>(mT, "id"), getDir8FromDeg(getP<float>(mT, "rot")), false, false, false, getP<float>(mT, "forceMult") / 100.f);
+				});
+
+				add(OBLETType::LETPjChanger,		a.txSmall,		a.bulletChanger,		{{"id", 0}, {"rot", 0}},
+				[this](TLevel&, TTile& mT, const Vec2i& mP)
+				{
+					f->createForceField(mP, getP<int>(mT, "id"), getDir8FromDeg(getP<float>(mT, "rot")), false, false, false, 0.f);
 				});
 			}
 

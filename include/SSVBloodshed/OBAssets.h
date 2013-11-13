@@ -68,7 +68,7 @@ namespace ob
 			sf::IntRect e4Stand;															// Giant alien
 
 			// Animations
-			ssvs::Animation aForceField;
+			ssvs::Animation aForceField, aBulletBooster;
 
 			#define WALLTSDECL(x)	sf::IntRect x ## Single,	x ## Cross,		x ## V,			x ## H, \
 												x ## CornerSW,	x ## CornerSE,	x ## CornerNW,	x ## CornerNE, \
@@ -156,6 +156,9 @@ namespace ob
 				// Animations
 				ssvuj::Obj jAForceField{ssvuj::readFromFile("Data/Animations/forceField.json")};
 				aForceField = ssvs::getAnimationFromJson(*tsSmall, jAForceField["on"]);
+
+				ssvuj::Obj jABulletBooster{ssvuj::readFromFile("Data/Animations/bulletBooster.json")};
+				aBulletBooster = ssvs::getAnimationFromJson(*tsSmall, jABulletBooster["on"]);
 
 				#undef T_TSSMALL
 				#undef T_TSMEDIUM
