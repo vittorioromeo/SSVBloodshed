@@ -82,40 +82,50 @@ namespace ob
 
 				newSector();
 
-				formMenu = &guiCtx.create<GUI::Form>("MENU", Vec2f{400, 100}, Vec2f{164, 180});
+				formMenu = &guiCtx.create<GUI::Form>("MENU", Vec2f{400, 100}, Vec2f{64, 80});
 				formMenu->setResizable(false);
 				formMenu->show();
 
 				auto& btnParams(formMenu->create<GUI::Button>("parameters", Vec2f{56, 8}));
 				btnParams.onUse += [this]{ formParams->show(); };
-				btnParams.attach(GUI::At::NW, *formMenu, GUI::At::NW, Vec2f{4.f, 4.f});
+				btnParams.attach(GUI::At::Top, *formMenu, GUI::At::Top, Vec2f{0.f, 4.f});
 
 				auto& btnInfo(formMenu->create<GUI::Button>("info", Vec2f{56, 8}));
 				btnInfo.onUse += [this]{ formInfo->show(); };
 				btnInfo.attach(GUI::At::Top, btnParams, GUI::At::Bottom, Vec2f{0.f, 6.f});
 
-
 				chbShowId = &formMenu->create<GUI::CheckBox>("show id", true);
-				chbShowId->attach(GUI::At::NW, btnInfo, GUI::At::SW, Vec2f{0.f, 6.f});
-
 				chbOnion = &formMenu->create<GUI::CheckBox>("onion", true);
-				chbOnion->attach(GUI::At::NW, *chbShowId, GUI::At::SW, Vec2f{0.f, 6.f});
+
+				auto& shtrOptions(formMenu->create<GUI::ShutterList>("options"));
+				shtrOptions.attach(GUI::At::Top, btnInfo, GUI::At::Bottom, Vec2f{0.f, 6.f});
+				shtrOptions += {chbShowId, chbOnion};
+
+				//chbShowId->attach(GUI::At::NW, btnInfo, GUI::At::SW, Vec2f{0.f, 6.f});
+				//chbOnion->attach(GUI::At::NW, *chbShowId, GUI::At::SW, Vec2f{0.f, 6.f});
 
 				auto& shtrList(formMenu->create<GUI::ShutterList>("list 1"));
-				shtrList.attach(GUI::At::Top, *chbOnion, GUI::At::Bottom, Vec2f{4.f, 6.f});
-				shtrList.getShutter() += shtrList.getShutter().create<GUI::Label>("hello");
-				shtrList.getShutter() += shtrList.getShutter().create<GUI::Label>("how");
-				shtrList.getShutter() += shtrList.getShutter().create<GUI::Label>("are");
-				shtrList.getShutter() += shtrList.getShutter().create<GUI::Label>("you");
+				shtrList.attach(GUI::At::Top, shtrOptions, GUI::At::Bottom, Vec2f{0.f, 6.f});
+				shtrList +=
+				{
+					&shtrList.create<GUI::Label>("hello"),
+					&shtrList.create<GUI::Label>("how"),
+					&shtrList.create<GUI::Label>("are"),
+					&shtrList.create<GUI::Label>("you")
+				};
 
-				auto& shtrList2(shtrList.getShutter().create<GUI::ShutterList>("list 2"));
-				shtrList2.getShutter() += shtrList2.getShutter().create<GUI::Label>("2hello");
-				shtrList2.getShutter() += shtrList2.getShutter().create<GUI::Label>("2how");
-				shtrList2.getShutter() += shtrList2.getShutter().create<GUI::Label>("2are");
-				shtrList2.getShutter() += shtrList2.getShutter().create<GUI::Label>("2you");
+				auto& shtrList2(shtrList.create<GUI::ShutterList>("list 2"));
+				shtrList2 +=
+				{
+					// TODO: remove += syntax, add createItem<T>
+					&shtrList2.create<GUI::Label>("i'm"),
+					&shtrList2.create<GUI::Label>("fine"),
+					&shtrList2.create<GUI::Label>("thanks"),
+					&shtrList2.create<GUI::Label>("bro")
+				};
 
-				shtrList.getShutter() += shtrList2;
-				shtrList.getShutter() += shtrList.getShutter().create<GUI::Button>("yomrwhite", Vec2f{56, 8});
+				shtrList += shtrList2;
+				shtrList += shtrList.create<GUI::Button>("yomrwhite", Vec2f{56, 8});
 
 				formParams = &guiCtx.create<GUI::Form>("PARAMETERS", Vec2f{100, 100}, Vec2f{150, 80});
 				lblParams = &formParams->create<GUI::Label>();

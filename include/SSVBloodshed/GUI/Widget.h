@@ -99,6 +99,16 @@ namespace ob
 				inline void setActiveRecursive(bool mValue)		{ active = mValue; for(auto& w : children) w->setActiveRecursive(mValue); }
 				inline void setVisibleRecursive(bool mValue)	{ visible = mValue; for(auto& w : children) w->setVisibleRecursive(mValue); }
 				inline void setContainer(bool mValue)			{ container = mValue; }
+				inline void setParent(Widget& mWidget)
+				{
+					if(parent != nullptr) ssvu::eraseRemove(parent->children, this);
+					parent = &mWidget;
+					mWidget.children.push_back(this);
+					setHiddenRecursive(mWidget.isHidden());
+					setExcludedRecursive(mWidget.isExcluded());
+					setActiveRecursive(mWidget.isActive());
+					setVisibleRecursive(mWidget.isVisible());
+				}
 
 				inline bool isFocused() const noexcept		{ return focused; }
 				inline bool isHovered() const noexcept		{ return isActive() && hovered; }

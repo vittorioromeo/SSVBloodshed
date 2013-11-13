@@ -15,13 +15,7 @@ namespace ob
 		template<typename T, typename... TArgs> inline T& Widget::create(TArgs&&... mArgs)
 		{
 			auto& result(context.allocateWidget<T>(std::forward<TArgs>(mArgs)...));
-			result.setHiddenRecursive(isHidden());
-			result.setExcludedRecursive(isExcluded());
-			result.setActiveRecursive(isActive());
-			result.setVisibleRecursive(isVisible());
-			children.push_back(&result);
-			result.parent = this;
-			return result;
+			result.setParent(*this); return result;
 		}
 
 		inline void Widget::updateRecursive(float mFT)

@@ -160,7 +160,7 @@ namespace ob
 			public:
 				WidgetStrip(Context& mContext, At mAlignFirst, At mAlignNext) : Widget{mContext}, alignFirst{mAlignFirst}, alignNext{mAlignNext} { setFillColor(sf::Color::Transparent); }
 
-				inline WidgetStrip& operator+=(Widget& mWidget) { widgets.push_back(&mWidget); return *this; }
+				inline WidgetStrip& operator+=(Widget& mWidget) { widgets.push_back(&mWidget); mWidget.setParent(*this); return *this; }
 				inline WidgetStrip& operator+=(const std::initializer_list<Widget*> mWidgets) { for(const auto& w : mWidgets) *this += *w; return *this; }
 
 				inline void setPadding(const Vec2f& mValue) noexcept	{ padding = mValue; }
@@ -214,6 +214,9 @@ namespace ob
 						wsShutter.gainExclusiveFocus();
 					};
 				}
+
+				inline ShutterList& operator+=(Widget& mWidget) { wsShutter += mWidget; return *this; }
+				inline ShutterList& operator+=(const std::initializer_list<Widget*> mWidgets) { wsShutter += mWidgets; return *this; }
 
 				inline WidgetStrip& getShutter() const noexcept { return wsShutter; }
 				inline Label& getLabel() noexcept				{ return lblLabel; }
