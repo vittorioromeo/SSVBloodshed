@@ -82,13 +82,18 @@ namespace ob
 
 				newSector();
 
+				getGameState().onAnyEvent += [this](const sf::Event& mEvent){ guiCtx.onAnyEvent(mEvent); };
+
 				formMenu = &guiCtx.create<GUI::Form>("MENU", Vec2f{400, 100}, Vec2f{64, 80});
 				formMenu->setResizable(false);
+				auto& tbox(formMenu->create<GUI::TextBox>(Vec2f{56, 8.f}));
+				tbox.attach(GUI::At::Top, *formMenu, GUI::At::Top, Vec2f{0.f, 4.f});
+
 				formMenu->show();
 
 				auto& btnParams(formMenu->create<GUI::Button>("parameters", Vec2f{56, 8}));
 				btnParams.onUse += [this]{ formParams->show(); };
-				btnParams.attach(GUI::At::Top, *formMenu, GUI::At::Top, Vec2f{0.f, 4.f});
+				btnParams.attach(GUI::At::Top, tbox, GUI::At::Bottom, Vec2f{0.f, 6.f});
 
 				auto& btnInfo(formMenu->create<GUI::Button>("info", Vec2f{56, 8}));
 				btnInfo.onUse += [this]{ formInfo->show(); };
@@ -136,6 +141,41 @@ namespace ob
 				lblInfo->attach(GUI::At::NW, *formInfo, GUI::At::NW, Vec2f{2.f, 2.f});
 			}
 
+			inline void createParamsForm(OBLETile& mTile)
+			{
+				if(mTile.getParams().empty()) return;
+
+				GUI::Form& form(guiCtx.create<GUI::Form>("PARAMS", Vec2f{300.f, 300.f}, Vec2f{100.f, 100.f}));
+				form.setScaling(GUI::Widget::Scaling::FitToChildren);
+				form.setPadding(2.f);
+				auto& mainStrip(form.create<GUI::WidgetStrip>(GUI::At::NW, GUI::At::SW, GUI::At::Bottom));
+				mainStrip.attach(GUI::At::Center, form, GUI::At::Center);
+
+				for(auto& p : mTile.getParams())
+				{
+					auto key(p.first);
+
+					GUI::WidgetStrip& strip(form.create<GUI::WidgetStrip>(GUI::At::Left, GUI::At::Right, GUI::At::Right));
+					strip += strip.create<GUI::Label>(key);
+					strip.setTabSize(100.f);
+					mainStrip += strip;
+
+					if(ssvuj::is<bool>(p.second))
+					{
+						auto& checkBox(strip.create<GUI::CheckBox>("on", ssvuj::as<bool>(p.second)));
+						checkBox.onStateChanged += [key, &mTile, &checkBox]{ mTile.setParam(key, checkBox.getState() ? "true" : "false"); };
+						strip += checkBox;
+					}
+					else
+					{
+						auto& textBox(strip.create<GUI::TextBox>(Vec2f(56.f, 8.f)));
+						textBox.setString(ssvu::toStr(p.second));
+						textBox.onTextChanged += [key, &mTile, &textBox]{ mTile.setParam(key, textBox.getString()); };
+						strip += textBox;
+					}
+				}
+			}
+
 			inline void newSector() { sector.clear(); sector.init(database); refreshCurrentLevel(); clearCurrentLevel(); }
 
 			inline void refreshCurrentLevel()	{ currentLevel = &sector.getLevel(currentLevelX, currentLevelY); }
@@ -166,7 +206,7 @@ namespace ob
 			inline OBLETile& getPickTile() const noexcept { return currentLevel->getTile(brush.x, brush.y, currentZ); }
 
 			inline void paint()	{ for(auto& t : currentTiles) { t->initFromEntry(getCurrentEntry()); t->setRot(currentRot); t->setId(assets, currentId); } }
-			inline void del()	{ for(auto& t : currentTiles) { currentLevel->del(*t); } }
+			inline void del()	{ for(auto& t : currentTiles) { createParamsForm(*t); break; } } //{ currentLevel->del(*t); } }
 			inline void pick()	{ brush.idx = int(getPickTile().getType()); }
 
 			inline void copyTiles()		{ auto& t(getPickTile()); copiedTile = t; }

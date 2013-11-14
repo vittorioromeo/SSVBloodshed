@@ -32,11 +32,13 @@ namespace ob
 
 				inline void setString(std::string mLabel)
 				{
+					// TODO: dirty here
 					text.setString(std::move(mLabel));
 					text.setOrigin(ssvs::getGlobalHalfSize(text));
 					setSize(ssvs::getGlobalSize(text));
 				}
 				inline const std::string& getString() const noexcept { return text.getString(); }
+				inline decltype(text)& getText() noexcept { return text; }
 		};
 
 		class Button : public Widget
@@ -95,16 +97,17 @@ namespace ob
 				Label& lblLabel;
 				bool state{false};
 
-				inline void update(float) override
+				inline void refreshIfDirty() override
 				{
 					float w{lblLabel.getRight() - cbsbBox.getLeft()};
 					float h{lblLabel.getBottom() - cbsbBox.getTop()};
 					setSize(w, h);
-
-					if(isClickedOnce()) setState(!state);
 				}
+				inline void update(float) override { if(isClickedOnce()) setState(!state); }
 
 			public:
+				ssvu::Delegate<void()> onStateChanged;
+
 				CheckBox(Context& mContext, std::string mLabel, bool mState = false) : Widget{mContext},
 					cbsbBox(create<CheckBoxStateBox>()), lblLabel(create<Label>(std::move(mLabel)))
 				{
@@ -114,7 +117,7 @@ namespace ob
 					lblLabel.attach(At::Left, cbsbBox, At::Right, Vec2f{2.f, 0.f});
 				}
 
-				inline void setState(bool mValue) 		{ state = mValue; cbsbBox.setState(mValue); }
+				inline void setState(bool mValue) 		{ state = mValue; cbsbBox.setState(mValue); onStateChanged(); }
 				inline bool getState() const noexcept	{ return state; }
 				inline Label& getLabel() noexcept		{ return lblLabel; }
 		};
@@ -125,46 +128,44 @@ namespace ob
 		{
 			private:
 				std::vector<Widget*> widgets;
-				At alignFirst{At::Left}, alignNext{At::Right};
-				Vec2f padding;
-				float widgetOffset{6.f};
+				At alignFrom{At::Left}, alignTo{At::Right}, alignDir{At::Right};
+				bool tabbed{false};
+				float widgetOffset{6.f}, tabSize;
 
-				inline void update(float) override
+				inline void refreshIfDirty() override
 				{
 					if(widgets.empty()) return;
 
 					auto prev(widgets[0]);
-					prev->attach(alignFirst, *this, alignFirst, getAtVec(alignFirst, -ssvs::getMag(padding / 4.f)));
+					prev->attach(alignFrom, *this, alignFrom, getAtVec(alignDir, getPadding()));
 
-					float xMin{prev->getLeft()}, xMax{prev->getRight()};
-					float yMin{prev->getTop()}, yMax{prev->getBottom()};
-
-					for(auto itr(std::begin(widgets) + 1); itr != std::end(widgets); ++itr)
+					for(auto i(1u); i < widgets.size(); ++i)
 					{
-						auto& w(*itr);
-						if(w->isHidden() || w->isExcluded()) continue;
+						auto& w(*widgets[i]);
+						if(w.isHidden() || w.isExcluded()) continue;
 
-						w->attach(alignFirst, *prev, alignNext, getAtVec(alignNext, widgetOffset));
-
-						xMin = std::min(xMin, w->getLeft());
-						xMax = std::max(xMax, w->getRight());
-						yMin = std::min(yMin, w->getTop());
-						yMax = std::max(yMax, w->getBottom());
-
-						prev = w;
+						if(tabbed) w.attach(alignFrom, *prev, alignFrom, getAtVec(alignDir, i++ * tabSize));
+						else
+						{
+							w.attach(alignFrom, *prev, alignTo, getAtVec(alignDir, widgetOffset));
+							prev = &w;
+						}
 					}
-
-					setSize(xMax - xMin + padding.x, yMax - yMin + padding.y);
 				}
 
 			public:
-				WidgetStrip(Context& mContext, At mAlignFirst, At mAlignNext) : Widget{mContext}, alignFirst{mAlignFirst}, alignNext{mAlignNext} { setFillColor(sf::Color::Transparent); }
+				WidgetStrip(Context& mContext, At mAlignFrom, At mAlignTo, At mAlignDir)
+					: Widget{mContext}, alignFrom{mAlignFrom}, alignTo{mAlignTo}, alignDir{mAlignDir}
+				{
+					setFillColor(sf::Color::Transparent);
+					setScaling(Scaling::FitToChildren);
+				}
 
 				inline WidgetStrip& operator+=(Widget& mWidget) { widgets.push_back(&mWidget); mWidget.setParent(*this); return *this; }
 				inline WidgetStrip& operator+=(const std::initializer_list<Widget*> mWidgets) { for(const auto& w : mWidgets) *this += *w; return *this; }
 
-				inline void setPadding(const Vec2f& mValue) noexcept	{ padding = mValue; }
-				inline void setWidgetOffset(float mValue) noexcept		{ widgetOffset = mValue; }
+				inline void setWidgetOffset(float mValue) noexcept { widgetOffset = mValue; }
+				inline void setTabSize(float mValue) noexcept { tabSize = mValue; tabbed = true; }
 		};
 
 		class ShutterList : public Widget
@@ -178,16 +179,17 @@ namespace ob
 				inline void update(float) override
 				{
 					setSize(wsThis.getSize());
-					wsShutter.setFillColor(wsShutter.isFocused() ? colorFocused : colorUnfocused);
-
 					if(!wsShutter.isAnyChildFocused()) wsShutter.setExcludedRecursive(true);
 				}
-				inline void postUpdate() override { }
+				inline void refreshIfDirty() override
+				{
+					wsShutter.setFillColor(wsShutter.isFocused() ? colorFocused : colorUnfocused);
+				}
 
 			public:
 				ShutterList(Context& mContext, std::string mLabel) : Widget{mContext},
-					wsThis(create<WidgetStrip>(At::Right, At::Left)),
-					wsShutter(create<WidgetStrip>(At::Top, At::Bottom)),
+					wsThis(create<WidgetStrip>(At::Right, At::Left, At::Left)),
+					wsShutter(create<WidgetStrip>(At::Top, At::Bottom, At::Bottom)),
 					lblLabel(create<Label>(std::move(mLabel))),
 					btnOpen(create<Button>("v", Vec2f{8.f, 8.f}))
 				{
@@ -196,14 +198,13 @@ namespace ob
 					wsThis.setFillColor(sf::Color::Red);
 					wsThis.setOutlineColor(sf::Color::Black);
 					wsThis.setOutlineThickness(2);
-
 					wsThis += {&btnOpen, &lblLabel};
 
 					wsShutter.setOutlineColor(sf::Color::Black);
 					wsShutter.setOutlineThickness(2);
 					wsShutter.setExcludedRecursive(true);
 					wsShutter.setContainer(true);
-					wsShutter.setPadding(Vec2f{8.f, 8.f});
+					wsShutter.setPadding(4.f);
 
 					wsThis.attach(At::Right, *this, At::Right);
 					wsShutter.attach(At::Top, wsThis, At::Bottom, Vec2f{0.f, 2.f});
@@ -222,6 +223,83 @@ namespace ob
 				inline Label& getLabel() noexcept				{ return lblLabel; }
 		};
 
+		class TextBox : public Widget
+		{
+			private:
+				Widget& tBox;
+				Label& lblText;
+				bool editing{false};
+				std::string editStr, str;
+				float green{0.f}, greenDir{1.f};
+
+				inline void update(float mFT) override
+				{
+					if(lblText.isClickedOnce())
+					{
+						editing = true; editStr = str;
+						lblText.gainExclusiveFocus();
+					}
+
+					if(editing)
+					{
+						if(!lblText.isFocused()) finishEditing();
+
+						// TODO: pingpongvalue<t>
+						green = green + mFT * greenDir * 15.f;
+						if(green <= 0) { green = 0; greenDir = 1.f; }
+						else if(green >= 255) { green = 255; greenDir = -1.f; }
+
+						lblText.setString(editStr);
+						lblText.getText().setColor(sf::Color(255, green, 255, 255));
+					}
+					else
+					{
+						lblText.setString(str);
+						lblText.getText().setColor(sf::Color::White);
+					}
+				}
+
+				inline void finishEditing() { editing = false; str = editStr; onTextChanged(); }
+
+			public:
+				ssvu::Delegate<void()> onTextChanged;
+
+				TextBox(Context& mContext, const Vec2f& mSize) : Widget{mContext, mSize / 2.f},
+					tBox(create<Widget>()), lblText(create<Label>(""))
+				{
+					context.onAnyEvent += [this](const sf::Event& mEvent)
+					{
+						if(!editing) return;
+
+						if(mEvent.type == sf::Event::TextEntered)
+						{
+							if(mEvent.text.unicode == '\b' && !editStr.empty()) editStr.erase(std::end(editStr) - 1, std::end(editStr));
+							else if(mEvent.text.unicode < 128) editStr += static_cast<char>(mEvent.text.unicode);
+						}
+						else if(mEvent.type == sf::Event::KeyPressed)
+						{
+							if(mEvent.key.code == ssvs::KKey::Return) finishEditing();
+						}
+					};
+
+					setContainer(true);
+					setFillColor(sf::Color::Transparent);
+
+					tBox.setOutlineColor(sf::Color::Black);
+					tBox.setOutlineThickness(2);
+					tBox.setFillColor(sf::Color::White);
+					tBox.setScaling(Widget::Scaling::FitToNeighbor);
+
+					lblText.setScaling(Widget::Scaling::FitToNeighbor);
+
+					tBox.attach(At::Center, *this, At::Center);
+					lblText.attach(At::Center, tBox, At::Center);
+				}
+
+				inline void setString(std::string mString) { str = std::move(mString); }
+				inline const std::string& getString() const noexcept { return str; }
+		};
+
 		class FormBar : public Widget
 		{
 			private:
@@ -233,12 +311,13 @@ namespace ob
 
 			public:
 				FormBar(Context& mContext, std::string mTitle) : Widget{mContext},
-					wsBtns(create<WidgetStrip>(At::Right, At::Left)),
+					wsBtns(create<WidgetStrip>(At::Right, At::Left, At::Left)),
 					btnClose(create<Button>("x", Vec2f{8.f, 8.f})),
 					btnMinimize(create<Button>("_", Vec2f{8.f, 8.f})),
 					btnCollapse(create<Button>("^", Vec2f{8.f, 8.f})),
 					lblTitle(create<Label>(std::move(mTitle)))
 				{
+					external = true;
 					setFillColor(sf::Color::Black);
 
 					wsBtns += {&btnClose, &btnMinimize, &btnCollapse};
@@ -267,8 +346,6 @@ namespace ob
 
 				inline void update(float) override
 				{
-					setFillColor(isFocused() ? colorFocused : colorUnfocused);
-
 					if(action == Action::Move)
 					{
 						setPosition(getMousePos() - (getMousePosOld() - getPosition()));
@@ -286,7 +363,11 @@ namespace ob
 					else if(resizable && fbResizer.isClickedAlways()) action = Action::Resize;
 					else if(!isMBtnLeftDown()) action = Action::None;
 				}
-				inline void draw() override { fbBar.setSize(getSize().x + 4.f, 12.f); }
+				inline void refreshIfDirty() override
+				{
+					setFillColor(isFocused() ? colorFocused : colorUnfocused);
+					fbBar.setSize(getSize().x + 4.f, 12.f);
+				}
 
 			public:
 				Form(Context& mContext, std::string mTitle, const Vec2f& mPosition, const Vec2f& mSize) : Widget{mContext, mPosition, mSize / 2.f},

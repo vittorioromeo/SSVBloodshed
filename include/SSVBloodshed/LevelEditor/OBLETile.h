@@ -41,6 +41,14 @@ namespace ob
 				refreshIdText(mAssets);
 			}
 
+			inline void setParam(const std::string& mKey, const std::string& mValue)
+			{
+				auto& p(params[mKey]);
+				if(ssvuj::is<int>(p)) p = std::stoi(mValue);
+				else if(ssvuj::is<float>(p)) p = std::stof(mValue);
+				else if(ssvuj::is<bool>(p)) p = mValue == "true" ? true : false;
+			}
+
 			inline void update()
 			{
 				sprite.setOrigin(sprite.getTextureRect().width / 2.f, sprite.getTextureRect().height / 2.f);

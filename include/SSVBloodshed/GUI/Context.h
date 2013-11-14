@@ -24,7 +24,7 @@ namespace ob
 				sf::Sprite sprite;
 				ssvu::MemoryManager<Widget> widgets;
 				std::vector<Widget*> children;
-				bool hovered{false}, busy{false};
+				bool hovered{false}, busy{false}, focused{false};
 				Vec2f mousePos, mousePosOld; bool mouseDown{false}, mouseDownOld{false};
 
 				inline void del(Widget& mWidget) noexcept			{ widgets.del(mWidget); }
@@ -50,6 +50,12 @@ namespace ob
 				{
 					if(isBusy()) return;
 
+					if(mouseDown && !ssvu::containsAnyIf(widgets, [](const ssvu::Uptr<Widget>& mW){ return mW->isHovered(); }))
+					{
+						unFocusAll();
+						return;
+					}
+
 					Widget* found{nullptr};
 
 					for(auto& c : children)
@@ -66,19 +72,26 @@ namespace ob
 
 					const auto& hierarchy(found->getAllRecursive());
 					int maxPressedDepth{-1};
+					Widget* deepest{nullptr};
 
-					for(auto& w : hierarchy)
+					for(const auto& w : hierarchy)
 					{
-						if(!w->isPressed()) continue;
-						maxPressedDepth = std::max(maxPressedDepth, w->depth);
+						if(w->isPressed() && w->depth > maxPressedDepth)
+						{
+							maxPressedDepth = w->depth;
+							deepest = w;
+						}
 					}
 
 					if(maxPressedDepth == -1) return;
 
-					for(auto& w : hierarchy) if(w->depth == maxPressedDepth) w->focused = true; else w->focused = false;
+					for(const auto& w : hierarchy) if(w->depth != maxPressedDepth) { w->dirty = true; w->focused = false; }
+					deepest->setFocusedSameDepth(true);
 				}
 
 			public:
+				ssvu::Delegate<void(const sf::Event&)> onAnyEvent;
+
 				Context(OBAssets& mAssets, ssvs::GameWindow& mGameWindow) : assets(mAssets), gameWindow(mGameWindow)
 				{
 					renderTexture.create(gameWindow.getWidth(), gameWindow.getHeight());
@@ -93,35 +106,26 @@ namespace ob
 
 				inline void update(float mFT)
 				{
-					for(auto& w : widgets) w->recalculateDepth();
-
 					updateMouse();
 
 					ssvu::eraseRemoveIf(children, [](const Widget* mW){ return ssvu::MemoryManager<Widget>::isDead(mW); });
 					widgets.refresh();
 
 					hovered = false;
-					for(auto& w : widgets) { w->checkHover(); w->checkPressed(); }
+					for(auto& w : widgets) { w->recalculateDepth(); w->checkHover(); w->checkPressed(); }
 
 					updateFocus();
 
-					busy = false;
-					for(auto& w : children) { w->updateRecursive(mFT); w->checkHover(); }
-					for(auto& w : widgets) w->checkHover();
+					busy = focused = false;
+					for(auto& w : children) w->updateRecursive(mFT);
+					for(auto& w : children) w->refreshDirtyRecursive();
+					for(auto& w : widgets) { w->checkHover(); if(w->isFocused()) focused = true; }
 
 				}
 				inline void draw()
 				{
-					/*for(auto& w : widgets)
-					{
-						auto c(w->getFillColor());
-						c.a = 255;
-						c.b = w->isFocused() ? 255 : 0;
-						w->setFillColor(c);
-					}*/
-
 					renderTexture.clear(sf::Color::Transparent);
-					for(auto itr(std::rbegin(children)); itr != std::rend(children); ++itr) (*itr)->drawRecursive();
+					for(auto itr(std::rbegin(children)); itr != std::rend(children); ++itr) (*itr)->drawHierarchy();
 					renderTexture.display();
 
 					sprite.setColor(sf::Color(255, 255, 255, isInUse() ? 255 : 175));
@@ -132,7 +136,8 @@ namespace ob
 				inline ssvs::GameWindow& getGameWindow() const noexcept	{ return gameWindow; }
 				inline bool isHovered() const noexcept					{ return hovered; }
 				inline bool isBusy() const noexcept						{ return busy; }
-				inline bool isInUse() const noexcept					{ return isHovered() || isBusy(); }
+				inline bool isFocused() const noexcept					{ return focused; }
+				inline bool isInUse() const noexcept					{ return isFocused() || isHovered() || isBusy(); }
 		};
 	}
 }

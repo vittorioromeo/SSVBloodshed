@@ -15,22 +15,26 @@ namespace ob
 		template<typename T, typename... TArgs> inline T& Widget::create(TArgs&&... mArgs)
 		{
 			auto& result(context.allocateWidget<T>(std::forward<TArgs>(mArgs)...));
-			result.setParent(*this); return result;
+			dirty = true; result.setParent(*this); return result;
 		}
 
 		inline void Widget::updateRecursive(float mFT)
 		{
+			positionOld = getPosition();
+			sizeOld = getSize();
+
 			ssvu::eraseRemoveIf(children, [](const Widget* mW){ return ssvu::MemoryManager<Widget>::isDead(mW); });
 			update(mFT);
 			if(isPressed()) context.busy = true;
 			for(auto& w : children) w->updateRecursive(mFT);
-			postUpdate();
+
+			if(positionOld != getPosition() || sizeOld != getSize()) dirty = true;
 		}
 
 		inline void Widget::gainExclusiveFocus()					{ context.unFocusAll(); setFocusedSameDepth(true); }
 		inline void Widget::render(const sf::Drawable& mDrawable)	{ context.render(mDrawable); }
 		inline void Widget::destroyRecursive()						{ context.del(*this); for(const auto& c : children) c->destroyRecursive(); }
-		inline void Widget::checkHover()							{ hovered = isOverlapping(getMousePos()); if(hovered) context.hovered = true; }
+		inline void Widget::checkHover()							{ hovered = isOverlapping(getMousePos(), 2.f); if(hovered) context.hovered = true; }
 		inline const Vec2f& Widget::getMousePos() const noexcept	{ return context.mousePos; }
 		inline const Vec2f& Widget::getMousePosOld() const noexcept	{ return context.mousePosOld; }
 		inline bool Widget::isMBtnLeftDown() const noexcept			{ return isActive() && context.mouseDown; }

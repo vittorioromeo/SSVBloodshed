@@ -63,8 +63,11 @@ namespace ob
 			template<typename T = float> inline Vec2<T> getVertexSW() const noexcept { return Vec2<T>(getLeft(), getBottom()); }
 			template<typename T = float> inline Vec2<T> getVertexSE() const noexcept { return Vec2<T>(getRight(), getBottom()); }
 
-			inline bool isOverlapping(const Vec2f& mPoint) const noexcept	{ return mPoint.x >= getLeft() && mPoint.x < getRight() && mPoint.y >= getTop() && mPoint.y < getBottom(); }
-			inline bool contains(const Vec2f& mPoint) const noexcept		{ return isOverlapping(mPoint); }
+			inline bool isOverlapping(const Vec2f& mPoint, float mPadding) const noexcept
+			{
+				return mPoint.x >= getLeft() - mPadding && mPoint.x < getRight() + mPadding
+						&& mPoint.y >= getTop() - mPadding && mPoint.y < getBottom() + mPadding;
+			}
 		};
 	}
 }
