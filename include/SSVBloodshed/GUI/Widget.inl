@@ -30,9 +30,22 @@ namespace ob
 
 			if(tempPos != getPosition() || tempSize != getSize()) dirty = true;
 		}
+		inline void Widget::recalculateView()
+		{
+			const auto& rtSize(context.renderTexture.getSize());
+			const auto& vbSize(viewBoundsMax - viewBoundsMin);
+
+			float left{viewBoundsMin.x / rtSize.x};
+			float top{viewBoundsMin.y / rtSize.y};
+			float width{vbSize.x / rtSize.x};
+			float height{vbSize.y / rtSize.y};
+
+			view.setViewport({left, top, width, height});
+			view.setSize(vbSize); view.setCenter(viewBoundsMin + vbSize / 2.f);
+		}
 
 		inline void Widget::gainExclusiveFocus()					{ context.unFocusAll(); setFocusedSameDepth(true); }
-		inline void Widget::render(const sf::Drawable& mDrawable)	{ context.render(mDrawable); }
+		inline void Widget::render(const sf::Drawable& mDrawable)	{ context.render(parent != nullptr ? &parent->view : nullptr, mDrawable); }
 		inline void Widget::destroyRecursive()						{ context.del(*this); for(const auto& c : children) c->destroyRecursive(); }
 		inline void Widget::checkHover()							{ hovered = isOverlapping(getMousePos(), 2.f); if(hovered) context.hovered = true; }
 		inline const Vec2f& Widget::getMousePos() const noexcept	{ return context.mousePos; }

@@ -33,9 +33,11 @@ namespace ob
 			private:
 				int depth{0};
 				bool container{false}; // If true, children have a deeper depth
+				bool anyChildVisible{false}, dirty{true};
+				sf::View view;
+				Vec2f childBoundsMin, childBoundsMax;
+				Vec2f viewBoundsMin, viewBoundsMax;
 
-				// Dirtyness
-				bool dirty{true};
 
 				// Settings
 				bool hidden{false}; // Controlled by hide/show: if true, it makes the widget implicitly invisible and inactive
@@ -68,22 +70,37 @@ namespace ob
 					{
 						if(!w->isVisible()) continue;
 
+						// Recalculate sizing
 						w->recalculateSize(w->scalingX, &Widget::setWidth, &Widget::getLeft, &Widget::getRight);
 						w->recalculateSize(w->scalingY, &Widget::setHeight, &Widget::getTop, &Widget::getBottom);
+						w->recalculateFitToChildren(w->scalingX, w->scalingY);
 
+						// Recalculate temp sizing (instant resize)
 						w->recalculateSize(w->nextTempScaling, &Widget::setWidth, &Widget::getLeft, &Widget::getRight);
 						w->recalculateSize(w->nextTempScaling, &Widget::setHeight, &Widget::getTop, &Widget::getBottom);
+						w->recalculateFitToChildren(w->nextTempScaling, w->nextTempScaling);
 						if(!w->dirty) w->nextTempScaling = Scaling::Manual;
 
 						w->recalculatePosition();
+						w->recalculateView();
+
 						w->draw(); render(*w);
 					}
 				}
 				inline void refreshDirtyRecursive()
 				{
 					for(auto& w : children) w->refreshDirtyRecursive();
-					if(dirty) { refreshIfDirty(); dirty = false; }
+					if(dirty)
+					{
+						refreshIfDirty();
+						recalculateChildBounds();
+						recalculateViewBounds();
+
+						dirty = false;
+					}
 				}
+
+				void recalculateView();
 
 				inline void recalculatePosition()
 				{
@@ -110,46 +127,61 @@ namespace ob
 					(this->*mSetter)(((neighbor->*mGetterMax)() - (neighbor->*mGetterMin)()) - padding * 2.f);
 					if(tempSize != getSize()) dirty = true;
 				}
-				template<typename TS, typename TG> inline void fitToChildrenImpl(TS mSetter, TG mGetterMin, TG mGetterMax)
+				inline void recalculateChildBounds()
 				{
-					if(children.empty()) return;
+					childBoundsMin.x = childBoundsMin.y = std::numeric_limits<float>::max();
+					childBoundsMax.x = childBoundsMax.y = std::numeric_limits<float>::min();
 
-					auto tempSize(getSize()); bool found{false};
-					float dMin{std::numeric_limits<float>::max()}, dMax{std::numeric_limits<float>::min()};
+					anyChildVisible = false;
 
 					for(const auto& w : children)
 					{
 						if(w->isHidden() || w->isExcluded() || w->external) continue;
 
-						found = true;
-
-						dMin = std::min(dMin, (w->*mGetterMin)());
-						dMax = std::max(dMax, (w->*mGetterMax)());
+						anyChildVisible = true;
+						childBoundsMin.x = std::min(childBoundsMin.x, w->getLeft());
+						childBoundsMax.x = std::max(childBoundsMax.x, w->getRight());
+						childBoundsMin.y = std::min(childBoundsMin.y, w->getTop());
+						childBoundsMax.y = std::max(childBoundsMax.y, w->getBottom());
 					}
+				}
+				inline void recalculateViewBoundsImpl(Vec2f& mMin, Vec2f& mMax)
+				{
+					mMin.x = std::min(mMin.x, getLeftWithOutline());
+					mMax.x = std::max(mMax.x, getRightWithOutline());
+					mMin.y = std::min(mMin.y, getTopWithOutline());
+					mMax.y = std::max(mMax.y, getBottomWithOutline());
 
-					if(found) (this->*mSetter)(dMax - dMin + padding * 2.f);
-					else (this->*mSetter)(0.f);
+					for(auto& w : children) if(w->isVisible()) w->recalculateViewBoundsImpl(mMin, mMax);
+				}
+				inline void recalculateViewBounds()
+				{
+					viewBoundsMin = getVertexWithOutlineNW(); viewBoundsMax = getVertexWithOutlineSE();
+					recalculateViewBoundsImpl(viewBoundsMin, viewBoundsMax);
+				}
 
+				template<typename TS> inline void fitToChildrenImpl(TS mSetter, float mMin, float mMax)
+				{
+					if(children.empty()) return;
+
+					auto tempSize(getSize());
+					(this->*mSetter)(anyChildVisible ? mMax - mMin + padding * 2.f : 0.f);
 					if(tempSize != getSize()) dirty = true;
 				}
 
 				template<typename TS, typename TG> inline void recalculateSize(Scaling mScaling, TS mSetter, TG mGetterMin, TG mGetterMax)
 				{
-					switch(mScaling)
-					{
-						case Scaling::Manual:																return;
-						case Scaling::FitToParent:		fitToParentImpl(mSetter, mGetterMin, mGetterMax);	return;
-						case Scaling::FitToNeighbor:	fitToNeighborImpl(mSetter, mGetterMin, mGetterMax);	return;
-						case Scaling::FitToChildren:	fitToChildrenImpl(mSetter, mGetterMin, mGetterMax);	return;
-					}
+					if(mScaling == Scaling::FitToParent) fitToParentImpl(mSetter, mGetterMin, mGetterMax);
+					else if(mScaling == Scaling::FitToNeighbor) fitToNeighborImpl(mSetter, mGetterMin, mGetterMax);
+				}
+				inline void recalculateFitToChildren(Scaling mScalingX, Scaling mScalingY)
+				{
+					if(mScalingX == Scaling::FitToChildren) fitToChildrenImpl(&Widget::setWidth, childBoundsMin.x, childBoundsMax.x);
+					if(mScalingY == Scaling::FitToChildren) fitToChildrenImpl(&Widget::setHeight, childBoundsMin.y, childBoundsMax.y);
 				}
 
 				void checkHover();
-				inline void checkPressed()
-				{
-					pressedOld = pressed;
-					pressed = isMBtnLeftDown() && hovered;
-				}
+				inline void checkPressed() { pressedOld = pressed; pressed = isMBtnLeftDown() && hovered; }
 
 				inline void setFocusedRecursive(bool mValue) { dirty = true; focused = mValue; for(auto& w : children) w->setFocusedRecursive(mValue); }
 				inline void setFocusedSameDepth(bool mValue) { dirty = true; focused = mValue; for(auto& w : children) if(w->depth == depth) w->setFocusedSameDepth(mValue); }
@@ -233,3 +265,4 @@ namespace ob
 }
 
 #endif
+

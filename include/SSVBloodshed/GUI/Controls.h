@@ -19,6 +19,7 @@ namespace ob
 		{
 			private:
 				ssvs::BitmapText text;
+				bool scaleWithText{true};
 
 				inline void draw() override { text.setPosition(getX(), getY() - 1.f); render(text); }
 
@@ -30,12 +31,13 @@ namespace ob
 					setString(std::move(mText));
 				}
 
+				inline void setScaleWithText(bool mValue) noexcept { scaleWithText = mValue; }
 				inline void setString(std::string mLabel)
 				{
 					// TODO: dirty here
 					text.setString(std::move(mLabel));
 					text.setOrigin(ssvs::getGlobalHalfSize(text));
-					setSize(ssvs::getGlobalSize(text));
+					if(scaleWithText) setSize(ssvs::getGlobalSize(text));
 				}
 				inline const std::string& getString() const noexcept { return text.getString(); }
 				inline decltype(text)& getText() noexcept { return text; }
@@ -265,7 +267,7 @@ namespace ob
 				ssvu::Delegate<void()> onTextChanged;
 
 				TextBox(Context& mContext, const Vec2f& mSize) : Widget{mContext, mSize / 2.f},
-					tBox(create<Widget>()), lblText(create<Label>(""))
+					tBox(create<Widget>()), lblText(tBox.create<Label>(""))
 				{
 					context.onAnyEvent += [this](const sf::Event& mEvent)
 					{
@@ -290,6 +292,7 @@ namespace ob
 					tBox.setFillColor(sf::Color::White);
 					tBox.setScaling(Widget::Scaling::FitToNeighbor);
 
+					lblText.setScaleWithText(false);
 					lblText.setScaling(Widget::Scaling::FitToNeighbor);
 
 					tBox.attach(At::Center, *this, At::Center);
@@ -355,7 +358,7 @@ namespace ob
 					{
 						setSize(ssvu::getClampedMin(getWidth(), minWidth), ssvu::getClampedMin(getHeight(), minHeight));
 
-						auto oldNW(getVertexNW<float>());
+						auto oldNW(getVertexNW());
 						setSize(getMousePos() - (getMousePosOld() - getSize()));
 						setPosition(oldNW + getHalfSize());
 					}

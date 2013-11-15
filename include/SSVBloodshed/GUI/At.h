@@ -53,10 +53,10 @@ namespace ob
 				case At::Right:		return {mWidget.getRight(), mWidget.getY()};
 				case At::Top:		return {mWidget.getX(), mWidget.getTop()};
 				case At::Bottom:	return {mWidget.getX(), mWidget.getBottom()};
-				case At::NW:		return mWidget.template getVertexNW<float>();
-				case At::NE:		return mWidget.template getVertexNE<float>();
-				case At::SW:		return mWidget.template getVertexSW<float>();
-				case At::SE:		return mWidget.template getVertexSE<float>();
+				case At::NW:		return mWidget.getVertexNW();
+				case At::NE:		return mWidget.getVertexNE();
+				case At::SW:		return mWidget.getVertexSW();
+				case At::SE:		return mWidget.getVertexSE();
 				case At::Center:	return mWidget.getPosition();
 			}
 

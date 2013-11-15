@@ -24,15 +24,18 @@ namespace ob
 				sf::Sprite sprite;
 				ssvu::MemoryManager<Widget> widgets;
 				std::vector<Widget*> children;
-				bool hovered{false}, busy{false}, focused{false};
+				bool hovered{false}, busy{false}, focused{false}, unfocusOnUnhover{true};
 				Vec2f mousePos, mousePosOld;
 				bool mouseLDown{false}, mouseLDownOld{false}, mouseRDown{false}, mouseRDownOld{false};
-				bool unfocusOnUnhover{true};
 
-				inline void del(Widget& mWidget) noexcept			{ widgets.del(mWidget); }
-				inline void render(const sf::Drawable& mDrawable)	{ renderTexture.draw(mDrawable); }
-				inline void unFocusAll()							{ for(auto& w : children) w->setFocusedRecursive(false); }
-				inline void bringToFront(Widget& mWidget)			{ ssvu::eraseRemove(children, &mWidget); children.insert(std::begin(children), &mWidget); }
+				inline void del(Widget& mWidget) noexcept { widgets.del(mWidget); }
+				inline void render(sf::View* mView, const sf::Drawable& mDrawable)
+				{
+					renderTexture.setView(mView != nullptr ? *mView : gameWindow.getRenderWindow().getView());
+					renderTexture.draw(mDrawable);
+				}
+				inline void unFocusAll() { for(auto& w : children) w->setFocusedRecursive(false); }
+				inline void bringToFront(Widget& mWidget) { ssvu::eraseRemove(children, &mWidget); children.insert(std::begin(children), &mWidget); }
 
 				template<typename T, typename... TArgs> inline T& allocateWidget(TArgs&&... mArgs)
 				{
