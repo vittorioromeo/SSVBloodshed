@@ -92,6 +92,7 @@ namespace ob
 				{
 					updateMouse();
 
+					// TODO: cleanup dead widgets here for all widgets
 					ssvu::eraseRemoveIf(children, &ssvu::MemoryManager<Widget>::isDead<Widget*>);
 					widgets.refresh();
 
