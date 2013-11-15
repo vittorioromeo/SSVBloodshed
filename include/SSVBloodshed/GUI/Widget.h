@@ -33,7 +33,7 @@ namespace ob
 			private:
 				int depth{0};
 				bool container{false}; // If true, children have a deeper depth
-				bool anyChildVisible{false}, dirty{true};
+				bool dirty{true};
 				sf::View view;
 				Vec2f childBoundsMin, childBoundsMax;
 				Vec2f viewBoundsMin, viewBoundsMax;
@@ -107,7 +107,7 @@ namespace ob
 					if(neighbor == nullptr) return;
 
 					auto tempPos(getPosition());
-					setPosition(getVecPos(to, *neighbor) + offset + (this->getPosition() - getVecPos(from, *this)));
+					setPosition(getVecPos(to, *neighbor) + offset + (getPosition() - getVecPos(from, *this)));
 					if(tempPos != getPosition()) dirty = true;
 				}
 
@@ -129,16 +129,12 @@ namespace ob
 				}
 				inline void recalculateChildBounds()
 				{
-					childBoundsMin.x = childBoundsMin.y = std::numeric_limits<float>::max();
-					childBoundsMax.x = childBoundsMax.y = std::numeric_limits<float>::min();
-
-					anyChildVisible = false;
+					childBoundsMin = childBoundsMax = getPosition();
 
 					for(const auto& w : children)
 					{
 						if(w->isHidden() || w->isExcluded() || w->external) continue;
 
-						anyChildVisible = true;
 						childBoundsMin.x = std::min(childBoundsMin.x, w->getLeft());
 						childBoundsMax.x = std::max(childBoundsMax.x, w->getRight());
 						childBoundsMin.y = std::min(childBoundsMin.y, w->getTop());
@@ -165,7 +161,7 @@ namespace ob
 					if(children.empty()) return;
 
 					auto tempSize(getSize());
-					(this->*mSetter)(anyChildVisible ? mMax - mMin + padding * 2.f : 0.f);
+					(this->*mSetter)(mMax - mMin + padding * 2.f);
 					if(tempSize != getSize()) dirty = true;
 				}
 

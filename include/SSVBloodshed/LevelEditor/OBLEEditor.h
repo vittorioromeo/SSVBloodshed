@@ -152,6 +152,7 @@ namespace ob
 				form.setResizable(false); form.setPadding(2.f);
 				auto& mainStrip(form.create<GUI::WidgetStrip>(GUI::At::NW, GUI::At::SW, GUI::At::Bottom));
 				mainStrip.attach(GUI::At::Center, form, GUI::At::Center);
+				mainStrip.setPadding(2.f);
 
 				for(auto& p : mTile.getParams())
 				{
