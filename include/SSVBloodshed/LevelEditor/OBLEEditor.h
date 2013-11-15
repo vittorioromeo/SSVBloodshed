@@ -145,9 +145,11 @@ namespace ob
 			{
 				if(mTile.getParams().empty()) return;
 
-				GUI::Form& form(guiCtx.create<GUI::Form>("PARAMS", Vec2f{300.f, 300.f}, Vec2f{100.f, 100.f}));
+				std::string title{"PARAMS (" + ssvu::toStr(mTile.getX()) + ", " +ssvu::toStr(mTile.getY()) + ", " + ssvu::toStr(mTile.getZ()) + ")"};
+
+				GUI::Form& form(guiCtx.create<GUI::Form>(title, Vec2f{300.f, 300.f}, Vec2f{100.f, 100.f}));
 				form.setScaling(GUI::Widget::Scaling::FitToChildren);
-				form.setPadding(2.f);
+				form.setResizable(false); form.setPadding(2.f);
 				auto& mainStrip(form.create<GUI::WidgetStrip>(GUI::At::NW, GUI::At::SW, GUI::At::Bottom));
 				mainStrip.attach(GUI::At::Center, form, GUI::At::Center);
 
@@ -169,7 +171,15 @@ namespace ob
 					else
 					{
 						auto& textBox(strip.create<GUI::TextBox>(Vec2f(56.f, 8.f)));
-						textBox.setString(ssvu::toStr(p.second));
+						auto str(ssvu::toStr(p.second));
+
+						{
+							auto i(str.size());
+							while(i > 0 && str[i - 1] == '\n') --i;
+							str.erase(i, str.size());
+						}
+
+						textBox.setString(str);
 						textBox.onTextChanged += [key, &mTile, &textBox]{ mTile.setParam(key, textBox.getString()); };
 						strip += textBox;
 					}
@@ -205,9 +215,10 @@ namespace ob
 
 			inline OBLETile& getPickTile() const noexcept { return currentLevel->getTile(brush.x, brush.y, currentZ); }
 
-			inline void paint()	{ for(auto& t : currentTiles) { t->initFromEntry(getCurrentEntry()); t->setRot(currentRot); t->setId(assets, currentId); } }
-			inline void del()	{ for(auto& t : currentTiles) { createParamsForm(*t); break; } } //{ currentLevel->del(*t); } }
-			inline void pick()	{ brush.idx = int(getPickTile().getType()); }
+			inline void paint()			{ for(auto& t : currentTiles) { t->initFromEntry(getCurrentEntry()); t->setRot(currentRot); t->setId(assets, currentId); } }
+			inline void del()			{ for(auto& t : currentTiles) { currentLevel->del(*t); } }
+			inline void pick()			{ brush.idx = int(getPickTile().getType()); }
+			inline void openParams()	{ createParamsForm(getPickTile()); }
 
 			inline void copyTiles()		{ auto& t(getPickTile()); copiedTile = t; }
 			inline void pasteTiles()	{ for(auto& t : currentTiles) { t->initFromEntry(database.get(copiedTile.getType())); t->setParams(copiedTile.getParams()); t->refreshIdText(assets); } }

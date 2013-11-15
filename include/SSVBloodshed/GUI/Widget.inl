@@ -20,15 +20,15 @@ namespace ob
 
 		inline void Widget::updateRecursive(float mFT)
 		{
-			positionOld = getPosition();
-			sizeOld = getSize();
+			auto tempPos(getPosition());
+			auto tempSize(getSize());
 
-			ssvu::eraseRemoveIf(children, [](const Widget* mW){ return ssvu::MemoryManager<Widget>::isDead(mW); });
+			ssvu::eraseRemoveIf(children, &ssvu::MemoryManager<Widget>::isDead<Widget*>);
 			update(mFT);
 			if(isPressed()) context.busy = true;
 			for(auto& w : children) w->updateRecursive(mFT);
 
-			if(positionOld != getPosition() || sizeOld != getSize()) dirty = true;
+			if(tempPos != getPosition() || tempSize != getSize()) dirty = true;
 		}
 
 		inline void Widget::gainExclusiveFocus()					{ context.unFocusAll(); setFocusedSameDepth(true); }
@@ -37,8 +37,8 @@ namespace ob
 		inline void Widget::checkHover()							{ hovered = isOverlapping(getMousePos(), 2.f); if(hovered) context.hovered = true; }
 		inline const Vec2f& Widget::getMousePos() const noexcept	{ return context.mousePos; }
 		inline const Vec2f& Widget::getMousePosOld() const noexcept	{ return context.mousePosOld; }
-		inline bool Widget::isMBtnLeftDown() const noexcept			{ return isActive() && context.mouseDown; }
-		inline bool Widget::wasPressed() const noexcept				{ return context.mouseDownOld || (isHovered() && pressedOld); }
+		inline bool Widget::isMBtnLeftDown() const noexcept			{ return isActive() && context.mouseLDown; }
+		inline bool Widget::wasPressed() const noexcept				{ return context.mouseLDownOld || (isHovered() && pressedOld); }
 	}
 }
 

@@ -25,12 +25,14 @@ namespace ob
 				ssvu::MemoryManager<Widget> widgets;
 				std::vector<Widget*> children;
 				bool hovered{false}, busy{false}, focused{false};
-				Vec2f mousePos, mousePosOld; bool mouseDown{false}, mouseDownOld{false};
+				Vec2f mousePos, mousePosOld;
+				bool mouseLDown{false}, mouseLDownOld{false}, mouseRDown{false}, mouseRDownOld{false};
+				bool unfocusOnUnhover{true};
 
 				inline void del(Widget& mWidget) noexcept			{ widgets.del(mWidget); }
 				inline void render(const sf::Drawable& mDrawable)	{ renderTexture.draw(mDrawable); }
 				inline void unFocusAll()							{ for(auto& w : children) w->setFocusedRecursive(false); }
-				inline void bringToFront(Widget& mWidget)			{ for(auto& w : children) if(w == &mWidget) { std::swap(w, children[0]); return; } }
+				inline void bringToFront(Widget& mWidget)			{ ssvu::eraseRemove(children, &mWidget); children.insert(std::begin(children), &mWidget); }
 
 				template<typename T, typename... TArgs> inline T& allocateWidget(TArgs&&... mArgs)
 				{
@@ -40,53 +42,32 @@ namespace ob
 
 				inline void updateMouse()
 				{
-					mouseDownOld = mouseDown;
-					mouseDown = gameWindow.isBtnPressed(ssvs::MBtn::Left);
+					mouseLDownOld = mouseLDown;
+					mouseRDownOld = mouseRDown;
 					mousePosOld = mousePos;
+					mouseLDown = gameWindow.isBtnPressed(ssvs::MBtn::Left);
+					mouseRDown = gameWindow.isBtnPressed(ssvs::MBtn::Right);
 					mousePos = gameWindow.getMousePosition();
 				}
 
 				inline void updateFocus()
 				{
+					// If the context is busy (dragging, resizing, editing...), do not change focus
 					if(isBusy()) return;
 
-					if(mouseDown && !ssvu::containsAnyIf(widgets, [](const ssvu::Uptr<Widget>& mW){ return mW->isHovered(); }))
-					{
-						unFocusAll();
-						return;
-					}
+					// If mouse is pressed outside of the context or context is unfocused, unfocus everything
+					if((unfocusOnUnhover || mouseLDown || mouseRDown) && !hovered) { unFocusAll(); return; }
 
+					// Find the topmost pressed child, if any
 					Widget* found{nullptr};
-
-					for(auto& c : children)
-					{
-						if(!c->isAnyChildPressed()) continue;
-
-						found = c;
-						bringToFront(*c);
-						break;
-					}
-
+					for(auto& c : children) if(c->isAnyChildPressed()) { found = c; bringToFront(*c); break; }
 					if(found == nullptr) return;
-					for(auto& c : children) if(found != c) c->setFocusedRecursive(false);
 
-					const auto& hierarchy(found->getAllRecursive());
-					int maxPressedDepth{-1};
-					Widget* deepest{nullptr};
+					// Find the "deepest" pressed child in the hierarchy
+					for(const auto& w : found->getAllRecursive()) if(w->isPressed() && w->depth > found->depth) found = w;
 
-					for(const auto& w : hierarchy)
-					{
-						if(w->isPressed() && w->depth > maxPressedDepth)
-						{
-							maxPressedDepth = w->depth;
-							deepest = w;
-						}
-					}
-
-					if(maxPressedDepth == -1) return;
-
-					for(const auto& w : hierarchy) if(w->depth != maxPressedDepth) { w->dirty = true; w->focused = false; }
-					deepest->setFocusedSameDepth(true);
+					// Unfocus everything but the widgets as deep as the deepest child
+					unFocusAll(); found->setFocusedSameDepth(true);
 				}
 
 			public:
@@ -101,14 +82,14 @@ namespace ob
 				template<typename T, typename... TArgs> inline T& create(TArgs&&... mArgs)
 				{
 					auto& result(allocateWidget<T>(std::forward<TArgs>(mArgs)...));
-					children.push_back(&result); return result;
+					children.insert(std::begin(children), &result); return result;
 				}
 
 				inline void update(float mFT)
 				{
 					updateMouse();
 
-					ssvu::eraseRemoveIf(children, [](const Widget* mW){ return ssvu::MemoryManager<Widget>::isDead(mW); });
+					ssvu::eraseRemoveIf(children, &ssvu::MemoryManager<Widget>::isDead<Widget*>);
 					widgets.refresh();
 
 					hovered = false;
@@ -117,8 +98,7 @@ namespace ob
 					updateFocus();
 
 					busy = focused = false;
-					for(auto& w : children) w->updateRecursive(mFT);
-					for(auto& w : children) w->refreshDirtyRecursive();
+					for(auto& w : children) { w->updateRecursive(mFT); w->refreshDirtyRecursive(); }
 					for(auto& w : widgets) { w->checkHover(); if(w->isFocused()) focused = true; }
 
 				}

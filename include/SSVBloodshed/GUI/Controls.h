@@ -342,7 +342,8 @@ namespace ob
 				Widget& fbResizer;
 				bool draggable{true}, resizable{true}, collapsed{false};
 				Action action;
-				float minWidth{65.f}, minHeight{65.f}, previousHeight;
+				float minWidth{45.f}, minHeight{45.f}, oldHeight;
+				Scaling oldScalingX, oldScalingY;
 
 				inline void update(float) override
 				{
@@ -366,7 +367,6 @@ namespace ob
 				inline void refreshIfDirty() override
 				{
 					setFillColor(isFocused() ? colorFocused : colorUnfocused);
-					fbBar.setSize(getSize().x + 4.f, 12.f);
 				}
 
 			public:
@@ -378,6 +378,8 @@ namespace ob
 					fbBar.getBtnClose().onUse += [this]{ hide(); };
 					fbBar.getBtnMinimize().onUse += [this]{ /* TODO */ };
 					fbBar.getBtnCollapse().onUse += [this]{ toggleCollapsed(); };
+					fbBar.setScalingX(Scaling::FitToNeighbor);
+					fbBar.setHeight(12.f); fbBar.setPadding(-2.f);
 
 					fbResizer.setFillColor(sf::Color::Transparent);
 					fbResizer.setOutlineThickness(2); fbResizer.setOutlineColor(sf::Color::Black);
@@ -390,14 +392,18 @@ namespace ob
 				{
 					if(!collapsed)
 					{
+						oldHeight = getHeight();
+						oldScalingX = getScalingX();
+						oldScalingY = getScalingY();
+						setScaling(Scaling::Manual);
 						fbBar.getBtnCollapse().getLabel().setString("v");
-						previousHeight = getHeight();
 						resizeFromBottom(0.f);
 					}
 					else
 					{
+						setScalingX(oldScalingX); setScalingY(oldScalingY);
 						fbBar.getBtnCollapse().getLabel().setString("^");
-						resizeFromBottom(previousHeight);
+						resizeFromBottom(oldHeight);
 					}
 
 					collapsed = !collapsed;

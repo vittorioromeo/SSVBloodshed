@@ -36,7 +36,6 @@ namespace ob
 
 				// Dirtyness
 				bool dirty{true};
-				Vec2f positionOld, sizeOld;
 
 				// Settings
 				bool hidden{false}; // Controlled by hide/show: if true, it makes the widget implicitly invisible and inactive
@@ -53,6 +52,7 @@ namespace ob
 
 				// Scaling
 				Scaling scalingX{Scaling::Manual}, scalingY{Scaling::Manual};
+				Scaling nextTempScaling{Scaling::Manual};
 				float padding{0.f};
 
 				inline virtual void update(float) { }
@@ -67,8 +67,14 @@ namespace ob
 					for(auto& w : hierarchy)
 					{
 						if(!w->isVisible()) continue;
+
 						w->recalculateSize(w->scalingX, &Widget::setWidth, &Widget::getLeft, &Widget::getRight);
 						w->recalculateSize(w->scalingY, &Widget::setHeight, &Widget::getTop, &Widget::getBottom);
+
+						w->recalculateSize(w->nextTempScaling, &Widget::setWidth, &Widget::getLeft, &Widget::getRight);
+						w->recalculateSize(w->nextTempScaling, &Widget::setHeight, &Widget::getTop, &Widget::getBottom);
+						if(!w->dirty) w->nextTempScaling = Scaling::Manual;
+
 						w->recalculatePosition();
 						w->draw(); render(*w);
 					}
@@ -83,48 +89,59 @@ namespace ob
 				{
 					if(neighbor == nullptr) return;
 
-					positionOld = getPosition();
+					auto tempPos(getPosition());
 					setPosition(getVecPos(to, *neighbor) + offset + (this->getPosition() - getVecPos(from, *this)));
-					if(positionOld != getPosition()) dirty = true;
+					if(tempPos != getPosition()) dirty = true;
 				}
+
+				template<typename TS, typename TG> inline void fitToParentImpl(TS mSetter, TG mGetterMin, TG mGetterMax)
+				{
+					if(parent == nullptr) return;
+
+					auto tempSize(getSize());
+					(this->*mSetter)(((parent->*mGetterMax)() - (parent->*mGetterMin)()) - padding * 2.f);
+					if(tempSize != getSize()) dirty = true;
+				}
+				template<typename TS, typename TG> inline void fitToNeighborImpl(TS mSetter, TG mGetterMin, TG mGetterMax)
+				{
+					if(neighbor == nullptr) return;
+
+					auto tempSize(getSize());
+					(this->*mSetter)(((neighbor->*mGetterMax)() - (neighbor->*mGetterMin)()) - padding * 2.f);
+					if(tempSize != getSize()) dirty = true;
+				}
+				template<typename TS, typename TG> inline void fitToChildrenImpl(TS mSetter, TG mGetterMin, TG mGetterMax)
+				{
+					if(children.empty()) return;
+
+					auto tempSize(getSize()); bool found{false};
+					float dMin{std::numeric_limits<float>::max()}, dMax{std::numeric_limits<float>::min()};
+
+					for(const auto& w : children)
+					{
+						if(w->isHidden() || w->isExcluded() || w->external) continue;
+
+						found = true;
+
+						dMin = std::min(dMin, (w->*mGetterMin)());
+						dMax = std::max(dMax, (w->*mGetterMax)());
+					}
+
+					if(found) (this->*mSetter)(dMax - dMin + padding * 2.f);
+					else (this->*mSetter)(0.f);
+
+					if(tempSize != getSize()) dirty = true;
+				}
+
 				template<typename TS, typename TG> inline void recalculateSize(Scaling mScaling, TS mSetter, TG mGetterMin, TG mGetterMax)
 				{
-					if(mScaling == Scaling::Manual) return;
-
-					sizeOld = getSize();
-
-					if(mScaling == Scaling::FitToParent)
+					switch(mScaling)
 					{
-						if(parent == nullptr) return;
-						(this->*mSetter)(((parent->*mGetterMax)() - (parent->*mGetterMin)()) - padding * 2.f);
+						case Scaling::Manual:																return;
+						case Scaling::FitToParent:		fitToParentImpl(mSetter, mGetterMin, mGetterMax);	return;
+						case Scaling::FitToNeighbor:	fitToNeighborImpl(mSetter, mGetterMin, mGetterMax);	return;
+						case Scaling::FitToChildren:	fitToChildrenImpl(mSetter, mGetterMin, mGetterMax);	return;
 					}
-					else if(mScaling == Scaling::FitToNeighbor)
-					{
-						if(neighbor == nullptr) return;
-						(this->*mSetter)(((neighbor->*mGetterMax)() - (neighbor->*mGetterMin)()) - padding * 2.f);
-					}
-					else if(mScaling == Scaling::FitToChildren)
-					{
-						if(children.empty()) return;
-
-						bool found{false};
-						float dMin{std::numeric_limits<float>::max()}, dMax{std::numeric_limits<float>::min()};
-
-						for(const auto& w : children)
-						{
-							if(w->isHidden() || w->isExcluded() || w->external) continue;
-
-							found = true;
-
-							dMin = std::min(dMin, (w->*mGetterMin)());
-							dMax = std::max(dMax, (w->*mGetterMax)());
-						}
-
-						if(found) (this->*mSetter)(dMax - dMin + padding * 2.f);
-						else (this->*mSetter)(0.f);
-					}
-
-					if(sizeOld != getSize()) dirty = true;
 				}
 
 				void checkHover();
@@ -153,6 +170,10 @@ namespace ob
 				inline void attach(At mFrom, Widget &mNeigh, At mTo, const Vec2f& mOffset = Vec2f{0.f, 0.f}) { dirty = true; from = mFrom; neighbor = &mNeigh; to = mTo; offset = mOffset; }
 				inline void show() { setHiddenRecursive(false); }
 				inline void hide() { setHiddenRecursive(true); }
+
+				inline void fitToParent()	{ dirty = true; nextTempScaling = Scaling::FitToParent; }
+				inline void fitToNeighbor()	{ dirty = true; nextTempScaling = Scaling::FitToNeighbor; }
+				inline void fitToChildren()	{ dirty = true; nextTempScaling = Scaling::FitToChildren; }
 
 				// An hidden widget is both invisible and inactive (should be controlled by collapsing windows)
 				inline void setHiddenRecursive(bool mValue)		{ dirty = true; hidden = mValue; for(auto& w : children) w->setHiddenRecursive(mValue); }
@@ -196,6 +217,8 @@ namespace ob
 				inline bool isAnyChildFocused() const noexcept	{ for(auto& w : children) if(w->isAnyChildFocused()) return true; if(isFocused()) return true; return false; }
 				inline bool isAnyChildPressed() const noexcept	{ for(auto& w : children) if(w->isAnyChildPressed()) return true; if(isPressed()) return true; return false; }
 				inline float getPadding() const noexcept		{ return padding; }
+				inline Scaling getScalingX() const noexcept		{ return scalingX; }
+				inline Scaling getScalingY() const noexcept		{ return scalingY; }
 				inline decltype(children)& getChildren() noexcept { return children; }
 
 				inline void fillAllRecursive(std::vector<Widget*>& mTarget)		{ mTarget.push_back(this); for(const auto& w : children) w->fillAllRecursive(mTarget); }

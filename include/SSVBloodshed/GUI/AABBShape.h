@@ -16,16 +16,16 @@ namespace ob
 			using sf::RectangleShape::RectangleShape;
 
 			AABBShape() = default;
-			AABBShape(const Vec2f& mPosition, const Vec2f& mHalfSize) { AABBShape::setPosition(mPosition); AABBShape::setSize(mHalfSize * 2.f); }
+			AABBShape(const Vec2f& mPosition, const Vec2f& mHalfSize) { AABBShape::setSize(mHalfSize * 2.f); AABBShape::setPosition(mPosition); }
 
 			inline void setPosition(const Vec2f& mPosition)		{ sf::RectangleShape::setPosition(mPosition); }
-			inline void setPosition(float mX, float mY)			{ sf::RectangleShape::setPosition(Vec2f{mX, mY}); }
+			inline void setPosition(float mX, float mY)			{ AABBShape::setPosition(Vec2f{mX, mY}); }
 			inline void setSize(const Vec2f& mSize)				{ sf::RectangleShape::setSize(mSize); sf::RectangleShape::setOrigin(getHalfSize()); }
-			inline void setSize(float mX, float mY)				{ sf::RectangleShape::setSize(Vec2f{mX, mY}); sf::RectangleShape::setOrigin(getHalfSize()); }
-			inline void setWidth(float mWidth) noexcept			{ setSize(mWidth, getHeight()); }
-			inline void setHeight(float mHeight) noexcept		{ setSize(getWidth(), mHeight); }
-			inline void setX(float mX) noexcept					{ setPosition(mX, getY()); }
-			inline void setY(float mY) noexcept					{ setPosition(getX(), mY); }
+			inline void setSize(float mX, float mY)				{ AABBShape::setSize(Vec2f{mX, mY}); }
+			inline void setWidth(float mWidth) noexcept			{ AABBShape::setSize(mWidth, getHeight()); }
+			inline void setHeight(float mHeight) noexcept		{ AABBShape::setSize(getWidth(), mHeight); }
+			inline void setX(float mX) noexcept					{ AABBShape::setPosition(mX, getY()); }
+			inline void setY(float mY) noexcept					{ AABBShape::setPosition(getX(), mY); }
 
 			inline float getX() const noexcept					{ return sf::RectangleShape::getPosition().x; }
 			inline float getY() const noexcept					{ return sf::RectangleShape::getPosition().y; }

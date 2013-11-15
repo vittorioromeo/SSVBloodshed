@@ -30,7 +30,12 @@ namespace ob
 
 			inline void refreshIdText(OBAssets& mAssets)
 			{
-				if(hasParam("id") && idText == nullptr) idText.reset(new ssvs::BitmapText(*mAssets.obStroked));
+				if(hasParam("id") && idText == nullptr)
+				{
+					idText.reset(new ssvs::BitmapText(*mAssets.obStroked));
+					idText->setScale(0.5f, 0.5f);
+					idText->setTracking(-3);
+				}
 			}
 
 			inline void setRot(int mDeg) noexcept { if(hasParam("rot")) params["rot"] = mDeg; }
@@ -44,9 +49,17 @@ namespace ob
 			inline void setParam(const std::string& mKey, const std::string& mValue)
 			{
 				auto& p(params[mKey]);
-				if(ssvuj::is<int>(p)) p = std::stoi(mValue);
-				else if(ssvuj::is<float>(p)) p = std::stof(mValue);
-				else if(ssvuj::is<bool>(p)) p = mValue == "true" ? true : false;
+				try
+				{
+					if(ssvuj::is<int>(p)) p = std::stoi(mValue);
+					else if(ssvuj::is<float>(p)) p = std::stof(mValue);
+					else if(ssvuj::is<bool>(p)) p = mValue == "true" ? true : false;
+				}
+				catch(const std::exception& mError)
+				{
+					ssvu::lo("ob::OBLETile::setParam") << "Error setting parameter <" << mKey << ">: <" << mValue << ">!\n";
+					ssvu::lo("ob::OBLETile::setParam") << mError.what() << std::endl;
+				}
 			}
 
 			inline void update()
