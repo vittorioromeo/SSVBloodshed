@@ -34,7 +34,6 @@ namespace ob
 				inline void setScaleWithText(bool mValue) noexcept { scaleWithText = mValue; }
 				inline void setString(std::string mLabel)
 				{
-					// TODO: dirty here
 					text.setString(std::move(mLabel));
 					text.setOrigin(ssvs::getGlobalHalfSize(text));
 					if(scaleWithText) setSize(ssvs::getGlobalSize(text));
@@ -99,13 +98,13 @@ namespace ob
 				Label& lblLabel;
 				bool state{false};
 
-				inline void refreshIfDirty() override
+				inline void update(float) override { if(isClickedOnce()) setState(!state); }
+				inline void draw() override
 				{
 					float w{lblLabel.getRight() - cbsbBox.getLeft()};
 					float h{lblLabel.getBottom() - cbsbBox.getTop()};
 					setSize(w, h);
 				}
-				inline void update(float) override { if(isClickedOnce()) setState(!state); }
 
 			public:
 				ssvu::Delegate<void()> onStateChanged;
@@ -134,7 +133,7 @@ namespace ob
 				bool tabbed{false};
 				float widgetOffset{6.f}, tabSize;
 
-				inline void refreshIfDirty() override
+				inline void update(float) override
 				{
 					if(widgets.empty()) return;
 
@@ -182,9 +181,6 @@ namespace ob
 				{
 					setSize(wsThis.getSize());
 					if(!wsShutter.isAnyChildFocused()) wsShutter.setExcludedRecursive(true);
-				}
-				inline void refreshIfDirty() override
-				{
 					wsShutter.setFillColor(wsShutter.isFocused() ? colorFocused : colorUnfocused);
 				}
 
@@ -290,10 +286,10 @@ namespace ob
 					tBox.setOutlineColor(sf::Color::Black);
 					tBox.setOutlineThickness(2);
 					tBox.setFillColor(sf::Color::White);
-					tBox.setScaling(Widget::Scaling::FitToNeighbor);
+					tBox.setScaling(Scaling::FitToNeighbor);
 
 					lblText.setScaleWithText(false);
-					lblText.setScaling(Widget::Scaling::FitToNeighbor);
+					lblText.setScaling(Scaling::FitToNeighbor);
 
 					tBox.attach(At::Center, *this, At::Center);
 					lblText.attach(At::Center, tBox, At::Center);
@@ -347,29 +343,25 @@ namespace ob
 				Action action;
 				float minWidth{45.f}, minHeight{45.f}, oldHeight;
 				Scaling oldScalingX, oldScalingY;
+				Vec2f dragOrigin;
 
 				inline void update(float) override
 				{
-					if(action == Action::Move)
-					{
-						setPosition(getMousePos() - (getMousePosOld() - getPosition()));
-					}
+					setFillColor(isFocused() ? colorFocused : colorUnfocused);
+
+					if(action == Action::Move) setPosition(getMousePos() - dragOrigin);
 					else if(action == Action::Resize)
 					{
-						setSize(ssvu::getClampedMin(getWidth(), minWidth), ssvu::getClampedMin(getHeight(), minHeight));
+						//setSize(ssvu::getClampedMin(getWidth(), minWidth), ssvu::getClampedMin(getHeight(), minHeight));
 
 						auto oldNW(getVertexNW());
-						setSize(getMousePos() - (getMousePosOld() - getSize()));
+						setSize(getMousePos() - dragOrigin);
 						setPosition(oldNW + getHalfSize());
 					}
 
-					if(draggable && fbBar.isClickedAlways()) action = Action::Move;
-					else if(resizable && fbResizer.isClickedAlways()) action = Action::Resize;
+					if(draggable && fbBar.isClickedAlways()) { action = Action::Move; dragOrigin = getMousePos() - getPosition(); }
+					else if(resizable && fbResizer.isClickedAlways()) { action = Action::Resize; dragOrigin = getMousePos() - getSize(); }
 					else if(!isMBtnLeftDown()) action = Action::None;
-				}
-				inline void refreshIfDirty() override
-				{
-					setFillColor(isFocused() ? colorFocused : colorUnfocused);
 				}
 
 			public:

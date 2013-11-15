@@ -148,7 +148,7 @@ namespace ob
 				std::string title{"PARAMS (" + ssvu::toStr(mTile.getX()) + ", " +ssvu::toStr(mTile.getY()) + ", " + ssvu::toStr(mTile.getZ()) + ")"};
 
 				GUI::Form& form(guiCtx.create<GUI::Form>(title, Vec2f{300.f, 300.f}, Vec2f{100.f, 100.f}));
-				form.setScaling(GUI::Widget::Scaling::FitToChildren);
+				form.setScaling(GUI::Scaling::FitToChildren);
 				form.setResizable(false); form.setPadding(2.f);
 				auto& mainStrip(form.create<GUI::WidgetStrip>(GUI::At::NW, GUI::At::SW, GUI::At::Bottom));
 				mainStrip.attach(GUI::At::Center, form, GUI::At::Center);

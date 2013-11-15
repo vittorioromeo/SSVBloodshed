@@ -15,20 +15,17 @@ namespace ob
 		template<typename T, typename... TArgs> inline T& Widget::create(TArgs&&... mArgs)
 		{
 			auto& result(context.allocateWidget<T>(std::forward<TArgs>(mArgs)...));
-			dirty = true; result.setParent(*this); return result;
+			result.setParent(*this); return result;
 		}
 
 		inline void Widget::updateRecursive(float mFT)
 		{
-			auto tempPos(getPosition());
-			auto tempSize(getSize());
-
 			ssvu::eraseRemoveIf(children, &ssvu::MemoryManager<Widget>::isDead<Widget*>);
 			update(mFT);
 			if(isPressed()) context.busy = true;
 			for(auto& w : children) w->updateRecursive(mFT);
-
-			if(tempPos != getPosition() || tempSize != getSize()) dirty = true;
+			recalculateChildBounds();
+			recalculateViewBounds();
 		}
 		inline void Widget::recalculateView()
 		{

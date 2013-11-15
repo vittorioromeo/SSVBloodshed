@@ -10,6 +10,7 @@ namespace ob
 	namespace GUI
 	{
 		enum class At{Left, Right, Top, Bottom, NW, NE, SW, SE, Center};
+		enum class Scaling{Manual, FitToParent, FitToNeighbor, FitToChildren};
 
 		inline At getAtOpposite(At mAt) noexcept
 		{

@@ -33,10 +33,6 @@ namespace ob
 			inline float getRight() const noexcept				{ return sf::RectangleShape::getPosition().x + getHalfSize().x; }
 			inline float getTop() const noexcept				{ return sf::RectangleShape::getPosition().y - getHalfSize().y; }
 			inline float getBottom() const noexcept				{ return sf::RectangleShape::getPosition().y + getHalfSize().y; }
-			inline float getLeftWithOutline() const noexcept	{ return getLeft() - getOutlineThickness(); }
-			inline float getRightWithOutline() const noexcept	{ return getRight() + getOutlineThickness(); }
-			inline float getTopWithOutline() const noexcept		{ return getTop() - getOutlineThickness(); }
-			inline float getBottomWithOutline() const noexcept	{ return getBottom() + getOutlineThickness(); }
 			inline Vec2f getHalfSize() const noexcept			{ return sf::RectangleShape::getSize() / 2.f; }
 			inline float getHalfWidth() const noexcept			{ return getHalfSize().x; }
 			inline float getHalfHeight() const noexcept			{ return getHalfSize().y; }
@@ -66,10 +62,6 @@ namespace ob
 			inline Vec2f getVertexNE() const noexcept { return Vec2f(getRight(), getTop()); }
 			inline Vec2f getVertexSW() const noexcept { return Vec2f(getLeft(), getBottom()); }
 			inline Vec2f getVertexSE() const noexcept { return Vec2f(getRight(), getBottom()); }
-			inline Vec2f getVertexWithOutlineNW() const noexcept { return Vec2f(getLeftWithOutline(), getTopWithOutline()); }
-			inline Vec2f getVertexWithOutlineNE() const noexcept { return Vec2f(getRightWithOutline(), getTopWithOutline()); }
-			inline Vec2f getVertexWithOutlineSW() const noexcept { return Vec2f(getLeftWithOutline(), getBottomWithOutline()); }
-			inline Vec2f getVertexWithOutlineSE() const noexcept { return Vec2f(getRightWithOutline(), getBottomWithOutline()); }
 
 			inline bool isOverlapping(const Vec2f& mPoint, float mPadding) const noexcept
 			{
