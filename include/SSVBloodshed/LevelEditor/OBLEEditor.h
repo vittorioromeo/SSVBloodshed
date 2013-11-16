@@ -145,6 +145,7 @@ namespace ob
 
 			template<typename T = ParamsForm> inline void createParamsForm(OBLETile& mTile)
 			{
+				if(mTile.getParams().empty()) return;
 				guiCtx.create<T>(*this, mTile.getX(), mTile.getY(), mTile.getZ());
 			}
 
@@ -307,6 +308,8 @@ namespace ob
 			OBLEEditor& editor;
 			int x, y, z;
 			GUI::WidgetStrip& mainStrip;
+			bool mustRefresh{true};
+			OBLETType prevType{OBLETType::LETFloor};
 
 			inline OBLETile* getTile()
 			{
@@ -317,13 +320,16 @@ namespace ob
 
 			inline void refreshTile()
 			{
+				auto tile(getTile());
+
+				if(tile == nullptr || tile->getParams().empty()) { destroyRecursive(); return; }
+				if(tile->getType() == prevType) return;
+
 				for(auto& w : mainStrip.getChildren()) w->destroyRecursive();
-				if(getTile() == nullptr) return;
 
-				auto& tile(*getTile());
-				if(tile.getParams().empty()) return;
+				prevType = tile->getType();
 
-				for(auto& p : tile.getParams())
+				for(auto& p : tile->getParams())
 				{
 					auto key(p.first);
 
@@ -335,7 +341,7 @@ namespace ob
 					if(ssvuj::is<bool>(p.second))
 					{
 						auto& checkBox(strip.create<GUI::CheckBox>("on", ssvuj::as<bool>(p.second)));
-						checkBox.onStateChanged += [key, &tile, &checkBox]{ tile.setParam(key, checkBox.getState() ? "true" : "false"); };
+						checkBox.onStateChanged += [key, tile, &checkBox]{ tile->setParam(key, checkBox.getState() ? "true" : "false"); };
 						strip += checkBox;
 					}
 					else
@@ -350,34 +356,24 @@ namespace ob
 						}
 
 						textBox.setString(str);
-						textBox.onTextChanged += [key, &tile, &textBox]{ tile.setParam(key, textBox.getString()); };
+						textBox.onTextChanged += [key, tile, &textBox]{ tile->setParam(key, textBox.getString()); };
 						strip += textBox;
 					}
 				}
 			}
 
-			float c {0.f};
-
-			inline void update(float mFT) override
-			{
-				//GUI::Form::update(mFT);
-
-				c += mFT;
-				if(c > 100)
-				 {refreshTile(); c = 0;}
-			}
-
-
 		public:
 			ParamsForm(GUI::Context& mCtx, OBLEEditor& mEditor, int mX, int mY, int mZ) : GUI::Form{mCtx, "", Vec2f{300.f, 300.f}, Vec2f{100.f, 100.f}},
 				editor(mEditor), x{mX}, y{mY}, z{mZ}, mainStrip(create<GUI::WidgetStrip>(GUI::At::NW, GUI::At::SW, GUI::At::Bottom))
 			{
-				setTitle("PARAMS (" + ssvu::toStr(x) + ", " +ssvu::toStr(y) + ", " + ssvu::toStr(z) + ")");
+				setTitle("PARAMS (" + ssvu::toStr(x) + ", " + ssvu::toStr(y) + ", " + ssvu::toStr(z) + ")");
 				setScaling(GUI::Scaling::FitToChildren);
 				setResizable(false); setPadding(2.f);
 
 				mainStrip.attach(GUI::At::Center, *this, GUI::At::Center);
 				mainStrip.setPadding(2.f);
+
+				onPostUpdate += [this]{ refreshTile(); };
 			}
 	};
 }

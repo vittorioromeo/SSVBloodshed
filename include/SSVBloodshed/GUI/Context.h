@@ -35,7 +35,7 @@ namespace ob
 					renderTexture.setView(mView != nullptr ? *mView : gameWindow.getRenderWindow().getView());
 					renderTexture.draw(mDrawable);
 				}
-				inline void unFocusAll() { for(auto& w : widgets) w->focused = false; }
+				inline void unFocusAll() { for(auto& w : widgets) w->setFocused(false); }
 				inline void bringToFront(Widget& mWidget) { ssvu::eraseRemove(children, &mWidget); children.insert(std::begin(children), &mWidget); }
 
 				template<typename T, typename... TArgs> inline T& allocateWidget(TArgs&&... mArgs)

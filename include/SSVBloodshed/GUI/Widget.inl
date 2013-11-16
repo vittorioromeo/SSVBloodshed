@@ -42,6 +42,8 @@ namespace ob
 			recalculateChildBounds();
 			recalculateViewBounds();
 			recalculateView();
+
+			onPostUpdate();
 		}
 		inline void Widget::recalculateView()
 		{

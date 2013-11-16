@@ -118,12 +118,30 @@ namespace ob
 					if(mScalingY == Scaling::FitToChildren) fitToChildrenImpl(&Widget::setHeight, childBoundsMin.y, childBoundsMax.y);
 				}
 
-				inline void setFocusedSameDepth(bool mValue) { focused = mValue; for(auto& w : children) if(w->depth == depth) w->setFocusedSameDepth(mValue); }
+				inline void setFocusedSameDepth(bool mValue) { setFocused(mValue); for(auto& w : children) if(w->depth == depth) w->setFocusedSameDepth(mValue); }
 				inline void recalculateDepth() noexcept { depth = parent == nullptr ? 0 : parent->depth + static_cast<int>(container); }
 				inline void cleanUpMemoryRecursive()
 				{
 					ssvu::eraseRemoveIf(children, &ssvu::MemoryManager<Widget>::isDead<Widget*>);
 					for(auto& w : children) w->cleanUpMemoryRecursive();
+				}
+
+				inline void recurseParentFocus(bool mValue)
+				{
+					if(parent != nullptr)
+					{
+						parent->onAnyChildFocusChanged(mValue);
+						parent->recurseParentFocus(mValue);
+					}
+				}
+				inline void setFocused(bool mValue)
+				{
+					if(focused != mValue)
+					{
+						onFocusChanged(mValue);
+						recurseParentFocus(mValue);
+					}
+					focused = mValue;
 				}
 
 				void checkMouse();
@@ -132,6 +150,9 @@ namespace ob
 
 			public:
 				using AABBShape::AABBShape;
+
+				ssvu::Delegate<void(bool)> onFocusChanged, onAnyChildFocusChanged;
+				ssvu::Delegate<void()> onPostUpdate;
 
 				Widget(Context& mContext) : context(mContext) { }
 				Widget(Context& mContext, const Vec2f& mHalfSize) : AABBShape(Vec2f{0.f, 0.f}, mHalfSize), context(mContext) { }
