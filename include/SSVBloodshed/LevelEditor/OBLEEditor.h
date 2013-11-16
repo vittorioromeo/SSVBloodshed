@@ -20,6 +20,8 @@
 
 namespace ob
 {
+	class ParamsForm;
+
 	class OBLEEditor
 	{
 		template<typename> friend class OBLEGInput;
@@ -141,50 +143,9 @@ namespace ob
 				lblInfo->attach(GUI::At::NW, *formInfo, GUI::At::NW, Vec2f{2.f, 2.f});
 			}
 
-			inline void createParamsForm(OBLETile& mTile)
+			template<typename T = ParamsForm> inline void createParamsForm(OBLETile& mTile)
 			{
-				if(mTile.getParams().empty()) return;
-
-				std::string title{"PARAMS (" + ssvu::toStr(mTile.getX()) + ", " +ssvu::toStr(mTile.getY()) + ", " + ssvu::toStr(mTile.getZ()) + ")"};
-
-				GUI::Form& form(guiCtx.create<GUI::Form>(title, Vec2f{300.f, 300.f}, Vec2f{100.f, 100.f}));
-				form.setScaling(GUI::Scaling::FitToChildren);
-				form.setResizable(false); form.setPadding(2.f);
-				auto& mainStrip(form.create<GUI::WidgetStrip>(GUI::At::NW, GUI::At::SW, GUI::At::Bottom));
-				mainStrip.attach(GUI::At::Center, form, GUI::At::Center);
-				mainStrip.setPadding(2.f);
-
-				for(auto& p : mTile.getParams())
-				{
-					auto key(p.first);
-
-					GUI::WidgetStrip& strip(form.create<GUI::WidgetStrip>(GUI::At::Left, GUI::At::Right, GUI::At::Right));
-					strip += strip.create<GUI::Label>(key);
-					strip.setTabSize(100.f);
-					mainStrip += strip;
-
-					if(ssvuj::is<bool>(p.second))
-					{
-						auto& checkBox(strip.create<GUI::CheckBox>("on", ssvuj::as<bool>(p.second)));
-						checkBox.onStateChanged += [key, &mTile, &checkBox]{ mTile.setParam(key, checkBox.getState() ? "true" : "false"); };
-						strip += checkBox;
-					}
-					else
-					{
-						auto& textBox(strip.create<GUI::TextBox>(Vec2f(56.f, 8.f)));
-						auto str(ssvu::toStr(p.second));
-
-						{
-							auto i(str.size());
-							while(i > 0 && str[i - 1] == '\n') --i;
-							str.erase(i, str.size());
-						}
-
-						textBox.setString(str);
-						textBox.onTextChanged += [key, &mTile, &textBox]{ mTile.setParam(key, textBox.getString()); };
-						strip += textBox;
-					}
-				}
+				guiCtx.create<T>(*this, mTile.getX(), mTile.getY(), mTile.getZ());
 			}
 
 			inline void newSector() { sector.clear(); sector.init(database); refreshCurrentLevel(); clearCurrentLevel(); }
@@ -337,6 +298,87 @@ namespace ob
 			inline ssvs::GameState& getGameState() noexcept			{ return gameState; }
 			inline const decltype(input)& getInput() const noexcept	{ return input; }
 			inline const OBLEDatabaseEntry& getCurrentEntry() const	{ return database.get(OBLETType(brush.idx)); }
+			inline OBLELevel* getCurrentLevel() const noexcept		{ return currentLevel; }
+	};
+
+	class ParamsForm : public GUI::Form
+	{
+		private:
+			OBLEEditor& editor;
+			int x, y, z;
+			GUI::WidgetStrip& mainStrip;
+
+			inline OBLETile* getTile()
+			{
+				auto currentLevel(editor.getCurrentLevel());
+				if(currentLevel == nullptr || !currentLevel->isValid(x, y, z)) return nullptr;
+				return &currentLevel->getTile(x, y, z);
+			}
+
+			inline void refreshTile()
+			{
+				for(auto& w : mainStrip.getChildren()) w->destroyRecursive();
+				if(getTile() == nullptr) return;
+
+				auto& tile(*getTile());
+				if(tile.getParams().empty()) return;
+
+				for(auto& p : tile.getParams())
+				{
+					auto key(p.first);
+
+					GUI::WidgetStrip& strip(mainStrip.create<GUI::WidgetStrip>(GUI::At::Left, GUI::At::Right, GUI::At::Right));
+					strip += strip.create<GUI::Label>(key);
+					strip.setTabSize(100.f);
+					mainStrip += strip;
+
+					if(ssvuj::is<bool>(p.second))
+					{
+						auto& checkBox(strip.create<GUI::CheckBox>("on", ssvuj::as<bool>(p.second)));
+						checkBox.onStateChanged += [key, &tile, &checkBox]{ tile.setParam(key, checkBox.getState() ? "true" : "false"); };
+						strip += checkBox;
+					}
+					else
+					{
+						auto& textBox(strip.create<GUI::TextBox>(Vec2f(56.f, 8.f)));
+						auto str(ssvu::toStr(p.second));
+
+						{
+							auto i(str.size());
+							while(i > 0 && str[i - 1] == '\n') --i;
+							str.erase(i, str.size());
+						}
+
+						textBox.setString(str);
+						textBox.onTextChanged += [key, &tile, &textBox]{ tile.setParam(key, textBox.getString()); };
+						strip += textBox;
+					}
+				}
+			}
+
+			float c {0.f};
+
+			inline void update(float mFT) override
+			{
+				//GUI::Form::update(mFT);
+
+				c += mFT;
+				if(c > 100)
+				 {refreshTile(); c = 0;}
+			}
+
+
+		public:
+			ParamsForm(GUI::Context& mCtx, OBLEEditor& mEditor, int mX, int mY, int mZ) : GUI::Form{mCtx, "", Vec2f{300.f, 300.f}, Vec2f{100.f, 100.f}},
+				editor(mEditor), x{mX}, y{mY}, z{mZ}, mainStrip(create<GUI::WidgetStrip>(GUI::At::NW, GUI::At::SW, GUI::At::Bottom))
+			{
+				setTitle("PARAMS (" + ssvu::toStr(x) + ", " +ssvu::toStr(y) + ", " + ssvu::toStr(z) + ")");
+				setScaling(GUI::Scaling::FitToChildren);
+				setResizable(false); setPadding(2.f);
+
+				mainStrip.attach(GUI::At::Center, *this, GUI::At::Center);
+				mainStrip.setPadding(2.f);
+			}
 	};
 }
 

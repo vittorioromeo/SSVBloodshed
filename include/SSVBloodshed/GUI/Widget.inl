@@ -20,12 +20,28 @@ namespace ob
 
 		inline void Widget::updateRecursive(float mFT)
 		{
-			ssvu::eraseRemoveIf(children, &ssvu::MemoryManager<Widget>::isDead<Widget*>);
 			update(mFT);
+
+			// Recalculate sizing
+			recalculateSize(scalingX, &Widget::setWidth, &Widget::getLeft, &Widget::getRight);
+			recalculateSize(scalingY, &Widget::setHeight, &Widget::getTop, &Widget::getBottom);
+			recalculateFitToChildren(scalingX, scalingY);
+
+			// TODO: Recalculate temp sizing (instant resize)
+			recalculateSize(nextTempScaling, &Widget::setWidth, &Widget::getLeft, &Widget::getRight);
+			recalculateSize(nextTempScaling, &Widget::setHeight, &Widget::getTop, &Widget::getBottom);
+			recalculateFitToChildren(nextTempScaling, nextTempScaling);
+			//if(!dirty) nextTempScaling = Scaling::Manual;
+
+			recalculatePosition();
+
 			if(isPressed()) context.busy = true;
+
 			for(auto& w : children) w->updateRecursive(mFT);
+
 			recalculateChildBounds();
 			recalculateViewBounds();
+			recalculateView();
 		}
 		inline void Widget::recalculateView()
 		{
@@ -44,11 +60,17 @@ namespace ob
 		inline void Widget::gainExclusiveFocus()					{ context.unFocusAll(); setFocusedSameDepth(true); }
 		inline void Widget::render(const sf::Drawable& mDrawable)	{ context.render(parent != nullptr ? &parent->view : nullptr, mDrawable); }
 		inline void Widget::destroyRecursive()						{ context.del(*this); for(const auto& c : children) c->destroyRecursive(); }
-		inline void Widget::checkHover()							{ hovered = isOverlapping(getMousePos(), 2.f); if(hovered) context.hovered = true; }
+		inline void Widget::checkMouse()
+		{
+			hovered = isOverlapping(getMousePos(), 2.f); if(hovered) context.hovered = true;
+			pressedOld = pressed; pressed = isMBtnLeftDown() && hovered;
+		}
 		inline const Vec2f& Widget::getMousePos() const noexcept	{ return context.mousePos; }
 		inline const Vec2f& Widget::getMousePosOld() const noexcept	{ return context.mousePosOld; }
 		inline bool Widget::isMBtnLeftDown() const noexcept			{ return isActive() && context.mouseLDown; }
 		inline bool Widget::wasPressed() const noexcept				{ return context.mouseLDownOld || (isHovered() && pressedOld); }
+
+		inline const std::vector<sf::Event>& Widget::getEventsToPoll() const noexcept { return context.eventsToPoll; }
 	}
 }
 

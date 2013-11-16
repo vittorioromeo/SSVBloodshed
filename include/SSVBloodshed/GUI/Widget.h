@@ -22,17 +22,17 @@ namespace ob
 
 			protected:
 				Context& context;
-				std::vector<Widget*> children;
 				bool external{false}; // If true, this widget will not be taken into account for scaling
 				void render(const sf::Drawable& mDrawable);
+				const std::vector<sf::Event>& getEventsToPoll() const noexcept;
 
 			private:
+				std::vector<Widget*> children;
 				Widget* parent{nullptr};
 				int depth{0};
 				bool container{false}; // If true, children have a deeper depth
 				sf::View view;
-				Vec2f childBoundsMin, childBoundsMax;
-				Vec2f viewBoundsMin, viewBoundsMax;
+				Vec2f childBoundsMin, childBoundsMax, viewBoundsMin, viewBoundsMax;
 
 				// Settings
 				bool hidden{false}; // Controlled by hide/show: if true, it makes the widget implicitly invisible and inactive
@@ -55,38 +55,11 @@ namespace ob
 				inline virtual void update(float) { }
 				inline virtual void draw() { }
 
-				void updateRecursive(float mFT);
 				inline void drawHierarchy()
 				{
 					auto hierarchy(getAllRecursive());
 					ssvu::sortStable(hierarchy, [](const Widget* mA, const Widget* mB){ return mA->depth < mB->depth; });
-					for(auto& w : hierarchy)
-					{
-						if(!w->isVisible()) continue;
-
-						// Recalculate sizing
-						w->recalculateSize(w->scalingX, &Widget::setWidth, &Widget::getLeft, &Widget::getRight);
-						w->recalculateSize(w->scalingY, &Widget::setHeight, &Widget::getTop, &Widget::getBottom);
-						w->recalculateFitToChildren(w->scalingX, w->scalingY);
-
-						// TODO: Recalculate temp sizing (instant resize)
-						w->recalculateSize(w->nextTempScaling, &Widget::setWidth, &Widget::getLeft, &Widget::getRight);
-						w->recalculateSize(w->nextTempScaling, &Widget::setHeight, &Widget::getTop, &Widget::getBottom);
-						w->recalculateFitToChildren(w->nextTempScaling, w->nextTempScaling);
-						//if(!w->dirty) w->nextTempScaling = Scaling::Manual;
-
-						w->recalculatePosition();
-						w->recalculateView();
-
-						w->draw(); render(*w);
-					}
-				}
-
-				void recalculateView();
-
-				inline void recalculatePosition()
-				{
-					if(neighbor != nullptr) setPosition(getVecPos(to, *neighbor) + offset + (getPosition() - getVecPos(from, *this)));
+					for(auto& w : hierarchy) if(w->isVisible()) { w->draw(); render(*w); }
 				}
 
 				template<typename TS, typename TG> inline void fitToParentImpl(TS mSetter, TG mGetterMin, TG mGetterMax)
@@ -102,7 +75,10 @@ namespace ob
 					if(!children.empty()) (this->*mSetter)(mMax - mMin + padding * 2.f);
 				}
 
-
+				inline void recalculatePosition()
+				{
+					if(neighbor != nullptr) setPosition(getVecPos(to, *neighbor) + offset + (getPosition() - getVecPos(from, *this)));
+				}
 				inline void recalculateChildBounds()
 				{
 					childBoundsMin = childBoundsMax = getPosition();
@@ -131,7 +107,6 @@ namespace ob
 					viewBoundsMin = getVertexNW(); viewBoundsMax = getVertexSE();
 					recalculateViewBoundsImpl(viewBoundsMin, viewBoundsMax);
 				}
-
 				template<typename TS, typename TG> inline void recalculateSize(Scaling mScaling, TS mSetter, TG mGetterMin, TG mGetterMax)
 				{
 					if(mScaling == Scaling::FitToParent) fitToParentImpl(mSetter, mGetterMin, mGetterMax);
@@ -143,12 +118,17 @@ namespace ob
 					if(mScalingY == Scaling::FitToChildren) fitToChildrenImpl(&Widget::setHeight, childBoundsMin.y, childBoundsMax.y);
 				}
 
-				void checkHover();
-				inline void checkPressed() { pressedOld = pressed; pressed = isMBtnLeftDown() && hovered; }
-
 				inline void setFocusedSameDepth(bool mValue) { focused = mValue; for(auto& w : children) if(w->depth == depth) w->setFocusedSameDepth(mValue); }
+				inline void recalculateDepth() noexcept { depth = parent == nullptr ? 0 : parent->depth + static_cast<int>(container); }
+				inline void cleanUpMemoryRecursive()
+				{
+					ssvu::eraseRemoveIf(children, &ssvu::MemoryManager<Widget>::isDead<Widget*>);
+					for(auto& w : children) w->cleanUpMemoryRecursive();
+				}
 
-				inline void recalculateDepth() { depth = parent == nullptr ? 0 : parent->depth + static_cast<int>(container); }
+				void checkMouse();
+				void updateRecursive(float mFT);
+				void recalculateView();
 
 			public:
 				using AABBShape::AABBShape;
@@ -156,10 +136,7 @@ namespace ob
 				Widget(Context& mContext) : context(mContext) { }
 				Widget(Context& mContext, const Vec2f& mHalfSize) : AABBShape(Vec2f{0.f, 0.f}, mHalfSize), context(mContext) { }
 				Widget(Context& mContext, const Vec2f& mPosition, const Vec2f& mHalfSize) : AABBShape(mPosition, mHalfSize), context(mContext) { }
-
-				template<typename T, typename... TArgs> T& create(TArgs&&... mArgs);
-				void destroyRecursive();
-				void gainExclusiveFocus();
+				virtual ~Widget() { }
 
 				inline void attach(At mFrom, Widget &mNeigh, At mTo, const Vec2f& mOffset = Vec2f{0.f, 0.f}) { from = mFrom; neighbor = &mNeigh; to = mTo; offset = mOffset; }
 				inline void show() { setHiddenRecursive(false); }
@@ -182,8 +159,10 @@ namespace ob
 				inline void setParent(Widget& mWidget)
 				{
 					if(parent != nullptr) ssvu::eraseRemove(parent->children, this);
+
 					parent = &mWidget;
 					mWidget.children.push_back(this);
+
 					setHiddenRecursive(mWidget.isHidden());
 					setExcludedRecursive(mWidget.isExcluded());
 					setActiveRecursive(mWidget.isActive());
@@ -203,6 +182,8 @@ namespace ob
 				inline bool isExcluded() const noexcept		{ return excluded; }
 				inline bool isContainer() const noexcept	{ return container; }
 
+				inline decltype(children)& getChildren() noexcept { return children; }
+
 				// Only these two should be used in widget code
 				inline bool isClickedAlways() const noexcept 	{ return isFocused() && isPressed(); }
 				inline bool isClickedOnce() const noexcept 		{ return isClickedAlways() && !wasPressed(); }
@@ -215,6 +196,10 @@ namespace ob
 
 				inline void fillAllRecursive(std::vector<Widget*>& mTarget)		{ mTarget.push_back(this); for(const auto& w : children) w->fillAllRecursive(mTarget); }
 				inline std::vector<Widget*> getAllRecursive() 					{ std::vector<Widget*> result; fillAllRecursive(result); return result; }
+
+				template<typename T, typename... TArgs> T& create(TArgs&&... mArgs);
+				void destroyRecursive();
+				void gainExclusiveFocus();
 
 				bool wasPressed() const noexcept;
 				bool isMBtnLeftDown() const noexcept;

@@ -128,13 +128,13 @@ namespace ob
 		class WidgetStrip : public Widget
 		{
 			private:
-				std::vector<Widget*> widgets;
 				At alignFrom{At::Left}, alignTo{At::Right}, alignDir{At::Right};
 				bool tabbed{false};
 				float widgetOffset{6.f}, tabSize;
 
 				inline void update(float) override
 				{
+					auto& widgets(getChildren());
 					if(widgets.empty()) return;
 
 					auto prev(widgets[0]);
@@ -162,7 +162,7 @@ namespace ob
 					setScaling(Scaling::FitToChildren);
 				}
 
-				inline WidgetStrip& operator+=(Widget& mWidget) { widgets.push_back(&mWidget); mWidget.setParent(*this); return *this; }
+				inline WidgetStrip& operator+=(Widget& mWidget) { mWidget.setParent(*this); return *this; }
 				inline WidgetStrip& operator+=(const std::initializer_list<Widget*> mWidgets) { for(const auto& w : mWidgets) *this += *w; return *this; }
 
 				inline void setWidgetOffset(float mValue) noexcept { widgetOffset = mValue; }
@@ -255,6 +255,21 @@ namespace ob
 						lblText.setString(str);
 						lblText.getText().setColor(sf::Color::White);
 					}
+
+					for(const auto& e : getEventsToPoll())
+					{
+						if(!editing) return;
+
+						if(e.type == sf::Event::TextEntered)
+						{
+							if(e.text.unicode == '\b' && !editStr.empty()) editStr.erase(std::end(editStr) - 1, std::end(editStr));
+							else if(e.text.unicode > 31 && e.text.unicode < 127) editStr += static_cast<char>(e.text.unicode);
+						}
+						else if(e.type == sf::Event::KeyPressed)
+						{
+							if(e.key.code == ssvs::KKey::Return) finishEditing();
+						}
+					}
 				}
 
 				inline void finishEditing() { editing = false; str = editStr; onTextChanged(); }
@@ -265,20 +280,6 @@ namespace ob
 				TextBox(Context& mContext, const Vec2f& mSize) : Widget{mContext, mSize / 2.f},
 					tBox(create<Widget>()), lblText(tBox.create<Label>(""))
 				{
-					context.onAnyEvent += [this](const sf::Event& mEvent)
-					{
-						if(!editing) return;
-
-						if(mEvent.type == sf::Event::TextEntered)
-						{
-							if(mEvent.text.unicode == '\b' && !editStr.empty()) editStr.erase(std::end(editStr) - 1, std::end(editStr));
-							else if(mEvent.text.unicode < 128) editStr += static_cast<char>(mEvent.text.unicode);
-						}
-						else if(mEvent.type == sf::Event::KeyPressed)
-						{
-							if(mEvent.key.code == ssvs::KKey::Return) finishEditing();
-						}
-					};
 
 					setContainer(true);
 					setFillColor(sf::Color::Transparent);
@@ -385,6 +386,8 @@ namespace ob
 
 				inline void toggleCollapsed()
 				{
+					action = Action::None;
+
 					if(!collapsed)
 					{
 						oldHeight = getHeight();
@@ -402,7 +405,7 @@ namespace ob
 					}
 
 					collapsed = !collapsed;
-					for(const auto& w : children) if(w != &fbBar) w->setHiddenRecursive(collapsed);
+					for(const auto& w : getChildren()) if(w != &fbBar) w->setHiddenRecursive(collapsed);
 				}
 
 				inline void setDraggable(bool mValue) noexcept { draggable = mValue; }

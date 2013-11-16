@@ -27,6 +27,7 @@ namespace ob
 				bool hovered{false}, busy{false}, focused{false}, unfocusOnUnhover{true};
 				Vec2f mousePos, mousePosOld;
 				bool mouseLDown{false}, mouseLDownOld{false}, mouseRDown{false}, mouseRDownOld{false};
+				std::vector<sf::Event> eventsToPoll;
 
 				inline void del(Widget& mWidget) noexcept { widgets.del(mWidget); }
 				inline void render(sf::View* mView, const sf::Drawable& mDrawable)
@@ -74,8 +75,6 @@ namespace ob
 				}
 
 			public:
-				ssvu::Delegate<void(const sf::Event&)> onAnyEvent;
-
 				Context(OBAssets& mAssets, ssvs::GameWindow& mGameWindow) : assets(mAssets), gameWindow(mGameWindow)
 				{
 					renderTexture.create(gameWindow.getWidth(), gameWindow.getHeight());
@@ -88,23 +87,26 @@ namespace ob
 					children.insert(std::begin(children), &result); return result;
 				}
 
+				inline void onAnyEvent(const sf::Event& mEvent) { eventsToPoll.push_back(mEvent); }
+
 				inline void update(float mFT)
 				{
 					updateMouse();
 
-					// TODO: cleanup dead widgets here for all widgets
+					for(auto& w : children) w->cleanUpMemoryRecursive();
 					ssvu::eraseRemoveIf(children, &ssvu::MemoryManager<Widget>::isDead<Widget*>);
 					widgets.refresh();
 
 					hovered = false;
-					for(auto& w : widgets) { w->recalculateDepth(); w->checkHover(); w->checkPressed(); }
+					for(auto& w : widgets) { w->recalculateDepth(); w->checkMouse(); }
 
 					updateFocus();
 
 					busy = focused = false;
 					for(auto& w : children) w->updateRecursive(mFT);
-					for(auto& w : widgets) { w->checkHover(); if(w->isFocused()) focused = true; }
+					for(auto& w : widgets) { w->checkMouse(); if(w->isFocused()) focused = true; }
 
+					eventsToPoll.clear();
 				}
 				inline void draw()
 				{
