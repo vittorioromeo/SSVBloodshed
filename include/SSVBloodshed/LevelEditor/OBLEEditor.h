@@ -6,6 +6,7 @@
 #define SSVOB_LEVELEDITOR_GAME
 
 #include <initializer_list>
+#include <map>
 #include "SSVBloodshed/OBCommon.h"
 #include "SSVBloodshed/OBAssets.h"
 #include "SSVBloodshed/OBGame.h"
@@ -104,14 +105,14 @@ namespace ob
 				chbShowId = &formMenu->create<GUI::CheckBox>("show id", true);
 				chbOnion = &formMenu->create<GUI::CheckBox>("onion", true);
 
-				auto& shtrOptions(formMenu->create<GUI::ShutterList>("options"));
+				auto& shtrOptions(formMenu->create<GUI::Shutter>("options"));
 				shtrOptions.attach(GUI::At::Top, btnInfo, GUI::At::Bottom, Vec2f{0.f, 6.f});
 				shtrOptions += {chbShowId, chbOnion};
 
 				//chbShowId->attach(GUI::At::NW, btnInfo, GUI::At::SW, Vec2f{0.f, 6.f});
 				//chbOnion->attach(GUI::At::NW, *chbShowId, GUI::At::SW, Vec2f{0.f, 6.f});
 
-				auto& shtrList(formMenu->create<GUI::ShutterList>("list 1"));
+				auto& shtrList(formMenu->create<GUI::Shutter>("list 1"));
 				shtrList.attach(GUI::At::Top, shtrOptions, GUI::At::Bottom, Vec2f{0.f, 6.f});
 				shtrList +=
 				{
@@ -121,7 +122,7 @@ namespace ob
 					&shtrList.create<GUI::Label>("you")
 				};
 
-				auto& shtrList2(shtrList.create<GUI::ShutterList>("list 2"));
+				auto& shtrList2(shtrList.create<GUI::Shutter>("list 2"));
 				shtrList2 +=
 				{
 					// TODO: remove += syntax, add createItem<T>
@@ -307,9 +308,11 @@ namespace ob
 		private:
 			OBLEEditor& editor;
 			int x, y, z;
-			GUI::WidgetStrip& mainStrip;
-			bool mustRefresh{true};
+			GUI::Strip& mainStrip;
 			OBLETType prevType{OBLETType::LETFloor};
+
+			std::map<std::string, GUI::CheckBox*> checkBoxes;
+			std::map<std::string, GUI::TextBox*> textBoxes;
 
 			inline OBLETile* getTile()
 			{
@@ -322,18 +325,44 @@ namespace ob
 			{
 				auto tile(getTile());
 
+				// If the tile is invalid or has no parameters, destroy the form
 				if(tile == nullptr || tile->getParams().empty()) { destroyRecursive(); return; }
-				if(tile->getType() == prevType) return;
 
-				for(auto& w : mainStrip.getChildren()) w->destroyRecursive();
+				// If the tile's type hasn't changed...
+				if(tile->getType() == prevType)
+				{
+					// Update unfocused widgets to match the tile's params
 
+					for(auto& p : checkBoxes)
+					{
+						if(p.second->isFocused()) continue;
+						bool state(tile->getParam<bool>(p.first));
+						if(p.second->getState() != state) p.second->setState(state);
+					}
+					for(auto& p : textBoxes)
+					{
+						if(p.second->isFocused()) continue;
+						p.second->setString(tile->getParam<std::string>(p.first));
+					}
+
+					return;
+				}
+
+				// Else, if the tile's type has changed...
+
+				// Clear references to widgets and destroy everything but the form
+				checkBoxes.clear(); textBoxes.clear();
+				mainStrip.recurseChildren<false>([](Widget& mW){ mW.destroyRecursive(); });
+
+				// Set the previous type to the current type
 				prevType = tile->getType();
 
+				// And build an interface for the tile's parameters
 				for(auto& p : tile->getParams())
 				{
 					auto key(p.first);
 
-					GUI::WidgetStrip& strip(mainStrip.create<GUI::WidgetStrip>(GUI::At::Left, GUI::At::Right, GUI::At::Right));
+					GUI::Strip& strip(mainStrip.create<GUI::Strip>(GUI::At::Left, GUI::At::Right, GUI::At::Right));
 					strip += strip.create<GUI::Label>(key);
 					strip.setTabSize(100.f);
 					mainStrip += strip;
@@ -342,7 +371,8 @@ namespace ob
 					{
 						auto& checkBox(strip.create<GUI::CheckBox>("on", ssvuj::as<bool>(p.second)));
 						checkBox.onStateChanged += [key, tile, &checkBox]{ tile->setParam(key, checkBox.getState() ? "true" : "false"); };
-						strip += checkBox;
+						//strip += checkBox;
+						checkBoxes[p.first] = &checkBox;
 					}
 					else
 					{
@@ -357,14 +387,15 @@ namespace ob
 
 						textBox.setString(str);
 						textBox.onTextChanged += [key, tile, &textBox]{ tile->setParam(key, textBox.getString()); };
-						strip += textBox;
+						//strip += textBox;
+						textBoxes[p.first] = &textBox;
 					}
 				}
 			}
 
 		public:
 			ParamsForm(GUI::Context& mCtx, OBLEEditor& mEditor, int mX, int mY, int mZ) : GUI::Form{mCtx, "", Vec2f{300.f, 300.f}, Vec2f{100.f, 100.f}},
-				editor(mEditor), x{mX}, y{mY}, z{mZ}, mainStrip(create<GUI::WidgetStrip>(GUI::At::NW, GUI::At::SW, GUI::At::Bottom))
+				editor(mEditor), x{mX}, y{mY}, z{mZ}, mainStrip(create<GUI::Strip>(GUI::At::NW, GUI::At::SW, GUI::At::Bottom))
 			{
 				setTitle("PARAMS (" + ssvu::toStr(x) + ", " + ssvu::toStr(y) + ", " + ssvu::toStr(z) + ")");
 				setScaling(GUI::Scaling::FitToChildren);

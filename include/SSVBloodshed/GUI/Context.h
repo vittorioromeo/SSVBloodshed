@@ -64,14 +64,14 @@ namespace ob
 
 					// Find the topmost pressed child, if any
 					Widget* found{nullptr};
-					for(auto& c : children) if(c->isAnyChildPressed()) { found = c; bringToFront(*c); break; }
+					for(auto& c : children) if(c->anyChildRecursive([](const Widget& mW){ return mW.isPressed(); })) { found = c; bringToFront(*c); break; }
 					if(found == nullptr) return;
 
 					// Find the "deepest" pressed child in the hierarchy
 					for(const auto& w : found->getAllRecursive()) if(w->isPressed() && w->depth > found->depth) found = w;
 
 					// Unfocus everything but the widgets as deep as the deepest child
-					unFocusAll(); found->setFocusedSameDepth(true);
+					unFocusAll(); found->recurseChildren([found](Widget& mW){ if(mW.depth == found->depth) mW.setFocused(true); });
 				}
 
 			public:
@@ -93,7 +93,7 @@ namespace ob
 				{
 					updateMouse();
 
-					for(auto& w : children) w->cleanUpMemoryRecursive();
+					for(auto& w : children) w->recurseChildren([](Widget& mW){ ssvu::eraseRemoveIf(mW.children, &ssvu::MemoryManager<Widget>::isDead<Widget*>); });
 					ssvu::eraseRemoveIf(children, &ssvu::MemoryManager<Widget>::isDead<Widget*>);
 					widgets.refresh();
 

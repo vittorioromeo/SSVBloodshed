@@ -59,9 +59,9 @@ namespace ob
 			view.setSize(vbSize); view.setCenter(viewBoundsMin + vbSize / 2.f);
 		}
 
-		inline void Widget::gainExclusiveFocus()					{ context.unFocusAll(); setFocusedSameDepth(true); }
+		inline void Widget::gainExclusiveFocus()					{ context.unFocusAll(); recurseChildrenIf([this](Widget& mW){ return mW.depth == depth; }, [](Widget& mW){ mW.setFocused(true); }); }
 		inline void Widget::render(const sf::Drawable& mDrawable)	{ context.render(parent != nullptr ? &parent->view : nullptr, mDrawable); }
-		inline void Widget::destroyRecursive()						{ context.del(*this); for(const auto& c : children) c->destroyRecursive(); }
+		inline void Widget::destroyRecursive()						{ recurseChildren([this](Widget& mW){ context.del(mW); }); }
 		inline void Widget::checkMouse()
 		{
 			hovered = isOverlapping(getMousePos(), 2.f); if(hovered) context.hovered = true;

@@ -125,7 +125,7 @@ namespace ob
 
 		class Form;
 
-		class WidgetStrip : public Widget
+		class Strip : public Widget
 		{
 			private:
 				At alignFrom{At::Left}, alignTo{At::Right}, alignDir{At::Right};
@@ -155,48 +155,47 @@ namespace ob
 				}
 
 			public:
-				WidgetStrip(Context& mContext, At mAlignFrom, At mAlignTo, At mAlignDir)
+				Strip(Context& mContext, At mAlignFrom, At mAlignTo, At mAlignDir)
 					: Widget{mContext}, alignFrom{mAlignFrom}, alignTo{mAlignTo}, alignDir{mAlignDir}
 				{
 					setFillColor(sf::Color::Transparent);
 					setScaling(Scaling::FitToChildren);
 				}
 
-				inline WidgetStrip& operator+=(Widget& mWidget) { mWidget.setParent(*this); return *this; }
-				inline WidgetStrip& operator+=(const std::initializer_list<Widget*> mWidgets) { for(const auto& w : mWidgets) *this += *w; return *this; }
+				inline Strip& operator+=(Widget& mWidget) { mWidget.setParent(*this); return *this; }
+				inline Strip& operator+=(const std::initializer_list<Widget*> mWidgets) { for(const auto& w : mWidgets) *this += *w; return *this; }
 
 				inline void setWidgetOffset(float mValue) noexcept { widgetOffset = mValue; }
 				inline void setTabSize(float mValue) noexcept { tabSize = mValue; tabbed = true; }
 		};
 
-		class ShutterList : public Widget
+		class Shutter : public Widget
 		{
 			private:
-				WidgetStrip& wsThis;
-				WidgetStrip& wsShutter;
-				Label& lblLabel;
+				Strip& wsThis;
+				Strip& wsShutter;
 				Button& btnOpen;
+				Label& lblLabel;
 
 				inline void update(float) override
 				{
 					setSize(wsThis.getSize());
-					if(!wsShutter.isAnyChildFocused()) wsShutter.setExcludedRecursive(true);
+					if(!wsShutter.anyChildRecursive([](const Widget& mW){ return mW.isFocused(); })) wsShutter.setExcludedRecursive(true);
 					wsShutter.setFillColor(wsShutter.isFocused() ? colorFocused : colorUnfocused);
 				}
 
 			public:
-				ShutterList(Context& mContext, std::string mLabel) : Widget{mContext},
-					wsThis(create<WidgetStrip>(At::Right, At::Left, At::Left)),
-					wsShutter(create<WidgetStrip>(At::Top, At::Bottom, At::Bottom)),
-					lblLabel(create<Label>(std::move(mLabel))),
-					btnOpen(create<Button>("v", Vec2f{8.f, 8.f}))
+				Shutter(Context& mContext, std::string mLabel) : Widget{mContext},
+					wsThis(create<Strip>(At::Right, At::Left, At::Left)),
+					wsShutter(create<Strip>(At::Top, At::Bottom, At::Bottom)),
+					btnOpen(wsThis.create<Button>("v", Vec2f{8.f, 8.f})),
+					lblLabel(wsThis.create<Label>(std::move(mLabel)))
 				{
 					setFillColor(sf::Color::Transparent);
 
 					wsThis.setFillColor(sf::Color::Red);
 					wsThis.setOutlineColor(sf::Color::Black);
 					wsThis.setOutlineThickness(2);
-					wsThis += {&btnOpen, &lblLabel};
 
 					wsShutter.setOutlineColor(sf::Color::Black);
 					wsShutter.setOutlineThickness(2);
@@ -214,10 +213,10 @@ namespace ob
 					};
 				}
 
-				inline ShutterList& operator+=(Widget& mWidget) { wsShutter += mWidget; return *this; }
-				inline ShutterList& operator+=(const std::initializer_list<Widget*> mWidgets) { wsShutter += mWidgets; return *this; }
+				inline Shutter& operator+=(Widget& mWidget) { wsShutter += mWidget; return *this; }
+				inline Shutter& operator+=(const std::initializer_list<Widget*> mWidgets) { wsShutter += mWidgets; return *this; }
 
-				inline WidgetStrip& getShutter() const noexcept { return wsShutter; }
+				inline Strip& getShutter() const noexcept { return wsShutter; }
 				inline Label& getLabel() noexcept				{ return lblLabel; }
 		};
 
@@ -303,7 +302,7 @@ namespace ob
 		class FormBar : public Widget
 		{
 			private:
-				WidgetStrip& wsBtns;
+				Strip& wsBtns;
 				Button& btnClose;
 				Button& btnMinimize;
 				Button& btnCollapse;
@@ -311,16 +310,15 @@ namespace ob
 
 			public:
 				FormBar(Context& mContext, std::string mTitle) : Widget{mContext},
-					wsBtns(create<WidgetStrip>(At::Right, At::Left, At::Left)),
-					btnClose(create<Button>("x", Vec2f{8.f, 8.f})),
-					btnMinimize(create<Button>("_", Vec2f{8.f, 8.f})),
-					btnCollapse(create<Button>("^", Vec2f{8.f, 8.f})),
+					wsBtns(create<Strip>(At::Right, At::Left, At::Left)),
+					btnClose(wsBtns.create<Button>("x", Vec2f{8.f, 8.f})),
+					btnMinimize(wsBtns.create<Button>("_", Vec2f{8.f, 8.f})),
+					btnCollapse(wsBtns.create<Button>("^", Vec2f{8.f, 8.f})),
 					lblTitle(create<Label>(std::move(mTitle)))
 				{
 					external = true;
 					setFillColor(sf::Color::Black);
 
-					wsBtns += {&btnClose, &btnMinimize, &btnCollapse};
 					wsBtns.setWidgetOffset(2.f);
 
 					wsBtns.attach(At::Right, *this, At::Right, Vec2f{-2.f, 0.f});
@@ -405,7 +403,7 @@ namespace ob
 					}
 
 					collapsed = !collapsed;
-					for(const auto& w : getChildren()) if(w != &fbBar) w->setHiddenRecursive(collapsed);
+					recurseChildrenIf<false>([this](Widget& mW){ return &mW != &fbBar; }, [this](Widget& mW){ mW.setHiddenRecursive(collapsed); });
 				}
 
 				inline void setDraggable(bool mValue) noexcept { draggable = mValue; }

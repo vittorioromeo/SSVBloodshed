@@ -23,6 +23,7 @@ namespace ob
 			protected:
 				Context& context;
 				bool external{false}; // If true, this widget will not be taken into account for scaling
+
 				void render(const sf::Drawable& mDrawable);
 				const std::vector<sf::Event>& getEventsToPoll() const noexcept;
 
@@ -93,19 +94,17 @@ namespace ob
 						childBoundsMax.y = std::max(childBoundsMax.y, w->getBottom());
 					}
 				}
-				inline void recalculateViewBoundsImpl(Vec2f& mMin, Vec2f& mMax)
-				{
-					mMin.x = std::min(mMin.x, getLeft());
-					mMax.x = std::max(mMax.x, getRight());
-					mMin.y = std::min(mMin.y, getTop());
-					mMax.y = std::max(mMax.y, getBottom());
-
-					for(auto& w : children) if(w->isVisible()) w->recalculateViewBoundsImpl(mMin, mMax);
-				}
 				inline void recalculateViewBounds()
 				{
 					viewBoundsMin = getVertexNW(); viewBoundsMax = getVertexSE();
-					recalculateViewBoundsImpl(viewBoundsMin, viewBoundsMax);
+
+					recurseChildren([this](Widget& mW)
+					{
+						viewBoundsMin.x = std::min(viewBoundsMin.x, mW.getLeft());
+						viewBoundsMax.x = std::max(viewBoundsMax.x, mW.getRight());
+						viewBoundsMin.y = std::min(viewBoundsMin.y, mW.getTop());
+						viewBoundsMax.y = std::max(viewBoundsMax.y, mW.getBottom());
+					});
 				}
 				template<typename TS, typename TG> inline void recalculateSize(Scaling mScaling, TS mSetter, TG mGetterMin, TG mGetterMax)
 				{
@@ -118,28 +117,14 @@ namespace ob
 					if(mScalingY == Scaling::FitToChildren) fitToChildrenImpl(&Widget::setHeight, childBoundsMin.y, childBoundsMax.y);
 				}
 
-				inline void setFocusedSameDepth(bool mValue) { setFocused(mValue); for(auto& w : children) if(w->depth == depth) w->setFocusedSameDepth(mValue); }
 				inline void recalculateDepth() noexcept { depth = parent == nullptr ? 0 : parent->depth + static_cast<int>(container); }
-				inline void cleanUpMemoryRecursive()
-				{
-					ssvu::eraseRemoveIf(children, &ssvu::MemoryManager<Widget>::isDead<Widget*>);
-					for(auto& w : children) w->cleanUpMemoryRecursive();
-				}
 
-				inline void recurseParentFocus(bool mValue)
-				{
-					if(parent != nullptr)
-					{
-						parent->onAnyChildFocusChanged(mValue);
-						parent->recurseParentFocus(mValue);
-					}
-				}
 				inline void setFocused(bool mValue)
 				{
 					if(focused != mValue)
 					{
 						onFocusChanged(mValue);
-						recurseParentFocus(mValue);
+						recurseParents([mValue](Widget& mW){ mW.onAnyChildFocusChanged(mValue); });
 					}
 					focused = mValue;
 				}
@@ -159,6 +144,32 @@ namespace ob
 				Widget(Context& mContext, const Vec2f& mPosition, const Vec2f& mHalfSize) : AABBShape(mPosition, mHalfSize), context(mContext) { }
 				virtual ~Widget() { }
 
+				template<bool TIncludeCaller = true, typename T> inline void recurseChildren(const T& mFunc)
+				{
+					if(TIncludeCaller) mFunc(*this);
+					for(const auto& w : children) w->recurseChildren<true, T>(mFunc);
+				}
+				template<bool TIncludeCaller = true, typename T1, typename T2> inline void recurseChildrenIf(const T1& mPred, const T2& mFunc)
+				{
+					if(TIncludeCaller)
+					{
+						if(!mPred(*this)) return;
+						mFunc(*this);
+					}
+					for(const auto& w : children) w->recurseChildrenIf<true, T1, T2>(mPred, mFunc);
+				}
+				template<bool TIncludeCaller = true, typename T> inline void recurseParents(const T& mFunc)
+				{
+					if(TIncludeCaller) mFunc(*this);
+					if(parent != nullptr) parent->recurseParents<true, T>(mFunc);
+				}
+				template<bool TIncludeCaller = true, typename T> inline bool anyChildRecursive(const T& mFunc) const
+				{
+					if(TIncludeCaller) if(mFunc(*this)) return true;
+					for(const auto& w : children) if(w->anyChildRecursive<true, T>(mFunc)) return true;
+					return false;
+				}
+
 				inline void attach(At mFrom, Widget &mNeigh, At mTo, const Vec2f& mOffset = Vec2f{0.f, 0.f}) { from = mFrom; neighbor = &mNeigh; to = mTo; offset = mOffset; }
 				inline void show() { setHiddenRecursive(false); }
 				inline void hide() { setHiddenRecursive(true); }
@@ -168,11 +179,13 @@ namespace ob
 				inline void fitToChildren()	{ nextTempScaling = Scaling::FitToChildren; }
 
 				// An hidden widget is both invisible and inactive (should be controlled by collapsing windows)
-				inline void setHiddenRecursive(bool mValue)		{ hidden = mValue; for(auto& w : children) w->setHiddenRecursive(mValue); }
+				inline void setHidden(bool mValue) noexcept		{ hidden = mValue; }
+				inline void setHiddenRecursive(bool mValue)		{ recurseChildren([mValue](Widget& mW){ mW.setHidden(mValue); }); }
 
 				// An excluded widget is both invisible and inactive (should be used to completely disable a widget)
-				inline void setExcludedRecursive(bool mValue)	{ excluded = mValue; for(auto& w : children) w->setExcludedRecursive(mValue); }
-				inline void setExcludedSameDepth(bool mValue)	{ excluded = mValue; for(auto& w : children) if(w->depth == depth) w->setExcludedSameDepth(mValue); }
+				inline void setExcluded(bool mValue) noexcept	{ excluded = mValue; }
+				inline void setExcludedRecursive(bool mValue)	{ recurseChildren([mValue](Widget& mW){ mW.setExcluded(mValue); });  }
+				inline void setExcludedSameDepth(bool mValue)	{ recurseChildrenIf([this](Widget& mW){ return mW.depth == depth; }, [mValue](Widget& mW){ mW.setExcluded(mValue); }); }
 
 				inline void setActiveRecursive(bool mValue)		{ active = mValue; for(auto& w : children) w->setActiveRecursive(mValue); }
 				inline void setVisibleRecursive(bool mValue)	{ visible = mValue; for(auto& w : children) w->setVisibleRecursive(mValue); }
@@ -208,14 +221,11 @@ namespace ob
 				// Only these two should be used in widget code
 				inline bool isClickedAlways() const noexcept 	{ return isFocused() && isPressed(); }
 				inline bool isClickedOnce() const noexcept 		{ return isClickedAlways() && !wasPressed(); }
-
-				inline bool isAnyChildFocused() const noexcept	{ for(auto& w : children) if(w->isAnyChildFocused()) return true; if(isFocused()) return true; return false; }
-				inline bool isAnyChildPressed() const noexcept	{ for(auto& w : children) if(w->isAnyChildPressed()) return true; if(isPressed()) return true; return false; }
 				inline float getPadding() const noexcept		{ return padding; }
 				inline Scaling getScalingX() const noexcept		{ return scalingX; }
 				inline Scaling getScalingY() const noexcept		{ return scalingY; }
 
-				inline void fillAllRecursive(std::vector<Widget*>& mTarget)		{ mTarget.push_back(this); for(const auto& w : children) w->fillAllRecursive(mTarget); }
+				inline void fillAllRecursive(std::vector<Widget*>& mTarget)		{ recurseChildren([&mTarget](Widget& mW){ mTarget.push_back(&mW); }); }
 				inline std::vector<Widget*> getAllRecursive() 					{ std::vector<Widget*> result; fillAllRecursive(result); return result; }
 
 				template<typename T, typename... TArgs> T& create(TArgs&&... mArgs);
