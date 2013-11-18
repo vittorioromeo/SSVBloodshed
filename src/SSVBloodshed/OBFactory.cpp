@@ -214,27 +214,53 @@ namespace ob
 		if(mId != -1) cSpawner.setActive(false);
 		return getEntity(tpl);
 	}
-	Entity& OBFactory::createForceField(const Vec2i& mPos, int mId, Dir8 mDir, bool mDestroyProjectiles, bool mBlockFriendly, bool mBlockEnemy, float mForceMult)
+	Entity& OBFactory::createForceField(const Vec2i& mPos, int mId, Dir8 mDir, bool mBlockFriendly, bool mBlockEnemy, float mForceMult)
 	{
 		auto tpl(createActorBase(mPos, {1000, 1000}, OBLayer::LWall, false));
 		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.ff0);
 		auto& cIdReceiver(getEntity(tpl).createComponent<OBCIdReceiver>(mId));
-		getEntity(tpl).createComponent<OBCForceField>(getCPhys(tpl), getCDraw(tpl), cIdReceiver, mDir, mDestroyProjectiles, mBlockFriendly, mBlockEnemy, mForceMult);
+		getEntity(tpl).createComponent<OBCForceField>(getCPhys(tpl), getCDraw(tpl), cIdReceiver, mDir, mBlockFriendly, mBlockEnemy, mForceMult);
 		getCDraw(tpl).setBlendMode(sf::BlendMode::BlendAdd);
-		sf::Color color{0, 0, 0, 255};
-		color.r = 255 * static_cast<int>(mDestroyProjectiles);
+		sf::Color color{225, 0, 0, 255};
 		color.g = 255 * static_cast<int>(mBlockFriendly);
 		color.b = 255 * static_cast<int>(mBlockEnemy);
 
-		if(!mDestroyProjectiles && !mBlockFriendly && !mBlockEnemy)
+		if(!mBlockFriendly && !mBlockEnemy)
 		{
 			color = {255, 255, 255, 245};
 			getCDraw(tpl)[0].setTextureRect(mForceMult > 0 ? assets.bulletBooster : assets.bulletChanger);
 		}
 
-		if(mDestroyProjectiles) emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.forceArrowMark);
+		getCDraw(tpl)[0].setColor(color);
+		getCDraw(tpl).setRotation(getDegFromDir8(mDir));
+		return getEntity(tpl);
+	}
+	Entity& OBFactory::createBulletForceField(const Vec2i& mPos, int mId, Dir8 mDir, bool mBlockFriendly, bool mBlockEnemy)
+	{
+		auto tpl(createActorBase(mPos, {1000, 1000}, OBLayer::LWall, false));
+		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.forceArrowMark);
+		auto& cIdReceiver(getEntity(tpl).createComponent<OBCIdReceiver>(mId));
+		getEntity(tpl).createComponent<OBCBulletForceField>(getCPhys(tpl), getCDraw(tpl), cIdReceiver, mDir, mBlockFriendly, mBlockEnemy);
+		getCDraw(tpl).setBlendMode(sf::BlendMode::BlendAdd);
+
+		sf::Color color{255, 0, 0, 255};
+		color.g = 255 * static_cast<int>(mBlockFriendly);
+		color.b = 255 * static_cast<int>(mBlockEnemy);
 
 		getCDraw(tpl)[0].setColor(color);
+		getCDraw(tpl).setRotation(getDegFromDir8(mDir));
+		return getEntity(tpl);
+	}
+	Entity& OBFactory::createBooster(const Vec2i& mPos, int mId, Dir8 mDir, float mForceMult)
+	{
+		auto tpl(createActorBase(mPos, {1000, 1000}, OBLayer::LWall, false));
+		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.ff0);
+		auto& cIdReceiver(getEntity(tpl).createComponent<OBCIdReceiver>(mId));
+		getEntity(tpl).createComponent<OBCBooster>(getCPhys(tpl), getCDraw(tpl), cIdReceiver, mDir, mForceMult);
+		getCDraw(tpl).setBlendMode(sf::BlendMode::BlendAdd);
+
+		getCDraw(tpl)[0].setTextureRect(mForceMult > 0 ? assets.bulletBooster : assets.bulletChanger);
+		getCDraw(tpl)[0].setColor(sf::Color{255, 255, 255, 245});
 		getCDraw(tpl).setRotation(getDegFromDir8(mDir));
 		return getEntity(tpl);
 	}
@@ -255,7 +281,7 @@ namespace ob
 		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.e1Gun);
 		auto& cDir8(getEntity(tpl).createComponent<OBCDir8>());
 		auto& cWielder(getEntity(tpl).createComponent<OBCWielder>(getCPhys(tpl), getCDraw(tpl), cDir8, assets.e1Stand, assets.e1Shoot));
-		auto& cWpnController(getEntity(tpl).createComponent<OBCWpnController>(getCPhys(tpl), OBGroup::GFriendly));
+		auto& cWpnController(getEntity(tpl).createComponent<OBCWpnController>(getCPhys(tpl), OBGroup::GFriendlyKillable));
 		getEntity(tpl).createComponent<OBCERunner>(getCEnemy(tpl), cWielder, cWpnController, mArmed);
 		return getEntity(tpl);
 	}
@@ -267,7 +293,7 @@ namespace ob
 		auto& cFloorSmasher(getEntity(tpl).createComponent<OBCFloorSmasher>(getCPhys(tpl)));
 		auto& cDir8(getEntity(tpl).createComponent<OBCDir8>());
 		auto& cWielder(getEntity(tpl).createComponent<OBCWielder>(getCPhys(tpl), getCDraw(tpl), cDir8, assets.e2Stand, assets.e2Shoot));
-		auto& cWpnController(getEntity(tpl).createComponent<OBCWpnController>(getCPhys(tpl), OBGroup::GFriendly));
+		auto& cWpnController(getEntity(tpl).createComponent<OBCWpnController>(getCPhys(tpl), OBGroup::GFriendlyKillable));
 		auto type(OBCECharger::Type::Unarmed);
 		if(mArmed) type = OBCECharger::Type::Plasma;
 		if(mGL) type = OBCECharger::Type::Grenade;
@@ -281,7 +307,7 @@ namespace ob
 		emplaceSpriteByTile(getCDraw(tpl), assets.txBig, assets.e3Gun);
 		auto& cDir8(getEntity(tpl).createComponent<OBCDir8>());
 		auto& cWielder(getEntity(tpl).createComponent<OBCWielder>(getCPhys(tpl), getCDraw(tpl), cDir8, assets.e3Stand, assets.e3Shoot));
-		auto& cWpnController(getEntity(tpl).createComponent<OBCWpnController>(getCPhys(tpl), OBGroup::GFriendly));
+		auto& cWpnController(getEntity(tpl).createComponent<OBCWpnController>(getCPhys(tpl), OBGroup::GFriendlyKillable));
 		auto type(OBCEJuggernaut::Type::Unarmed);
 		if(mArmed) type = OBCEJuggernaut::Type::Plasma;
 		if(mRL) type = OBCEJuggernaut::Type::Rocket;
