@@ -5,8 +5,8 @@
 #ifndef SSVOB_GUI_WIDGET_INL
 #define SSVOB_GUI_WIDGET_INL
 
-#include "SSVBloodshed/OBCommon.h"
-#include "SSVBloodshed/GUI/Widget.h"
+#include "SSVBloodshed/OBCommon.hpp"
+#include "SSVBloodshed/GUI/Widget.hpp"
 
 namespace ob
 {

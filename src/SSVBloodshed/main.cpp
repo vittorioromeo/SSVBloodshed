@@ -1,8 +1,8 @@
 #ifdef HGJSIOPHSJH
 
 #include <chrono>
-#include "SSVBloodshed/CESystem/CES.h"
-#include "SSVBloodshed/OBCommon.h"
+#include "SSVBloodshed/CESystem/CES.hpp"
+#include "SSVBloodshed/OBCommon.hpp"
 
 using namespace ssvces;
 
@@ -230,12 +230,12 @@ int main()
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
-#include "SSVBloodshed/OBCommon.h"
-#include "SSVBloodshed/OBAssets.h"
-#include "SSVBloodshed/OBConfig.h"
-#include "SSVBloodshed/OBGame.h"
-#include "SSVBloodshed/Weapons/OBWpnTypes.h"
-#include "SSVBloodshed/LevelEditor/OBLEEditor.h"
+#include "SSVBloodshed/OBCommon.hpp"
+#include "SSVBloodshed/OBAssets.hpp"
+#include "SSVBloodshed/OBConfig.hpp"
+#include "SSVBloodshed/OBGame.hpp"
+#include "SSVBloodshed/Weapons/OBWpnTypes.hpp"
+#include "SSVBloodshed/LevelEditor/OBLEEditor.hpp"
 
 using namespace ob;
 using namespace std;
