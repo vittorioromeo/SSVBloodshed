@@ -13,7 +13,7 @@
 #include <cassert>
 #include <unordered_map>
 #include <bitset>
-#include <SSVUtils/SSVUtils.h>
+#include <SSVUtils/SSVUtils.hpp>
 
 namespace ssvces
 {
