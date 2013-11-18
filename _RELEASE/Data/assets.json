@@ -14,13 +14,7 @@
 	],
 	"soundBuffers":
 	[	
-		"Sounds/machineGun.wav",
-		"Sounds/bulletHitFlesh.wav",
-		"Sounds/bulletHitWall.wav",
-		"Sounds/squish.wav",
-		"Sounds/alienDeath.wav",
-		"Sounds/spark.wav",
-		"Sounds/playerDeath.wav"
+	
 	],
 	"musics":
 	[
