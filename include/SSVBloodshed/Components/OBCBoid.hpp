@@ -48,15 +48,15 @@ namespace ob
 
 			inline void seek(const Vec2f& mTargetPos, float mForceMult = 0.02f, float mSlowRadius = 1500.f) noexcept
 			{
-				body.applyForce(getSeekForce(mTargetPos, mSlowRadius) * mForceMult);
+				body.applyAccel(getSeekForce(mTargetPos, mSlowRadius) * mForceMult);
 			}
 			inline void pursuit(const OBCPhys& mTarget, float mForceMult = 0.02f, float mPredictionMult = 1.f, float mSlowRadius = 1500.f) noexcept
 			{
-				body.applyForce(getPursuitForce(mTarget.getPosF(), mTarget.getVel(), mPredictionMult, mSlowRadius) * mForceMult);
+				body.applyAccel(getPursuitForce(mTarget.getPosF(), mTarget.getVel(), mPredictionMult, mSlowRadius) * mForceMult);
 			}
 			inline void evade(const OBCPhys& mTarget, float mForceMult = 0.02f) noexcept
 			{
-				body.applyForce(getEvadeForce(mTarget.getPosF(), mTarget.getVel()) * mForceMult);
+				body.applyAccel(getEvadeForce(mTarget.getPosF(), mTarget.getVel()) * mForceMult);
 			}
 
 			inline void setMaxVel(float mValue) noexcept	{ maxVel = mValue; }

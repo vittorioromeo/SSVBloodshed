@@ -51,7 +51,7 @@ namespace ob
 				// Scaling
 				Scaling scalingX{Scaling::Manual}, scalingY{Scaling::Manual};
 				Scaling nextTempScaling{Scaling::Manual};
-				float padding{0.f};
+				float padding{0.f}, scalePercent{100.f};
 
 				inline virtual void update(float) { }
 				inline virtual void draw() { }
@@ -65,11 +65,11 @@ namespace ob
 
 				template<typename TS, typename TG> inline void fitToParentImpl(TS mSetter, TG mGetterMin, TG mGetterMax)
 				{
-					if(parent != nullptr) (this->*mSetter)(((parent->*mGetterMax)() - (parent->*mGetterMin)()) - padding * 2.f);
+					if(parent != nullptr) (this->*mSetter)((((parent->*mGetterMax)() - (parent->*mGetterMin)()) * (scalePercent / 100.f)) - padding * 2.f);
 				}
 				template<typename TS, typename TG> inline void fitToNeighborImpl(TS mSetter, TG mGetterMin, TG mGetterMax)
 				{
-					if(neighbor != nullptr) (this->*mSetter)(((neighbor->*mGetterMax)() - (neighbor->*mGetterMin)()) - padding * 2.f);
+					if(neighbor != nullptr) (this->*mSetter)((((neighbor->*mGetterMax)() - (neighbor->*mGetterMin)()) * (scalePercent / 100.f)) - padding * 2.f);
 				}
 				template<typename TS> inline void fitToChildrenImpl(TS mSetter, float mMin, float mMax)
 				{
@@ -93,18 +93,6 @@ namespace ob
 						childBoundsMin.y = std::min(childBoundsMin.y, w->getTop());
 						childBoundsMax.y = std::max(childBoundsMax.y, w->getBottom());
 					}
-				}
-				inline void recalculateViewBounds()
-				{
-					viewBoundsMin = getVertexNW(); viewBoundsMax = getVertexSE();
-
-					recurseChildren([this](Widget& mW)
-					{
-						viewBoundsMin.x = std::min(viewBoundsMin.x, mW.getLeft());
-						viewBoundsMax.x = std::max(viewBoundsMax.x, mW.getRight());
-						viewBoundsMin.y = std::min(viewBoundsMin.y, mW.getTop());
-						viewBoundsMax.y = std::max(viewBoundsMax.y, mW.getBottom());
-					});
 				}
 				template<typename TS, typename TG> inline void recalculateSize(Scaling mScaling, TS mSetter, TG mGetterMin, TG mGetterMax)
 				{
@@ -206,6 +194,7 @@ namespace ob
 				inline void setScalingY(Scaling mValue) noexcept	{ scalingY = mValue; }
 				inline void setScaling(Scaling mValue) noexcept		{ scalingX = scalingY = mValue; }
 				inline void setPadding(float mValue) noexcept		{ padding = mValue; }
+				inline void setScalePercent(float mValue) noexcept	{ scalePercent = mValue; }
 
 				inline bool isFocused() const noexcept		{ return focused; }
 				inline bool isHovered() const noexcept		{ return isActive() && hovered; }

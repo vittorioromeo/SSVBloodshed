@@ -75,7 +75,15 @@ namespace ob
 			{
 				const auto& ix(game.getInput().getIX());
 				const auto& iy(game.getInput().getIY());
-				body.setVelocity(ssvs::getResized(Vec2f(ix, iy), walkSpeed));
+
+				//float forceX{body.getVelocity().x - walkSpeed * ix};
+				//float forceY{body.getVelocity().y - walkSpeed * iy};
+				//body.applyAccel(Vec2f{forceX, forceY});
+				//body.setVelocity(ssvs::getResized(Vec2f(ix, iy), walkSpeed));
+
+				Vec2f force{ssvs::getResized(Vec2f(ix, iy), walkSpeed) - body.getVelocity()};
+				ssvs::mClampMax(force, walkSpeed / 2.f);
+				body.applyAccel(force);
 
 				cWielder.setShooting(game.getInput().getIShoot());
 				if(!cWielder.isShooting() && (ix != 0 || iy != 0)) cDir8 = getDir8FromXY(ix, iy);
@@ -96,7 +104,7 @@ namespace ob
 					auto query(cPhys.getWorld().getQuery<ssvsc::QueryType::Distance>(cPhys.getPosI(), 3500));
 
 					Body* body;
-					while((body = query.next()) != nullptr) if(body->hasGroup(OBGroup::GShard)) body->applyForce(Vec2f(cPhys.getPosI() - body->getPosition()) * 0.004f);
+					while((body = query.next()) != nullptr) if(body->hasGroup(OBGroup::GShard)) body->applyAccel(Vec2f(cPhys.getPosI() - body->getPosition()) * 0.004f);
 				}
 				else
 				{
@@ -106,7 +114,7 @@ namespace ob
 						c.getBody().addGroupsNoResolve(OBGroup::GSolidGround);
 						if(ssvs::getDistEuclidean(c.getPosI(), cPhys.getPosI()) > 6500)
 						{
-							if(ssvs::getMag(c.getVel()) < 650.f) c.getBody().applyForce(Vec2f(cPhys.getPosI() - c.getPosI()) * 0.002f);
+							if(ssvs::getMag(c.getVel()) < 650.f) c.getBody().applyAccel(Vec2f(cPhys.getPosI() - c.getPosI()) * 0.002f);
 						}
 						else c.setVel(ssvs::getMClampedMax(Vec2f(cPhys.getPosI() - c.getPosI()) / 1.5f, 400.f));
 					}

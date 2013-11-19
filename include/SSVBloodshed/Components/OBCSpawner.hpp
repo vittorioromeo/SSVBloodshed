@@ -25,16 +25,18 @@ namespace ob
 			{
 				switch(type)
 				{
-					case 0:	factory.createERunner(cPhys.getPosI(), false);		break;
-					case 1:	factory.createERunner(cPhys.getPosI(), true);		break;
-					case 2:	factory.createECharger(cPhys.getPosI(), false);		break;
-					case 3:	factory.createECharger(cPhys.getPosI(), true);		break;
-					case 4:	factory.createEJuggernaut(cPhys.getPosI(), false);	break;
-					case 5:	factory.createEJuggernaut(cPhys.getPosI(), true);	break;
-					case 6:	factory.createEGiant(cPhys.getPosI());				break;
-					case 7:	factory.createEEnforcer(cPhys.getPosI());			break;
-					case 8:	factory.createEBall(cPhys.getPosI(), false);		break;
-					case 9:	factory.createEBall(cPhys.getPosI(), true);			break;
+					case 0:		factory.createERunner(cPhys.getPosI(), false);			break;
+					case 1:		factory.createERunner(cPhys.getPosI(), true);			break;
+					case 2:		factory.createECharger(cPhys.getPosI(), false);			break;
+					case 3:		factory.createECharger(cPhys.getPosI(), true);			break;
+					case 4:		factory.createECharger(cPhys.getPosI(), true, true);	break;
+					case 5:		factory.createEJuggernaut(cPhys.getPosI(), false);		break;
+					case 6:		factory.createEJuggernaut(cPhys.getPosI(), true);		break;
+					case 7:		factory.createEJuggernaut(cPhys.getPosI(), true, true);	break;
+					case 8:		factory.createEGiant(cPhys.getPosI());					break;
+					case 9:		factory.createEEnforcer(cPhys.getPosI());				break;
+					case 10:	factory.createEBall(cPhys.getPosI(), false);			break;
+					case 11:	factory.createEBall(cPhys.getPosI(), true);				break;
 				}
 
 				if(--spawnCount <= 0) getEntity().destroy();

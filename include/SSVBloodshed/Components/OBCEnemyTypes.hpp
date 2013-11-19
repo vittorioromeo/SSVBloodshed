@@ -12,6 +12,8 @@
 #include "SSVBloodshed/Components/OBCActorBase.hpp"
 #include "SSVBloodshed/Components/OBCEnemy.hpp"
 #include "SSVBloodshed/Components/OBCForceField.hpp"
+#include "SSVBloodshed/Components/OBCBulletForceField.hpp"
+#include "SSVBloodshed/Components/OBCBooster.hpp"
 #include "SSVBloodshed/Components/OBCFloorSmasher.hpp"
 #include "SSVBloodshed/Components/OBCKillable.hpp"
 #include "SSVBloodshed/Components/OBCWielder.hpp"
@@ -21,7 +23,7 @@
 
 namespace ob
 {
-	inline bool raycastToPlayer(OBCPhys& mSeeker, OBCPhys& mTarget)
+	inline bool raycastToPlayer(OBCPhys& mSeeker, OBCPhys& mTarget, bool mCheckBulletForceField, bool mCheckForceField)
 	{
 		const auto& startPos(mSeeker.getPosI());
 		Vec2f dir(mTarget.getPosI() - startPos);
@@ -36,10 +38,17 @@ namespace ob
 			if(body == &mSeeker.getBody() || body->hasGroup(OBGroup::GEnemy)) continue;
 
 			// If the detected body is a bullet force field, check if the angle is valid
-			if(body->hasGroup(OBGroup::GBulletForceField))
+			if(mCheckBulletForceField && body->hasGroup(OBGroup::GBulletForceField))
 			{
 				auto& cBulletForceField(getComponentFromBody<OBCBulletForceField>(*body));
-				if(cBulletForceField.isDegBlocked(ssvs::getDeg(dir))) return false;
+				if(cBulletForceField.isRadBlocked(ssvs::getRad(dir))) return false;
+			}
+
+			// If the detected body is a force field, check if the angle is valid
+			if(mCheckForceField && body->hasGroup(OBGroup::GForceField))
+			{
+				auto& cForceField(getComponentFromBody<OBCForceField>(*body));
+				if(cForceField.isRadBlocked(ssvs::getRad(dir))) return false;
 			}
 
 			// If the detected body is a target, return true
@@ -65,7 +74,8 @@ namespace ob
 			OBCEBase(OBCEnemy& mCEnemy) : OBCActorBase{mCEnemy.getCPhys(), mCEnemy.getCDraw()}, cEnemy(mCEnemy), cKillable(cEnemy.getCKillable()), cBoid(cEnemy.getCBoid()),
 				cTargeter(cEnemy.getCTargeter()), cHealth(mCEnemy.getCKillable().getCHealth()) { }
 
-			inline bool isPlayerInSight() const noexcept { return raycastToPlayer(cPhys, cTargeter.getTarget()); }
+			inline bool isPlayerInSightRanged() const noexcept	{ return raycastToPlayer(cPhys, cTargeter.getTarget(), true, false); }
+			inline bool isPlayerInSightMelee() const noexcept	{ return raycastToPlayer(cPhys, cTargeter.getTarget(), false, true); }
 	};
 
 	class OBCEArmedBase : public OBCEBase
@@ -120,7 +130,7 @@ namespace ob
 
 				if(!cTargeter.hasTarget()) { cWielder.setShooting(false); return; }
 
-				cWielder.setShooting(armed && cEnemy.getDegDiff() < 50.f && isPlayerInSight());
+				cWielder.setShooting(armed && cEnemy.getDegDiff() < 50.f && isPlayerInSightRanged());
 
 				if(cWielder.isShooting()) { pursuitOrAlign(cTargeter.getDist(), 9000.f); shootGun(); }
 				else cBoid.pursuit(cTargeter.getTarget());
@@ -165,10 +175,10 @@ namespace ob
 					body.setVelocity(cPhys.getVel() * 0.8f);
 					game.createPCharge(4, cPhys.getPosPx(), 45);
 				}, 10, 2.5f);
-				tlCharge.append<ssvu::WaitUntil>([this]{ return isPlayerInSight(); });
-				tlCharge.append<ssvu::Do>([this]{ cFloorSmasher.setActive(true); lastDeg = cEnemy.getCurrentDeg(); body.applyForce(ssvs::getVecFromDeg(lastDeg, 1250.f)); });
+				tlCharge.append<ssvu::WaitUntil>([this]{ game.createPCharge(1, cPhys.getPosPx(), 45); return isPlayerInSightMelee(); });
+				tlCharge.append<ssvu::Do>([this]{ cFloorSmasher.setActive(true); lastDeg = cEnemy.getCurrentDeg(); body.applyAccel(ssvs::getVecFromDeg(lastDeg, 1250.f)); });
 				tlCharge.append<ssvu::Wait>(10.f);
-				tlCharge.append<ssvu::Do>([this]{ body.applyForce(ssvs::getVecFromDeg(lastDeg, -150.f)); });
+				tlCharge.append<ssvu::Do>([this]{ body.applyAccel(ssvs::getVecFromDeg(lastDeg, -150.f)); });
 				tlCharge.append<ssvu::Wait>(9.f);
 				tlCharge.append<ssvu::Do>([this]{ cFloorSmasher.setActive(false); });
 			}
@@ -178,7 +188,7 @@ namespace ob
 
 				if(!cTargeter.hasTarget()) { cWielder.setShooting(false); return; }
 
-				cWielder.setShooting(armed && cEnemy.getDegDiff() < 50.f && isPlayerInSight());
+				cWielder.setShooting(armed && cEnemy.getDegDiff() < 50.f && isPlayerInSightRanged());
 
 				if(cWielder.isShooting()) { pursuitOrAlign(cTargeter.getDist(), 9000.f); shootGun(); }
 				else
@@ -239,7 +249,7 @@ namespace ob
 				if(!cTargeter.hasTarget()) { cWielder.setShooting(false); return; }
 
 				const auto& dist(cTargeter.getDist());
-				cWielder.setShooting(armed && cEnemy.getDegDiff() < 50.f && isPlayerInSight() && dist > distBodySlam);
+				cWielder.setShooting(armed && cEnemy.getDegDiff() < 50.f && isPlayerInSightRanged() && dist > distBodySlam);
 
 				if(cWielder.isShooting())
 				{
@@ -399,7 +409,7 @@ namespace ob
 
 				tckShoot.update(mFT);
 				if(cTargeter.getDist() > 9000.f) cBoid.pursuit(cTargeter.getTarget()); else cBoid.evade(cTargeter.getTarget());
-				if(isPlayerInSight() && cEnemy.getDegDiff() < 50.f) shootCannon(0);
+				if(isPlayerInSightRanged() && cEnemy.getDegDiff() < 50.f) shootCannon(0);
 			}
 			inline void shootCannon(int mDeg)
 			{

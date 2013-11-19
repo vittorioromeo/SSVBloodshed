@@ -172,30 +172,30 @@ namespace ob
 		class Shutter : public Widget
 		{
 			private:
-				Strip& wsThis;
+				Strip& wsBar;
 				Strip& wsShutter;
 				Button& btnOpen;
 				Label& lblLabel;
 
 				inline void update(float) override
 				{
-					setSize(wsThis.getSize());
+					setSize(wsBar.getSize());
 					if(!wsShutter.anyChildRecursive([](const Widget& mW){ return mW.isFocused(); })) wsShutter.setExcludedRecursive(true);
 					wsShutter.setFillColor(wsShutter.isFocused() ? colorFocused : colorUnfocused);
 				}
 
 			public:
 				Shutter(Context& mContext, std::string mLabel) : Widget{mContext},
-					wsThis(create<Strip>(At::Right, At::Left, At::Left)),
+					wsBar(create<Strip>(At::Right, At::Left, At::Left)),
 					wsShutter(create<Strip>(At::Top, At::Bottom, At::Bottom)),
-					btnOpen(wsThis.create<Button>("v", Vec2f{8.f, 8.f})),
-					lblLabel(wsThis.create<Label>(std::move(mLabel)))
+					btnOpen(wsBar.create<Button>("v", Vec2f{8.f, 8.f})),
+					lblLabel(wsBar.create<Label>(std::move(mLabel)))
 				{
 					setFillColor(sf::Color::Transparent);
 
-					wsThis.setFillColor(sf::Color::Red);
-					wsThis.setOutlineColor(sf::Color::Black);
-					wsThis.setOutlineThickness(2);
+					wsBar.setFillColor(sf::Color::Red);
+					wsBar.setOutlineColor(sf::Color::Black);
+					wsBar.setOutlineThickness(2);
 
 					wsShutter.setOutlineColor(sf::Color::Black);
 					wsShutter.setOutlineThickness(2);
@@ -203,8 +203,8 @@ namespace ob
 					wsShutter.setContainer(true);
 					wsShutter.setPadding(4.f);
 
-					wsThis.attach(At::Right, *this, At::Right);
-					wsShutter.attach(At::Top, wsThis, At::Bottom, Vec2f{0.f, 2.f});
+					wsBar.attach(At::Right, *this, At::Right);
+					wsShutter.attach(At::Top, wsBar, At::Bottom, Vec2f{0.f, 2.f});
 
 					btnOpen.onUse += [this]
 					{
@@ -216,8 +216,67 @@ namespace ob
 				inline Shutter& operator+=(Widget& mWidget) { wsShutter += mWidget; return *this; }
 				inline Shutter& operator+=(const std::initializer_list<Widget*> mWidgets) { wsShutter += mWidgets; return *this; }
 
-				inline Strip& getShutter() const noexcept { return wsShutter; }
-				inline Label& getLabel() noexcept				{ return lblLabel; }
+				inline Strip& getBar() const noexcept		{ return wsBar; }
+				inline Strip& getShutter() const noexcept	{ return wsShutter; }
+				inline Label& getLabel() noexcept			{ return lblLabel; }
+		};
+
+		class ChoiceShutter : public Shutter
+		{
+			private:
+				std::vector<std::string> choices;
+				std::string currentChoice;
+				int idxOffset{0};
+
+				std::size_t currentChoiceIdx{0}, choiceBtnsMax{5};
+				Strip& wsChoices;
+				Strip& wsScroll;
+				Button& btnUp;
+				Button& btnDown;
+				Label& lblCount;
+				std::vector<Button*> btnsChoices;
+
+				inline void refreshChoices()
+				{
+					const auto& lb(ssvu::getWrapIdx(idxOffset, choices.size()));
+					const auto& ub(ssvu::getWrapIdx(idxOffset + choiceBtnsMax, choices.size()));
+					lblCount.setString("(" + ssvu::toStr(lb) + ":" + ssvu::toStr(ub) + ")/" + ssvu::toStr(choices.size()));
+
+					for(auto i(0u); i < choiceBtnsMax; ++i)
+					{
+						const auto& choiceIdx(ssvu::getWrapIdx(i + idxOffset, choices.size()));
+						btnsChoices[i]->getLabel().setString(choiceIdx == currentChoiceIdx ? "> " + ssvu::toUpper(choices[choiceIdx]) + " <" : choices[choiceIdx]);
+					}
+
+					getLabel().setString(currentChoice);
+				}
+
+			public:
+				ssvu::Delegate<void()> onChoiceSelected;
+
+				ChoiceShutter(Context& mContext, const std::vector<std::string>& mChoices)
+						: Shutter{mContext, ""}, choices{mChoices}, currentChoice{choices[0]},
+						wsChoices(getShutter().create<Strip>(At::Top, At::Bottom, At::Bottom)),
+						wsScroll(getShutter().create<Strip>(At::Right, At::Left, At::Left)),
+						btnUp(wsScroll.create<Button>("^", Vec2f{8.f, 8.f})),
+						btnDown(wsScroll.create<Button>("v", Vec2f{8.f, 8.f})),
+						lblCount(wsScroll.create<Label>(""))
+				{
+					btnUp.onUse += [this]{ --idxOffset; refreshChoices(); };
+					btnDown.onUse += [this]{ ++idxOffset; refreshChoices(); };
+
+					for(auto i(0u); i < choiceBtnsMax; ++i)
+					{
+						auto& btn(wsChoices.create<Button>("", Vec2f{56.f, 8.f}));
+						btn.onUse += [this, i]{ setChoiceIdx(ssvu::getWrapIdx(i + idxOffset, choices.size())); onChoiceSelected(); };
+						btnsChoices.push_back(&btn);
+					}
+
+					refreshChoices();
+				}
+
+				inline void setChoiceIdx(std::size_t mIdx)	{ currentChoice = choices[mIdx]; currentChoiceIdx = mIdx; refreshChoices(); }
+				inline int getChoiceIdx() const noexcept	{ return currentChoiceIdx; }
 		};
 
 		class TextBox : public Widget
@@ -279,8 +338,6 @@ namespace ob
 				TextBox(Context& mContext, const Vec2f& mSize) : Widget{mContext, mSize / 2.f},
 					tBox(create<Widget>()), lblText(tBox.create<Label>(""))
 				{
-
-					setContainer(true);
 					setFillColor(sf::Color::Transparent);
 
 					tBox.setOutlineColor(sf::Color::Black);

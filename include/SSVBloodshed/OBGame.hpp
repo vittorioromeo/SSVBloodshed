@@ -248,10 +248,9 @@ namespace ob
 }
 
 // TODO: add final where it makes sense
-// TODO: ssvs::networking from testupdchat
-// TODO: autoupdater "download_only_if_unexistant":[] ...
-
-// TODO: bullet sensor pressure plates, SSVSC refactoring/optimization
+// ssvs::networking from testudpchat
+// autoupdater "download_only_if_unexistant":[] ...
+// bullet sensor pressure plates, SSVSC refactoring/optimization
 // enemy orientation, organic group?, do not pierce breakable wall etc
 // tripwires, laserwires, powerups, classes, weapon sets, etc
 // bullet knockback? replicators? spawners?
@@ -265,10 +264,6 @@ namespace ob
 // one way projectile shields
 // lock room until clear? (remove green doors?)
 // global particle mult
-
-// BUG: summoned enemies may get stuck? debug SSVSC
-
-// TODO: move by applying required force
-// TODO: cmd line image outliner tool
+// cmd line image outliner tool
 
 #endif

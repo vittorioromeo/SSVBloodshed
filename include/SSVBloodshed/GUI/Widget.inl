@@ -40,13 +40,15 @@ namespace ob
 			for(auto& w : children) w->updateRecursive(mFT);
 
 			recalculateChildBounds();
-			recalculateViewBounds();
 			recalculateView();
 
 			onPostUpdate();
 		}
 		inline void Widget::recalculateView()
 		{
+			viewBoundsMin = getVertexNW();
+			viewBoundsMax = getVertexSE();
+
 			const auto& rtSize(context.renderTexture.getSize());
 			const auto& vbSize(viewBoundsMax - viewBoundsMin);
 

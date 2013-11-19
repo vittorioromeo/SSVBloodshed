@@ -125,7 +125,6 @@ namespace ob
 				auto& shtrList2(shtrList.create<GUI::Shutter>("list 2"));
 				shtrList2 +=
 				{
-					// TODO: remove += syntax, add createItem<T>
 					&shtrList2.create<GUI::Label>("i'm"),
 					&shtrList2.create<GUI::Label>("fine"),
 					&shtrList2.create<GUI::Label>("thanks"),
@@ -138,6 +137,9 @@ namespace ob
 				formParams = &guiCtx.create<GUI::Form>("PARAMETERS", Vec2f{100, 100}, Vec2f{150, 80});
 				lblParams = &formParams->create<GUI::Label>();
 				lblParams->attach(GUI::At::NW, *formParams, GUI::At::NW, Vec2f{2.f, 2.f});
+				std::initializer_list<std::string> choices{"test1", "test2", "test3"};
+				auto& test(formParams->create<GUI::ChoiceShutter>(choices));
+				test.attach(GUI::At::NW, *formParams, GUI::At::NW);
 
 				formInfo = &guiCtx.create<GUI::Form>("INFO", Vec2f{100, 100}, Vec2f{150, 80});
 				lblInfo = &formInfo->create<GUI::Label>();
@@ -233,7 +235,6 @@ namespace ob
 				}
 
 				lblParams->setString(ss.str());
-				if(!formParams->isCollapsed()) if(idx > 0 && (formParams->getWidth() < lblParams->getWidth() * 1.2f || formParams->getHeight() < lblParams->getHeight() * 1.2f)) formParams->setSize(lblParams->getSize() * 1.2f);
 			}
 
 			inline void update(float mFT)
@@ -251,7 +252,6 @@ namespace ob
 
 				debugText.update(mFT);
 				lblInfo->setString(debugText.getStr());
-				if(!formInfo->isCollapsed()) if(formInfo->getWidth() < lblInfo->getWidth() * 1.2f || formInfo->getHeight() < lblInfo->getHeight() * 1.2f) formInfo->setSize(lblInfo->getSize() * 1.2f);
 
 				gameCamera.update<int>(mFT);
 			}
@@ -311,8 +311,26 @@ namespace ob
 			GUI::Strip& mainStrip;
 			OBLETType prevType{OBLETType::LETFloor};
 
+			std::vector<std::string> enemyTypeChoices
+			{
+				"runner",		// 0
+				"runner_a",		// 1
+				"charger",		// 2
+				"charger_a",	// 3
+				"charger_gl",	// 4
+				"jugger",		// 5
+				"jugger_a",		// 6
+				"jugger_rl",	// 7
+				"giant",		// 8
+				"enforcer",		// 9
+				"ball",			// 10
+				"ball_fly"		// 11
+			};
+
+
 			std::map<std::string, GUI::CheckBox*> checkBoxes;
 			std::map<std::string, GUI::TextBox*> textBoxes;
+			std::map<std::string, GUI::ChoiceShutter*> enemyTypeChoiceShutters;
 
 			inline OBLETile* getTile()
 			{
@@ -344,6 +362,11 @@ namespace ob
 						if(p.second->isFocused()) continue;
 						p.second->setString(tile->getParam<std::string>(p.first));
 					}
+					for(auto& p : enemyTypeChoiceShutters)
+					{
+						if(p.second->isFocused()) continue;
+						p.second->setChoiceIdx(tile->getParam<int>(p.first));
+					}
 
 					return;
 				}
@@ -351,7 +374,7 @@ namespace ob
 				// Else, if the tile's type has changed...
 
 				// Clear references to widgets and destroy everything but the form
-				checkBoxes.clear(); textBoxes.clear();
+				checkBoxes.clear(); textBoxes.clear(); enemyTypeChoiceShutters.clear();
 				mainStrip.recurseChildren<false>([](Widget& mW){ mW.destroyRecursive(); });
 
 				// Set the previous type to the current type
@@ -367,28 +390,41 @@ namespace ob
 					strip.setTabSize(100.f);
 					mainStrip += strip;
 
-					if(ssvuj::is<bool>(p.second))
+					// Special parameters
+					if(key == "enemyType")
 					{
-						auto& checkBox(strip.create<GUI::CheckBox>("on", ssvuj::as<bool>(p.second)));
-						checkBox.onStateChanged += [key, tile, &checkBox]{ tile->setParam(key, checkBox.getState() ? "true" : "false"); };
-						//strip += checkBox;
-						checkBoxes[p.first] = &checkBox;
+						auto& choiceShutter(strip.create<GUI::ChoiceShutter>(enemyTypeChoices));
+						choiceShutter.onChoiceSelected += [key, tile, &choiceShutter]{ tile->setParam(key, ssvu::toStr(choiceShutter.getChoiceIdx())); };
+						choiceShutter.getBar().setScalingX(GUI::Scaling::Manual); choiceShutter.getBar().setWidth(56.f);
+						choiceShutter.getShutter().setScalingX(GUI::Scaling::Manual); choiceShutter.getShutter().setWidth(100.f);
+						enemyTypeChoiceShutters[key] = &choiceShutter;
 					}
 					else
 					{
-						auto& textBox(strip.create<GUI::TextBox>(Vec2f(56.f, 8.f)));
-						auto str(ssvu::toStr(p.second));
-
+						// Generic parameters (bool, textbox)
+						if(ssvuj::is<bool>(p.second))
 						{
-							auto i(str.size());
-							while(i > 0 && str[i - 1] == '\n') --i;
-							str.erase(i, str.size());
+							auto& checkBox(strip.create<GUI::CheckBox>("on", ssvuj::as<bool>(p.second)));
+							checkBox.onStateChanged += [key, tile, &checkBox]{ tile->setParam(key, checkBox.getState() ? "true" : "false"); };
+							//strip += checkBox;
+							checkBoxes[key] = &checkBox;
 						}
+						else
+						{
+							auto& textBox(strip.create<GUI::TextBox>(Vec2f(56.f, 8.f)));
+							auto str(ssvu::toStr(p.second));
 
-						textBox.setString(str);
-						textBox.onTextChanged += [key, tile, &textBox]{ tile->setParam(key, textBox.getString()); };
-						//strip += textBox;
-						textBoxes[p.first] = &textBox;
+							{
+								auto i(str.size());
+								while(i > 0 && str[i - 1] == '\n') --i;
+								str.erase(i, str.size());
+							}
+
+							textBox.setString(str);
+							textBox.onTextChanged += [key, tile, &textBox]{ tile->setParam(key, textBox.getString()); };
+							//strip += textBox;
+							textBoxes[key] = &textBox;
+						}
 					}
 				}
 			}
