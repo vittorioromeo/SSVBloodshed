@@ -173,7 +173,7 @@ namespace ob
 			Dir8 dir;
 			ssvsc::Segment<float> segment;
 			bool active{true};
-			float distortion{0}, alpha{0}, forceMult;
+			float alpha{0}, forceMult;
 			ssvs::Animation animation;
 
 		public:
