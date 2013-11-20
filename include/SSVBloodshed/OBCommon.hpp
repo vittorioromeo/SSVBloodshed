@@ -92,6 +92,11 @@ namespace ob
 	enum class PPlateType{Single, Multi, OnOff};
 	enum class IdAction{Toggle, Open, Close};
 
+	enum class RunnerType{Unarmed, PlasmaBolter};
+	enum class ChargerType{Unarmed, PlasmaBolter, GrenadeLauncher};
+	enum class JuggernautType{Unarmed, PlasmaBolter, RocketLauncher};
+	enum class BallType{Normal, Flying};
+
 	// Level editor enums
 	enum class OBLETType : int
 	{

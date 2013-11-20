@@ -61,12 +61,12 @@ namespace ob
 			Entity& createBooster(const Vec2i& mPos, int mId, Dir8 mDir, float mForceMult);
 
 			// Enemies
-			Entity& createERunner(const Vec2i& mPos, bool mArmed = false);
-			Entity& createECharger(const Vec2i& mPos, bool mArmed = false, bool mGL = false);
-			Entity& createEJuggernaut(const Vec2i& mPos, bool mArmed = false, bool mRL = false);
+			Entity& createERunner(const Vec2i& mPos, RunnerType mType);
+			Entity& createECharger(const Vec2i& mPos, ChargerType mType);
+			Entity& createEJuggernaut(const Vec2i& mPos, JuggernautType mType);
 			Entity& createEGiant(const Vec2i& mPos);
 			Entity& createEEnforcer(const Vec2i& mPos);
-			Entity& createEBall(const Vec2i& mPos, bool mFlying, bool mSmall = false);
+			Entity& createEBall(const Vec2i& mPos, BallType mType, bool mSmall);
 			Entity& createETurretStarPlasma(const Vec2i& mPos, Dir8 mDir);
 			Entity& createETurretCannonPlasma(const Vec2i& mPos, Dir8 mDir);
 			Entity& createETurretBulletPlasma(const Vec2i& mPos, Dir8 mDir);

@@ -23,22 +23,25 @@ namespace ob
 
 			inline void spawn()
 			{
-				switch(type)
-				{
-					case 0:		factory.createERunner(cPhys.getPosI(), false);			break;
-					case 1:		factory.createERunner(cPhys.getPosI(), true);			break;
-					case 2:		factory.createECharger(cPhys.getPosI(), false);			break;
-					case 3:		factory.createECharger(cPhys.getPosI(), true);			break;
-					case 4:		factory.createECharger(cPhys.getPosI(), true, true);	break;
-					case 5:		factory.createEJuggernaut(cPhys.getPosI(), false);		break;
-					case 6:		factory.createEJuggernaut(cPhys.getPosI(), true);		break;
-					case 7:		factory.createEJuggernaut(cPhys.getPosI(), true, true);	break;
-					case 8:		factory.createEGiant(cPhys.getPosI());					break;
-					case 9:		factory.createEEnforcer(cPhys.getPosI());				break;
-					case 10:	factory.createEBall(cPhys.getPosI(), false);			break;
-					case 11:	factory.createEBall(cPhys.getPosI(), true);				break;
-				}
+				// TODO: enums instead of truefalse
 
+				static void(*fnPtrs[])(OBFactory&, const Vec2i&)
+				{
+					[](OBFactory& mF, const Vec2i& mPos){ mF.createERunner(mPos, RunnerType::Unarmed); },					// 0
+					[](OBFactory& mF, const Vec2i& mPos){ mF.createERunner(mPos, RunnerType::PlasmaBolter); },				// 1
+					[](OBFactory& mF, const Vec2i& mPos){ mF.createECharger(mPos, ChargerType::Unarmed); },					// 2
+					[](OBFactory& mF, const Vec2i& mPos){ mF.createECharger(mPos, ChargerType::PlasmaBolter); },			// 3
+					[](OBFactory& mF, const Vec2i& mPos){ mF.createECharger(mPos, ChargerType::GrenadeLauncher); },			// 4
+					[](OBFactory& mF, const Vec2i& mPos){ mF.createEJuggernaut(mPos, JuggernautType::Unarmed); },			// 5
+					[](OBFactory& mF, const Vec2i& mPos){ mF.createEJuggernaut(mPos, JuggernautType::PlasmaBolter); },		// 6
+					[](OBFactory& mF, const Vec2i& mPos){ mF.createEJuggernaut(mPos, JuggernautType::RocketLauncher); },	// 7
+					[](OBFactory& mF, const Vec2i& mPos){ mF.createEGiant(mPos); },											// 8
+					[](OBFactory& mF, const Vec2i& mPos){ mF.createEEnforcer(mPos); },										// 9
+					[](OBFactory& mF, const Vec2i& mPos){ mF.createEBall(mPos, BallType::Normal, false); },					// 10
+					[](OBFactory& mF, const Vec2i& mPos){ mF.createEBall(mPos, BallType::Flying, false); }					// 11
+				};
+
+				fnPtrs[type](factory, cPhys.getPosI());
 				if(--spawnCount <= 0) getEntity().destroy();
 			}
 
@@ -69,5 +72,3 @@ namespace ob
 }
 
 #endif
-
-// TODO: Lambda instead of type?

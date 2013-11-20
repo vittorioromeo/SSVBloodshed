@@ -113,8 +113,12 @@ namespace ob
 
 	class OBCERunner : public OBCEArmedBase
 	{
+		private:
+			RunnerType type;
+
 		public:
-			OBCERunner(OBCEnemy& mCEnemy, OBCWielder& mCWielder, OBCWpnController& mCWpnController, bool mArmed) : OBCEArmedBase{mCEnemy, mCWielder, mCWpnController, mArmed, 1} { }
+			OBCERunner(OBCEnemy& mCEnemy, OBCWielder& mCWielder, OBCWpnController& mCWpnController, RunnerType mType)
+				: OBCEArmedBase{mCEnemy, mCWielder, mCWpnController, mType != RunnerType::Unarmed, 1}, type{mType} { }
 
 			inline void init()
 			{
@@ -139,26 +143,23 @@ namespace ob
 
 	class OBCECharger : public OBCEArmedBase
 	{
-		public:
-			enum class Type{Unarmed, Plasma, Grenade};
-
 		private:
 			OBCFloorSmasher& cFloorSmasher;
 			ssvs::Ticker tckCharge{250.f};
 			ssvu::Timeline tlCharge{false};
 			float lastDeg{0};
-			Type type;
+			ChargerType type;
 
 		public:
-			OBCECharger(OBCEnemy& mCEnemy, OBCFloorSmasher& mCFloorSmasher, OBCWielder& mCWielder, OBCWpnController& mCWpnController, Type mType)
-				: OBCEArmedBase{mCEnemy, mCWielder, mCWpnController, mType != Type::Unarmed, 7}, cFloorSmasher(mCFloorSmasher), type{mType} { }
+			OBCECharger(OBCEnemy& mCEnemy, OBCFloorSmasher& mCFloorSmasher, OBCWielder& mCWielder, OBCWpnController& mCWpnController, ChargerType mType)
+				: OBCEArmedBase{mCEnemy, mCWielder, mCWpnController, mType != ChargerType::Unarmed, 7}, cFloorSmasher(mCFloorSmasher), type{mType} { }
 
 			inline void init()
 			{
 				cPhys.setMass(100.f);
 
 				cWpnController.setWpn(OBWpnTypes::createEPlasmaBulletGun(1, 8.f));
-				if(type == Type::Grenade)
+				if(type == ChargerType::GrenadeLauncher)
 				{
 					cWpnController.setWpn(OBWpnTypes::createGrenadeLauncher());
 					cDraw[1].setTextureRect(assets.e2GunGL);
@@ -202,25 +203,23 @@ namespace ob
 
 	class OBCEJuggernaut : public OBCEArmedBase
 	{
-		public:
-			enum class Type{Unarmed, Plasma, Rocket};
-
 		private:
 			ssvs::Ticker tckShoot{150.f};
 			ssvu::Timeline tlShoot{false};
 			float lastDeg{0};
 			OBWpn wpn{game, OBGroup::GFriendlyKillable, OBWpnTypes::createEPlasmaStarGun(0)};
-			Type type;
+			JuggernautType type;
 
 		public:
-			OBCEJuggernaut(OBCEnemy& mCEnemy, OBCWielder& mCWielder, OBCWpnController& mCWpnController, Type mType) : OBCEArmedBase{mCEnemy, mCWielder, mCWpnController, mType != Type::Unarmed, 18}, type{mType} { }
+			OBCEJuggernaut(OBCEnemy& mCEnemy, OBCWielder& mCWielder, OBCWpnController& mCWpnController, JuggernautType mType)
+				: OBCEArmedBase{mCEnemy, mCWielder, mCWpnController, mType != JuggernautType::Unarmed, 18}, type{mType} { }
 
 			inline void init()
 			{
 				cPhys.setMass(10000.f);
 
 				cWpnController.setWpn(OBWpnTypes::createEPlasmaBulletGun(2, 8.f));
-				if(type == Type::Rocket)
+				if(type == JuggernautType::RocketLauncher)
 				{
 					cWpnController.setWpn(OBWpnTypes::createRocketLauncher());
 					cDraw[1].setTextureRect(assets.e3GunRL);
@@ -275,10 +274,11 @@ namespace ob
 	class OBCEBall : public OBCEBase
 	{
 		private:
-			bool flying{false}, small{false};
+			BallType type;
+			bool small{false};
 
 		public:
-			OBCEBall(OBCEnemy& mCEnemy, bool mFlying, bool mSmall) : OBCEBase{mCEnemy}, flying{mFlying}, small{mSmall} { }
+			OBCEBall(OBCEnemy& mCEnemy, BallType mType, bool mSmall) : OBCEBase{mCEnemy}, type{mType}, small{mSmall} { }
 
 			inline void init()
 			{
@@ -289,7 +289,7 @@ namespace ob
 					{
 						for(int i{0}; i < 3; ++i)
 						{
-							auto& e(factory.createEBall(cPhys.getPosI(), flying, true));
+							auto& e(factory.createEBall(cPhys.getPosI(), type, true));
 							e.getComponent<OBCPhys>().setVel(ssvs::getVecFromDeg(360.f / 3.f * i, 400.f));
 						}
 					};
@@ -300,7 +300,7 @@ namespace ob
 				cEnemy.setFaceDirection(false);
 				cEnemy.setMinBounceVel(100.f); cEnemy.setMaxVel(400.f);
 
-				if(flying)
+				if(type == BallType::Flying)
 				{
 					body.addGroups(OBGroup::GFlying);
 					body.onResolution += [this](const ResolutionInfo& mRI)
@@ -313,7 +313,7 @@ namespace ob
 			}
 			inline void update(float mFT) override
 			{
-				if(flying && !small && ssvu::getRnd(0, 9) > 7) game.createPElectric(1, cPhys.getPosPx());
+				if(type == BallType::Flying && !small && ssvu::getRnd(0, 9) > 7) game.createPElectric(1, cPhys.getPosPx());
 				if(cTargeter.hasTarget()) cBoid.pursuit(cTargeter.getTarget());
 				cDraw.rotate(15.f * mFT);
 			}
@@ -350,7 +350,7 @@ namespace ob
 				{
 					game.createPCharge(5, cPhys.getPosPx(), 65);
 					body.setVelocity(body.getVelocity() * 0.8f);
-					factory.createERunner(body.getPosition() + Vec2i(ssvs::getVecFromDeg<float>(lastDeg) * 1500.f), true);
+					factory.createERunner(body.getPosition() + Vec2i(ssvs::getVecFromDeg<float>(lastDeg) * 1500.f), RunnerType::PlasmaBolter);
 					lastDeg += 360 / 6;
 				}, 6, 4.5f);
 				tlSummon.append<ssvu::Wait>(19.f);
@@ -425,4 +425,3 @@ namespace ob
 }
 
 #endif
-
