@@ -16,7 +16,7 @@ namespace ob
 	{
 		private:
 			OBCIdReceiver& cIdReceiver;
-			int type;
+			SpawnerItem type;
 			ssvs::Ticker delayStart, delaySpawn;
 			int spawnCount;
 			bool active{true};
@@ -41,12 +41,12 @@ namespace ob
 					[](OBFactory& mF, const Vec2i& mPos){ mF.createEBall(mPos, BallType::Flying, false); }					// 11
 				};
 
-				fnPtrs[type](factory, cPhys.getPosI());
+				fnPtrs[int(type)](factory, cPhys.getPosI());
 				if(--spawnCount <= 0) getEntity().destroy();
 			}
 
 		public:
-			OBCSpawner(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCIdReceiver& mCIdReceiver, int mType, float mDelayStart, float mDelaySpawn, int mSpawnCount) noexcept :
+			OBCSpawner(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCIdReceiver& mCIdReceiver, SpawnerItem mType, float mDelayStart, float mDelaySpawn, int mSpawnCount) noexcept :
 				OBCActorBase{mCPhys, mCDraw}, cIdReceiver(mCIdReceiver), type{mType}, delayStart{mDelayStart}, delaySpawn{mDelaySpawn}, spawnCount{mSpawnCount} { delayStart.setLoop(false); }
 
 			inline void init()

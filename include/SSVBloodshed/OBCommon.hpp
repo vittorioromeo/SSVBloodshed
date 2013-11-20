@@ -21,6 +21,23 @@
 
 namespace ob
 {
+	// Enum helpers
+	template<typename T> inline std::vector<std::string>& getEnumStrVec();
+	template<typename T> inline std::string getEnumStr(T mValue) { return getEnumStrVec<T>()[int(mValue)]; }
+	inline std::map<std::string, std::vector<std::string>*>& getEnumsMap() { static std::map<std::string, std::vector<std::string>*> map; return map; }
+	inline std::vector<std::string>& getEnumStrVecByName(const std::string& mName) { return *getEnumsMap()[mName]; }
+	inline std::vector<std::string> stringifyVariadicMacro(const std::string& mToSplit) { return ssvu::getSplit(mToSplit, std::string(", ")); }
+
+	#define OB_ENUM(mName, ...) enum class mName : int { __VA_ARGS__ }; \
+		template<> inline std::vector<std::string>& getEnumStrVec<mName>() \
+		{ \
+			static std::vector<std::string> strings( stringifyVariadicMacro(#__VA_ARGS__) ); \
+			return strings; \
+		} \
+		struct __dummyStruct ## mName { } __attribute__ ((unused))
+
+	#define OB_ENUM_INIT(mName) getEnumsMap()[#mName] = &(getEnumStrVec<mName>());
+
 	// Typedefs
 	template<typename T> using Vec2 = ssvs::Vec2<T>;
 	template<typename T, typename TDeleter = std::default_delete<T>> using Uptr = ssvs::Uptr<T, TDeleter>;
@@ -89,13 +106,27 @@ namespace ob
 		LFloor,
 		LBackground
 	};
-	enum class PPlateType{Single, Multi, OnOff};
-	enum class IdAction{Toggle, Open, Close};
 
-	enum class RunnerType{Unarmed, PlasmaBolter};
-	enum class ChargerType{Unarmed, PlasmaBolter, GrenadeLauncher};
-	enum class JuggernautType{Unarmed, PlasmaBolter, RocketLauncher};
-	enum class BallType{Normal, Flying};
+	OB_ENUM(PPlateType,			Single, Multi, OnOff);
+	OB_ENUM(IdAction,			Toggle, Open, Close);
+
+	OB_ENUM(SpawnerItem,		RunnerUA, RunnerPB, ChargerUA, ChargerPB, ChargerGL, JuggerUA, JuggerPB, JuggerRL, Giant, Enforcer, BallN, BallF);
+
+	OB_ENUM(RunnerType,			Unarmed, PlasmaBolter);
+	OB_ENUM(ChargerType,		Unarmed, PlasmaBolter, GrenadeLauncher);
+	OB_ENUM(JuggernautType,		Unarmed, PlasmaBolter, RocketLauncher);
+	OB_ENUM(BallType,			Normal, Flying);
+
+	inline void obEnumInit()
+	{
+		OB_ENUM_INIT(PPlateType);
+		OB_ENUM_INIT(IdAction);
+		OB_ENUM_INIT(SpawnerItem);
+		OB_ENUM_INIT(RunnerType);
+		OB_ENUM_INIT(ChargerType);
+		OB_ENUM_INIT(JuggernautType);
+		OB_ENUM_INIT(BallType);
+	}
 
 	// Level editor enums
 	enum class OBLETType : int

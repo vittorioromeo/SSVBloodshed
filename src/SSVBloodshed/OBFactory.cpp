@@ -204,7 +204,7 @@ namespace ob
 		getEntity(tpl).createComponent<OBCShard>(getCPhys(tpl), getCDraw(tpl));
 		return getEntity(tpl);
 	}
-	Entity& OBFactory::createSpawner(const Vec2i& mPos, int mType, int mId, float mDelayStart, float mDelaySpawn, int mSpawnCount)
+	Entity& OBFactory::createSpawner(const Vec2i& mPos, SpawnerItem mType, int mId, float mDelayStart, float mDelaySpawn, int mSpawnCount)
 	{
 		auto tpl(createActorBase(mPos, {400, 400}, OBLayer::LShard));
 		emplaceSpriteByTile(getCDraw(tpl), assets.txSmall, assets.spawner);

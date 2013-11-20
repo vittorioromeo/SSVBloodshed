@@ -19,11 +19,15 @@ namespace ob
 				sf::Texture* texture;
 				sf::IntRect intRect;
 				std::map<std::string, ssvuj::Obj> defaultParams;
+				std::map<std::string, std::string> enumParams;
 				ssvu::Func<void(TLevel&, TTile&, const Vec2i&)> spawn;
 
 				Entry() = default;
 				Entry(OBLETType mType, sf::Texture* mTexture, const sf::IntRect& mIntRect, const decltype(defaultParams)& mDefaultParams, decltype(spawn) mSpawn)
 					: type{mType}, texture{mTexture}, intRect{mIntRect}, defaultParams{mDefaultParams}, spawn{mSpawn} { }
+
+				inline bool isEnumParam(const std::string& mKey) const					{ return enumParams.count(mKey) > 0; }
+				inline const std::string& getEnumName(const std::string& mKey) const	{ return enumParams.at(mKey); }
 			};
 
 		private:
@@ -32,7 +36,8 @@ namespace ob
 			TFactory* f{nullptr};
 			std::map<OBLETType, Entry> entries;
 
-			template<typename T> inline T getP(TTile& mT, const std::string& mKey) { return mT.template getParam<T>(mKey); }
+			template<typename T> inline T getP(TTile& mT, const std::string& mKey)		{ return mT.template getParam<T>(mKey); }
+			template<typename T> inline T getPE(TTile& mT, const std::string& mKey)		{ return T(mT.template getParam<int>(mKey)); }
 
 			inline int getWallMask(TLevel& mL, OBLETType mType, int mX, int mY, int mZ)
 			{
@@ -111,7 +116,10 @@ namespace ob
 				add(OBLETType::LETSpawner,			a.txSmall,		a.spawner,				{{"id", -1}, {"enemyType", 0}, {"delayStart", 0.f}, {"delaySpawn", 200.f}, {"spawnCount", 1}},
 				[this](TLevel&, TTile& mT, const Vec2i& mP)
 				{
-					f->createSpawner(mP, getP<int>(mT, "enemyType"), getP<int>(mT, "id"), getP<float>(mT, "delayStart"), getP<float>(mT, "delaySpawn"), getP<int>(mT, "spawnCount"));
+					f->createSpawner(mP, getPE<SpawnerItem>(mT, "enemyType"), getP<int>(mT, "id"), getP<float>(mT, "delayStart"), getP<float>(mT, "delaySpawn"), getP<int>(mT, "spawnCount"));
+				},
+				{
+					{"enemyType", "SpawnerItem"}
 				});
 
 				add(OBLETType::LETPPlateSingle,		a.txSmall,		a.pPlateSingle,			{{"id", 0}, {"action", 0}, {"playerOnly", false}},
@@ -157,9 +165,11 @@ namespace ob
 				});
 			}
 
-			template<typename T> inline void add(OBLETType mType, sf::Texture* mTexture, const sf::IntRect& mIntRect, const std::map<std::string, ssvuj::Obj>& mDefaultParams, T mSpawn)
+			template<typename T> inline void add(OBLETType mType, sf::Texture* mTexture, const sf::IntRect& mIntRect, const std::map<std::string, ssvuj::Obj>& mDefaultParams, const T& mSpawn,
+												 const std::initializer_list<std::pair<std::string, std::string>>& mEnumParams = {})
 			{
 				entries[mType] = Entry{mType, mTexture, mIntRect, mDefaultParams, mSpawn};
+				for(auto& p : mEnumParams) entries[mType].enumParams.insert(p);
 			}
 			inline void spawn(TLevel& mLevel, TTile& mTile, const Vec2i& mPos) { get(mTile.getType()).spawn(mLevel, mTile, mPos); }
 

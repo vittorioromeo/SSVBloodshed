@@ -66,6 +66,7 @@ namespace ob
 		inline void Widget::destroyRecursive()						{ recurseChildren([this](Widget& mW){ context.del(mW); }); }
 		inline void Widget::checkMouse()
 		{
+			if(!isVisible()) return;
 			hovered = isOverlapping(getMousePos(), 2.f); if(hovered) context.hovered = true;
 			pressedOld = pressed; pressed = isMBtnLeftDown() && hovered;
 		}

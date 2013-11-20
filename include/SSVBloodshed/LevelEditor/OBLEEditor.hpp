@@ -114,25 +114,18 @@ namespace ob
 
 				auto& shtrList(formMenu->create<GUI::Shutter>("list 1"));
 				shtrList.attach(GUI::At::Top, shtrOptions, GUI::At::Bottom, Vec2f{0.f, 6.f});
-				shtrList +=
-				{
-					&shtrList.create<GUI::Label>("hello"),
-					&shtrList.create<GUI::Label>("how"),
-					&shtrList.create<GUI::Label>("are"),
-					&shtrList.create<GUI::Label>("you")
-				};
+				shtrList.getShutter().create<GUI::Label>("hello");
+				shtrList.getShutter().create<GUI::Label>("how");
+				shtrList.getShutter().create<GUI::Label>("are");
+				shtrList.getShutter().create<GUI::Label>("you");
 
-				auto& shtrList2(shtrList.create<GUI::Shutter>("list 2"));
-				shtrList2 +=
-				{
-					&shtrList2.create<GUI::Label>("i'm"),
-					&shtrList2.create<GUI::Label>("fine"),
-					&shtrList2.create<GUI::Label>("thanks"),
-					&shtrList2.create<GUI::Label>("bro")
-				};
+				auto& shtrList2(shtrList.getShutter().create<GUI::Shutter>("list 2"));
+				shtrList2.getShutter().create<GUI::Label>("i'm");
+				shtrList2.getShutter().create<GUI::Label>("fine");
+				shtrList2.getShutter().create<GUI::Label>("thanks");
+				shtrList2.getShutter().create<GUI::Label>("bro");
 
-				shtrList += shtrList2;
-				shtrList += shtrList.create<GUI::Button>("yomrwhite", Vec2f{56, 8});
+				shtrList.getShutter().create<GUI::Button>("yomrwhite", Vec2f{56, 8});
 
 				formParams = &guiCtx.create<GUI::Form>("PARAMETERS", Vec2f{100, 100}, Vec2f{150, 80});
 				lblParams = &formParams->create<GUI::Label>();
@@ -299,6 +292,7 @@ namespace ob
 			inline OBAssets& getAssets() noexcept					{ return assets; }
 			inline ssvs::GameState& getGameState() noexcept			{ return gameState; }
 			inline const decltype(input)& getInput() const noexcept	{ return input; }
+			inline OBLEDatabase& getDatabase() noexcept				{ return database; }
 			inline const OBLEDatabaseEntry& getCurrentEntry() const	{ return database.get(OBLETType(brush.idx)); }
 			inline OBLELevel* getCurrentLevel() const noexcept		{ return currentLevel; }
 	};
@@ -330,7 +324,7 @@ namespace ob
 
 			std::map<std::string, GUI::CheckBox*> checkBoxes;
 			std::map<std::string, GUI::TextBox*> textBoxes;
-			std::map<std::string, GUI::ChoiceShutter*> enemyTypeChoiceShutters;
+			std::map<std::string, GUI::ChoiceShutter*> enumChoiceShutters;
 
 			inline OBLETile* getTile()
 			{
@@ -362,7 +356,7 @@ namespace ob
 						if(p.second->isFocused()) continue;
 						p.second->setString(tile->getParam<std::string>(p.first));
 					}
-					for(auto& p : enemyTypeChoiceShutters)
+					for(auto& p : enumChoiceShutters)
 					{
 						if(p.second->isFocused()) continue;
 						p.second->setChoiceIdx(tile->getParam<int>(p.first));
@@ -374,7 +368,7 @@ namespace ob
 				// Else, if the tile's type has changed...
 
 				// Clear references to widgets and destroy everything but the form
-				checkBoxes.clear(); textBoxes.clear(); enemyTypeChoiceShutters.clear();
+				checkBoxes.clear(); textBoxes.clear(); enumChoiceShutters.clear();
 				mainStrip.recurseChildren<false>([](Widget& mW){ mW.destroyRecursive(); });
 
 				// Set the previous type to the current type
@@ -386,18 +380,19 @@ namespace ob
 					auto key(p.first);
 
 					GUI::Strip& strip(mainStrip.create<GUI::Strip>(GUI::At::Left, GUI::At::Right, GUI::At::Right));
-					strip += strip.create<GUI::Label>(key);
+					strip.create<GUI::Label>(key);
 					strip.setTabSize(100.f);
-					mainStrip += strip;
 
-					// Special parameters
-					if(key == "enemyType")
+					const auto& entry(editor.getDatabase().get(tile->getType()));
+
+					if(entry.isEnumParam(key))
 					{
-						auto& choiceShutter(strip.create<GUI::ChoiceShutter>(enemyTypeChoices));
+						// Enum parameters
+						auto& choiceShutter(strip.create<GUI::ChoiceShutter>(getEnumStrVecByName(entry.getEnumName(key))));
 						choiceShutter.onChoiceSelected += [key, tile, &choiceShutter]{ tile->setParam(key, ssvu::toStr(choiceShutter.getChoiceIdx())); };
 						choiceShutter.getBar().setScalingX(GUI::Scaling::Manual); choiceShutter.getBar().setWidth(56.f);
 						choiceShutter.getShutter().setScalingX(GUI::Scaling::Manual); choiceShutter.getShutter().setWidth(100.f);
-						enemyTypeChoiceShutters[key] = &choiceShutter;
+						enumChoiceShutters[key] = &choiceShutter;
 					}
 					else
 					{
@@ -406,7 +401,6 @@ namespace ob
 						{
 							auto& checkBox(strip.create<GUI::CheckBox>("on", ssvuj::as<bool>(p.second)));
 							checkBox.onStateChanged += [key, tile, &checkBox]{ tile->setParam(key, checkBox.getState() ? "true" : "false"); };
-							//strip += checkBox;
 							checkBoxes[key] = &checkBox;
 						}
 						else
@@ -422,7 +416,6 @@ namespace ob
 
 							textBox.setString(str);
 							textBox.onTextChanged += [key, tile, &textBox]{ tile->setParam(key, textBox.getString()); };
-							//strip += textBox;
 							textBoxes[key] = &textBox;
 						}
 					}

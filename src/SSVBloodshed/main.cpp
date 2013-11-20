@@ -270,6 +270,8 @@ int main()
 	game.setEditor(editor);
 	editor.setGame(game);
 
+	obEnumInit();
+
 	gameWindow.setGameState(editor.getGameState());
 	gameWindow.run();
 
