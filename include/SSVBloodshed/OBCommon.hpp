@@ -22,21 +22,37 @@
 namespace ob
 {
 	// Enum helpers
-	template<typename T> inline std::vector<std::string>& getEnumStrVec();
-	template<typename T> inline std::string getEnumStr(T mValue) { return getEnumStrVec<T>()[int(mValue)]; }
-	inline std::map<std::string, std::vector<std::string>*>& getEnumsMap() { static std::map<std::string, std::vector<std::string>*> map; return map; }
-	inline std::vector<std::string>& getEnumStrVecByName(const std::string& mName) { return *getEnumsMap()[mName]; }
-	inline std::vector<std::string> stringifyVariadicMacro(const std::string& mToSplit) { return ssvu::getSplit(mToSplit, std::string(", ")); }
+	namespace Internal
+	{
+		inline std::vector<std::string> getSplittedVarArgs(const std::string& mToSplit)
+		{
+			std::vector<std::string> result;
+			for(const auto& s : ssvu::getSplit(mToSplit, ',')) result.push_back(ssvu::getTrimmedStrLR(s));
+			return result;
+		}
+		inline std::map<std::string, std::vector<std::string>*>& getEnumsMap() noexcept { static std::map<std::string, std::vector<std::string>*> map; return map; }
+		template<typename T> inline std::vector<std::string>& getEnumStrVec() noexcept;
+		template<typename T> inline std::string getEnumStr(T mValue) noexcept { return getEnumStrVec<T>()[int(mValue)]; }
+	}
 
 	#define OB_ENUM(mName, ...) enum class mName : int { __VA_ARGS__ }; \
-		template<> inline std::vector<std::string>& getEnumStrVec<mName>() \
+		namespace Internal \
 		{ \
-			static std::vector<std::string> strings( stringifyVariadicMacro(#__VA_ARGS__) ); \
-			return strings; \
-		} \
-		struct __dummyStruct ## mName { } __attribute__ ((unused))
+			template<> inline std::vector<std::string>& getEnumStrVec<mName>() noexcept \
+			{ \
+				static std::vector<std::string> strings(Internal::getSplittedVarArgs(#__VA_ARGS__)); \
+				return strings; \
+			} \
+			volatile static struct __initStruct ## mName \
+			{ \
+				inline __initStruct ## mName() \
+				{ \
+					Internal::getEnumsMap()[#mName] = &getEnumStrVec<mName>(); \
+				} \
+			} t ## mName; \
+		} struct __dummyStruct ## mName { } __attribute((unused))
 
-	#define OB_ENUM_INIT(mName) getEnumsMap()[#mName] = &(getEnumStrVec<mName>());
+	inline std::vector<std::string>& getEnumStrVecByName(const std::string& mName) { return *Internal::getEnumsMap()[mName]; }
 
 	// Typedefs
 	template<typename T> using Vec2 = ssvs::Vec2<T>;
@@ -116,17 +132,6 @@ namespace ob
 	OB_ENUM(ChargerType,		Unarmed, PlasmaBolter, GrenadeLauncher);
 	OB_ENUM(JuggernautType,		Unarmed, PlasmaBolter, RocketLauncher);
 	OB_ENUM(BallType,			Normal, Flying);
-
-	inline void obEnumInit()
-	{
-		OB_ENUM_INIT(PPlateType);
-		OB_ENUM_INIT(IdAction);
-		OB_ENUM_INIT(SpawnerItem);
-		OB_ENUM_INIT(RunnerType);
-		OB_ENUM_INIT(ChargerType);
-		OB_ENUM_INIT(JuggernautType);
-		OB_ENUM_INIT(BallType);
-	}
 
 	// Level editor enums
 	enum class OBLETType : int
