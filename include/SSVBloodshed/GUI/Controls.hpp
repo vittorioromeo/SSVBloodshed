@@ -397,7 +397,8 @@ namespace ob
 				Widget& fbResizer;
 				bool draggable{true}, resizable{true}, collapsed{false};
 				Action action;
-				float minWidth{45.f}, minHeight{45.f}, oldHeight;
+				//float minWidth{45.f}, minHeight{45.f};
+				float oldHeight;
 				Scaling oldScalingX, oldScalingY;
 				Vec2f dragOrigin;
 
