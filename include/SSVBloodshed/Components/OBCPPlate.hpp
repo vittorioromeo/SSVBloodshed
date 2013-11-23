@@ -15,6 +15,7 @@ namespace ob
 {
 	inline void activateIdReceivers(OBCPhys& mCaller, int mId, IdAction mIdAction, sses::Manager& mManager)
 	{
+		// TODO: array
 		static std::map<IdAction, sf::Color> actionColors
 		{
 			{IdAction::Close,	sf::Color::Red},
