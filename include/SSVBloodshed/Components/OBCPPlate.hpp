@@ -15,13 +15,7 @@ namespace ob
 {
 	inline void activateIdReceivers(OBCPhys& mCaller, int mId, IdAction mIdAction, sses::Manager& mManager)
 	{
-		// TODO: array
-		static std::map<IdAction, sf::Color> actionColors
-		{
-			{IdAction::Close,	sf::Color::Red},
-			{IdAction::Open,	sf::Color::Green},
-			{IdAction::Toggle,	sf::Color::Yellow}
-		};
+		static sf::Color actionColors[3] { sf::Color::Yellow, sf::Color::Green, sf::Color::Red };
 
 		for(auto& e : mManager.getEntities(OBGroup::GIdReceiver))
 		{
@@ -29,7 +23,7 @@ namespace ob
 			if(cIdReceiver.getId() != mId) continue;
 
 			cIdReceiver.activate(mIdAction);
-			mCaller.getFactory().createTrail(mCaller.getPosI(), e->getComponent<OBCPhys>().getPosI(), actionColors[mIdAction]);
+			mCaller.getFactory().createTrail(mCaller.getPosI(), e->getComponent<OBCPhys>().getPosI(), actionColors[int(mIdAction)]);
 		}
 	}
 

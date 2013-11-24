@@ -23,8 +23,6 @@ namespace ob
 
 			inline void spawn()
 			{
-				// TODO: enums instead of truefalse
-
 				static void(*fnPtrs[])(OBFactory&, const Vec2i&)
 				{
 					[](OBFactory& mF, const Vec2i& mPos){ mF.createERunner(mPos, RunnerType::Unarmed); },					// 0

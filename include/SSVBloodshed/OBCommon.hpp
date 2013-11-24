@@ -124,7 +124,7 @@ namespace ob
 	};
 
 	OB_ENUM(PPlateType,			Single, Multi, OnOff);
-	OB_ENUM(IdAction,			Toggle, Open, Close);
+	OB_ENUM(IdAction,			Toggle = 0, Open = 1, Close = 2);
 
 	OB_ENUM(SpawnerItem,		RunnerUA, RunnerPB, ChargerUA, ChargerPB, ChargerGL, JuggerUA, JuggerPB, JuggerRL, Giant, Enforcer, BallN, BallF);
 
