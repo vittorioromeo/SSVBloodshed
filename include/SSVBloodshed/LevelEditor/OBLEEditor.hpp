@@ -15,6 +15,7 @@
 #include "SSVBloodshed/LevelEditor/OBLETile.hpp"
 #include "SSVBloodshed/LevelEditor/OBLELevel.hpp"
 #include "SSVBloodshed/LevelEditor/OBLESector.hpp"
+#include "SSVBloodshed/LevelEditor/OBLEPack.hpp"
 #include "SSVBloodshed/LevelEditor/OBLEDatabase.hpp"
 #include "SSVBloodshed/LevelEditor/OBLEJson.hpp"
 #include "SSVBloodshed/GUI/GUI.hpp"
@@ -39,9 +40,10 @@ namespace ob
 			OBLEGDebugText<OBLEEditor> debugText{*this};
 			OBLEDatabase database;
 
-			OBLESector sector;
+			OBLEPack pack;
+			OBLESector* currentSector{nullptr};
 			OBLELevel* currentLevel{nullptr};
-			int currentLevelX{0}, currentLevelY{0};
+			int currentSectorIdx{0}, currentLevelX{0}, currentLevelY{0};
 
 			std::vector<OBLETile*> currentTiles;
 			Brush brush;
@@ -83,7 +85,7 @@ namespace ob
 				rsBrushSingle.setOutlineThickness(0.65f);
 				rsBrushSingle.setOrigin(5.f, 5.f);
 
-				newSector();
+				newPack();
 
 				getGameState().onAnyEvent += [this](const sf::Event& mEvent){ guiCtx.onAnyEvent(mEvent); };
 
@@ -145,11 +147,40 @@ namespace ob
 				guiCtx.create<T>(*this, mTile.getX(), mTile.getY(), mTile.getZ());
 			}
 
-			inline void newSector() { sector.clear(); sector.init(database); refreshCurrentLevel(); clearCurrentLevel(); }
+			inline void newPack()
+			{
+				pack = OBLEPack{};
+				currentSector = nullptr;
+				currentLevel = nullptr;
+				refreshCurrentSector();
+				clearCurrentLevel();
+			}
 
-			inline void refreshCurrentLevel()	{ currentLevel = &sector.getLevel(currentLevelX, currentLevelY); }
-			inline void clearCurrentLevel()		{ *currentLevel = {levelRows, levelColumns, database.get(OBLETType::LETFloor)}; refreshCurrentTiles(); }
-			inline void refreshCurrentTiles()	{ for(auto& t : currentLevel->getTiles()) t.second.refreshIdText(assets); }
+			inline void refreshCurrentSector()
+			{
+				currentSector = &pack.getSector(currentSectorIdx);
+				currentSector->init(database);
+				refreshCurrentLevel();
+			}
+			inline void clearCurrentSector()
+			{
+				if(currentSector == nullptr) return;
+				currentSector->clear();
+				refreshCurrentLevel();
+			}
+
+			inline void refreshCurrentLevel()
+			{
+				if(currentSector == nullptr) { currentLevel = nullptr; return; }
+				currentLevel = &currentSector->getLevel(currentLevelX, currentLevelY);
+			}
+			inline void clearCurrentLevel()
+			{
+				if(currentLevel == nullptr) return;
+				*currentLevel = {levelRows, levelColumns, database.get(OBLETType::LETFloor)};
+				refreshCurrentTiles();
+			}
+			inline void refreshCurrentTiles() { for(auto& t : currentLevel->getTiles()) t.second.refreshIdText(assets); }
 
 			inline void updateXY()
 			{
@@ -205,12 +236,17 @@ namespace ob
 			inline void cycleBrushSize(int mDir)			{ brush.size = ssvu::getClamped(brush.size + mDir, 1, 20); }
 			inline void cycleLevel(int mDirX, int mDirY)	{ currentLevelX += mDirX; currentLevelY += mDirY; refreshCurrentLevel(); refreshCurrentTiles(); }
 
-			inline void saveToFile(const ssvu::FileSystem::Path& mPath) { ssvuj::writeToFile(ssvuj::getArch(sector), mPath); }
+			inline void saveToFile(const ssvu::FileSystem::Path& mPath)
+			{
+				ssvuj::writeToFile(ssvuj::getArch(pack), mPath);
+			}
 			inline void loadFromFile(const ssvu::FileSystem::Path& mPath)
 			{
-				sector.clear();
-				sector = ssvuj::as<OBLESector>(ssvuj::readFromFile(mPath));
-				sector.init(database); refreshCurrentLevel(); refreshCurrentTiles();
+				newPack();
+				pack = ssvuj::as<OBLEPack>(ssvuj::readFromFile(mPath));
+				refreshCurrentSector();
+				//refreshCurrentLevel();
+				refreshCurrentTiles();
 			}
 
 			inline void updateParamsText()
@@ -234,17 +270,20 @@ namespace ob
 			{
 				guiCtx.update(mFT);
 
-				currentLevel->update();
-				updateXY(); grabTiles(); updateParamsText();
-
-				if(!guiCtx.isInUse())
+				if(currentLevel != nullptr)
 				{
-					if(input.painting) paint();
-					else if(input.deleting) del();
-				}
+					currentLevel->update();
+					updateXY(); grabTiles(); updateParamsText();
 
-				debugText.update(mFT);
-				lblInfo->setString(debugText.getStr());
+					if(!guiCtx.isInUse())
+					{
+						if(input.painting) paint();
+						else if(input.deleting) del();
+					}
+
+					debugText.update(mFT);
+					lblInfo->setString(debugText.getStr());
+				}
 
 				gameCamera.update<int>(mFT);
 			}
@@ -252,11 +291,14 @@ namespace ob
 			{
 				gameCamera.apply<int>();
 				{
-					currentLevel->draw(gameWindow, chbOnion->getState(), chbShowId->getState(), currentZ);
-					rsBrush.setSize({brush.size * 10.f, brush.size * 10.f});
-					rsBrush.setPosition(brush.left * 10.f, brush.top * 10.f);
-					rsBrushSingle.setPosition(brush.x * 10.f, brush.y * 10.f);
-					render(rsBrush); render(rsBrushSingle);
+					if(currentLevel != nullptr)
+					{
+						currentLevel->draw(gameWindow, chbOnion->getState(), chbShowId->getState(), currentZ);
+						rsBrush.setSize({brush.size * 10.f, brush.size * 10.f});
+						rsBrush.setPosition(brush.left * 10.f, brush.top * 10.f);
+						rsBrushSingle.setPosition(brush.x * 10.f, brush.y * 10.f);
+						render(rsBrush); render(rsBrushSingle);
+					}
 				}
 				gameCamera.unapply();
 
@@ -304,23 +346,6 @@ namespace ob
 			int x, y, z;
 			GUI::Strip& mainStrip;
 			OBLETType prevType{OBLETType::LETFloor};
-
-			std::vector<std::string> enemyTypeChoices
-			{
-				"runner",		// 0
-				"runner_a",		// 1
-				"charger",		// 2
-				"charger_a",	// 3
-				"charger_gl",	// 4
-				"jugger",		// 5
-				"jugger_a",		// 6
-				"jugger_rl",	// 7
-				"giant",		// 8
-				"enforcer",		// 9
-				"ball",			// 10
-				"ball_fly"		// 11
-			};
-
 
 			std::map<std::string, GUI::CheckBox*> checkBoxes;
 			std::map<std::string, GUI::TextBox*> textBoxes;

@@ -6,6 +6,7 @@
 #define SSVOB_LEVELEDITOR_JSON
 
 #include "SSVBloodshed/OBCommon.hpp"
+#include "SSVBloodshed/LevelEditor/OBLEPack.hpp"
 #include "SSVBloodshed/LevelEditor/OBLESector.hpp"
 #include "SSVBloodshed/LevelEditor/OBLELevel.hpp"
 #include "SSVBloodshed/LevelEditor/OBLETile.hpp"
@@ -38,6 +39,13 @@ namespace ssvuj
 		using T = ob::OBLESector;
 		inline static void fromObj(T& mValue, const Obj& mObj)	{ ssvuj::extr(mObj, mValue.levels); }
 		inline static void toObj(Obj& mObj, const T& mValue)	{ ssvuj::arch(mObj, mValue.levels); }
+	};
+
+	template<> struct Converter<ob::OBLEPack>
+	{
+		using T = ob::OBLEPack;
+		inline static void fromObj(T& mValue, const Obj& mObj)	{ ssvuj::extrArray(mObj, mValue.name, mValue.sectors); }
+		inline static void toObj(Obj& mObj, const T& mValue)	{ ssvuj::archArray(mObj, mValue.name, mValue.sectors); }
 	};
 }
 

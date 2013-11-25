@@ -54,10 +54,11 @@ namespace ob
 			OBLEEditor* editor{nullptr};
 
 			OBLEDatabase database{assets, this};
-			OBLESector sector;
+			OBLEPack pack;
+			OBLESector* currentSector{nullptr};
 			std::unordered_map<OBLELevel*, OBGLevelStat> levelStats;
 			OBLELevel* currentLevel{nullptr};
-			int currentLevelX{0}, currentLevelY{0};
+			int currentSectorIdx{0}, currentLevelX{0}, currentLevelY{0};
 
 
 			template<typename T, typename... TArgs> inline void createParticles(const T& mFunc, OBParticleSystem& mPS, unsigned int mCount, const Vec2f& mPos, TArgs&&... mArgs)
@@ -95,11 +96,18 @@ namespace ob
 				txtInfo.setPosition(270, (240 - ssvs::getGlobalHeight(hudSprite) / 2.f) - 3.f);
 				txtInfo.setString("Sector 1");
 
-				reloadSector();
+				reloadPack();
 			}
 
-			inline void reloadSector()	{ loadSector("./level.txt"); newGame(); }
-			inline void newGame()		{ currentLevelX = currentLevelY = 0; loadLevel(); }
+			inline void reloadPack() { loadPack("./level.txt"); newGame(); }
+			inline void newGame()
+			{
+				currentSectorIdx = 0;
+				loadSector();
+
+				currentLevelX = currentLevelY = 0;
+				loadLevel();
+			}
 
 			inline void createBounds()
 			{
@@ -116,19 +124,37 @@ namespace ob
 				for(const auto& p : bounds) world.create(ssvs::getCenter(p.first, p.second), ssvs::getSize(p.first, p.second), true).addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir, OBGroup::GLevelBound);
 			}
 
-			inline void loadSector(const ssvu::FileSystem::Path& mPath)
+			inline void loadPack(const ssvu::FileSystem::Path& mPath)
 			{
-				try { sector = ssvuj::as<OBLESector>(ssvuj::readFromFile(mPath)); }
-				catch(...) { ssvu::lo("Fatal error") << "Failed to load sector" << std::endl; }
+				try { pack = ssvuj::as<OBLEPack>(ssvuj::readFromFile(mPath)); }
+				catch(...) { ssvu::lo("Fatal error") << "Failed to load pack" << std::endl; }
+			}
+			inline void loadSector()
+			{
+				if(pack.isValid(currentSectorIdx))
+				{
+					currentSector = &pack.getSector(currentSectorIdx);
+				}
+				else
+				{
+					ssvu::lo("Fatal error") << "Failed to load sector" << std::endl;
+					throw;
+				}
 			}
 			inline void loadLevel()
 			{
+				if(currentSector == nullptr)
+				{
+					ssvu::lo("Fatal error") << "Sector is not loaded" << std::endl;
+					throw;
+				}
+
 				auto getTilePos = [](int mX, int mY){ return toCoords(Vec2i{mX * 10 + 5, mY * 10 + 5}); };
 				manager.clear(); world.clear(); particles.clear(factory);
 
 				try
 				{
-					currentLevel = &sector.getLevel(currentLevelX, currentLevelY);
+					currentLevel = &currentSector->getLevel(currentLevelX, currentLevelY);
 					for(auto& p : currentLevel->getTiles()) database.spawn(*currentLevel, p.second, getTilePos(p.second.getX(), p.second.getY()));
 				}
 				catch(...) { ssvu::lo("Fatal error") << "Failed to load level" << std::endl; }
@@ -147,7 +173,7 @@ namespace ob
 				if(mDirY == 1) playerData.pos.y = toCoords(0) + offset;
 				else if(mDirY == -1) playerData.pos.y = toCoords(currentLevel->getHeight()) - offset;
 
-				if(!sector.isValid(nextLevelX, nextLevelY)) return false;
+				if(!currentSector->isValid(nextLevelX, nextLevelY)) return false;
 
 				onPostUpdate += [this, nextLevelX, nextLevelY, playerData]
 				{
@@ -212,7 +238,7 @@ namespace ob
 			inline World& getWorld() noexcept							{ return world; }
 			inline sses::Manager& getManager() noexcept					{ return manager; }
 			inline const decltype(input)& getInput() const noexcept		{ return input; }
-			inline const OBLESector& getSector() const noexcept			{ return sector; }
+			inline const OBLESector* getCurrentSector() const noexcept	{ return currentSector; }
 			inline const OBLELevel* getCurrentLevel() const noexcept	{ return currentLevel; }
 			inline int getCurrentLevelX() const noexcept				{ return currentLevelX; }
 			inline int getCurrentLevelY() const noexcept				{ return currentLevelY; }
@@ -265,5 +291,8 @@ namespace ob
 // lock room until clear? (remove green doors?)
 // global particle mult
 // cmd line image outliner tool
+// cloning machines! (controlling multiple players can be really fun)
+// pack/saving loading, pack options
+// blueprint class for pack/sector/level data
 
 #endif
