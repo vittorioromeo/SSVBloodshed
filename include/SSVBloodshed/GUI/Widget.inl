@@ -22,6 +22,16 @@ namespace ob
 		{
 			update(mFT);
 
+			if(isPressed())
+			{
+				if(isFocused())
+				{
+					if(!wasPressed()) onLeftClick();
+					onLeftClickDown();
+				}
+			}
+			else if(wasPressed()) onLeftRelease();
+
 			// Recalculate sizing
 			recalculateSize(scalingX, &Widget::setWidth, &Widget::getLeft, &Widget::getRight);
 			recalculateSize(scalingY, &Widget::setHeight, &Widget::getTop, &Widget::getBottom);

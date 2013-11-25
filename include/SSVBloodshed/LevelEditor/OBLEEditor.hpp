@@ -94,32 +94,32 @@ namespace ob
 
 				formMenu->show();
 
-				auto& btnParams(formMenu->create<GUI::Button>("parameters", Vec2f{56, 8}));
-				btnParams.onUse += [this]{ formParams->show(); };
+				auto& btnParams(formMenu->create<GUI::Button>("parameters", Vec2f{56.f, 8.f}));
+				btnParams.onLeftClick += [this]{ formParams->show(); };
 				btnParams.attach(GUI::At::Top, tbox, GUI::At::Bottom, Vec2f{0.f, 6.f});
 
-				auto& btnInfo(formMenu->create<GUI::Button>("info", Vec2f{56, 8}));
-				btnInfo.onUse += [this]{ formInfo->show(); };
+				auto& btnInfo(formMenu->create<GUI::Button>("info", Vec2f{56.f, 8.f}));
+				btnInfo.onLeftClick += [this]{ formInfo->show(); };
 				btnInfo.attach(GUI::At::Top, btnParams, GUI::At::Bottom, Vec2f{0.f, 6.f});
 
 				chbShowId = &formMenu->create<GUI::CheckBox>("show id", true);
 				chbOnion = &formMenu->create<GUI::CheckBox>("onion", true);
 
-				auto& shtrOptions(formMenu->create<GUI::Shutter>("options"));
+				auto& shtrOptions(formMenu->create<GUI::Shutter>("options", Vec2f{56.f, 8.f}));
 				shtrOptions.attach(GUI::At::Top, btnInfo, GUI::At::Bottom, Vec2f{0.f, 6.f});
 				shtrOptions += {chbShowId, chbOnion};
 
 				//chbShowId->attach(GUI::At::NW, btnInfo, GUI::At::SW, Vec2f{0.f, 6.f});
 				//chbOnion->attach(GUI::At::NW, *chbShowId, GUI::At::SW, Vec2f{0.f, 6.f});
 
-				auto& shtrList(formMenu->create<GUI::Shutter>("list 1"));
+				auto& shtrList(formMenu->create<GUI::Shutter>("list 1", Vec2f{56.f, 8.f}));
 				shtrList.attach(GUI::At::Top, shtrOptions, GUI::At::Bottom, Vec2f{0.f, 6.f});
 				shtrList.getShutter().create<GUI::Label>("hello");
 				shtrList.getShutter().create<GUI::Label>("how");
 				shtrList.getShutter().create<GUI::Label>("are");
 				shtrList.getShutter().create<GUI::Label>("you");
 
-				auto& shtrList2(shtrList.getShutter().create<GUI::Shutter>("list 2"));
+				auto& shtrList2(shtrList.getShutter().create<GUI::Shutter>("list 2", Vec2f{56.f, 8.f}));
 				shtrList2.getShutter().create<GUI::Label>("i'm");
 				shtrList2.getShutter().create<GUI::Label>("fine");
 				shtrList2.getShutter().create<GUI::Label>("thanks");
@@ -131,7 +131,7 @@ namespace ob
 				lblParams = &formParams->create<GUI::Label>();
 				lblParams->attach(GUI::At::NW, *formParams, GUI::At::NW, Vec2f{2.f, 2.f});
 				std::initializer_list<std::string> choices{"test1", "test2", "test3"};
-				auto& test(formParams->create<GUI::ChoiceShutter>(choices));
+				auto& test(formParams->create<GUI::ChoiceShutter>(choices, Vec2f{56.f, 8.f}));
 				test.attach(GUI::At::NW, *formParams, GUI::At::NW);
 
 				formInfo = &guiCtx.create<GUI::Form>("INFO", Vec2f{100, 100}, Vec2f{150, 80});
@@ -388,9 +388,8 @@ namespace ob
 					if(entry.isEnumParam(key))
 					{
 						// Enum parameters
-						auto& choiceShutter(strip.create<GUI::ChoiceShutter>(getEnumStrVecByName(entry.getEnumName(key))));
+						auto& choiceShutter(strip.create<GUI::ChoiceShutter>(getEnumStrVecByName(entry.getEnumName(key)), Vec2f{56.f, 8.f}));
 						choiceShutter.onChoiceSelected += [key, tile, &choiceShutter]{ tile->setParam(key, ssvu::toStr(choiceShutter.getChoiceIdx())); };
-						choiceShutter.getBar().setScalingX(GUI::Scaling::Manual); choiceShutter.getBar().setWidth(56.f);
 						choiceShutter.getShutter().setScalingX(GUI::Scaling::Manual); choiceShutter.getShutter().setWidth(100.f);
 						enumChoiceShutters[key] = &choiceShutter;
 					}

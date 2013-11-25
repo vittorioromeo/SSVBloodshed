@@ -52,17 +52,15 @@ namespace ob
 				{
 					setFillColor(sf::Color(255, green, 0, 255));
 					green = ssvu::getClampedMin(green - mFT * 15.f, 0.f);
-					if(isClickedOnce()) { onUse(); green = 255; }
 				}
 
 			public:
-				ssvu::Delegate<void()> onUse;
-
 				Button(Context& mContext, std::string mLabel, const Vec2f& mSize) : Widget{mContext, mSize / 2.f},
 					lblLabel(create<Label>(std::move(mLabel)))
 				{
 					setOutlineThickness(2); setOutlineColor(sf::Color::Black);
 					lblLabel.attach(At::Center, *this, At::Center);
+					onLeftClick += [this]{ green = 255; };
 				}
 
 				inline Label& getLabel() noexcept { return lblLabel; }
@@ -98,24 +96,19 @@ namespace ob
 				Label& lblLabel;
 				bool state{false};
 
-				inline void update(float) override { if(isClickedOnce()) setState(!state); }
-				inline void draw() override
-				{
-					float w{lblLabel.getRight() - cbsbBox.getLeft()};
-					float h{lblLabel.getBottom() - cbsbBox.getTop()};
-					setSize(w, h);
-				}
-
 			public:
 				ssvu::Delegate<void()> onStateChanged;
 
 				CheckBox(Context& mContext, std::string mLabel, bool mState = false) : Widget{mContext},
 					cbsbBox(create<CheckBoxStateBox>()), lblLabel(create<Label>(std::move(mLabel)))
 				{
+					setScaling(Scaling::FitToChildren);
 					setFillColor(sf::Color::Transparent); setState(mState);
 
 					cbsbBox.attach(At::NW, *this, At::NW);
 					lblLabel.attach(At::Left, cbsbBox, At::Right, Vec2f{2.f, 0.f});
+
+					onLeftClick += [this]{ setState(!state); };
 				}
 
 				inline void setState(bool mValue) 		{ state = mValue; cbsbBox.setState(mValue); onStateChanged(); }
@@ -185,7 +178,7 @@ namespace ob
 				}
 
 			public:
-				Shutter(Context& mContext, std::string mLabel) : Widget{mContext},
+				Shutter(Context& mContext, std::string mLabel, const Vec2f& mSize) : Widget{mContext},
 					wsBar(create<Strip>(At::Right, At::Left, At::Left)),
 					wsShutter(create<Strip>(At::Top, At::Bottom, At::Bottom)),
 					btnOpen(wsBar.create<Button>("v", Vec2f{8.f, 8.f})),
@@ -196,6 +189,8 @@ namespace ob
 					wsBar.setFillColor(sf::Color::Red);
 					wsBar.setOutlineColor(sf::Color::Black);
 					wsBar.setOutlineThickness(2);
+					wsBar.setScaling(Scaling::Manual);
+					wsBar.setSize(mSize);
 
 					wsShutter.setOutlineColor(sf::Color::Black);
 					wsShutter.setOutlineThickness(2);
@@ -206,7 +201,7 @@ namespace ob
 					wsBar.attach(At::Right, *this, At::Right);
 					wsShutter.attach(At::Top, wsBar, At::Bottom, Vec2f{0.f, 2.f});
 
-					btnOpen.onUse += [this]
+					btnOpen.onLeftClick += [this]
 					{
 						wsShutter.setExcludedSameDepth(false);
 						wsShutter.gainExclusiveFocus();
@@ -254,21 +249,21 @@ namespace ob
 			public:
 				ssvu::Delegate<void()> onChoiceSelected;
 
-				ChoiceShutter(Context& mContext, const std::vector<std::string>& mChoices)
-						: Shutter{mContext, ""}, choices{mChoices}, currentChoice{choices[0]},
+				ChoiceShutter(Context& mContext, const std::vector<std::string>& mChoices, const Vec2f& mSize)
+						: Shutter{mContext, "", mSize}, choices{mChoices}, currentChoice{choices[0]},
 						wsChoices(getShutter().create<Strip>(At::Top, At::Bottom, At::Bottom)),
 						wsScroll(getShutter().create<Strip>(At::Right, At::Left, At::Left)),
 						btnUp(wsScroll.create<Button>("^", Vec2f{8.f, 8.f})),
 						btnDown(wsScroll.create<Button>("v", Vec2f{8.f, 8.f})),
 						lblCount(wsScroll.create<Label>(""))
 				{
-					btnUp.onUse += [this]{ --idxOffset; refreshChoices(); };
-					btnDown.onUse += [this]{ ++idxOffset; refreshChoices(); };
+					btnUp.onLeftClick += [this]{ --idxOffset; refreshChoices(); };
+					btnDown.onLeftClick += [this]{ ++idxOffset; refreshChoices(); };
 
 					for(auto i(0u); i < choiceBtnsMax; ++i)
 					{
 						auto& btn(wsChoices.create<Button>("", Vec2f{56.f, 8.f}));
-						btn.onUse += [this, i]{ setChoiceIdx(ssvu::getWrapIdx(i + idxOffset, choices.size())); onChoiceSelected(); };
+						btn.onLeftClick += [this, i]{ setChoiceIdx(ssvu::getWrapIdx(i + idxOffset, choices.size())); onChoiceSelected(); };
 						btnsChoices.push_back(&btn);
 					}
 
@@ -290,12 +285,6 @@ namespace ob
 
 				inline void update(float mFT) override
 				{
-					if(lblText.isClickedOnce())
-					{
-						editing = true; editStr = str;
-						lblText.gainExclusiveFocus();
-					}
-
 					if(editing)
 					{
 						if(!lblText.isFocused()) finishEditing();
@@ -345,11 +334,12 @@ namespace ob
 					tBox.setFillColor(sf::Color::White);
 					tBox.setScaling(Scaling::FitToNeighbor);
 
-					lblText.setScaleWithText(false);
 					lblText.setScaling(Scaling::FitToNeighbor);
 
 					tBox.attach(At::Center, *this, At::Center);
 					lblText.attach(At::Center, tBox, At::Center);
+
+					onLeftClick += [this]{ editing = true; editStr = str; lblText.gainExclusiveFocus(); };
 				}
 
 				inline void setString(std::string mString) { str = std::move(mString); }
@@ -415,10 +405,6 @@ namespace ob
 						setSize(getMousePos() - dragOrigin);
 						setPosition(oldNW + getHalfSize());
 					}
-
-					if(draggable && fbBar.isClickedAlways()) { action = Action::Move; dragOrigin = getMousePos() - getPosition(); }
-					else if(resizable && fbResizer.isClickedAlways()) { action = Action::Resize; dragOrigin = getMousePos() - getSize(); }
-					else if(!isMBtnLeftDown()) action = Action::None;
 				}
 
 			public:
@@ -427,9 +413,9 @@ namespace ob
 				{
 					setOutlineThickness(2); setOutlineColor(sf::Color::Black);
 
-					fbBar.getBtnClose().onUse += [this]{ hide(); };
-					fbBar.getBtnMinimize().onUse += [this]{ /* TODO */ };
-					fbBar.getBtnCollapse().onUse += [this]{ toggleCollapsed(); };
+					fbBar.getBtnClose().onLeftClick += [this]{ hide(); };
+					fbBar.getBtnMinimize().onLeftClick += [this]{ /* TODO */ };
+					fbBar.getBtnCollapse().onLeftClick += [this]{ toggleCollapsed(); };
 					fbBar.setScalingX(Scaling::FitToNeighbor);
 					fbBar.setHeight(12.f); fbBar.setPadding(-2.f);
 
@@ -438,6 +424,11 @@ namespace ob
 
 					fbBar.attach(At::Bottom, *this, At::Top);
 					fbResizer.attach(At::SE, *this, At::SE);
+
+					fbBar.onLeftClickDown += [this]{ if(draggable) { action = Action::Move; dragOrigin = getMousePos() - getPosition(); } };
+					fbBar.onLeftRelease += [this]{ if(action == Action::Move) action = Action::None; };
+					fbResizer.onLeftClickDown += [this]{ if(resizable) { action = Action::Resize; dragOrigin = getMousePos() - getSize(); } };
+					fbResizer.onLeftRelease += [this]{ if(action == Action::Resize) action = Action::None; };
 				}
 
 				inline void toggleCollapsed()

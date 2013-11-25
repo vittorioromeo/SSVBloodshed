@@ -126,6 +126,8 @@ namespace ob
 
 				ssvu::Delegate<void(bool)> onFocusChanged, onAnyChildFocusChanged;
 				ssvu::Delegate<void()> onPostUpdate;
+				ssvu::Delegate<void()> onLeftClick, onLeftClickDown, onLeftRelease;
+				ssvu::Delegate<void()> onRightClick, onRightClickDown, onRightRelease;
 
 				Widget(Context& mContext) : context(mContext) { }
 				Widget(Context& mContext, const Vec2f& mHalfSize) : AABBShape(Vec2f{0.f, 0.f}, mHalfSize), context(mContext) { }
@@ -207,9 +209,6 @@ namespace ob
 
 				inline decltype(children)& getChildren() noexcept { return children; }
 
-				// Only these two should be used in widget code
-				inline bool isClickedAlways() const noexcept 	{ return isFocused() && isPressed(); }
-				inline bool isClickedOnce() const noexcept 		{ return isClickedAlways() && !wasPressed(); }
 				inline float getPadding() const noexcept		{ return padding; }
 				inline Scaling getScalingX() const noexcept		{ return scalingX; }
 				inline Scaling getScalingY() const noexcept		{ return scalingY; }
