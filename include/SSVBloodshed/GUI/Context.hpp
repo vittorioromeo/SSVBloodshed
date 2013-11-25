@@ -64,11 +64,11 @@ namespace ob
 
 					// Find the topmost pressed child, if any
 					Widget* found{nullptr};
-					for(auto& c : children) if(c->anyChildRecursive([](const Widget& mW){ return mW.isPressed(); })) { found = c; bringToFront(*c); break; }
+					for(auto& c : children) if(c->isAnyChildRecursive([](const Widget& mW){ return mW.isPressedAny(); })) { found = c; bringToFront(*c); break; }
 					if(found == nullptr) return;
 
 					// Find the "deepest" pressed child in the hierarchy
-					for(const auto& w : found->getAllRecursive()) if(w->isPressed() && w->depth > found->depth) found = w;
+					found->recurseChildren([&found](Widget& mW){ if(mW.isPressedAny() && mW.depth > found->depth) found = &mW; });
 
 					// Unfocus everything but the widgets as deep as the deepest child
 					unFocusAll(); found->recurseChildren([found](Widget& mW){ if(mW.depth == found->depth) mW.setFocused(true); });

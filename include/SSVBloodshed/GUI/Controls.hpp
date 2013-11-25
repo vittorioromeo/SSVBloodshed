@@ -66,33 +66,36 @@ namespace ob
 				inline Label& getLabel() noexcept { return lblLabel; }
 		};
 
-		class CheckBoxStateBox : public Widget
+		namespace Internal
 		{
-			private:
-				Label& lblState;
-				float green{0.f};
+			class CheckBoxStateBox : public Widget
+			{
+				private:
+					Label& lblState;
+					float green{0.f};
 
-				inline void update(float mFT) override
-				{
-					setFillColor(sf::Color(255, green, 0, 255));
-					green = ssvu::getClampedMin(green - mFT * 15.f, 0.f);
-				}
+					inline void update(float mFT) override
+					{
+						setFillColor(sf::Color(255, green, 0, 255));
+						green = ssvu::getClampedMin(green - mFT * 15.f, 0.f);
+					}
 
-			public:
-				CheckBoxStateBox(Context& mContext) : Widget{mContext, Vec2f{4.f, 4.f}}, lblState(create<Label>(""))
-				{
-					setOutlineThickness(2); setOutlineColor(sf::Color::Black);
-					lblState.attach(At::Center, *this, At::Center);
-				}
+				public:
+					CheckBoxStateBox(Context& mContext) : Widget{mContext, Vec2f{4.f, 4.f}}, lblState(create<Label>(""))
+					{
+						setOutlineThickness(2); setOutlineColor(sf::Color::Black);
+						lblState.attach(At::Center, *this, At::Center);
+					}
 
-				inline void setState(bool mValue) { green = 255.f; lblState.setString(mValue ? "x" : ""); }
-				inline Label& getLabel() noexcept { return lblState; }
-		};
+					inline void setState(bool mValue) { green = 255.f; lblState.setString(mValue ? "x" : ""); }
+					inline Label& getLabel() noexcept { return lblState; }
+			};
+		}
 
 		class CheckBox : public Widget
 		{
 			private:
-				CheckBoxStateBox& cbsbBox;
+				Internal::CheckBoxStateBox& cbsbBox;
 				Label& lblLabel;
 				bool state{false};
 
@@ -100,7 +103,7 @@ namespace ob
 				ssvu::Delegate<void()> onStateChanged;
 
 				CheckBox(Context& mContext, std::string mLabel, bool mState = false) : Widget{mContext},
-					cbsbBox(create<CheckBoxStateBox>()), lblLabel(create<Label>(std::move(mLabel)))
+					cbsbBox(create<Internal::CheckBoxStateBox>()), lblLabel(create<Label>(std::move(mLabel)))
 				{
 					setScaling(Scaling::FitToChildren);
 					setFillColor(sf::Color::Transparent); setState(mState);
@@ -173,7 +176,7 @@ namespace ob
 				inline void update(float) override
 				{
 					setSize(wsBar.getSize());
-					if(!wsShutter.anyChildRecursive([](const Widget& mW){ return mW.isFocused(); })) wsShutter.setExcludedRecursive(true);
+					if(!wsShutter.isAnyChildRecursive([](const Widget& mW){ return mW.isFocused(); })) wsShutter.setExcludedRecursive(true);
 					wsShutter.setFillColor(wsShutter.isFocused() ? colorFocused : colorUnfocused);
 				}
 
@@ -220,7 +223,6 @@ namespace ob
 		{
 			private:
 				std::vector<std::string> choices;
-				std::string currentChoice;
 				int idxOffset{0};
 
 				std::size_t currentChoiceIdx{0}, choiceBtnsMax{5};
@@ -240,17 +242,17 @@ namespace ob
 					for(auto i(0u); i < choiceBtnsMax; ++i)
 					{
 						const auto& choiceIdx(ssvu::getWrapIdx(i + idxOffset, choices.size()));
-						btnsChoices[i]->getLabel().setString(choiceIdx == currentChoiceIdx ? "> " + ssvu::toUpper(choices[choiceIdx]) + " <" : choices[choiceIdx]);
+						btnsChoices[i]->getLabel().setString(choiceIdx == currentChoiceIdx ? ">" + ssvu::toUpper(choices[choiceIdx]) + "<" : choices[choiceIdx]);
 					}
 
-					getLabel().setString(currentChoice);
+					getLabel().setString(choices[currentChoiceIdx]);
 				}
 
 			public:
 				ssvu::Delegate<void()> onChoiceSelected;
 
 				ChoiceShutter(Context& mContext, const std::vector<std::string>& mChoices, const Vec2f& mSize)
-						: Shutter{mContext, "", mSize}, choices{mChoices}, currentChoice{choices[0]},
+						: Shutter{mContext, "", mSize}, choices{mChoices},
 						wsChoices(getShutter().create<Strip>(At::Top, At::Bottom, At::Bottom)),
 						wsScroll(getShutter().create<Strip>(At::Right, At::Left, At::Left)),
 						btnUp(wsScroll.create<Button>("^", Vec2f{8.f, 8.f})),
@@ -270,7 +272,7 @@ namespace ob
 					refreshChoices();
 				}
 
-				inline void setChoiceIdx(std::size_t mIdx)	{ currentChoice = choices[mIdx]; currentChoiceIdx = mIdx; refreshChoices(); }
+				inline void setChoiceIdx(std::size_t mIdx)	{ currentChoiceIdx = mIdx; refreshChoices(); }
 				inline int getChoiceIdx() const noexcept	{ return currentChoiceIdx; }
 		};
 

@@ -26,6 +26,8 @@ namespace ob
 
 				void render(const sf::Drawable& mDrawable);
 				const std::vector<sf::Event>& getEventsToPoll() const noexcept;
+				const Vec2f& getMousePos() const noexcept;
+				const Vec2f& getMousePosOld() const noexcept;
 
 			private:
 				std::vector<Widget*> children;
@@ -41,7 +43,7 @@ namespace ob
 				bool active{true}, visible{true};
 
 				// Status
-				bool focused{false}, hovered{false}, pressed{false}, pressedOld{false};
+				bool focused{false}, hovered{false}, pressedLeft{false}, pressedLeftOld{false}, pressedRight{false}, pressedRightOld{false};
 
 				// Positioning
 				Widget* neighbor{nullptr};
@@ -58,7 +60,11 @@ namespace ob
 
 				inline void drawHierarchy()
 				{
-					auto hierarchy(getAllRecursive());
+					recurseChildrenBF([this](Widget& mW){ if(mW.isVisible()) { mW.draw(); render(mW); } });
+					return;
+
+					std::vector<Widget*> hierarchy; hierarchy.reserve(25);
+					recurseChildren([&hierarchy](Widget& mW){ hierarchy.push_back(&mW); });
 					ssvu::sortStable(hierarchy, [](const Widget* mA, const Widget* mB){ return mA->depth < mB->depth; });
 					for(auto& w : hierarchy) if(w->isVisible()) { w->draw(); render(*w); }
 				}
@@ -121,6 +127,11 @@ namespace ob
 				void updateRecursive(float mFT);
 				void recalculateView();
 
+				bool wasPressedLeft() const noexcept;
+				bool wasPressedRight() const noexcept;
+				bool isMBtnLeftDown() const noexcept;
+				bool isMBtnRightDown() const noexcept;
+
 			public:
 				using AABBShape::AABBShape;
 
@@ -139,6 +150,13 @@ namespace ob
 					if(TIncludeCaller) mFunc(*this);
 					for(const auto& w : children) w->recurseChildren<true, T>(mFunc);
 				}
+				template<bool TIncludeCaller = true, typename T> inline void recurseChildrenBF(const T& mFunc)
+				{
+					std::vector<Widget*> hierarchy; hierarchy.reserve(25);
+					recurseChildren<TIncludeCaller>([&hierarchy](Widget& mW){ hierarchy.push_back(&mW); });
+					ssvu::sortStable(hierarchy, [](const Widget* mA, const Widget* mB){ return mA->depth < mB->depth; });
+					for(const auto& w : hierarchy) mFunc(*w);
+				}
 				template<bool TIncludeCaller = true, typename T1, typename T2> inline void recurseChildrenIf(const T1& mPred, const T2& mFunc)
 				{
 					if(TIncludeCaller)
@@ -153,20 +171,20 @@ namespace ob
 					if(TIncludeCaller) mFunc(*this);
 					if(parent != nullptr) parent->recurseParents<true, T>(mFunc);
 				}
-				template<bool TIncludeCaller = true, typename T> inline bool anyChildRecursive(const T& mFunc) const
+				template<bool TIncludeCaller = true, typename T> inline bool isAnyChildRecursive(const T& mFunc) const
 				{
 					if(TIncludeCaller) if(mFunc(*this)) return true;
-					for(const auto& w : children) if(w->anyChildRecursive<true, T>(mFunc)) return true;
+					for(const auto& w : children) if(w->isAnyChildRecursive<true, T>(mFunc)) return true;
 					return false;
 				}
 
-				inline void attach(At mFrom, Widget &mNeigh, At mTo, const Vec2f& mOffset = Vec2f{0.f, 0.f}) { from = mFrom; neighbor = &mNeigh; to = mTo; offset = mOffset; }
+				inline void attach(At mFrom, Widget &mNeigh, At mTo, const Vec2f& mOffset = ssvs::zeroVec2f) { from = mFrom; neighbor = &mNeigh; to = mTo; offset = mOffset; }
 				inline void show() { setHiddenRecursive(false); }
 				inline void hide() { setHiddenRecursive(true); }
 
-				inline void fitToParent()	{ nextTempScaling = Scaling::FitToParent; }
-				inline void fitToNeighbor()	{ nextTempScaling = Scaling::FitToNeighbor; }
-				inline void fitToChildren()	{ nextTempScaling = Scaling::FitToChildren; }
+				inline void fitToParent() noexcept		{ nextTempScaling = Scaling::FitToParent; }
+				inline void fitToNeighbor() noexcept	{ nextTempScaling = Scaling::FitToNeighbor; }
+				inline void fitToChildren() noexcept	{ nextTempScaling = Scaling::FitToChildren; }
 
 				// An hidden widget is both invisible and inactive (should be controlled by collapsing windows)
 				inline void setHidden(bool mValue) noexcept		{ hidden = mValue; }
@@ -202,7 +220,9 @@ namespace ob
 				inline bool isHovered() const noexcept		{ return isActive() && hovered; }
 				inline bool isVisible() const noexcept		{ return visible && !isHidden() && !isExcluded(); }
 				inline bool isActive() const noexcept		{ return active && !isHidden() && !isExcluded(); }
-				inline bool isPressed() const noexcept		{ return isHovered() && pressed; }
+				inline bool isPressedLeft() const noexcept	{ return isHovered() && pressedLeft; }
+				inline bool isPressedRight() const noexcept	{ return isHovered() && pressedRight; }
+				inline bool isPressedAny() const noexcept	{ return isPressedLeft() || isPressedRight(); }
 				inline bool isHidden() const noexcept		{ return hidden; }
 				inline bool isExcluded() const noexcept		{ return excluded; }
 				inline bool isContainer() const noexcept	{ return container; }
@@ -213,17 +233,9 @@ namespace ob
 				inline Scaling getScalingX() const noexcept		{ return scalingX; }
 				inline Scaling getScalingY() const noexcept		{ return scalingY; }
 
-				inline void fillAllRecursive(std::vector<Widget*>& mTarget)		{ recurseChildren([&mTarget](Widget& mW){ mTarget.push_back(&mW); }); }
-				inline std::vector<Widget*> getAllRecursive() 					{ std::vector<Widget*> result; fillAllRecursive(result); return result; }
-
 				template<typename T, typename... TArgs> T& create(TArgs&&... mArgs);
 				void destroyRecursive();
 				void gainExclusiveFocus();
-
-				bool wasPressed() const noexcept;
-				bool isMBtnLeftDown() const noexcept;
-				const Vec2f& getMousePos() const noexcept;
-				const Vec2f& getMousePosOld() const noexcept;
 		};
 	}
 }

@@ -9,42 +9,24 @@ namespace ob
 {
 	namespace GUI
 	{
-		enum class At{Left, Right, Top, Bottom, NW, NE, SW, SE, Center};
+		enum class At : int{Left = 0, Right = 1, Top = 2, Bottom = 3, NW = 4, NE = 5, SW = 6, SE = 7, Center = 8};
 		enum class Scaling{Manual, FitToParent, FitToNeighbor, FitToChildren};
 
 		inline At getAtOpposite(At mAt) noexcept
 		{
-			switch(mAt)
-			{
-				case At::Left:		return At::Right;
-				case At::Right:		return At::Left;
-				case At::Top:		return At::Bottom;
-				case At::Bottom:	return At::Top;
-				case At::NW:		return At::SE;
-				case At::NE:		return At::SW;
-				case At::SW:		return At::NE;
-				case At::SE:		return At::NW;
-				case At::Center:	return At::Center;
-			}
-
-			return At::Center;
+			static At opposites[9]{At::Right, At::Left, At::Bottom, At::Top, At::SE, At::SW, At::NE, At::NW, At::Center};
+			return opposites[int(mAt)];
 		}
 		inline Vec2f getAtVec(At mAt, float mMag) noexcept
 		{
-			switch(mAt)
+			static Vec2f vecs[9]
 			{
-				case At::Left:		return Vec2f{-mMag, 0.f};
-				case At::Right:		return Vec2f{mMag, 0.f};
-				case At::Top:		return Vec2f{0.f, -mMag};
-				case At::Bottom:	return Vec2f{0.f, mMag};
-				case At::NW:		return Vec2f{-mMag, -mMag};
-				case At::NE:		return Vec2f{-mMag, mMag};
-				case At::SW:		return Vec2f{mMag, -mMag};
-				case At::SE:		return Vec2f{mMag, mMag};
-				case At::Center:	return Vec2f{0.f, 0.f};
-			}
+				{-1.f, 0.f}, {1.f, 0.f}, {0.f, -1.f}, {0.f, 1.f},
+				{-1.f, -1.f}, {-1.f, 1.f}, {1.f, -1.f}, {1.f, 1.f},
+				{0.f, 0.f}
+			};
 
-			return Vec2f{0.f, 0.f};
+			return vecs[int(mAt)] * mMag;
 		}
 		template<typename T> inline Vec2f getVecPos(At mAt, T& mWidget) noexcept
 		{

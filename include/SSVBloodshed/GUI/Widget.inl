@@ -22,15 +22,19 @@ namespace ob
 		{
 			update(mFT);
 
-			if(isPressed())
+			if(isPressedLeft() && isFocused())
 			{
-				if(isFocused())
-				{
-					if(!wasPressed()) onLeftClick();
-					onLeftClickDown();
-				}
+				if(!wasPressedLeft()) onLeftClick();
+				onLeftClickDown();
 			}
-			else if(wasPressed()) onLeftRelease();
+			else if(wasPressedLeft()) onLeftRelease();
+
+			if(isPressedRight() && isFocused())
+			{
+				if(!wasPressedRight()) onRightClick();
+				onRightClickDown();
+			}
+			else if(wasPressedRight()) onRightRelease();
 
 			// Recalculate sizing
 			recalculateSize(scalingX, &Widget::setWidth, &Widget::getLeft, &Widget::getRight);
@@ -45,7 +49,7 @@ namespace ob
 
 			recalculatePosition();
 
-			if(isPressed()) context.busy = true;
+			if(isPressedLeft() || isPressedRight()) context.busy = true;
 
 			for(auto& w : children) w->updateRecursive(mFT);
 
@@ -78,12 +82,15 @@ namespace ob
 		{
 			if(!isVisible()) return;
 			hovered = isOverlapping(getMousePos(), 2.f); if(hovered) context.hovered = true;
-			pressedOld = pressed; pressed = isMBtnLeftDown() && hovered;
+			pressedLeftOld = pressedLeft; pressedLeft = isMBtnLeftDown() && hovered;
+			pressedRightOld = pressedRight; pressedRight = isMBtnRightDown() && hovered;
 		}
 		inline const Vec2f& Widget::getMousePos() const noexcept	{ return context.mousePos; }
 		inline const Vec2f& Widget::getMousePosOld() const noexcept	{ return context.mousePosOld; }
 		inline bool Widget::isMBtnLeftDown() const noexcept			{ return isActive() && context.mouseLDown; }
-		inline bool Widget::wasPressed() const noexcept				{ return context.mouseLDownOld || (isHovered() && pressedOld); }
+		inline bool Widget::isMBtnRightDown() const noexcept		{ return isActive() && context.mouseRDown; }
+		inline bool Widget::wasPressedLeft() const noexcept			{ return context.mouseLDownOld || (isHovered() && pressedLeftOld); }
+		inline bool Widget::wasPressedRight() const noexcept		{ return context.mouseRDownOld || (isHovered() && pressedRightOld); }
 
 		inline const std::vector<sf::Event>& Widget::getEventsToPoll() const noexcept { return context.eventsToPoll; }
 	}
