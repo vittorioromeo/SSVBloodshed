@@ -40,16 +40,24 @@ namespace ob
 			float walkSpeed{125.f};
 			OBCVMachine* currentVM{nullptr};
 
+			struct WeaponData { OBWpnType wpn; sf::IntRect rect; std::string name; };
 			int currentWpn{0}, currentShards{0}, shards{0};
-			std::vector<OBWpnType> weaponTypes{OBWpnTypes::createMachineGun(), OBWpnTypes::createPlasmaBolter(), OBWpnTypes::createPlasmaCannon(), OBWpnTypes::createRocketLauncher(), OBWpnTypes::createGrenadeLauncher()};
-			std::vector<sf::IntRect> weaponRects{assets.p1Gun, assets.e1Gun, assets.gunPCannon, assets.p2Gun, assets.p2Gun};
-			std::vector<std::string> weaponNames{"machine gun", "plasma bolter", "plasma cannon", "rocket launcher", "grenade launcher"};
+			std::vector<WeaponData> weapons
+			{
+				{OBWpnTypes::createMachineGun(),		assets.p1Gun,		"machine gun"},
+				{OBWpnTypes::createPlasmaBolter(),		assets.e1Gun,		"plasma bolter"},
+				{OBWpnTypes::createPlasmaCannon(),		assets.gunPCannon,	"plasma cannon"},
+				{OBWpnTypes::createRocketLauncher(),	assets.p2Gun,		"rocket launcher"},
+				{OBWpnTypes::createGrenadeLauncher(),	assets.p2Gun,		"grenade launcher"}
+			};
 
 			inline void cycleWeapons(int mDir) noexcept
 			{
-				currentWpn = ssvu::getWrapIdx(currentWpn + mDir, weaponTypes.size());
-				cWpnController.setWpn(weaponTypes[currentWpn]);
-				cDraw[1].setTextureRect(weaponRects[currentWpn]);
+				currentWpn = ssvu::getWrapIdx(currentWpn + mDir, weapons.size());
+				const auto& wpnData(weapons[currentWpn]);
+
+				cWpnController.setWpn(wpnData.wpn);
+				cDraw[1].setTextureRect(wpnData.rect);
 			}
 			inline void useVM();
 
@@ -60,7 +68,7 @@ namespace ob
 			inline void init()
 			{
 				cWielder.setWieldDist(7.f);
-				cKillable.getCHealth().setCooldown(2.5f);
+				cKillable.getCHealth().setCooldown(2.6f);
 				cycleWeapons(0);
 
 				cKillable.onDeath += [this]{ assets.playSound("Sounds/playerDeath.wav"); game.testhp.setValue(0.f); };
@@ -76,14 +84,8 @@ namespace ob
 				const auto& ix(game.getInput().getIX());
 				const auto& iy(game.getInput().getIY());
 
-				//float forceX{body.getVelocity().x - walkSpeed * ix};
-				//float forceY{body.getVelocity().y - walkSpeed * iy};
-				//body.applyAccel(Vec2f{forceX, forceY});
-				//body.setVelocity(ssvs::getResized(Vec2f(ix, iy), walkSpeed));
-
-				Vec2f force{ssvs::getResized(Vec2f(ix, iy), walkSpeed) - body.getVelocity()};
-				ssvs::mClampMax(force, walkSpeed / 2.f);
-				body.applyAccel(force);
+				auto accel(ssvs::getResized(Vec2f(ix, iy), walkSpeed) - body.getVelocity());
+				body.applyAccel(ssvs::getMClampedMax(accel, walkSpeed / 2.f));
 
 				cWielder.setShooting(game.getInput().getIShoot());
 				if(!cWielder.isShooting() && (ix != 0 || iy != 0)) cDir8 = getDir8FromXY(ix, iy);

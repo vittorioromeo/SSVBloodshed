@@ -48,7 +48,7 @@ namespace ob
 		game.testhp.setValue(cHealth.getHealth());
 		game.testhp.setMaxValue(cHealth.getMaxHealth());
 		game.txtShards.setString(ssvu::toStr(shards + currentShards));
-		game.txtVM.setString(currentVM == nullptr ? weaponNames[currentWpn] :currentVM->getMsg());
+		game.txtVM.setString(currentVM == nullptr ? weapons[currentWpn].name : currentVM->getMsg());
 	}
 
 	inline void OBCPlayer::setCurrentVM(OBCVMachine* mVMachine) { currentVM = mVMachine; }

@@ -19,8 +19,14 @@ namespace ob
 
 			inline void setOpen(bool mOpen) noexcept
 			{
+				static sf::Color colors[]
+				{
+					sf::Color::White,
+					sf::Color{255, 255, 255, 100}
+				};
+
 				openStatus = mOpen;
-				cDraw[0].setColor(sf::Color(255, 255, 255, openStatus ? 100 : 255));
+				cDraw[0].setColor(colors[openStatus]);
 				body.setGroups(!openStatus, OBGroup::GSolidGround, OBGroup::GSolidAir);
 			}
 

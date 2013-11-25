@@ -16,9 +16,8 @@ namespace ob
 	{
 		private:
 			OBCIdReceiver& cIdReceiver;
-			float rad;
 			bool active{true};
-			float alpha{0}, forceMult;
+			float alpha{0}, rad, forceMult;
 			ssvs::Animation animation;
 
 		public:

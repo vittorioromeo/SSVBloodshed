@@ -15,7 +15,7 @@ namespace ob
 {
 	inline void activateIdReceivers(OBCPhys& mCaller, int mId, IdAction mIdAction, sses::Manager& mManager)
 	{
-		static sf::Color actionColors[3] { sf::Color::Yellow, sf::Color::Green, sf::Color::Red };
+		static sf::Color actionColors[]{sf::Color::Yellow, sf::Color::Green, sf::Color::Red};
 
 		for(auto& e : mManager.getEntities(OBGroup::GIdReceiver))
 		{

@@ -16,7 +16,6 @@ namespace ob
 	{
 		public:
 			using GameParticleMemFn = void(OBGame::*)(unsigned int mCount, const Vec2f& mPos);
-			enum class Type{Smoke, Plasma};
 
 		private:
 			Vec2f offset;
