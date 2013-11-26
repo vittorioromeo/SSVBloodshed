@@ -46,7 +46,6 @@ namespace ob
 			OBGParticles particles;
 
 			OBGDebugText<OBGame> debugText{*this};
-			std::string lastMsUpdate, lastMsDraw;
 			sf::Sprite hudSprite{assets.get<sf::Texture>("tempHud.png")};
 
 			ssvs::BitmapText testAmmoTxt{*assets.obStroked};
@@ -74,8 +73,8 @@ namespace ob
 
 			inline OBGame(ssvs::GameWindow& mGameWindow, OBAssets& mAssets) : gameWindow(mGameWindow), assets(mAssets)
 			{
-				gameState.onUpdate += [this](FT mFT){ ssvu::startBenchmark(); update(mFT); lastMsUpdate = ssvu::endBenchmark(); };
-				gameState.onDraw += [this]{ ssvu::startBenchmark(); draw(); lastMsDraw = ssvu::endBenchmark(); };
+				gameState.onUpdate += [this](FT mFT){ update(mFT); };
+				gameState.onDraw += [this]{ draw(); };
 
 				// Testing hud
 				hudSprite.setPosition(0, 240 - ssvs::getGlobalHeight(hudSprite));
