@@ -30,7 +30,7 @@ namespace ob
 				for(const auto& b : bodies) if(!b->isStatic()) ++dynamicBodiesCount;
 
 				s	<< "FPS: "				<< static_cast<int>(game.getGameWindow().getFPS()) << "\n"
-					<< "U: "				<< game.lastMsUpdate << "\t" << "D: " << game.lastMsDraw << "\n"
+					<< "U: "				<< game.gameWindow.getMsUpdate() << "\t" << "D: " << game.gameWindow.getMsDraw() << "\n"
 					<< "Bodies(all): "		<< bodies.size() << "\n"
 					<< "Bodies(static): "	<< bodies.size() - dynamicBodiesCount << "\n"
 					<< "Bodies(dynamic): "	<< dynamicBodiesCount << "\n"
