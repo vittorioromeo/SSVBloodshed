@@ -63,7 +63,7 @@ namespace ob
 
 		public:
 			OBCDoorG(OBCPhys& mCPhys, OBCDraw& mCDraw, bool mOpen = false) noexcept : OBCDoorBase{mCPhys, mCDraw, mOpen} { }
-			inline void update(float) override { if(!triggered && game.isLevelClear()) { toggle(); triggered = true; } }
+			inline void update(FT) override { if(!triggered && game.isLevelClear()) { toggle(); triggered = true; } }
 	};
 
 	class OBCDoorR : public OBCDoorBase
@@ -73,7 +73,7 @@ namespace ob
 
 		public:
 			OBCDoorR(OBCPhys& mCPhys, OBCDraw& mCDraw, bool mOpen = false) noexcept : OBCDoorBase{mCPhys, mCDraw, mOpen} { }
-			inline void update(float) override { if(!triggered && manager.getEntityCount(OBGroup::GTrapdoor) <= 0) { toggle(); triggered = true; } }
+			inline void update(FT) override { if(!triggered && manager.getEntityCount(OBGroup::GTrapdoor) <= 0) { toggle(); triggered = true; } }
 	};
 }
 

@@ -66,6 +66,7 @@ namespace ob
 	using Sensor = World::SensorType;
 	using DetectionInfo = World::DetectionInfoType;
 	using ResolutionInfo = World::ResolutionInfoType;
+	using FT = ssvu::FT;
 
 	// Pixel <-> coords utils
 	template<typename T> inline constexpr float toPixels(T mValue) noexcept		{ return mValue / 100; }
@@ -217,7 +218,7 @@ namespace ob
 	template<typename T> inline Vec2<T> getSnappedVec(const Vec2<T>& mVec) noexcept		{ return Vec2<T>(getVecFromDir8(getDir8FromDeg(ssvs::getDeg(mVec)))); }
 
 	// Timeline shortcuts
-	inline void repeat(ssvu::Timeline& mTimeline, const ssvu::Action& mAction, unsigned int mTimes, float mWait)
+	inline void repeat(ssvu::Timeline& mTimeline, const ssvu::Action& mAction, unsigned int mTimes, FT mWait)
 	{
 		assert(mTimes > 0);
 		auto& action(mTimeline.append<ssvu::Do>(mAction));

@@ -45,7 +45,7 @@ namespace ob
 
 				cKillable.onDeath += [this]{ game.createEShard(5, cPhys.getPosI()); };
 			}
-			inline void update(float mFT) override
+			inline void update(FT mFT) override
 			{
 				tlShoot.update(mFT);
 				if(tckShoot.getCurrent() > shootDelay / 1.5f && tckShoot.getCurrent() < shootDelay) game.createPCharge(1, cPhys.getPosPx(), 20);

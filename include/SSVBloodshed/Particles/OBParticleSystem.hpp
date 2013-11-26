@@ -20,7 +20,7 @@ namespace ob
 		public:
 			inline OBParticleSystem() { vertices.reserve(maxParticles * 4); particles.reserve(maxParticles); }
 			template<typename... TArgs> inline void emplace(TArgs&&... mArgs) { if(particles.size() < maxParticles) particles.emplace_back(std::forward<TArgs>(mArgs)...); }
-			inline void update(float mFT)
+			inline void update(FT mFT)
 			{
 				ssvu::eraseRemoveIf(particles, [](const OBParticle& mParticle){ return mParticle.getLife() <= 0; });
 				vertices.clear();

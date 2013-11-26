@@ -22,7 +22,7 @@ namespace ob
 		public:
 			OBCTargeter(OBCPhys& mCPhys, OBGroup mTargetGroup) noexcept : OBCActorNoDrawBase{mCPhys}, targetGroup(mTargetGroup) { }
 
-			inline void update(float) override
+			inline void update(FT) override
 			{
 				if(target == nullptr)
 				{

@@ -25,7 +25,7 @@ namespace ob
 		public:
 			OBCParticleEmitter(OBCPhys& mCPhys, GameParticleMemFn mParticleMemFn, unsigned int mCount = 1) : OBCActorNoDrawBase{mCPhys}, particleMemFn{mParticleMemFn}, count{mCount} { }
 
-			inline void update(float) override { (game.*particleMemFn)(count, cPhys.getPosPx() + offset); }
+			inline void update(FT) override { (game.*particleMemFn)(count, cPhys.getPosPx() + offset); }
 
 			inline void setOffset(const Vec2f& mOffset) noexcept	{ offset = mOffset; }
 			inline const Vec2f& getOffset() const noexcept			{ return offset; }

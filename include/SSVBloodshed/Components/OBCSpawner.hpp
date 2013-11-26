@@ -53,7 +53,7 @@ namespace ob
 				controlBoolByIdAction(cIdReceiver, active);
 			}
 
-			inline void update(float mFT) override
+			inline void update(FT mFT) override
 			{
 				if(!active) return;
 

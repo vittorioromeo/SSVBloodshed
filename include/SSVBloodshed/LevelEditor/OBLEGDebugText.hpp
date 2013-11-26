@@ -19,7 +19,7 @@ namespace ob
 		public:
 			OBLEGDebugText(TGame& mGame) noexcept : editor(mGame) { }
 
-			inline void update(float)
+			inline void update(FT)
 			{
 				std::string copiedParamsStr;
 				for(const auto& p : editor.copiedParams.second) copiedParamsStr += p.first + "(" + ssvu::getReplacedAll(ssvu::toStr(p.second), "\n", "") + ")" + "\n";

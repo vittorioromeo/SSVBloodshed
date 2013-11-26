@@ -61,7 +61,7 @@ namespace ob
 				: OBCActorBase{mCPhys, mCDraw}, OBWeightable{mCPhys, mPlayerOnly}, id{mId}, type{mType}, idAction{mIdAction} { }
 
 			inline void init() { OBWeightable::init(); body.addGroups(OBGroup::GPPlate); }
-			inline void update(float) override
+			inline void update(FT) override
 			{
 				if(hasBeenWeighted() && !triggered)
 				{

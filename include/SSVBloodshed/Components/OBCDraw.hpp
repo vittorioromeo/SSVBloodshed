@@ -25,7 +25,7 @@ namespace ob
 		public:
 			inline OBCDraw(OBGame& mGame, Body& mBody) noexcept : game(mGame), body(mBody) { }
 
-			inline void update(float) override
+			inline void update(FT) override
 			{
 				const auto& position(toPixels(body.getPosition()));
 				const auto& size(body.getSize());

@@ -18,7 +18,7 @@ namespace ob
 			result.setParent(*this); return result;
 		}
 
-		inline void Widget::updateRecursive(float mFT)
+		inline void Widget::updateRecursive(FT mFT)
 		{
 			update(mFT);
 

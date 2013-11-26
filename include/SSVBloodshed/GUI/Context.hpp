@@ -89,7 +89,7 @@ namespace ob
 
 				inline void onAnyEvent(const sf::Event& mEvent) { eventsToPoll.push_back(mEvent); }
 
-				inline void update(float mFT)
+				inline void update(FT mFT)
 				{
 					updateMouse();
 

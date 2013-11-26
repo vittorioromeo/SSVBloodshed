@@ -39,7 +39,7 @@ namespace ob
 				cDraw.setRotation(ssvu::getRnd(0, 360));
 			}
 
-			inline void update(float) override { cDraw[0].rotate(ssvs::getMag(body.getVelocity()) * 0.01f); }
+			inline void update(FT) override { cDraw[0].rotate(ssvs::getMag(body.getVelocity()) * 0.01f); }
 	};
 }
 

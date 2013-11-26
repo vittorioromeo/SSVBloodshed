@@ -24,7 +24,7 @@ namespace ob
 
 			inline void init() { body.setResolve(false); }
 
-			inline void update(float) override
+			inline void update(FT) override
 			{
 				for(auto& e : manager.getEntities(OBGroup::GPlayer))
 				{

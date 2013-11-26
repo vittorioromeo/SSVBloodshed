@@ -72,7 +72,7 @@ namespace ob
 				guiCtx(assets, gameWindow)
 			{
 				gameCamera.pan(-5, -5);
-				gameState.onUpdate += [this](float mFT){ update(mFT); };
+				gameState.onUpdate += [this](FT mFT){ update(mFT); };
 				gameState.onDraw += [this]{ draw(); };
 
 				rsBrush.setFillColor({255, 0, 0, 125});
@@ -266,7 +266,7 @@ namespace ob
 				lblParams->setString(ss.str());
 			}
 
-			inline void update(float mFT)
+			inline void update(FT mFT)
 			{
 				guiCtx.update(mFT);
 

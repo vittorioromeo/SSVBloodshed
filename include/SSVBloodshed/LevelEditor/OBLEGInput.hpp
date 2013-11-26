@@ -31,31 +31,31 @@ namespace ob
 				ssvs::add2StateInput(gs, {{k::LControl}}, modCtrl);
 				ssvs::add2StateInput(gs, {{k::LShift}}, modShift);
 
-				gs.addInput({{k::Escape}},	[this](float){ if(editor.guiCtx.isInUse()) return; editor.assets.musicPlayer.stop(); editor.getGameWindow().stop(); });
-				gs.addInput({{k::R}},		[this](float){ if(editor.guiCtx.isInUse()) return; editor.clearCurrentLevel(); }, t::Once);
-				gs.addInput({{k::C}},		[this](float){ if(editor.guiCtx.isInUse()) return; editor.saveToFile("./level.txt"); }, t::Once, m::Exclusive);
-				gs.addInput({{k::V}},		[this](float){ if(editor.guiCtx.isInUse()) return; editor.loadFromFile("./level.txt"); }, t::Once, m::Exclusive);
-				gs.addInput({{k::Z}},		[this](float){ if(editor.guiCtx.isInUse()) return; editor.cycleZ(-1); }, t::Once);
-				gs.addInput({{k::X}},		[this](float){ if(editor.guiCtx.isInUse()) return; editor.cycleZ(1); }, t::Once);
-				gs.addInput({{k::A}},		[this](float){ if(editor.guiCtx.isInUse()) return; editor.cycleId(-1); }, t::Once);
-				gs.addInput({{k::S}},		[this](float){ if(editor.guiCtx.isInUse()) return;  editor.cycleId(1); }, t::Once);
-				gs.addInput({{k::Q}},		[this](float){ if(editor.guiCtx.isInUse()) return; editor.cycleParam(-1); }, t::Once);
-				gs.addInput({{k::W}},		[this](float){ if(editor.guiCtx.isInUse()) return; editor.cycleParam(1); }, t::Once);
-				gs.addInput({{k::T}},		[this](float){ if(editor.guiCtx.isInUse()) return; editor.cycleCurrentParam(-100); }, t::Once);
-				gs.addInput({{k::Y}},		[this](float){ if(editor.guiCtx.isInUse()) return; editor.cycleCurrentParam(100); }, t::Once);
+				gs.addInput({{k::Escape}},	[this](FT){ if(editor.guiCtx.isInUse()) return; editor.assets.musicPlayer.stop(); editor.getGameWindow().stop(); });
+				gs.addInput({{k::R}},		[this](FT){ if(editor.guiCtx.isInUse()) return; editor.clearCurrentLevel(); }, t::Once);
+				gs.addInput({{k::C}},		[this](FT){ if(editor.guiCtx.isInUse()) return; editor.saveToFile("./level.txt"); }, t::Once, m::Exclusive);
+				gs.addInput({{k::V}},		[this](FT){ if(editor.guiCtx.isInUse()) return; editor.loadFromFile("./level.txt"); }, t::Once, m::Exclusive);
+				gs.addInput({{k::Z}},		[this](FT){ if(editor.guiCtx.isInUse()) return; editor.cycleZ(-1); }, t::Once);
+				gs.addInput({{k::X}},		[this](FT){ if(editor.guiCtx.isInUse()) return; editor.cycleZ(1); }, t::Once);
+				gs.addInput({{k::A}},		[this](FT){ if(editor.guiCtx.isInUse()) return; editor.cycleId(-1); }, t::Once);
+				gs.addInput({{k::S}},		[this](FT){ if(editor.guiCtx.isInUse()) return;  editor.cycleId(1); }, t::Once);
+				gs.addInput({{k::Q}},		[this](FT){ if(editor.guiCtx.isInUse()) return; editor.cycleParam(-1); }, t::Once);
+				gs.addInput({{k::W}},		[this](FT){ if(editor.guiCtx.isInUse()) return; editor.cycleParam(1); }, t::Once);
+				gs.addInput({{k::T}},		[this](FT){ if(editor.guiCtx.isInUse()) return; editor.cycleCurrentParam(-100); }, t::Once);
+				gs.addInput({{k::Y}},		[this](FT){ if(editor.guiCtx.isInUse()) return; editor.cycleCurrentParam(100); }, t::Once);
 
-				gs.addInput({{b::Middle}},	[this](float){ if(editor.guiCtx.isInUse()) return; editor.pick(); }, t::Once);
-				gs.addInput({{k::F1}},		[this](float){ if(editor.guiCtx.isInUse()) return; editor.getGameWindow().setGameState(editor.game->getGameState()); }, t::Once);
+				gs.addInput({{b::Middle}},	[this](FT){ if(editor.guiCtx.isInUse()) return; editor.pick(); }, t::Once);
+				gs.addInput({{k::F1}},		[this](FT){ if(editor.guiCtx.isInUse()) return; editor.getGameWindow().setGameState(editor.game->getGameState()); }, t::Once);
 
-				gs.addInput({{{k::LShift}, {b::Right}}}, [this](float){ if(editor.guiCtx.isInUse()) return; editor.openParams(); }, t::Once, m::Exclusive);
+				gs.addInput({{{k::LShift}, {b::Right}}}, [this](FT){ if(editor.guiCtx.isInUse()) return; editor.openParams(); }, t::Once, m::Exclusive);
 
-				gs.addInput({{k::LControl, k::C}}, [this](float){ if(editor.guiCtx.isInUse()) return; editor.copyTiles(); }, t::Once, m::Exclusive);
-				gs.addInput({{k::LControl, k::V}}, [this](float){ if(editor.guiCtx.isInUse()) return; editor.pasteTiles(); }, t::Always, m::Exclusive);
+				gs.addInput({{k::LControl, k::C}}, [this](FT){ if(editor.guiCtx.isInUse()) return; editor.copyTiles(); }, t::Once, m::Exclusive);
+				gs.addInput({{k::LControl, k::V}}, [this](FT){ if(editor.guiCtx.isInUse()) return; editor.pasteTiles(); }, t::Always, m::Exclusive);
 
-				gs.addInput({{k::Numpad4}},	[this](float){ if(editor.guiCtx.isInUse()) return; editor.cycleLevel(-1, 0); }, t::Once);
-				gs.addInput({{k::Numpad6}},	[this](float){ if(editor.guiCtx.isInUse()) return; editor.cycleLevel(1, 0); }, t::Once);
-				gs.addInput({{k::Numpad8}},	[this](float){ if(editor.guiCtx.isInUse()) return; editor.cycleLevel(0, -1); }, t::Once);
-				gs.addInput({{k::Numpad2}},	[this](float){ if(editor.guiCtx.isInUse()) return; editor.cycleLevel(0, 1); }, t::Once);
+				gs.addInput({{k::Numpad4}},	[this](FT){ if(editor.guiCtx.isInUse()) return; editor.cycleLevel(-1, 0); }, t::Once);
+				gs.addInput({{k::Numpad6}},	[this](FT){ if(editor.guiCtx.isInUse()) return; editor.cycleLevel(1, 0); }, t::Once);
+				gs.addInput({{k::Numpad8}},	[this](FT){ if(editor.guiCtx.isInUse()) return; editor.cycleLevel(0, -1); }, t::Once);
+				gs.addInput({{k::Numpad2}},	[this](FT){ if(editor.guiCtx.isInUse()) return; editor.cycleLevel(0, 1); }, t::Once);
 
 				gs.onEvent(sf::Event::EventType::MouseWheelMoved) += [this](const sf::Event& mEvent)
 				{

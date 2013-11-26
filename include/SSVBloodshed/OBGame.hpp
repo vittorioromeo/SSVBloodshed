@@ -74,7 +74,7 @@ namespace ob
 
 			inline OBGame(ssvs::GameWindow& mGameWindow, OBAssets& mAssets) : gameWindow(mGameWindow), assets(mAssets)
 			{
-				gameState.onUpdate += [this](float mFT){ ssvu::startBenchmark(); update(mFT); lastMsUpdate = ssvu::endBenchmark(); };
+				gameState.onUpdate += [this](FT mFT){ ssvu::startBenchmark(); update(mFT); lastMsUpdate = ssvu::endBenchmark(); };
 				gameState.onDraw += [this]{ ssvu::startBenchmark(); draw(); lastMsDraw = ssvu::endBenchmark(); };
 
 				// Testing hud
@@ -199,7 +199,7 @@ namespace ob
 			inline bool isLevelClear() noexcept		{ return manager.getEntityCount(OBGroup::GEnemy) <= 0; }
 			inline void updateLevelStat() noexcept	{ if(isLevelClear()) levelStats[currentLevel].clear = true; }
 
-			inline void update(float mFT)
+			inline void update(FT mFT)
 			{
 				manager.update(mFT);
 				world.update(mFT);

@@ -48,7 +48,7 @@ namespace ob
 				Label& lblLabel;
 				float green{0.f};
 
-				inline void update(float mFT) override
+				inline void update(FT mFT) override
 				{
 					setFillColor(sf::Color(255, green, 0, 255));
 					green = ssvu::getClampedMin(green - mFT * 15.f, 0.f);
@@ -74,7 +74,7 @@ namespace ob
 					Label& lblState;
 					float green{0.f};
 
-					inline void update(float mFT) override
+					inline void update(FT mFT) override
 					{
 						setFillColor(sf::Color(255, green, 0, 255));
 						green = ssvu::getClampedMin(green - mFT * 15.f, 0.f);
@@ -128,7 +128,7 @@ namespace ob
 				bool tabbed{false};
 				float widgetOffset{6.f}, tabSize;
 
-				inline void update(float) override
+				inline void update(FT) override
 				{
 					auto& widgets(getChildren());
 					if(widgets.empty()) return;
@@ -173,7 +173,7 @@ namespace ob
 				Button& btnOpen;
 				Label& lblLabel;
 
-				inline void update(float) override
+				inline void update(FT) override
 				{
 					setSize(wsBar.getSize());
 					if(!wsShutter.isAnyChildRecursive([](const Widget& mW){ return mW.isFocused(); })) wsShutter.setExcludedRecursive(true);
@@ -285,7 +285,7 @@ namespace ob
 				std::string editStr, str;
 				float green{0.f}, greenDir{1.f};
 
-				inline void update(float mFT) override
+				inline void update(FT mFT) override
 				{
 					if(editing)
 					{
@@ -394,7 +394,7 @@ namespace ob
 				Scaling oldScalingX, oldScalingY;
 				Vec2f dragOrigin;
 
-				inline void update(float) override
+				inline void update(FT) override
 				{
 					setFillColor(isFocused() ? colorFocused : colorUnfocused);
 

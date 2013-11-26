@@ -128,7 +128,7 @@ namespace ob
 				cKillable.setType(OBCKillable::Type::Organic);
 				cWielder.setHoldDist(2.f); cWielder.setWieldDist(8.f);
 			}
-			inline void update(float) override
+			inline void update(FT) override
 			{
 				recalculateTile();
 
@@ -183,7 +183,7 @@ namespace ob
 				tlCharge.append<ssvu::Wait>(9.f);
 				tlCharge.append<ssvu::Do>([this]{ cFloorSmasher.setActive(false); });
 			}
-			inline void update(float mFT) override
+			inline void update(FT mFT) override
 			{
 				recalculateTile();
 
@@ -238,7 +238,7 @@ namespace ob
 				tlShoot.append<ssvu::Do>([this]{ lastDeg = cEnemy.getCurrentDeg(); });
 				repeat(tlShoot, [this]{ shootUnarmed(lastDeg); lastDeg += 265; }, 45, 0.3f);
 			}
-			inline void update(float mFT) override
+			inline void update(FT mFT) override
 			{
 				constexpr float distBodySlam{2750.f};
 				constexpr float distEvade{10000.f};
@@ -311,7 +311,7 @@ namespace ob
 					body.addGroupsToCheck(OBGroup::GSolidAir);
 				}
 			}
-			inline void update(float mFT) override
+			inline void update(FT mFT) override
 			{
 				if(type == BallType::Flying && !small && ssvu::getRnd(0, 9) > 7) game.createPElectric(1, cPhys.getPosPx());
 				if(cTargeter.hasTarget()) cBoid.pursuit(cTargeter.getTarget());
@@ -355,7 +355,7 @@ namespace ob
 				}, 6, 4.5f);
 				tlSummon.append<ssvu::Wait>(19.f);
 			}
-			inline void update(float mFT) override
+			inline void update(FT mFT) override
 			{
 				if(!cTargeter.hasTarget()) return;
 
@@ -403,7 +403,7 @@ namespace ob
 				cEnemy.setMinBounceVel(45.f); cEnemy.setMaxVel(115.f);
 				tckShoot.setLoop(false);
 			}
-			inline void update(float mFT) override
+			inline void update(FT mFT) override
 			{
 				if(!cTargeter.hasTarget()) return;
 

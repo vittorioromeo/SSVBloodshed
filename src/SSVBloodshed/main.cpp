@@ -5,6 +5,7 @@
 #include "SSVBloodshed/OBCommon.hpp"
 
 using namespace ssvces;
+using FT = ssvu::FT;
 
 struct CPosition : Component		{ float x, y; CPosition(float mX, float mY) : x{mX}, y{mY} { } };
 struct CVelocity : Component		{ float x, y; CVelocity(float mX, float mY) : x{mX}, y{mY} { } };
@@ -15,8 +16,8 @@ struct CColorInhibitor : Component	{ float life; CColorInhibitor(float mLife) : 
 
 struct SMovement : System<SMovement, Req<CPosition, CVelocity, CAcceleration>>
 {
-	inline void update(float mFT) { processAll(mFT); }
-	inline void process(Entity&, CPosition& cPosition, CVelocity& cVelocity, CAcceleration& cAcceleration, float mFT)
+	inline void update(FT mFT) { processAll(mFT); }
+	inline void process(Entity&, CPosition& cPosition, CVelocity& cVelocity, CAcceleration& cAcceleration, FT mFT)
 	{
 		cVelocity.x += cAcceleration.x * mFT;
 		cVelocity.y += cAcceleration.y * mFT;
@@ -27,8 +28,8 @@ struct SMovement : System<SMovement, Req<CPosition, CVelocity, CAcceleration>>
 
 struct SDeath : System<SDeath, Req<CLife>>
 {
-	inline void update(float mFT) { processAll(mFT); }
-	inline void process(Entity& entity, CLife& cLife, float mFT)
+	inline void update(FT mFT) { processAll(mFT); }
+	inline void process(Entity& entity, CLife& cLife, FT mFT)
 	{
 		cLife.life -= mFT;
 		if(cLife.life < 0) entity.destroy();
@@ -67,10 +68,10 @@ struct SDraw : System<SDraw, Req<CPosition, CSprite>>
 
 struct SColorInhibitor : System<SColorInhibitor, Req<CSprite, CColorInhibitor>>
 {
-	inline void update(float mFT) { processAll(mFT); }
+	inline void update(FT mFT) { processAll(mFT); }
 	inline void draw() { processAll(); }
 
-	inline void process(Entity& entity, CSprite&, CColorInhibitor& cColorInhibitor, float mFT)
+	inline void process(Entity& entity, CSprite&, CColorInhibitor& cColorInhibitor, FT mFT)
 	{
 		cColorInhibitor.life -= mFT;
 		if(cColorInhibitor.life < 0) entity.removeComponent<CColorInhibitor>();
@@ -169,11 +170,9 @@ int main()
 		}
 	} ssvu::lo("benchmark") << ssvu::endBenchmark();*/
 
-	string dms = "";
-
 	float counter{99};
 	ssvs::GameState gameState;
-	gameState.onUpdate += [&, counter](float mFT) mutable
+	gameState.onUpdate += [&, counter](FT mFT) mutable
 	{
 		counter += mFT;
 		if(counter > 100.f)
@@ -192,29 +191,21 @@ int main()
 			}
 		}
 
-		ssvu::startBenchmark();
-		{
-			manager.refresh();
-			sMovement.update(mFT);
-			sDeath.update(mFT);
-			sColorInhibitor.update(mFT);
-		}
-		auto ums = ssvu::endBenchmark();
+		manager.refresh();
+		sMovement.update(mFT);
+		sDeath.update(mFT);
+		sColorInhibitor.update(mFT);
 
-		gameWindow.setTitle("up: " + ums + "\t dw: " + dms + "\t ent: " + toStr(manager.getEntityCount()) + "\t cmp: " + toStr(manager.getComponentCount()));
+		gameWindow.setTitle("up: " + toStr(gameWindow.getMsUpdate()) + "\t dw: " + toStr(gameWindow.getMsDraw()) + "\t ent: " + toStr(manager.getEntityCount()) + "\t cmp: " + toStr(manager.getComponentCount()));
 
 		//if(gameWindow.getFPS() < 60) ssvu::lo<<gameWindow.getFPS()<<std::endl;
 		//ssvu::lo<<manager.getEntityCount(0)<<std::endl;
 	};
 	gameState.onDraw += [&]
 	{
-		ssvu::startBenchmark();
-		{
-			sNonColorInhibitor.draw();
-			sDraw.draw();
-			sColorInhibitor.draw();
-		}
-		dms = ssvu::endBenchmark();
+		sNonColorInhibitor.draw();
+		sDraw.draw();
+		sColorInhibitor.draw();
 	};
 
 

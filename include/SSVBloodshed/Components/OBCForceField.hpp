@@ -70,7 +70,7 @@ namespace ob
 				};
 			}
 
-			inline void update(float mFT) override
+			inline void update(FT mFT) override
 			{
 				auto color(cDraw[0].getColor());
 

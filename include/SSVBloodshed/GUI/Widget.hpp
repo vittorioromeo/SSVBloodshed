@@ -55,7 +55,7 @@ namespace ob
 				Scaling nextTempScaling{Scaling::Manual};
 				float padding{0.f}, scalePercent{100.f};
 
-				inline virtual void update(float) { }
+				inline virtual void update(FT) { }
 				inline virtual void draw() { }
 
 				inline void drawHierarchy()
@@ -124,7 +124,7 @@ namespace ob
 				}
 
 				void checkMouse();
-				void updateRecursive(float mFT);
+				void updateRecursive(FT mFT);
 				void recalculateView();
 
 				bool wasPressedLeft() const noexcept;

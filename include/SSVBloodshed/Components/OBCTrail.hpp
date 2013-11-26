@@ -22,7 +22,7 @@ namespace ob
 		public:
 			OBCTrail(OBGame& mGame, const Vec2i& mA, const Vec2i& mB, sf::Color mColor) : game(mGame), a{toPixels(mA)}, b{toPixels(mB)}, color{std::move(mColor)}, vertices{2} { }
 
-			inline void update(float mFT) override
+			inline void update(FT mFT) override
 			{
 				life -= mFT;
 				if(life <= 0) getEntity().destroy();

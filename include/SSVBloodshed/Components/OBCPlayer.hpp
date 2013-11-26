@@ -132,7 +132,7 @@ namespace ob
 				else if(cPhys.getBottom() + cPhys.getVel().y > levelHeightCoords)	game.changeLevel(*this, 0, 1);
 			}
 
-			inline void update(float) override
+			inline void update(FT) override
 			{
 				updateInput(); updateHUD(); attractShards();
 

@@ -63,7 +63,7 @@ namespace ob
 			}
 			inline void destroy() { getEntity().destroy(); onDestroy(); }
 
-			inline void update(float mFT) override
+			inline void update(FT mFT) override
 			{
 				auto newVel(body.getVelocity());
 				ssvs::resize(newVel, ssvs::getMag(newVel) + acceleration * mFT);

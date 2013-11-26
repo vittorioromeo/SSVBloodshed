@@ -19,7 +19,7 @@ namespace ob
 		public:
 			inline OBGDebugText(TGame& mGame) : game(mGame), debugText{*game.getAssets().obStroked} { debugText.setTracking(-3); }
 
-			inline void update(float)
+			inline void update(FT)
 			{
 				std::ostringstream s;
 				const auto& entities(game.getManager().getEntities());

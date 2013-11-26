@@ -32,32 +32,32 @@ namespace ob
 				ssvs::add3StateInput(gs, OBConfig::getTLeft(), OBConfig::getTRight(), iX);
 				ssvs::add3StateInput(gs, OBConfig::getTUp(), OBConfig::getTDown(), iY);
 
-				gs.addInput({{k::Escape}},	[this](float){ game.assets.musicPlayer.stop(); game.getGameWindow().stop(); });
+				gs.addInput({{k::Escape}},	[this](FT){ game.assets.musicPlayer.stop(); game.getGameWindow().stop(); });
 
-				gs.addInput({{k::A}},		[this](float){ game.gameCamera.pan(-4, 0); });
-				gs.addInput({{k::D}},		[this](float){ game.gameCamera.pan(4, 0); });
-				gs.addInput({{k::W}},		[this](float){ game.gameCamera.pan(0, -4); });
-				gs.addInput({{k::S}},		[this](float){ game.gameCamera.pan(0, 4); });
-				gs.addInput({{k::Q}},		[this](float){ game.gameCamera.zoomOut(1.1f); });
-				gs.addInput({{k::E}},		[this](float){ game.gameCamera.zoomIn(1.1f); });
+				gs.addInput({{k::A}},		[this](FT){ game.gameCamera.pan(-4, 0); });
+				gs.addInput({{k::D}},		[this](FT){ game.gameCamera.pan(4, 0); });
+				gs.addInput({{k::W}},		[this](FT){ game.gameCamera.pan(0, -4); });
+				gs.addInput({{k::S}},		[this](FT){ game.gameCamera.pan(0, 4); });
+				gs.addInput({{k::Q}},		[this](FT){ game.gameCamera.zoomOut(1.1f); });
+				gs.addInput({{k::E}},		[this](FT){ game.gameCamera.zoomIn(1.1f); });
 
-				gs.addInput({{k::R}},		[this](float){ game.newGame(); }, t::Once);
-				gs.addInput({{k::T}},		[this](float){ game.reloadPack(); }, t::Once);
+				gs.addInput({{k::R}},		[this](FT){ game.newGame(); }, t::Once);
+				gs.addInput({{k::T}},		[this](FT){ game.reloadPack(); }, t::Once);
 
-				gs.addInput({{k::Num0}},	[this](float){ game.factory.createPit(game.getMousePosition()); }, t::Once);
-				gs.addInput({{k::Num1}},	[this](float){ game.factory.createWall(game.getMousePosition(), game.getAssets().wallSingle); }, t::Once);
-				gs.addInput({{k::Num2}},	[this](float){ game.factory.createERunner(game.getMousePosition(), RunnerType::Unarmed); });
-				gs.addInput({{k::Num3}},	[this](float){ game.factory.createECharger(game.getMousePosition(), ChargerType::Unarmed); }, t::Once);
-				gs.addInput({{k::Num4}},	[this](float){ game.factory.createEJuggernaut(game.getMousePosition(), JuggernautType::Unarmed); }, t::Once);
-				gs.addInput({{k::Num5}},	[this](float){ game.factory.createEGiant(game.getMousePosition()); }, t::Once);
-				gs.addInput({{k::Num6}},	[this](float){ game.factory.createEBall(game.getMousePosition(), BallType::Normal, false); }, t::Once);
-				gs.addInput({{k::Num7}},	[this](float){ game.factory.createERunner(game.getMousePosition(), RunnerType::PlasmaBolter); });
-				gs.addInput({{k::Num8}},	[this](float){ game.factory.createECharger(game.getMousePosition(), ChargerType::GrenadeLauncher); }, t::Once);
-				gs.addInput({{k::Num9}},	[this](float){ game.factory.createEJuggernaut(game.getMousePosition(), JuggernautType::RocketLauncher); }, t::Once);
-				gs.addInput({{k::P}},		[this](float){ game.factory.createEBall(game.getMousePosition(), BallType::Flying, false); }, t::Once);
-				gs.addInput({{k::O}},		[this](float){ game.factory.createEEnforcer(game.getMousePosition()); }, t::Once);
+				gs.addInput({{k::Num0}},	[this](FT){ game.factory.createPit(game.getMousePosition()); }, t::Once);
+				gs.addInput({{k::Num1}},	[this](FT){ game.factory.createWall(game.getMousePosition(), game.getAssets().wallSingle); }, t::Once);
+				gs.addInput({{k::Num2}},	[this](FT){ game.factory.createERunner(game.getMousePosition(), RunnerType::Unarmed); });
+				gs.addInput({{k::Num3}},	[this](FT){ game.factory.createECharger(game.getMousePosition(), ChargerType::Unarmed); }, t::Once);
+				gs.addInput({{k::Num4}},	[this](FT){ game.factory.createEJuggernaut(game.getMousePosition(), JuggernautType::Unarmed); }, t::Once);
+				gs.addInput({{k::Num5}},	[this](FT){ game.factory.createEGiant(game.getMousePosition()); }, t::Once);
+				gs.addInput({{k::Num6}},	[this](FT){ game.factory.createEBall(game.getMousePosition(), BallType::Normal, false); }, t::Once);
+				gs.addInput({{k::Num7}},	[this](FT){ game.factory.createERunner(game.getMousePosition(), RunnerType::PlasmaBolter); });
+				gs.addInput({{k::Num8}},	[this](FT){ game.factory.createECharger(game.getMousePosition(), ChargerType::GrenadeLauncher); }, t::Once);
+				gs.addInput({{k::Num9}},	[this](FT){ game.factory.createEJuggernaut(game.getMousePosition(), JuggernautType::RocketLauncher); }, t::Once);
+				gs.addInput({{k::P}},		[this](FT){ game.factory.createEBall(game.getMousePosition(), BallType::Flying, false); }, t::Once);
+				gs.addInput({{k::O}},		[this](FT){ game.factory.createEEnforcer(game.getMousePosition()); }, t::Once);
 
-				gs.addInput({{k::F1}},		[this](float){ game.getGameWindow().setGameState(game.editor->getGameState()); }, t::Once);
+				gs.addInput({{k::F1}},		[this](FT){ game.getGameWindow().setGameState(game.editor->getGameState()); }, t::Once);
 			}
 
 			inline bool getIShoot() const noexcept	{ return iShoot; }

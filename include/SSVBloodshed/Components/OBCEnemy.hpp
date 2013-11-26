@@ -49,7 +49,7 @@ namespace ob
 				cKillable.onDeath += [this]{ game.createEShard(1 + cKillable.getCHealth().getMaxHealth() / 3, cPhys.getPosI()); };
 			}
 
-			inline void update(float mFT) override
+			inline void update(FT mFT) override
 			{
 				snappedDeg = ob::getSnappedDeg(currentDeg);
 
@@ -59,7 +59,7 @@ namespace ob
 			}
 			inline void draw() override { if(faceDirection) cDraw[0].setRotation(snappedDeg); }
 
-			inline void turnTowards(float mFT, float mTargetDeg) noexcept { currentDeg = ssvu::getRotatedDeg(currentDeg, mTargetDeg, turnSpeed * mFT); }
+			inline void turnTowards(FT mFT, float mTargetDeg) noexcept { currentDeg = ssvu::getRotatedDeg(currentDeg, mTargetDeg, turnSpeed * mFT); }
 
 			inline void setFaceDirection(bool mValue) noexcept	{ faceDirection = mValue; }
 			inline void setMinBounceVel(float mMin) noexcept	{ minBounceVel = mMin; }

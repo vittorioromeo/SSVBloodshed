@@ -21,7 +21,7 @@ namespace ob
 			inline OBParticle(const Vec2f& mPosition, const Vec2f& mVelocity, float mAcceleration, const sf::Color& mColor, float mSize, float mLife, float mAlphaMult = 1.f, float mCurveSpeed = 0.f) noexcept
 				: position{mPosition}, velocity{mVelocity}, acceleration{mAcceleration}, color{mColor}, size{mSize}, life{mLife}, lifeMax{mLife}, alphaMult{mAlphaMult}, curveSpeed{mCurveSpeed} { }
 
-			inline void update(float mFT) noexcept
+			inline void update(FT mFT) noexcept
 			{
 				life -= mFT;
 				color.a = static_cast<unsigned char>(ssvu::getClamped(life * (255.f / lifeMax) * alphaMult, 0.f, 255.f));

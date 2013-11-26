@@ -28,7 +28,7 @@ namespace ob
 				body.addGroups(OBGroup::GTrapdoor);
 				OBWeightable::init();
 			}
-			inline void update(float mFT) override
+			inline void update(FT mFT) override
 			{
 				if(falling)
 				{
