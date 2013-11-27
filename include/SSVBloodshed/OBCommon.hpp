@@ -75,10 +75,11 @@ namespace ob
 	template<typename T> inline Vec2i toCoords(const Vec2<T>& mValue) noexcept	{ return {toCoords(mValue.x), toCoords(mValue.y)}; }
 
 	// Level values
-	constexpr int levelRows{32};
-	constexpr int levelColumns{22};
-	constexpr int levelWidthPx{levelRows * 10};
-	constexpr int levelHeightPx{levelColumns * 10};
+	constexpr int tileSize{10};
+	constexpr int levelColumns{32};
+	constexpr int levelRows{22};
+	constexpr int levelWidthPx{levelColumns * tileSize};
+	constexpr int levelHeightPx{levelRows * tileSize};
 	constexpr int levelWidthCoords{toCoords(levelWidthPx)};
 	constexpr int levelHeightCoords{toCoords(levelHeightPx)};
 

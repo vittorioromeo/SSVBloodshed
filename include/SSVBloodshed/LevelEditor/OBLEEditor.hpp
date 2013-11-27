@@ -18,6 +18,7 @@
 #include "SSVBloodshed/LevelEditor/OBLEPack.hpp"
 #include "SSVBloodshed/LevelEditor/OBLEDatabase.hpp"
 #include "SSVBloodshed/LevelEditor/OBLEJson.hpp"
+#include "SSVBloodshed/LevelEditor/OBLEBrush.hpp"
 #include "SSVBloodshed/GUI/GUI.hpp"
 
 namespace ob
@@ -27,12 +28,12 @@ namespace ob
 
 	class OBLEEditor
 	{
+		friend class FormPack;
+		friend class FormParams;
 		template<typename> friend class OBLEGInput;
 		template<typename> friend class OBLEGDebugText;
 
 		private:
-			struct Brush { int idx{0}, size{1}, left{0}, top{0}, x{0}, y{0}; };
-
 			ssvs::GameWindow& gameWindow;
 			OBAssets& assets;
 			ssvs::Camera gameCamera{gameWindow, 2.f}, overlayCamera{gameWindow, 2.f};
@@ -47,23 +48,18 @@ namespace ob
 			int currentSectorIdx{0}, currentLevelX{0}, currentLevelY{0};
 
 			std::vector<OBLETile*> currentTiles;
-			Brush brush;
-			int currentZ{0}, currentRot{0}, currentId{-1}, currentParamIdx{0};
+			OBLEBrush brush{{0, 0, levelColumns, levelRows}};
+			int currentZ{0}, currentRot{0}, currentId{-1};
 			OBGame* game{nullptr};
 			std::pair<OBLETType, std::map<std::string, ssvuj::Obj>> copiedParams{OBLETType::LETFloor, {}};
 
 			OBLETile copiedTile;
-
-			sf::RectangleShape rsBrush{Vec2f{10.f * brush.size, 10.f * brush.size}}, rsBrushSingle{Vec2f{10.f, 10.f}};
 
 			GUI::Context guiCtx;
 
 			GUI::Form* formMenu{nullptr};
 			GUI::CheckBox* chbShowId{nullptr};
 			GUI::CheckBox* chbOnion{nullptr};
-
-			GUI::Form* formParams{nullptr};
-			GUI::Label* lblParams{nullptr};
 
 			GUI::Form* formInfo{nullptr};
 			GUI::Label* lblInfo{nullptr};
@@ -78,66 +74,40 @@ namespace ob
 				gameState.onUpdate += [this](FT mFT){ update(mFT); };
 				gameState.onDraw += [this]{ draw(); };
 
-				rsBrush.setFillColor({255, 0, 0, 125});
-				rsBrush.setOutlineColor({255, 255, 0, 125});
-				rsBrush.setOutlineThickness(0.5f);
-				rsBrush.setOrigin(5.f, 5.f);
-
-				rsBrushSingle.setFillColor(sf::Color::Transparent);
-				rsBrushSingle.setOutlineColor({255, 255, 0, 125});
-				rsBrushSingle.setOutlineThickness(0.65f);
-				rsBrushSingle.setOrigin(5.f, 5.f);
-
 				newPack();
 
-				getGameState().onAnyEvent += [this](const sf::Event& mEvent){ guiCtx.onAnyEvent(mEvent); };
+				gameState.onAnyEvent += [this](const sf::Event& mEvent){ guiCtx.onAnyEvent(mEvent); };
 
 				formMenu = &guiCtx.create<GUI::Form>("MENU", Vec2f{400, 100}, Vec2f{64, 80});
-				formMenu->setResizable(false);
-				auto& tbox(formMenu->create<GUI::TextBox>(Vec2f{56, 8.f}));
-				tbox.attach(GUI::At::Top, *formMenu, GUI::At::Top, Vec2f{0.f, 4.f});
-
-				formMenu->show();
-
-				auto& btnParams(formMenu->create<GUI::Button>("parameters", Vec2f{56.f, 8.f}));
-				btnParams.onLeftClick += [this]{ formParams->show(); };
-				btnParams.attach(GUI::At::Top, tbox, GUI::At::Bottom, Vec2f{0.f, 6.f});
+				formMenu->setResizable(false); formMenu->show();
 
 				auto& btnInfo(formMenu->create<GUI::Button>("info", Vec2f{56.f, 8.f}));
 				btnInfo.onLeftClick += [this]{ formInfo->show(); };
-				btnInfo.attach(GUI::At::Top, btnParams, GUI::At::Bottom, Vec2f{0.f, 6.f});
-
-				chbShowId = &formMenu->create<GUI::CheckBox>("show id", true);
-				chbOnion = &formMenu->create<GUI::CheckBox>("onion", true);
+				btnInfo.attach(GUI::At::Top, *formMenu, GUI::At::Top, Vec2f{0.f, 6.f});
 
 				auto& shtrOptions(formMenu->create<GUI::Shutter>("options", Vec2f{56.f, 8.f}));
+				auto& shtrOptionsInside(shtrOptions.getShutter());
 				shtrOptions.attach(GUI::At::Top, btnInfo, GUI::At::Bottom, Vec2f{0.f, 6.f});
-				shtrOptions += {chbShowId, chbOnion};
 
-				//chbShowId->attach(GUI::At::NW, btnInfo, GUI::At::SW, Vec2f{0.f, 6.f});
-				//chbOnion->attach(GUI::At::NW, *chbShowId, GUI::At::SW, Vec2f{0.f, 6.f});
+				chbShowId = &shtrOptionsInside.create<GUI::CheckBox>("show id", true);
+				chbOnion = &shtrOptionsInside.create<GUI::CheckBox>("onion", true);
 
 				auto& shtrList(formMenu->create<GUI::Shutter>("list 1", Vec2f{56.f, 8.f}));
+				auto& shtrListInside(shtrList.getShutter());
 				shtrList.attach(GUI::At::Top, shtrOptions, GUI::At::Bottom, Vec2f{0.f, 6.f});
-				shtrList.getShutter().create<GUI::Label>("hello");
-				shtrList.getShutter().create<GUI::Label>("how");
-				shtrList.getShutter().create<GUI::Label>("are");
-				shtrList.getShutter().create<GUI::Label>("you");
+				shtrListInside.create<GUI::Label>("hello");
+				shtrListInside.create<GUI::Label>("how");
+				shtrListInside.create<GUI::Label>("are");
+				shtrListInside.create<GUI::Label>("you");
 
 				auto& shtrList2(shtrList.getShutter().create<GUI::Shutter>("list 2", Vec2f{56.f, 8.f}));
-				shtrList2.getShutter().create<GUI::Label>("i'm");
-				shtrList2.getShutter().create<GUI::Label>("fine");
-				shtrList2.getShutter().create<GUI::Label>("thanks");
-				shtrList2.getShutter().create<GUI::Label>("bro");
+				auto& shtrList2Inside(shtrList2.getShutter());
+				shtrList2Inside.create<GUI::Label>("i'm");
+				shtrList2Inside.create<GUI::Label>("fine");
+				shtrList2Inside.create<GUI::Label>("thanks");
+				shtrList2Inside.create<GUI::Label>("bro");
 
-				shtrList.getShutter().create<GUI::Button>("yomrwhite", Vec2f{56, 8});
-
-				formParams = &guiCtx.create<GUI::Form>("PARAMETERS", Vec2f{100, 100}, Vec2f{150, 80});
-				lblParams = &formParams->create<GUI::Label>();
-				lblParams->attach(GUI::At::NW, *formParams, GUI::At::NW, Vec2f{2.f, 2.f});
-				std::initializer_list<std::string> choices{"test1", "test2", "test3"};
-				auto& test(formParams->create<GUI::ChoiceShutter>(choices, Vec2f{56.f, 8.f}));
-				test.attach(GUI::At::NW, *formParams, GUI::At::NW);
+				shtrListInside.create<GUI::Button>("yomrwhite", Vec2f{56, 8});
 
 				formInfo = &guiCtx.create<GUI::Form>("INFO", Vec2f{100, 100}, Vec2f{150, 80});
 				lblInfo = &formInfo->create<GUI::Label>();
@@ -155,122 +125,76 @@ namespace ob
 			inline void newPack()
 			{
 				pack = OBLEPack{};
-				currentSector = nullptr;
-				currentLevel = nullptr;
-				refreshCurrentSector();
+				loadSector(0);
 				clearCurrentLevel();
 			}
 
-			inline void refreshCurrentSector()
+			template<typename TFormPack = FormPack> inline void loadPackFromFile(const ssvu::FileSystem::Path& mPath)
 			{
+				pack = ssvuj::as<OBLEPack>(ssvuj::readFromFile(mPath));
+				reinterpret_cast<TFormPack*>(formPack)->syncFromPack();
+				loadSector(0);
+			}
+			inline void loadSector(int mIdx)
+			{
+				currentSectorIdx = mIdx;
 				currentSector = &pack.getSector(currentSectorIdx);
 				currentSector->init(database);
-				refreshCurrentLevel();
+				loadLevel(0, 0);
 			}
+			inline void loadLevel(int mX, int mY)
+			{
+				if(currentSector == nullptr) { currentLevel = nullptr; return; }
+				currentLevelX = mX; currentLevelY = mY;
+				currentLevel = &currentSector->getLevel(currentLevelX, currentLevelY);
+				refreshTiles();
+			}
+
 			inline void clearCurrentSector()
 			{
 				if(currentSector == nullptr) return;
 				currentSector->clear();
-				refreshCurrentLevel();
+				loadLevel(0, 0);
 			}
 
-			inline void refreshCurrentLevel()
-			{
-				if(currentSector == nullptr) { currentLevel = nullptr; return; }
-				currentLevel = &currentSector->getLevel(currentLevelX, currentLevelY);
-			}
 			inline void clearCurrentLevel()
 			{
 				if(currentLevel == nullptr) return;
-				*currentLevel = {levelRows, levelColumns, database.get(OBLETType::LETFloor)};
-				refreshCurrentTiles();
+				*currentLevel = {levelColumns, levelRows, database.get(OBLETType::LETFloor)};
+				refreshTiles();
 			}
-			inline void refreshCurrentTiles() { for(auto& t : currentLevel->getTiles()) t.second.refreshIdText(assets); }
+			inline void refreshTiles() { for(auto& t : currentLevel->getTiles()) t.second.refreshIdText(assets); }
 
-			inline void updateXY()
-			{
-				const auto& fColumns(static_cast<float>(currentLevel->getColumns()));
-				const auto& fRows(static_cast<float>(currentLevel->getRows()));
-				const auto& tileVec((gameCamera.getMousePosition() + Vec2f(10, 10)) / 10.f);
-
-				brush.left =	ssvu::getClamped(tileVec.x - brush.size / 2.f, 0.f, fColumns - brush.size);
-				brush.top =		ssvu::getClamped(tileVec.y - brush.size / 2.f, 0.f, fRows - brush.size);
-				brush.x =		ssvu::getClamped(tileVec.x - 1 / 2.f, 0.f, fColumns - 1);
-				brush.y =		ssvu::getClamped(tileVec.y - 1 / 2.f, 0.f, fRows - 1);
-			}
 			inline void grabTiles()
 			{
+				brush.setPosition(Vec2i((gameCamera.getMousePosition() + Vec2f(5, 5)) / 10.f));
 				currentTiles.clear();
 
-				for(int iY{0}; iY < brush.size; ++iY)
-					for(int iX{0}; iX < brush.size; ++iX)
-						if(currentLevel->isValid(brush.left + iX, brush.top + iY, currentZ))
-							currentTiles.push_back(&currentLevel->getTile(brush.left + iX, brush.top + iY, currentZ));
+				for(int iY{brush.getTop()}; iY < brush.getBottom(); ++iY)
+					for(int iX{brush.getLeft()}; iX < brush.getRight(); ++iX)
+						if(currentLevel->isValid(iX, iY, currentZ))
+							currentTiles.push_back(&currentLevel->getTile(iX, iY, currentZ));
 			}
 
-			inline OBLETile& getPickTile() const noexcept { return currentLevel->getTile(brush.x, brush.y, currentZ); }
+			inline OBLETile& getPickTile() const noexcept { return currentLevel->getTile(brush.getX(), brush.getY(), currentZ); }
 
 			inline void paint()			{ for(auto& t : currentTiles) { t->initFromEntry(getCurrentEntry()); t->setRot(currentRot); t->setId(assets, currentId); } }
 			inline void del()			{ for(auto& t : currentTiles) { currentLevel->del(*t); } }
-			inline void pick()			{ brush.idx = int(getPickTile().getType()); }
+			inline void pick()			{ brush.setIdx(int(getPickTile().getType())); }
 			inline void openParams()	{ createFormParams(getPickTile()); }
 
 			inline void copyTiles()		{ auto& t(getPickTile()); copiedTile = t; }
 			inline void pasteTiles()	{ for(auto& t : currentTiles) { t->initFromEntry(database.get(copiedTile.getType())); t->setParams(copiedTile.getParams()); t->refreshIdText(assets); } }
 
-			inline void cycleRot(int mDeg)			{ currentRot = ssvu::wrapDeg(currentRot + mDeg); }
-			inline void cycleId(int mDir)			{ currentId += mDir; }
-			inline void cycleParam(int mDir)		{ currentParamIdx += mDir; }
-			inline void cycleCurrentParam(int mDir)
-			{
-				auto& t(getPickTile());
-
-				int idx{0};
-				for(auto& p : t.getParams())
-				{
-					if(ssvu::getWrapIdx(currentParamIdx, static_cast<int>(t.getParams().size())) == idx++)
-					{
-						if(ssvuj::is<int>(p.second)) p.second = ssvuj::as<int>(p.second) + mDir;
-						else if(ssvuj::is<float>(p.second)) p.second = ssvuj::as<float>(p.second) + float(mDir);
-						else if(ssvuj::is<bool>(p.second)) p.second = !ssvuj::as<bool>(p.second);
-					}
-				}
-			}
-			inline void cycleBrush(int mDir)				{ brush.idx = ssvu::getWrapIdx(brush.idx + mDir, database.getSize()); }
+			inline void cycleRot(int mDeg)					{ currentRot = ssvu::wrapDeg(currentRot + mDeg); }
+			inline void cycleId(int mDir)					{ currentId += mDir; }
+			inline void cycleBrush(int mDir)				{ brush.setIdx(ssvu::getWrapIdx(brush.getIdx() + mDir, database.getSize())); }
 			inline void cycleZ(int mDir)					{ currentZ = -ssvu::getWrapIdx(-currentZ + mDir, 3); }
-			inline void cycleBrushSize(int mDir)			{ brush.size = ssvu::getClamped(brush.size + mDir, 1, 20); }
-			inline void cycleLevel(int mDirX, int mDirY)	{ currentLevelX += mDirX; currentLevelY += mDirY; refreshCurrentLevel(); refreshCurrentTiles(); }
+			inline void cycleBrushSize(int mDir)			{ brush.setSize(ssvu::getClamped(brush.getSize() + mDir, 1, 20)); }
+			inline void cycleLevel(int mDirX, int mDirY)	{ loadLevel(currentLevelX + mDirX, currentLevelY + mDirY); }
 
-			inline void saveToFile(const ssvu::FileSystem::Path& mPath)
-			{
-				ssvuj::writeToFile(ssvuj::getArch(pack), mPath);
-			}
-			template<typename TFormPack = FormPack> inline void loadFromFile(const ssvu::FileSystem::Path& mPath)
-			{
-				newPack();
-				pack = ssvuj::as<OBLEPack>(ssvuj::readFromFile(mPath));
-				reinterpret_cast<TFormPack*>(formPack)->syncFromPack();
-				refreshCurrentSector();
-				//refreshCurrentLevel();
-				refreshCurrentTiles();
-			}
+			inline void savePackToFile(const ssvu::FileSystem::Path& mPath) { ssvuj::writeToFile(ssvuj::getArch(pack), mPath); }
 
-			inline void updateParamsText()
-			{
-				auto& t(getPickTile());
-				std::ostringstream ss;
-				std::string str;
-
-				int idx{0};
-				for(const auto& p : t.getParams())
-				{
-					bool cp{ssvu::getWrapIdx(currentParamIdx, static_cast<int>(t.getParams().size())) == idx++};
-					std::string pName(cp ? ">> " : ""); pName += "[" + p.first + "]";
-					ss << std::left << std::setw(22) << pName << ssvu::toStr(p.second);
-				}
-
-				lblParams->setString(ss.str());
-			}
 
 			inline void update(FT mFT)
 			{
@@ -279,7 +203,7 @@ namespace ob
 				if(currentLevel != nullptr)
 				{
 					currentLevel->update();
-					updateXY(); grabTiles(); updateParamsText();
+					grabTiles();
 
 					if(!guiCtx.isInUse())
 					{
@@ -297,35 +221,28 @@ namespace ob
 			{
 				gameCamera.apply<int>();
 				{
-					if(currentLevel != nullptr)
-					{
-						currentLevel->draw(gameWindow, chbOnion->getState(), chbShowId->getState(), currentZ);
-						rsBrush.setSize({brush.size * 10.f, brush.size * 10.f});
-						rsBrush.setPosition(brush.left * 10.f, brush.top * 10.f);
-						rsBrushSingle.setPosition(brush.x * 10.f, brush.y * 10.f);
-						render(rsBrush); render(rsBrushSingle);
-					}
+					if(currentLevel != nullptr) currentLevel->draw(gameWindow, chbOnion->getState(), chbShowId->getState(), currentZ);
+					render(brush);
 				}
 				gameCamera.unapply();
 
 				overlayCamera.apply<int>();
 				{
-					for(int i{-1}; i < 25; ++i)
+					for(int i{0}; i < 26; ++i)
 					{
-						auto& e(database.get(OBLETType(ssvu::getWrapIdx(brush.idx + i, database.getSize()))));
+						auto& e(database.get(OBLETType(ssvu::getWrapIdx(brush.getIdx() + i - 2, database.getSize()))));
 						sf::Sprite s{*e.texture, e.intRect};
 						Vec2f origin{s.getTextureRect().width / 2.f, s.getTextureRect().height / 2.f};
 						s.setScale(10.f / s.getTextureRect().width, 10.f / s.getTextureRect().height);
 						s.setOrigin(origin); s.setPosition(20 + (12 * i), 230);
 						if(e.defaultParams.count("rot") > 0) s.setRotation(currentRot);
 						render(s);
-
-						if(i != 0) continue;
-						sf::RectangleShape ind{Vec2f{3.2f, 3.2f}};
-						ind.setFillColor(sf::Color::White); ind.setOrigin(origin);
-						ind.setPosition(15 + 3.5f + origin.x + (12 * i), 240 - 18.5f + origin.y);
-						render(ind);
 					}
+
+					sf::RectangleShape ind{{10.f, 2.f}};
+					ind.setFillColor(sf::Color::White);
+					ind.setPosition(39.f, 240.f - 18.f);
+					render(ind);
 				}
 				overlayCamera.unapply();
 
@@ -334,22 +251,14 @@ namespace ob
 
 			template<typename... TArgs> inline void render(const sf::Drawable& mDrawable, TArgs&&... mArgs)	{ gameWindow.draw(mDrawable, std::forward<TArgs>(mArgs)...); }
 
-			inline void setGame(OBGame& mGame)						{ game = &mGame; }
-			inline void setCurrentSector(int mIdx)
-			{
-				currentSectorIdx = mIdx;
-				refreshCurrentSector();
-				refreshCurrentTiles();
-			}
 
+
+			inline void setGame(OBGame& mGame)						{ game = &mGame; }
 			inline ssvs::GameWindow& getGameWindow() noexcept		{ return gameWindow; }
 			inline OBAssets& getAssets() noexcept					{ return assets; }
 			inline ssvs::GameState& getGameState() noexcept			{ return gameState; }
 			inline const decltype(input)& getInput() const noexcept	{ return input; }
-			inline OBLEDatabase& getDatabase() noexcept				{ return database; }
-			inline const OBLEDatabaseEntry& getCurrentEntry() const	{ return database.get(OBLETType(brush.idx)); }
-			inline OBLELevel* getCurrentLevel() const noexcept		{ return currentLevel; }
-			inline OBLEPack* getPack() noexcept						{ return &pack; }
+			inline const OBLEDatabaseEntry& getCurrentEntry() const	{ return database.get(OBLETType(brush.getIdx())); }
 	};
 
 	class FormPack : public GUI::Form
@@ -377,8 +286,8 @@ namespace ob
 				mainStrip.attach(GUI::At::Center, *this, GUI::At::Center);
 				mainStrip.setPadding(2.f);
 
-				tboxName.onTextChanged += [this]{ editor.getPack()->setName(tboxName.getString()); };
-				shtrSectors.onChoiceSelected += [this]{ editor.setCurrentSector(std::stoi(shtrSectors.getChoice())); };
+				tboxName.onTextChanged += [this]{ editor.pack.setName(tboxName.getString()); };
+				shtrSectors.onChoiceSelected += [this]{ editor.loadSector(std::stoi(shtrSectors.getChoice())); };
 				btnAddSector.onLeftClick += [this]
 				{
 					if(tboxSectorIdx.getString().empty()) return;
@@ -390,7 +299,7 @@ namespace ob
 
 			inline void syncFromPack()
 			{
-				const auto& pack(*editor.getPack());
+				const auto& pack(editor.pack);
 
 				tboxName.setString(pack.getName());
 				shtrSectors.clearChoices();
@@ -413,9 +322,8 @@ namespace ob
 
 			inline OBLETile* getTile()
 			{
-				auto currentLevel(editor.getCurrentLevel());
-				if(currentLevel == nullptr || !currentLevel->isValid(x, y, z)) return nullptr;
-				return &currentLevel->getTile(x, y, z);
+				if(editor.currentLevel == nullptr || !editor.currentLevel->isValid(x, y, z)) return nullptr;
+				return &editor.currentLevel->getTile(x, y, z);
 			}
 
 			inline void refreshTile()
@@ -468,7 +376,7 @@ namespace ob
 					strip.create<GUI::Label>(key);
 					strip.setTabSize(100.f);
 
-					const auto& entry(editor.getDatabase().get(tile->getType()));
+					const auto& entry(editor.database.get(tile->getType()));
 
 					if(entry.isEnumParam(key))
 					{

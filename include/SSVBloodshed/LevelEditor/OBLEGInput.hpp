@@ -33,16 +33,12 @@ namespace ob
 
 				gs.addInput({{k::Escape}},	[this](FT){ if(editor.guiCtx.isInUse()) return; editor.assets.musicPlayer.stop(); editor.getGameWindow().stop(); });
 				gs.addInput({{k::R}},		[this](FT){ if(editor.guiCtx.isInUse()) return; editor.clearCurrentLevel(); }, t::Once);
-				gs.addInput({{k::C}},		[this](FT){ if(editor.guiCtx.isInUse()) return; editor.saveToFile("./level.txt"); }, t::Once, m::Exclusive);
-				gs.addInput({{k::V}},		[this](FT){ if(editor.guiCtx.isInUse()) return; editor.loadFromFile("./level.txt"); }, t::Once, m::Exclusive);
+				gs.addInput({{k::C}},		[this](FT){ if(editor.guiCtx.isInUse()) return; editor.savePackToFile("./level.txt"); }, t::Once, m::Exclusive);
+				gs.addInput({{k::V}},		[this](FT){ if(editor.guiCtx.isInUse()) return; editor.loadPackFromFile("./level.txt"); }, t::Once, m::Exclusive);
 				gs.addInput({{k::Z}},		[this](FT){ if(editor.guiCtx.isInUse()) return; editor.cycleZ(-1); }, t::Once);
 				gs.addInput({{k::X}},		[this](FT){ if(editor.guiCtx.isInUse()) return; editor.cycleZ(1); }, t::Once);
 				gs.addInput({{k::A}},		[this](FT){ if(editor.guiCtx.isInUse()) return; editor.cycleId(-1); }, t::Once);
-				gs.addInput({{k::S}},		[this](FT){ if(editor.guiCtx.isInUse()) return;  editor.cycleId(1); }, t::Once);
-				gs.addInput({{k::Q}},		[this](FT){ if(editor.guiCtx.isInUse()) return; editor.cycleParam(-1); }, t::Once);
-				gs.addInput({{k::W}},		[this](FT){ if(editor.guiCtx.isInUse()) return; editor.cycleParam(1); }, t::Once);
-				gs.addInput({{k::T}},		[this](FT){ if(editor.guiCtx.isInUse()) return; editor.cycleCurrentParam(-100); }, t::Once);
-				gs.addInput({{k::Y}},		[this](FT){ if(editor.guiCtx.isInUse()) return; editor.cycleCurrentParam(100); }, t::Once);
+				gs.addInput({{k::S}},		[this](FT){ if(editor.guiCtx.isInUse()) return; editor.cycleId(1); }, t::Once);
 
 				gs.addInput({{b::Middle}},	[this](FT){ if(editor.guiCtx.isInUse()) return; editor.pick(); }, t::Once);
 				gs.addInput({{k::F1}},		[this](FT){ if(editor.guiCtx.isInUse()) return; editor.getGameWindow().setGameState(editor.game->getGameState()); }, t::Once);
@@ -61,8 +57,7 @@ namespace ob
 				{
 					int dir{ssvu::getSign(mEvent.mouseWheel.delta)};
 
-					if(modShift && modCtrl)	editor.cycleCurrentParam(dir);
-					else if(modShift && !modCtrl) editor.cycleRot(dir * 45);
+					if(modShift && !modCtrl) editor.cycleRot(dir * 45);
 					else if(modCtrl && !modShift) editor.cycleBrushSize(dir);
 					else editor.cycleBrush(dir);
 				};
