@@ -93,6 +93,7 @@ namespace ob
 				{
 					updateMouse();
 
+					// Recursively remove all dead widgets from children, then refresh widget memory
 					for(auto& w : children) w->recurseChildren([](Widget& mW){ ssvu::eraseRemoveIf(mW.children, &ssvu::MemoryManager<Widget>::isDead<Widget*>); });
 					ssvu::eraseRemoveIf(children, &ssvu::MemoryManager<Widget>::isDead<Widget*>);
 					widgets.refresh();
