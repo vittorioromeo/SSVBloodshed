@@ -52,7 +52,6 @@ namespace ob
 
 				// Scaling
 				Scaling scalingX{Scaling::Manual}, scalingY{Scaling::Manual};
-				Scaling nextTempScaling{Scaling::Manual};
 				float padding{0.f}, scalePercent{100.f};
 
 				inline virtual void update(FT) { }
@@ -181,10 +180,6 @@ namespace ob
 				inline void attach(At mFrom, Widget &mNeigh, At mTo, const Vec2f& mOffset = ssvs::zeroVec2f) { from = mFrom; neighbor = &mNeigh; to = mTo; offset = mOffset; }
 				inline void show() { setHiddenRecursive(false); }
 				inline void hide() { setHiddenRecursive(true); }
-
-				inline void fitToParent() noexcept		{ nextTempScaling = Scaling::FitToParent; }
-				inline void fitToNeighbor() noexcept	{ nextTempScaling = Scaling::FitToNeighbor; }
-				inline void fitToChildren() noexcept	{ nextTempScaling = Scaling::FitToChildren; }
 
 				// An hidden widget is both invisible and inactive (should be controlled by collapsing windows)
 				inline void setHidden(bool mValue) noexcept		{ hidden = mValue; }

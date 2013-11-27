@@ -235,11 +235,7 @@ namespace ob
 
 				inline void refreshChoices()
 				{
-					if(choices.empty())
-					{
-						getLabel().setString("null");
-						return;
-					}
+					if(choices.empty()) { getLabel().setString("null"); return; }
 
 					const auto& lb(ssvu::getWrapIdx(idxOffset, choices.size()));
 					const auto& ub(ssvu::getWrapIdx(idxOffset + choiceBtnsMax, choices.size()));

@@ -24,6 +24,7 @@ namespace ob
 
 			if(isPressedLeft() && isFocused())
 			{
+				context.busy = true;
 				if(!wasPressedLeft()) onLeftClick();
 				onLeftClickDown();
 			}
@@ -31,6 +32,7 @@ namespace ob
 
 			if(isPressedRight() && isFocused())
 			{
+				context.busy = true;
 				if(!wasPressedRight()) onRightClick();
 				onRightClickDown();
 			}
@@ -41,15 +43,7 @@ namespace ob
 			recalculateSize(scalingY, &Widget::setHeight, &Widget::getTop, &Widget::getBottom);
 			recalculateFitToChildren(scalingX, scalingY);
 
-			// TODO: Recalculate temp sizing (instant resize)
-			recalculateSize(nextTempScaling, &Widget::setWidth, &Widget::getLeft, &Widget::getRight);
-			recalculateSize(nextTempScaling, &Widget::setHeight, &Widget::getTop, &Widget::getBottom);
-			recalculateFitToChildren(nextTempScaling, nextTempScaling);
-			//if(!dirty) nextTempScaling = Scaling::Manual;
-
 			recalculatePosition();
-
-			if(isPressedLeft() || isPressedRight()) context.busy = true;
 
 			for(auto& w : children) w->updateRecursive(mFT);
 
