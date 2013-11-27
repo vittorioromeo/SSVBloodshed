@@ -235,6 +235,12 @@ namespace ob
 
 				inline void refreshChoices()
 				{
+					if(choices.empty())
+					{
+						getLabel().setString("null");
+						return;
+					}
+
 					const auto& lb(ssvu::getWrapIdx(idxOffset, choices.size()));
 					const auto& ub(ssvu::getWrapIdx(idxOffset + choiceBtnsMax, choices.size()));
 					lblCount.setString("(" + ssvu::toStr(lb) + ":" + ssvu::toStr(ub) + ")/" + ssvu::toStr(choices.size()));
@@ -272,8 +278,13 @@ namespace ob
 					refreshChoices();
 				}
 
-				inline void setChoiceIdx(std::size_t mIdx)	{ currentChoiceIdx = mIdx; refreshChoices(); }
-				inline int getChoiceIdx() const noexcept	{ return currentChoiceIdx; }
+				inline void addChoice(std::string mStr)	{ choices.emplace_back(std::move(mStr)); refreshChoices(); }
+				inline void clearChoices()				{ choices.clear(); refreshChoices(); }
+				inline std::size_t getChoiceCount()		{ return choices.size(); }
+
+				inline void setChoiceIdx(std::size_t mIdx)				{ currentChoiceIdx = mIdx; refreshChoices(); }
+				inline int getChoiceIdx() const noexcept				{ return currentChoiceIdx; }
+				inline const std::string& getChoice() const noexcept	{ return choices[currentChoiceIdx]; }
 		};
 
 		class TextBox : public Widget
