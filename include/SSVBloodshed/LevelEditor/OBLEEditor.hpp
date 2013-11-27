@@ -22,7 +22,8 @@
 
 namespace ob
 {
-	class ParamsForm;
+	class FormPack;
+	class FormParams;
 
 	class OBLEEditor
 	{
@@ -66,6 +67,8 @@ namespace ob
 
 			GUI::Form* formInfo{nullptr};
 			GUI::Label* lblInfo{nullptr};
+
+			FormPack* formPack{nullptr};
 
 		public:
 			inline OBLEEditor(ssvs::GameWindow& mGameWindow, OBAssets& mAssets) : gameWindow(mGameWindow), assets(mAssets), database{assets},
@@ -139,9 +142,11 @@ namespace ob
 				formInfo = &guiCtx.create<GUI::Form>("INFO", Vec2f{100, 100}, Vec2f{150, 80});
 				lblInfo = &formInfo->create<GUI::Label>();
 				lblInfo->attach(GUI::At::NW, *formInfo, GUI::At::NW, Vec2f{2.f, 2.f});
+
+				formPack = &guiCtx.create<FormPack>(*this);
 			}
 
-			template<typename T = ParamsForm> inline void createParamsForm(OBLETile& mTile)
+			template<typename T = FormParams> inline void createFormParams(OBLETile& mTile)
 			{
 				if(mTile.getParams().empty()) return;
 				guiCtx.create<T>(*this, mTile.getX(), mTile.getY(), mTile.getZ());
@@ -208,7 +213,7 @@ namespace ob
 			inline void paint()			{ for(auto& t : currentTiles) { t->initFromEntry(getCurrentEntry()); t->setRot(currentRot); t->setId(assets, currentId); } }
 			inline void del()			{ for(auto& t : currentTiles) { currentLevel->del(*t); } }
 			inline void pick()			{ brush.idx = int(getPickTile().getType()); }
-			inline void openParams()	{ createParamsForm(getPickTile()); }
+			inline void openParams()	{ createFormParams(getPickTile()); }
 
 			inline void copyTiles()		{ auto& t(getPickTile()); copiedTile = t; }
 			inline void pasteTiles()	{ for(auto& t : currentTiles) { t->initFromEntry(database.get(copiedTile.getType())); t->setParams(copiedTile.getParams()); t->refreshIdText(assets); } }
@@ -240,10 +245,11 @@ namespace ob
 			{
 				ssvuj::writeToFile(ssvuj::getArch(pack), mPath);
 			}
-			inline void loadFromFile(const ssvu::FileSystem::Path& mPath)
+			template<typename TFormPack = FormPack> inline void loadFromFile(const ssvu::FileSystem::Path& mPath)
 			{
 				newPack();
 				pack = ssvuj::as<OBLEPack>(ssvuj::readFromFile(mPath));
+				reinterpret_cast<TFormPack*>(formPack)->syncFromPack();
 				refreshCurrentSector();
 				//refreshCurrentLevel();
 				refreshCurrentTiles();
@@ -329,6 +335,12 @@ namespace ob
 			template<typename... TArgs> inline void render(const sf::Drawable& mDrawable, TArgs&&... mArgs)	{ gameWindow.draw(mDrawable, std::forward<TArgs>(mArgs)...); }
 
 			inline void setGame(OBGame& mGame)						{ game = &mGame; }
+			inline void setCurrentSector(int mIdx)
+			{
+				currentSectorIdx = mIdx;
+				refreshCurrentSector();
+				refreshCurrentTiles();
+			}
 
 			inline ssvs::GameWindow& getGameWindow() noexcept		{ return gameWindow; }
 			inline OBAssets& getAssets() noexcept					{ return assets; }
@@ -337,9 +349,57 @@ namespace ob
 			inline OBLEDatabase& getDatabase() noexcept				{ return database; }
 			inline const OBLEDatabaseEntry& getCurrentEntry() const	{ return database.get(OBLETType(brush.idx)); }
 			inline OBLELevel* getCurrentLevel() const noexcept		{ return currentLevel; }
+			inline OBLEPack* getPack() noexcept						{ return &pack; }
 	};
 
-	class ParamsForm : public GUI::Form
+	class FormPack : public GUI::Form
+	{
+		private:
+			OBLEEditor& editor;
+			GUI::Strip& mainStrip;
+			GUI::TextBox& tboxName;
+			GUI::ChoiceShutter& shtrSectors;
+			GUI::TextBox& tboxSectorIdx;
+			GUI::Button& btnAddSector;
+
+		public:
+			FormPack(GUI::Context& mCtx, OBLEEditor& mEditor) : GUI::Form{mCtx, "", Vec2f{300.f, 300.f}, Vec2f{100.f, 100.f}},
+				editor(mEditor), mainStrip(create<GUI::Strip>(GUI::At::Top, GUI::At::Bottom, GUI::At::Bottom)),
+				tboxName(mainStrip.create<GUI::TextBox>(Vec2f{56.f * 2.f, 8.f})),
+				shtrSectors(mainStrip.create<GUI::ChoiceShutter>(std::initializer_list<std::string>{}, Vec2f{56.f, 8.f})),
+				tboxSectorIdx(mainStrip.create<GUI::TextBox>(Vec2f{56.f, 8.f})),
+				btnAddSector(mainStrip.create<GUI::Button>("add sector", Vec2f{56.f, 8.f}))
+			{
+				setTitle("PACK");
+				setScaling(GUI::Scaling::FitToChildren);
+				setResizable(false); setPadding(2.f);
+
+				mainStrip.attach(GUI::At::Center, *this, GUI::At::Center);
+				mainStrip.setPadding(2.f);
+
+				tboxName.onTextChanged += [this]{ editor.getPack()->setName(tboxName.getString()); };
+				shtrSectors.onChoiceSelected += [this]{ editor.setCurrentSector(std::stoi(shtrSectors.getChoice())); };
+				btnAddSector.onLeftClick += [this]
+				{
+					if(tboxSectorIdx.getString().empty()) return;
+					shtrSectors.addChoice(tboxSectorIdx.getString());
+				};
+
+				syncFromPack();
+			}
+
+			inline void syncFromPack()
+			{
+				const auto& pack(*editor.getPack());
+
+				tboxName.setString(pack.getName());
+				shtrSectors.clearChoices();
+
+				for(const auto& s : pack.getSectors()) shtrSectors.addChoice(ssvu::toStr(s.first));
+			}
+	};
+
+	class FormParams : public GUI::Form
 	{
 		private:
 			OBLEEditor& editor;
@@ -447,7 +507,7 @@ namespace ob
 			}
 
 		public:
-			ParamsForm(GUI::Context& mCtx, OBLEEditor& mEditor, int mX, int mY, int mZ) : GUI::Form{mCtx, "", Vec2f{300.f, 300.f}, Vec2f{100.f, 100.f}},
+			FormParams(GUI::Context& mCtx, OBLEEditor& mEditor, int mX, int mY, int mZ) : GUI::Form{mCtx, "", Vec2f{300.f, 300.f}, Vec2f{100.f, 100.f}},
 				editor(mEditor), x{mX}, y{mY}, z{mZ}, mainStrip(create<GUI::Strip>(GUI::At::NW, GUI::At::SW, GUI::At::Bottom))
 			{
 				setTitle("PARAMS (" + ssvu::toStr(x) + ", " + ssvu::toStr(y) + ", " + ssvu::toStr(z) + ")");
