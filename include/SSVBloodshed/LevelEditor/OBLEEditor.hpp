@@ -195,7 +195,6 @@ namespace ob
 
 			inline void savePackToFile(const ssvu::FileSystem::Path& mPath) { ssvuj::writeToFile(ssvuj::getArch(pack), mPath); }
 
-
 			inline void update(FT mFT)
 			{
 				guiCtx.update(mFT);
@@ -228,7 +227,7 @@ namespace ob
 
 				overlayCamera.apply<int>();
 				{
-					for(int i{0}; i < 26; ++i)
+					for(int i{-1}; i < 25; ++i)
 					{
 						auto& e(database.get(OBLETType(ssvu::getWrapIdx(brush.getIdx() + i - 2, database.getSize()))));
 						sf::Sprite s{*e.texture, e.intRect};

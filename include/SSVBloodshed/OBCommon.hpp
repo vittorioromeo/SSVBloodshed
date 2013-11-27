@@ -27,7 +27,13 @@ namespace ob
 		inline std::vector<std::string> getSplittedVarArgs(const std::string& mToSplit)
 		{
 			std::vector<std::string> result;
-			for(const auto& s : ssvu::getSplit(mToSplit, ',')) result.push_back(ssvu::getTrimmedStrLR(s));
+			for(auto s : ssvu::getSplit(mToSplit, ','))
+			{
+				auto eqPos(s.find_last_of('='));
+				if(eqPos != std::string::npos) s.erase(eqPos, s.size() - 1);
+				ssvu::trimStrLR(s);
+				result.push_back(s);
+			}
 			return result;
 		}
 		inline std::map<std::string, std::vector<std::string>*>& getEnumsMap() noexcept { static std::map<std::string, std::vector<std::string>*> map; return map; }

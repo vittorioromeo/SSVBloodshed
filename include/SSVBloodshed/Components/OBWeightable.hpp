@@ -34,6 +34,7 @@ namespace ob
 			}
 			inline void refresh() { wasWeighted = weighted; }
 
+			inline bool isWeighted() const noexcept			{ return weighted; }
 			inline bool hasBeenWeighted() const noexcept	{ return !wasWeighted && weighted; }
 			inline bool hasBeenUnweighted() const noexcept	{ return wasWeighted && !weighted; }
 	};

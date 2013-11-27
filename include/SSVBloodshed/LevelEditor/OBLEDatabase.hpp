@@ -92,53 +92,50 @@ namespace ob
 					f->createFloor(mP, true); f->createWallDestructible(mP, *a.wallDBitMask[mask]);
 				});
 
-				add(OBLETType::LETDoor,				a.txSmall,		a.doorSingle,			{{"id", 0}, {"open", 0}},
+				add(OBLETType::LETDoor,				a.txSmall,		a.doorSingle,			{{"id", 0}, {"open", false}},
 				[this](TLevel& mL, TTile& mT, const Vec2i& mP)
 				{
 					int mask{getWallMask(mL, OBLETType::LETDoor, mT.getX(), mT.getY(), mT.getZ())};
-					f->createFloor(mP, true); f->createDoor(mP, *a.doorBitMask[mask], getP<int>(mT, "id"), bool(getP<int>(mT, "open")));
+					f->createFloor(mP, true); f->createDoor(mP, *a.doorBitMask[mask], getP<int>(mT, "id"), getP<bool>(mT, "open"));
 				});
 
-				add(OBLETType::LETDoorG,			a.txSmall,		a.doorGSingle,			{{"open", 0}},
+				add(OBLETType::LETDoorG,			a.txSmall,		a.doorGSingle,			{{"open", false}},
 				[this](TLevel& mL, TTile& mT, const Vec2i& mP)
 				{
 					int mask{getWallMask(mL, OBLETType::LETDoorG, mT.getX(), mT.getY(), mT.getZ())};
-					f->createFloor(mP, true); f->createDoorG(mP, *a.doorGBitMask[mask], bool(getP<int>(mT, "open")));
+					f->createFloor(mP, true); f->createDoorG(mP, *a.doorGBitMask[mask], getP<bool>(mT, "open"));
 				});
 
-				add(OBLETType::LETDoorR,			a.txSmall,		a.doorRSingle,			{{"open", 0}},
+				add(OBLETType::LETDoorR,			a.txSmall,		a.doorRSingle,			{{"open", false}},
 				[this](TLevel& mL, TTile& mT, const Vec2i& mP)
 				{
 					int mask{getWallMask(mL, OBLETType::LETDoorR, mT.getX(), mT.getY(), mT.getZ())};
-					f->createFloor(mP, true); f->createDoorR(mP, *a.doorRBitMask[mask], bool(getP<int>(mT, "open")));
+					f->createFloor(mP, true); f->createDoorR(mP, *a.doorRBitMask[mask], getP<bool>(mT, "open"));
 				});
 
 				add(OBLETType::LETSpawner,			a.txSmall,		a.spawner,				{{"id", -1}, {"enemyType", 0}, {"delayStart", 0.f}, {"delaySpawn", 200.f}, {"spawnCount", 1}},
 				[this](TLevel&, TTile& mT, const Vec2i& mP)
 				{
 					f->createSpawner(mP, getPE<SpawnerItem>(mT, "enemyType"), getP<int>(mT, "id"), getP<float>(mT, "delayStart"), getP<float>(mT, "delaySpawn"), getP<int>(mT, "spawnCount"));
-				},
-				{
-					{"enemyType", "SpawnerItem"}
-				});
+				}, {{"enemyType", "SpawnerItem"}});
 
 				add(OBLETType::LETPPlateSingle,		a.txSmall,		a.pPlateSingle,			{{"id", 0}, {"action", 0}, {"playerOnly", false}},
 				[this](TLevel&, TTile& mT, const Vec2i& mP)
 				{
-					f->createPPlate(mP, getP<int>(mT, "id"), PPlateType::Single, IdAction(getP<int>(mT, "action")), getP<bool>(mT, "playerOnly"));
-				});
+					f->createPPlate(mP, getP<int>(mT, "id"), PPlateType::Single, getPE<IdAction>(mT, "action"), getP<bool>(mT, "playerOnly"));
+				}, {{"action", "IdAction"}});
 
 				add(OBLETType::LETPPlateMulti,		a.txSmall,		a.pPlateMulti,			{{"id", 0}, {"action", 0}, {"playerOnly", false}},
 				[this](TLevel&, TTile& mT, const Vec2i& mP)
 				{
-					f->createPPlate(mP, getP<int>(mT, "id"), PPlateType::Multi, IdAction(getP<int>(mT, "action")), getP<bool>(mT, "playerOnly"));
-				});
+					f->createPPlate(mP, getP<int>(mT, "id"), PPlateType::Multi, getPE<IdAction>(mT, "action"), getP<bool>(mT, "playerOnly"));
+				}, {{"action", "IdAction"}});
 
 				add(OBLETType::LETPPlateOnOff,		a.txSmall,		a.pPlateOnOff,			{{"id", 0}, {"action", 0}, {"playerOnly", false}},
 				[this](TLevel&, TTile& mT, const Vec2i& mP)
 				{
-					f->createPPlate(mP, getP<int>(mT, "id"), PPlateType::OnOff, IdAction(getP<int>(mT, "action")), getP<bool>(mT, "playerOnly"));
-				});
+					f->createPPlate(mP, getP<int>(mT, "id"), PPlateType::OnOff, getPE<IdAction>(mT, "action"), getP<bool>(mT, "playerOnly"));
+				}, {{"action", "IdAction"}});
 
 				add(OBLETType::LETForceField,		a.txSmall,		a.ff0,					{{"id", 0}, {"rot", 0}, {"blockFriendly", true}, {"blockEnemy", true}, {"forceMult", 100.f}},
 				[this](TLevel&, TTile& mT, const Vec2i& mP)

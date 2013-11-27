@@ -22,19 +22,25 @@ namespace ob
 		{
 			update(mFT);
 
-			if(isPressedLeft() && isFocused())
+			if(isPressedLeft())
 			{
 				context.busy = true;
-				if(!wasPressedLeft()) onLeftClick();
-				onLeftClickDown();
+				if(isFocused())
+				{
+					if(!wasPressedLeft()) onLeftClick();
+					onLeftClickDown();
+				}
 			}
 			else if(wasPressedLeft()) onLeftRelease();
 
-			if(isPressedRight() && isFocused())
+			if(isPressedRight())
 			{
 				context.busy = true;
-				if(!wasPressedRight()) onRightClick();
-				onRightClickDown();
+				if(isFocused())
+				{
+					if(!wasPressedRight()) onRightClick();
+					onRightClickDown();
+				}
 			}
 			else if(wasPressedRight()) onRightRelease();
 

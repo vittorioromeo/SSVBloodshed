@@ -35,8 +35,9 @@ namespace ob
 			IdAction idAction;
 			bool triggered{false};
 
-			inline void triggerNeighbors(bool mTrigger)
+			inline std::vector<OBCPPlate*> getNeighbors()
 			{
+				std::vector<OBCPPlate*> result;
 				auto query(cPhys.getWorld().getQuery<ssvsc::QueryType::Distance>(cPhys.getPosI(), 1000));
 
 				Body* body;
@@ -46,11 +47,21 @@ namespace ob
 
 					auto& cPPlate(getEntityFromBody(*body).getComponent<OBCPPlate>());
 					if(cPPlate.cPhys.getPosI().x == cPhys.getPosI().x || cPPlate.cPhys.getPosI().y == cPhys.getPosI().y)
-						if(cPPlate.id == id && cPPlate.type == type)
-						{
-							if(mTrigger) cPPlate.trigger(); else cPPlate.unTrigger();
-						}
+						if(cPPlate.id == id && cPPlate.type == type) result.push_back(&cPPlate);
 				}
+
+				return result;
+			}
+
+			inline void triggerNeighbors(bool mTrigger)
+			{
+				for(const auto& n : getNeighbors()) if(mTrigger) n->trigger(); else n->unTrigger();
+			}
+
+			inline bool isAnyNeighborWeighted()
+			{
+				for(const auto& n : getNeighbors()) if(n->isWeighted()) return true;
+				return false;
 			}
 
 			inline void trigger()	{ if(!triggered) { triggered = true; triggerNeighbors(true); cDraw[0].setColor(sf::Color(100, 100, 100, 255)); } }
@@ -67,7 +78,7 @@ namespace ob
 				{
 					trigger(); activateIdReceivers(cPhys, id, idAction, manager);
 				}
-				else if(hasBeenUnweighted())
+				else if(hasBeenUnweighted() && !isAnyNeighborWeighted())
 				{
 					if(type == PPlateType::Multi) unTrigger();
 					else if(type == PPlateType::OnOff) { unTrigger(); activateIdReceivers(cPhys, id, idAction, manager); }
