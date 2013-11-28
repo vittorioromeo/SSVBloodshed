@@ -267,7 +267,11 @@ namespace ob
 					for(auto i(0u); i < choiceBtnsMax; ++i)
 					{
 						auto& btn(wsChoices.create<Button>("", Vec2f{56.f, 8.f}));
-						btn.onLeftClick += [this, i]{ setChoiceIdx(ssvu::getWrapIdx(i + idxOffset, choices.size())); onChoiceSelected(); };
+						btn.onLeftClick += [this, i]
+						{
+							if(choices.empty()) return;
+							setChoiceIdx(ssvu::getWrapIdx(i + idxOffset, choices.size())); onChoiceSelected();
+						};
 						btnsChoices.push_back(&btn);
 					}
 

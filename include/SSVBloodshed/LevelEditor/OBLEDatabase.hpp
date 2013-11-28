@@ -32,7 +32,7 @@ namespace ob
 
 		private:
 			OBAssets& a;
-			TGame* game;
+			TGame* game{nullptr};
 			TFactory* f{nullptr};
 			std::map<OBLETType, Entry> entries;
 
@@ -42,7 +42,13 @@ namespace ob
 			inline int getWallMask(TLevel& mL, OBLETType mType, int mX, int mY, int mZ)
 			{
 				int mask{0}, maxX{mL.getColumns()}, maxY{mL.getRows()};
-				auto tileIs = [&](int mTX, int mTY, OBLETType mType){ if(mTX < 0 || mTY < 0 || mTX >= maxX || mTY >= maxY) return false; return mL.getTile(mTX, mTY, mZ).getType() == mType; };
+
+				auto tileIs = [&mL, maxX, maxY, mZ](int mTX, int mTY, OBLETType mType)
+				{
+					if(mTX < 0 || mTY < 0 || mTX >= maxX || mTY >= maxY) return false;
+					return mL.getTile(mTX, mTY, mZ).getType() == mType;
+				};
+
 				mask += tileIs(mX, mY - 1, mType) << 0;
 				mask += tileIs(mX + 1, mY, mType) << 1;
 				mask += tileIs(mX, mY + 1, mType) << 2;
@@ -51,10 +57,8 @@ namespace ob
 			}
 
 		public:
-			inline OBLEDatabaseImpl(OBAssets& mAssets, TGame* mGame = nullptr) : a(mAssets), game{mGame}
+			inline OBLEDatabaseImpl(OBAssets& mAssets) : a(mAssets)
 			{
-				if(game != nullptr) f = &game->getFactory();
-
 				add(OBLETType::LETFloor,			a.txSmall,		a.floor,				{},							[this](TLevel&, TTile&, const Vec2i& mP){ f->createFloor(mP, false); });
 				add(OBLETType::LETGrate,			a.txSmall,		a.floorGrate,			{},							[this](TLevel&, TTile&, const Vec2i& mP){ f->createFloor(mP, true); });
 				add(OBLETType::LETPit,				a.txSmall,		a.pit,					{},							[this](TLevel&, TTile&, const Vec2i& mP){ f->createPit(mP); });
@@ -168,10 +172,16 @@ namespace ob
 				entries[mType] = Entry{mType, mTexture, mIntRect, mDefaultParams, mSpawn};
 				for(auto& p : mEnumParams) entries[mType].enumParams.insert(p);
 			}
-			inline void spawn(TLevel& mLevel, TTile& mTile, const Vec2i& mPos) { get(mTile.getType()).spawn(mLevel, mTile, mPos); }
+			inline void spawn(TLevel& mLevel, TTile& mTile, const Vec2i& mPos)
+			{
+				if(mTile.getType() == OBLETType::LETNull) return;
+				get(mTile.getType()).spawn(mLevel, mTile, mPos);
+			}
 
 			inline const Entry& get(OBLETType mType) const	{ return entries.at(mType); }
 			inline int getSize() const noexcept				{ return entries.size(); }
+
+			inline void setGame(TGame& mGame) noexcept { game = &mGame; f = &game->getFactory(); }
 	};
 
 	// Template magic to temporarily avoid creating .cpp source files

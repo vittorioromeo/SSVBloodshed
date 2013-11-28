@@ -10,6 +10,7 @@
 #include "SSVBloodshed/OBCommon.hpp"
 #include "SSVBloodshed/OBAssets.hpp"
 #include "SSVBloodshed/OBGame.hpp"
+#include "SSVBloodshed/OBSharedData.hpp"
 #include "SSVBloodshed/LevelEditor/OBLEGDebugText.hpp"
 #include "SSVBloodshed/LevelEditor/OBLEGInput.hpp"
 #include "SSVBloodshed/LevelEditor/OBLETile.hpp"
@@ -40,15 +41,11 @@ namespace ob
 			ssvs::GameState gameState;
 			OBLEGInput<OBLEEditor> input{*this};
 			OBLEGDebugText<OBLEEditor> debugText{*this};
-			OBLEDatabase database;
 
-			OBLEPack pack;
-			OBLESector* currentSector{nullptr};
-			OBLELevel* currentLevel{nullptr};
-			int currentSectorIdx{0}, currentLevelX{0}, currentLevelY{0};
+			OBSharedData sharedData;
 
 			std::vector<OBLETile*> currentTiles;
-			OBLEBrush brush{{0, 0, levelColumns, levelRows}};
+			OBLEBrush brush{{0, 0, levelCols, levelRows}};
 			int currentZ{0}, currentRot{0}, currentId{-1};
 			OBGame* game{nullptr};
 			std::pair<OBLETType, std::map<std::string, ssvuj::Obj>> copiedParams{OBLETType::LETFloor, {}};
@@ -67,14 +64,11 @@ namespace ob
 			FormPack* formPack{nullptr};
 
 		public:
-			inline OBLEEditor(ssvs::GameWindow& mGameWindow, OBAssets& mAssets) : gameWindow(mGameWindow), assets(mAssets), database{assets},
-				guiCtx(assets, gameWindow)
+			inline OBLEEditor(ssvs::GameWindow& mGameWindow, OBAssets& mAssets) : gameWindow(mGameWindow), assets(mAssets), guiCtx(assets, gameWindow)
 			{
 				gameCamera.pan(-5, -5);
 				gameState.onUpdate += [this](FT mFT){ update(mFT); };
 				gameState.onDraw += [this]{ draw(); };
-
-				newPack();
 
 				gameState.onAnyEvent += [this](const sf::Event& mEvent){ guiCtx.onAnyEvent(mEvent); };
 
@@ -124,46 +118,23 @@ namespace ob
 
 			inline void newPack()
 			{
-				pack = OBLEPack{};
+				sharedData.createEmptyPack();
 				loadSector(0);
 				clearCurrentLevel();
 			}
 
-			template<typename TFormPack = FormPack> inline void loadPackFromFile(const ssvu::FileSystem::Path& mPath)
+			inline void loadPackFromFile(const ssvu::FileSystem::Path& mPath)	{ sharedData.loadPack(mPath); loadSector(0); }
+			inline void savePackToFile(const ssvu::FileSystem::Path& mPath)		{ sharedData.savePack(mPath); }
+
+			template<typename TFormPack = FormPack> inline void loadSector(int mIdx)
 			{
-				pack = ssvuj::as<OBLEPack>(ssvuj::readFromFile(mPath));
+				sharedData.setCurrentSector(mIdx);
+				loadLevel(0, 0);
 				reinterpret_cast<TFormPack*>(formPack)->syncFromPack();
-				loadSector(0);
 			}
-			inline void loadSector(int mIdx)
-			{
-				currentSectorIdx = mIdx;
-				currentSector = &pack.getSector(currentSectorIdx);
-				currentSector->init(database);
-				loadLevel(0, 0);
-			}
-			inline void loadLevel(int mX, int mY)
-			{
-				if(currentSector == nullptr) { currentLevel = nullptr; return; }
-				currentLevelX = mX; currentLevelY = mY;
-				currentLevel = &currentSector->getLevel(currentLevelX, currentLevelY);
-				refreshTiles();
-			}
-
-			inline void clearCurrentSector()
-			{
-				if(currentSector == nullptr) return;
-				currentSector->clear();
-				loadLevel(0, 0);
-			}
-
-			inline void clearCurrentLevel()
-			{
-				if(currentLevel == nullptr) return;
-				*currentLevel = {levelColumns, levelRows, database.get(OBLETType::LETFloor)};
-				refreshTiles();
-			}
-			inline void refreshTiles() { for(auto& t : currentLevel->getTiles()) t.second.refreshIdText(assets); }
+			inline void loadLevel(int mX, int mY)	{ sharedData.setCurrentLevel(mX, mY); }
+			inline void clearCurrentSector()		{ sharedData.getCurrentSector().clear(); loadLevel(0, 0); }
+			inline void clearCurrentLevel()			{ sharedData.getCurrentLevel().clear(sharedData.getDatabase().get(OBLETType::LETFloor)); }
 
 			inline void grabTiles()
 			{
@@ -172,36 +143,43 @@ namespace ob
 
 				for(int iY{brush.getTop()}; iY < brush.getBottom(); ++iY)
 					for(int iX{brush.getLeft()}; iX < brush.getRight(); ++iX)
-						if(currentLevel->isValid(iX, iY, currentZ))
-							currentTiles.push_back(&currentLevel->getTile(iX, iY, currentZ));
+						if(sharedData.isTileValid(iX, iY, currentZ))
+							currentTiles.push_back(&sharedData.getCurrentLevel().getTile(iX, iY, currentZ));
 			}
 
-			inline OBLETile& getPickTile() const noexcept { return currentLevel->getTile(brush.getX(), brush.getY(), currentZ); }
+			inline OBLETile& getPickTile() const noexcept { return sharedData.getCurrentLevel().getTile(brush.getX(), brush.getY(), currentZ); }
 
 			inline void paint()			{ for(auto& t : currentTiles) { t->initFromEntry(getCurrentEntry()); t->setRot(currentRot); t->setId(assets, currentId); } }
-			inline void del()			{ for(auto& t : currentTiles) { currentLevel->del(*t); } }
+			inline void del()			{ for(auto& t : currentTiles) { sharedData.getCurrentLevel().del(*t); } }
 			inline void pick()			{ brush.setIdx(int(getPickTile().getType())); }
 			inline void openParams()	{ createFormParams(getPickTile()); }
 
 			inline void copyTiles()		{ auto& t(getPickTile()); copiedTile = t; }
-			inline void pasteTiles()	{ for(auto& t : currentTiles) { t->initFromEntry(database.get(copiedTile.getType())); t->setParams(copiedTile.getParams()); t->refreshIdText(assets); } }
+			inline void pasteTiles()	{ for(auto& t : currentTiles) { t->initFromEntry(sharedData.getDatabase().get(copiedTile.getType())); t->setParams(copiedTile.getParams()); t->refreshIdText(assets); } }
 
 			inline void cycleRot(int mDeg)					{ currentRot = ssvu::wrapDeg(currentRot + mDeg); }
 			inline void cycleId(int mDir)					{ currentId += mDir; }
-			inline void cycleBrush(int mDir)				{ brush.setIdx(ssvu::getWrapIdx(brush.getIdx() + mDir, database.getSize())); }
+			inline void cycleBrush(int mDir)				{ brush.setIdx(ssvu::getWrapIdx(brush.getIdx() + mDir, sharedData.getDatabase().getSize())); }
 			inline void cycleZ(int mDir)					{ currentZ = -ssvu::getWrapIdx(-currentZ + mDir, 3); }
 			inline void cycleBrushSize(int mDir)			{ brush.setSize(ssvu::getClamped(brush.getSize() + mDir, 1, 20)); }
-			inline void cycleLevel(int mDirX, int mDirY)	{ loadLevel(currentLevelX + mDirX, currentLevelY + mDirY); }
-
-			inline void savePackToFile(const ssvu::FileSystem::Path& mPath) { ssvuj::writeToFile(ssvuj::getArch(pack), mPath); }
+			inline void cycleLevel(int mDirX, int mDirY)	{ loadLevel(sharedData.getCurrentLevelX() + mDirX, sharedData.getCurrentLevelY() + mDirY); }
 
 			inline void update(FT mFT)
 			{
 				guiCtx.update(mFT);
 
-				if(currentLevel != nullptr)
+				if(!sharedData.isCurrentLevelNull())
 				{
-					currentLevel->update();
+					for(auto& p : sharedData.getCurrentTiles())
+					{
+						auto& tile(p.second);
+						tile.refreshIdText(assets);
+
+						if(tile.getType() != OBLETType::LETNull)
+							tile.initGfxFromEntry(sharedData.getDatabase().get(OBLETType(tile.getType())));
+					}
+
+					sharedData.getCurrentLevel().update();
 					grabTiles();
 
 					if(!guiCtx.isInUse())
@@ -220,7 +198,7 @@ namespace ob
 			{
 				gameCamera.apply<int>();
 				{
-					if(currentLevel != nullptr) currentLevel->draw(gameWindow, chbOnion->getState(), chbShowId->getState(), currentZ);
+					if(!sharedData.isCurrentLevelNull()) sharedData.getCurrentLevel().draw(gameWindow, chbOnion->getState(), chbShowId->getState(), currentZ);
 					render(brush);
 				}
 				gameCamera.unapply();
@@ -229,7 +207,7 @@ namespace ob
 				{
 					for(int i{-1}; i < 25; ++i)
 					{
-						auto& e(database.get(OBLETType(ssvu::getWrapIdx(brush.getIdx() + i - 2, database.getSize()))));
+						auto& e(sharedData.getDatabase().get(OBLETType(ssvu::getWrapIdx(brush.getIdx() + i - 2, sharedData.getDatabase().getSize()))));
 						sf::Sprite s{*e.texture, e.intRect};
 						Vec2f origin{s.getTextureRect().width / 2.f, s.getTextureRect().height / 2.f};
 						s.setScale(10.f / s.getTextureRect().width, 10.f / s.getTextureRect().height);
@@ -250,14 +228,13 @@ namespace ob
 
 			template<typename... TArgs> inline void render(const sf::Drawable& mDrawable, TArgs&&... mArgs)	{ gameWindow.draw(mDrawable, std::forward<TArgs>(mArgs)...); }
 
-
-
-			inline void setGame(OBGame& mGame)						{ game = &mGame; }
-			inline ssvs::GameWindow& getGameWindow() noexcept		{ return gameWindow; }
-			inline OBAssets& getAssets() noexcept					{ return assets; }
-			inline ssvs::GameState& getGameState() noexcept			{ return gameState; }
-			inline const decltype(input)& getInput() const noexcept	{ return input; }
-			inline const OBLEDatabaseEntry& getCurrentEntry() const	{ return database.get(OBLETType(brush.getIdx())); }
+			inline void setGame(OBGame& mGame) noexcept					{ game = &mGame; }
+			inline void setDatabase(OBLEDatabase& mDatabase) noexcept	{ sharedData.setDatabase(mDatabase); }
+			inline ssvs::GameWindow& getGameWindow() noexcept			{ return gameWindow; }
+			inline OBAssets& getAssets() noexcept						{ return assets; }
+			inline ssvs::GameState& getGameState() noexcept				{ return gameState; }
+			inline const decltype(input)& getInput() const noexcept		{ return input; }
+			inline const OBLEDatabaseEntry& getCurrentEntry()			{ return sharedData.getDatabase().get(OBLETType(brush.getIdx())); }
 	};
 
 	class FormPack : public GUI::Form
@@ -285,7 +262,7 @@ namespace ob
 				mainStrip.attach(GUI::At::Center, *this, GUI::At::Center);
 				mainStrip.setPadding(2.f);
 
-				tboxName.onTextChanged += [this]{ editor.pack.setName(tboxName.getString()); };
+				tboxName.onTextChanged += [this]{ editor.sharedData.getPack().setName(tboxName.getString()); };
 				shtrSectors.onChoiceSelected += [this]{ editor.loadSector(std::stoi(shtrSectors.getChoice())); };
 				btnAddSector.onLeftClick += [this]
 				{
@@ -298,7 +275,7 @@ namespace ob
 
 			inline void syncFromPack()
 			{
-				const auto& pack(editor.pack);
+				const auto& pack(editor.sharedData.getPack());
 
 				tboxName.setString(pack.getName());
 				shtrSectors.clearChoices();
@@ -321,8 +298,8 @@ namespace ob
 
 			inline OBLETile* getTile()
 			{
-				if(editor.currentLevel == nullptr || !editor.currentLevel->isValid(x, y, z)) return nullptr;
-				return &editor.currentLevel->getTile(x, y, z);
+				if(editor.sharedData.isCurrentLevelNull() || !editor.sharedData.isTileValid(x, y, z)) return nullptr;
+				return &editor.sharedData.getCurrentLevel().getTile(x, y, z);
 			}
 
 			inline void refreshTile()
@@ -375,7 +352,7 @@ namespace ob
 					strip.create<GUI::Label>(key);
 					strip.setTabSize(100.f);
 
-					const auto& entry(editor.database.get(tile->getType()));
+					const auto& entry(editor.sharedData.getDatabase().get(tile->getType()));
 
 					if(entry.isEnumParam(key))
 					{

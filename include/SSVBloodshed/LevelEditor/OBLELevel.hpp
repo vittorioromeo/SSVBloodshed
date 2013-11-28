@@ -19,28 +19,17 @@ namespace ob
 		template<typename> friend struct ssvuj::Converter;
 
 		private:
-			int cols{0}, rows{0}, depth{5}, x{0}, y{0};
+			int cols{levelCols}, rows{levelRows}, depth{5};
+			int x{0}, y{0};
 			std::unordered_map<int, OBLETile> tiles;
 
 		public:
 			inline OBLELevel() = default;
-			inline OBLELevel(int mCols, int mRows) noexcept : cols{mCols}, rows{mRows} { }
-			inline OBLELevel(int mCols, int mRows, const OBLEDatabaseEntry& mDefaultEntry) : OBLELevel{mCols, mRows}
-			{
-				for(int iY{0}; iY < mRows; ++iY) for(int iX{0}; iX < mCols; ++iX) getTile(iX, iY, 0).initFromEntry(mDefaultEntry);
-			}
 
-			inline void clear() { tiles.clear(); }
-			inline void init(OBLEDatabase& mDatabase)
+			inline void clear(const OBLEDatabaseEntry& mDefaultEntry)
 			{
-				for(auto& p : tiles)
-				{
-					auto tempTile(p.second);
-					auto& t(p.second);
-
-					t.initFromEntry(mDatabase.get(OBLETType(t.getType())));
-					t = tempTile;
-				}
+				tiles.clear();
+				for(int iX{0}; iX < cols; ++iX) for(int iY{0}; iY < rows; ++iY) getTile(iX, iY, 0).initFromEntry(mDefaultEntry);
 			}
 
 			inline void del(int mX, int mY, int mZ) { tiles.erase(ssvu::get1DIdxFrom3D(mX, mY, mZ, cols, rows)); }

@@ -28,7 +28,7 @@ namespace ob
 			inline const decltype(sectors)& getSectors() const noexcept	{ return sectors; }
 			inline decltype(sectors)& getSectors() noexcept				{ return sectors; }
 			inline OBLESector& getSector(int mIdx) noexcept				{ return sectors[mIdx]; }
-			inline bool isValid(int mIdx) noexcept						{ return sectors.count(mIdx) > 0; }
+			inline bool isValid(int mIdx) const noexcept				{ return sectors.count(mIdx) > 0; }
 	};
 }
 

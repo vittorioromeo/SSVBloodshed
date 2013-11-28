@@ -25,9 +25,9 @@ namespace ob
 				for(const auto& p : editor.copiedParams.second) copiedParamsStr += p.first + "(" + ssvu::getReplacedAll(ssvu::toStr(p.second), "\n", "") + ")" + "\n";
 
 				std::ostringstream s;
-				s	<< "PACK NAME: " << editor.pack.getName() << "\n"
-					<< "Sector IDX: " << editor.currentSectorIdx << "\n"
-					<< "Level XY: "	<< editor.currentLevelX << ";" << editor.currentLevelY << "\n"
+				s	<< "PACK NAME: " << editor.sharedData.getPack().getName() << "\n"
+					<< "Sector IDX: " << editor.sharedData.getCurrentSectorIdx() << "\n"
+					<< "Level XY: "	<< editor.sharedData.getCurrentLevelX() << ";" << editor.sharedData.getCurrentLevelY() << "\n"
 					<< "Z: " << editor.currentZ << "\n"
 					<< "C/V: save/load" << "\t" << "Z/X: cycle Z" << "\n"
 					<< "A/S: cycle id" << "\t" << "Q/W: cycle param" << "\n"

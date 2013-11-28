@@ -171,6 +171,7 @@ namespace ob
 				cKillable.setType(OBCKillable::Type::Organic);
 				cKillable.setParticleMult(2);
 
+				tlCharge.append<ssvu::WaitUntil>([this]{ return !armed; });
 				repeat(tlCharge, [this]
 				{
 					body.setVelocity(cPhys.getVel() * 0.8f);

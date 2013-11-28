@@ -16,9 +16,8 @@ namespace ob
 		template<typename> friend struct ssvuj::Converter;
 
 		private:
-			bool null{true};
 			int x{-1}, y{-1}, z{-1};
-			OBLETType type;
+			OBLETType type{OBLETType::LETNull};
 			std::map<std::string, ssvuj::Obj> params;
 
 			sf::Sprite sprite;
@@ -79,18 +78,21 @@ namespace ob
 			inline void initFromEntry(const OBLEDatabaseEntry& mEntry) noexcept
 			{
 				idText.reset(nullptr);
-				null = false; type = mEntry.type; params = mEntry.defaultParams;
+				type = mEntry.type; params = mEntry.defaultParams;
+			}
+			inline void initGfxFromEntry(const OBLEDatabaseEntry& mEntry) noexcept
+			{
 				sprite.setTexture(*mEntry.texture);
 				sprite.setTextureRect(mEntry.intRect);
 			}
 
 			inline OBLETile& operator=(const OBLETile& mT) noexcept { x = mT.x; y = mT.y; z = mT.z; type = mT.type; params = mT.params; return *this; }
 
-			inline bool isNull() const noexcept								{ return null; }
+			inline bool isNull() const noexcept								{ return type == OBLETType::LETNull; }
 			inline void setX(int mX) noexcept								{ x = mX; }
 			inline void setY(int mY) noexcept								{ y = mY; }
 			inline void setZ(int mZ) noexcept								{ z = mZ; }
-			inline void setType(OBLETType mType) noexcept					{ type = mType; null = false; }
+			inline void setType(OBLETType mType) noexcept					{ type = mType; }
 			inline void setParams(decltype(params) mParams)					{ params = std::move(mParams); }
 			template<typename T> inline T getParam(const std::string& mKey)	{ return ssvuj::as<T>(params[mKey]); }
 			inline bool hasParam(const std::string& mKey) const noexcept	{ return params.count(mKey) > 0; }
