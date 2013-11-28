@@ -14,6 +14,7 @@
 #include "SSVBloodshed/OBGInput.hpp"
 #include "SSVBloodshed/Particles/OBParticleTypes.hpp"
 #include "SSVBloodshed/OBBarCounter.hpp"
+#include "SSVBloodshed/OBSharedData.hpp"
 
 #include "SSVBloodshed/LevelEditor/OBLELevel.hpp"
 #include "SSVBloodshed/LevelEditor/OBLEEditor.hpp"
@@ -51,14 +52,8 @@ namespace ob
 			ssvs::BitmapText testAmmoTxt{*assets.obStroked};
 
 			OBLEEditor* editor{nullptr};
-
-			OBLEDatabase database{assets, this};
-			OBLEPack pack;
-			OBLESector* currentSector{nullptr};
+			OBSharedData sharedData;
 			std::unordered_map<OBLELevel*, OBGLevelStat> levelStats;
-			OBLELevel* currentLevel{nullptr};
-			int currentSectorIdx{0}, currentLevelX{0}, currentLevelY{0};
-
 
 			template<typename T, typename... TArgs> inline void createParticles(const T& mFunc, OBParticleSystem& mPS, unsigned int mCount, const Vec2f& mPos, TArgs&&... mArgs)
 			{
@@ -94,23 +89,19 @@ namespace ob
 				txtInfo.setColor(sf::Color{225, 225, 225, 255}); txtInfo.setTracking(-3);
 				txtInfo.setPosition(270, (240 - ssvs::getGlobalHeight(hudSprite) / 2.f) - 3.f);
 				txtInfo.setString("Sector 1");
-
-				reloadPack();
 			}
 
-			inline void reloadPack() { loadPack("./level.txt"); newGame(); }
+			inline void reloadPack() { sharedData.loadPack("./level.txt"); newGame(); }
 			inline void newGame()
 			{
-				currentSectorIdx = 0;
-				loadSector();
-
-				currentLevelX = currentLevelY = 0;
-				loadLevel();
+				sharedData.setCurrentSector(0);
+				sharedData.setCurrentLevel(0, 0);
+				loadCurrentLevel();
 			}
 
 			inline void createBounds()
 			{
-				int width{toCoords(currentLevel->getWidth())}, height{toCoords(currentLevel->getHeight())}, offset{toCoords(100)};
+				int width{levelWidthCoords}, height{levelHeightCoords}, offset{toCoords(100)};
 
 				std::initializer_list<std::pair<Vec2i, Vec2i>> bounds
 				{
@@ -123,38 +114,14 @@ namespace ob
 				for(const auto& p : bounds) world.create(ssvs::getCenter(p.first, p.second), ssvs::getSize(p.first, p.second), true).addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir, OBGroup::GLevelBound);
 			}
 
-			inline void loadPack(const ssvu::FileSystem::Path& mPath)
+			inline void loadCurrentLevel()
 			{
-				try { pack = ssvuj::as<OBLEPack>(ssvuj::readFromFile(mPath)); }
-				catch(...) { ssvu::lo("Fatal error") << "Failed to load pack" << std::endl; }
-			}
-			inline void loadSector()
-			{
-				if(pack.isValid(currentSectorIdx))
-				{
-					currentSector = &pack.getSector(currentSectorIdx);
-				}
-				else
-				{
-					ssvu::lo("Fatal error") << "Failed to load sector" << std::endl;
-					throw;
-				}
-			}
-			inline void loadLevel()
-			{
-				if(currentSector == nullptr)
-				{
-					ssvu::lo("Fatal error") << "Sector is not loaded" << std::endl;
-					throw;
-				}
-
 				auto getTilePos = [](int mX, int mY){ return toCoords(Vec2i{mX * 10 + 5, mY * 10 + 5}); };
 				manager.clear(); world.clear(); particles.clear(factory);
 
 				try
 				{
-					currentLevel = &currentSector->getLevel(currentLevelX, currentLevelY);
-					for(auto& p : currentLevel->getTiles()) database.spawn(*currentLevel, p.second, getTilePos(p.second.getX(), p.second.getY()));
+					for(auto& p : sharedData.getCurrentTiles()) sharedData.getDatabase().spawn(sharedData.getCurrentLevel(), p.second, getTilePos(p.second.getX(), p.second.getY()));
 				}
 				catch(...) { ssvu::lo("Fatal error") << "Failed to load level" << std::endl; }
 
@@ -164,29 +131,28 @@ namespace ob
 			template<typename TPlayer> inline bool changeLevel(const TPlayer& mPlayer, int mDirX, int mDirY)
 			{
 				auto playerData(mPlayer.getData());
-				int nextLevelX{currentLevelX + mDirX}, nextLevelY{currentLevelY + mDirY}, offset{toCoords(10)};
+				int nextLevelX{sharedData.getCurrentLevelX() + mDirX}, nextLevelY{sharedData.getCurrentLevelY() + mDirY}, offset{toCoords(10)};
 
 				if(mDirX == 1) playerData.pos.x = toCoords(0) + offset;
-				else if(mDirX == -1) playerData.pos.x = toCoords(currentLevel->getWidth()) - offset;
+				else if(mDirX == -1) playerData.pos.x = levelWidthCoords - offset;
 
 				if(mDirY == 1) playerData.pos.y = toCoords(0) + offset;
-				else if(mDirY == -1) playerData.pos.y = toCoords(currentLevel->getHeight()) - offset;
+				else if(mDirY == -1) playerData.pos.y = levelHeightCoords - offset;
 
-				if(!currentSector->isValid(nextLevelX, nextLevelY)) return false;
+				if(!sharedData.isLevelValid(nextLevelX, nextLevelY)) return false;
 
 				onPostUpdate += [this, nextLevelX, nextLevelY, playerData]
 				{
-					if(currentLevelX != nextLevelX || currentLevelY != nextLevelY)
+					if(sharedData.getCurrentLevelX() != nextLevelX || sharedData.getCurrentLevelY() != nextLevelY)
 					{
-						currentLevelX = nextLevelX;
-						currentLevelY = nextLevelY;
-						loadLevel();
+						sharedData.setCurrentLevel(nextLevelX, nextLevelY);
+						loadCurrentLevel();
 
 						// Remove existing players (TODO: change)
 						for(auto& e : manager.getEntities(OBGroup::GPlayer)) e->destroy();
 
 						// If the level was cleared, remove all enemies (TODO: change not spawn)
-						if(levelStats[currentLevel].clear) for(auto& e : manager.getEntities(OBGroup::GEnemy)) e->destroy();
+						if(levelStats[&sharedData.getCurrentLevel()].clear) for(auto& e : manager.getEntities(OBGroup::GEnemy)) e->destroy();
 
 						factory.createPlayer(playerData.pos).template getComponent<TPlayer>().initFromData(playerData);
 					}
@@ -196,7 +162,7 @@ namespace ob
 			}
 
 			inline bool isLevelClear() noexcept		{ return manager.getEntityCount(OBGroup::GEnemy) <= 0; }
-			inline void updateLevelStat() noexcept	{ if(isLevelClear()) levelStats[currentLevel].clear = true; }
+			inline void updateLevelStat() noexcept	{ if(isLevelClear()) levelStats[&sharedData.getCurrentLevel()].clear = true; }
 
 			inline void update(FT mFT)
 			{
@@ -228,6 +194,7 @@ namespace ob
 			template<typename... TArgs> inline void render(const sf::Drawable& mDrawable, TArgs&&... mArgs)	{ gameWindow.draw(mDrawable, std::forward<TArgs>(mArgs)...); }
 
 			inline void setEditor(OBLEEditor& mEditor) noexcept { editor = &mEditor; }
+			inline void setDatabase(OBLEDatabase& mDatabase) noexcept { sharedData.setDatabase(mDatabase, this); }
 
 			inline Vec2i getMousePosition() const						{ return toCoords(gameCamera.getMousePosition()); }
 			inline ssvs::GameWindow& getGameWindow() noexcept			{ return gameWindow; }
@@ -237,10 +204,6 @@ namespace ob
 			inline World& getWorld() noexcept							{ return world; }
 			inline sses::Manager& getManager() noexcept					{ return manager; }
 			inline const decltype(input)& getInput() const noexcept		{ return input; }
-			inline const OBLESector* getCurrentSector() const noexcept	{ return currentSector; }
-			inline const OBLELevel* getCurrentLevel() const noexcept	{ return currentLevel; }
-			inline int getCurrentLevelX() const noexcept				{ return currentLevelX; }
-			inline int getCurrentLevelY() const noexcept				{ return currentLevelY; }
 
 			inline void createPBlood(unsigned int mCount, const Vec2f& mPos, float mMult = 1.f)
 			{
@@ -289,7 +252,6 @@ namespace ob
 // one way projectile shields
 // lock room until clear? (remove green doors?)
 // global particle mult
-// cmd line image outliner tool
 // cloning machines! (controlling multiple players can be really fun)
 // pack/saving loading, pack options
 // blueprint class for pack/sector/level data

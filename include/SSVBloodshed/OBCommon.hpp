@@ -82,9 +82,9 @@ namespace ob
 
 	// Level values
 	constexpr int tileSize{10};
-	constexpr int levelColumns{32};
+	constexpr int levelCols{32};
 	constexpr int levelRows{22};
-	constexpr int levelWidthPx{levelColumns * tileSize};
+	constexpr int levelWidthPx{levelCols * tileSize};
 	constexpr int levelHeightPx{levelRows * tileSize};
 	constexpr int levelWidthCoords{toCoords(levelWidthPx)};
 	constexpr int levelHeightCoords{toCoords(levelHeightPx)};
@@ -144,6 +144,7 @@ namespace ob
 	// Level editor enums
 	enum class OBLETType : int
 	{
+		LETNull				= -1,
 		LETFloor			= 0,
 		LETGrate			= 1,
 		LETWall				= 2,

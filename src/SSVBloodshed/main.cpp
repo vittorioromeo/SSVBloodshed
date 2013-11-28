@@ -227,6 +227,7 @@ int main()
 #include "SSVBloodshed/OBGame.hpp"
 #include "SSVBloodshed/Weapons/OBWpnTypes.hpp"
 #include "SSVBloodshed/LevelEditor/OBLEEditor.hpp"
+#include "SSVBloodshed/LevelEditor/OBLEDatabase.hpp"
 
 using namespace ob;
 using namespace std;
@@ -235,6 +236,8 @@ using namespace ssvu;
 using namespace ssvu::FileSystem;
 using namespace ssvs;
 using namespace ssvms;
+
+
 
 int main()
 {
@@ -257,9 +260,15 @@ int main()
 
 	OBGame game{gameWindow, assets};
 	OBLEEditor editor{gameWindow, assets};
+	OBLEDatabase database{assets};
 
 	game.setEditor(editor);
+	game.setDatabase(database);
 	editor.setGame(game);
+	editor.setDatabase(database);
+
+	editor.newPack();
+	game.reloadPack();
 
 	gameWindow.setGameState(editor.getGameState());
 	gameWindow.run();
