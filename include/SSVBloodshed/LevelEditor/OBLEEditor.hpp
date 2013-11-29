@@ -123,8 +123,8 @@ namespace ob
 				clearCurrentLevel();
 			}
 
-			inline void loadPackFromFile(const ssvu::FileSystem::Path& mPath)	{ sharedData.loadPack(mPath); loadSector(0); }
-			inline void savePackToFile(const ssvu::FileSystem::Path& mPath)		{ sharedData.savePack(mPath); }
+			inline void loadPackFromFile(const ssvufs::Path& mPath)	{ sharedData.loadPack(mPath); loadSector(0); }
+			inline void savePackToFile(const ssvufs::Path& mPath)		{ sharedData.savePack(mPath); }
 
 			template<typename TFormPack = FormPack> inline void loadSector(int mIdx)
 			{

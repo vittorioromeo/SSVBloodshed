@@ -32,13 +32,13 @@ namespace ob
 				currentSector = nullptr;
 				currentLevel = nullptr;
 			}
-			inline void loadPack(const ssvu::FileSystem::Path& mPath)
+			inline void loadPack(const ssvufs::Path& mPath)
 			{
 				assert(database != nullptr);
 				try { pack = ssvuj::as<OBLEPack>(ssvuj::readFromFile(mPath)); }
 				catch(...) { ssvu::lo("Fatal error") << "Failed to load pack" << std::endl; }
 			}
-			inline void savePack(const ssvu::FileSystem::Path& mPath)
+			inline void savePack(const ssvufs::Path& mPath)
 			{
 				try { ssvuj::writeToFile(ssvuj::getArch(pack), mPath); }
 				catch(...) { ssvu::lo("Fatal error") << "Failed to save pack" << std::endl; }
