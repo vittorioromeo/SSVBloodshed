@@ -288,10 +288,11 @@ namespace ob
 				{
 					cKillable.onDeath += [this]
 					{
-						for(int i{0}; i < 3; ++i)
+						constexpr int splitCount{3};
+						for(int i{0}; i < splitCount; ++i)
 						{
 							auto& e(factory.createEBall(cPhys.getPosI(), type, true));
-							e.getComponent<OBCPhys>().setVel(ssvs::getVecFromDeg(360.f / 3.f * i, 400.f));
+							e.getComponent<OBCPhys>().setVel(ssvs::getVecFromRad((ssvu::tau / splitCount) * i, 400.f));
 						}
 					};
 				}
