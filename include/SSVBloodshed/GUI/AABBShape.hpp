@@ -15,12 +15,16 @@ namespace ob
 		{
 			using sf::RectangleShape::RectangleShape;
 
-			AABBShape() = default;
-			AABBShape(const Vec2f& mPosition, const Vec2f& mHalfSize) { AABBShape::setSize(mHalfSize * 2.f); AABBShape::setPosition(mPosition); }
+			AABBShape() : sf::RectangleShape{Vec2f{1.f, 1.f}} { }
+			AABBShape(const Vec2f& mPosition, const Vec2f& mHalfSize) : sf::RectangleShape{mHalfSize * 2.f}
+			{
+				AABBShape::setSize(mHalfSize * 2.f);
+				AABBShape::setPosition(mPosition);
+			}
 
 			inline void setPosition(const Vec2f& mPosition) noexcept	{ sf::RectangleShape::setPosition(mPosition); }
 			inline void setPosition(float mX, float mY) noexcept		{ AABBShape::setPosition(Vec2f{mX, mY}); }
-			inline void setSize(const Vec2f& mSize) noexcept			{ sf::RectangleShape::setSize(mSize); sf::RectangleShape::setOrigin(getHalfSize()); }
+			inline void setSize(const Vec2f& mSize) noexcept			{ sf::RectangleShape::setSize(ssvs::getCClampedMin(mSize, 1.f)); sf::RectangleShape::setOrigin(getHalfSize()); }
 			inline void setSize(float mX, float mY) noexcept			{ AABBShape::setSize(Vec2f{mX, mY}); }
 			inline void setWidth(float mWidth) noexcept					{ AABBShape::setSize(mWidth, getHeight()); }
 			inline void setHeight(float mHeight) noexcept				{ AABBShape::setSize(getWidth(), mHeight); }

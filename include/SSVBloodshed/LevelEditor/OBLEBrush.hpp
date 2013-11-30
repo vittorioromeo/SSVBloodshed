@@ -34,10 +34,10 @@ namespace ob
 			}
 
 		public:
-			inline OBLEBrush(sf::IntRect mBounds) : bounds(std::move(mBounds))
+			inline OBLEBrush(sf::IntRect mBounds) : bounds(std::move(mBounds)), single{Vec2f(tileSize, tileSize)},
+				full{Vec2f(tileSize, tileSize)}
 			{
 				single.setOrigin(tileSize / 2.f, tileSize / 2.f);
-				single.setSize(Vec2f(tileSize, tileSize));
 				single.setFillColor(sf::Color::Transparent);
 				single.setOutlineColor({255, 255, 0, 125});
 				single.setOutlineThickness(0.65f);
@@ -56,7 +56,7 @@ namespace ob
 
 			inline void setPosition(const Vec2i& mPosition)	{ position = mPosition; refresh(); }
 			inline void setSize(int mSize)					{ size = mSize; refresh(); }
-			inline void setIdx(int mIdx) noexcept { idx = mIdx; }
+			inline void setIdx(int mIdx) noexcept			{ idx = mIdx; }
 
 			inline int getX() const noexcept		{ return center.x; }
 			inline int getY() const noexcept		{ return center.y; }
