@@ -24,9 +24,10 @@ namespace ob
 				sf::Sprite sprite;
 				ssvu::MemoryManager<Widget> widgets;
 				std::vector<Widget*> children;
-				bool hovered{false}, busy{false}, focused{false}, unfocusOnUnhover{true};
+				Widget* busyWith{nullptr};
+				bool hovered{false}, focused{false}, unfocusOnUnhover{true};
 				Vec2f mousePos, mousePosOld;
-				bool mouseLDown{false}, mouseLDownOld{false}, mouseRDown{false}, mouseRDownOld{false};
+				bool mouseLDown{false}, mouseRDown{false};
 				std::vector<sf::Event> eventsToPoll;
 
 				inline void del(Widget& mWidget) noexcept { widgets.del(mWidget); }
@@ -46,8 +47,6 @@ namespace ob
 
 				inline void updateMouse()
 				{
-					mouseLDownOld = mouseLDown;
-					mouseRDownOld = mouseRDown;
 					mousePosOld = mousePos;
 					mouseLDown = gameWindow.isBtnPressed(ssvs::MBtn::Left);
 					mouseRDown = gameWindow.isBtnPressed(ssvs::MBtn::Right);
@@ -58,6 +57,8 @@ namespace ob
 				{
 					// If the context is busy (dragging, resizing, editing...), do not change focus
 					if(isBusy()) return;
+
+					focused = false;
 
 					// If mouse is pressed outside of the context or context is unfocused, unfocus everything
 					if((unfocusOnUnhover || mouseLDown || mouseRDown) && !hovered) { unFocusAll(); return; }
@@ -70,8 +71,9 @@ namespace ob
 					// Find the "deepest" pressed child in the hierarchy
 					found->recurseChildren([&found](Widget& mW){ if(mW.isPressedAny() && mW.depth > found->depth) found = &mW; });
 
-					// Unfocus everything but the widgets as deep as the deepest child
-					unFocusAll(); found->recurseChildren([found](Widget& mW){ if(mW.depth == found->depth) mW.setFocused(true); });
+					// Unfocus everything but the widgets as deep as the deepest child, and focus the context
+					unFocusAll();
+					found->recurseChildren([this, found](Widget& mW){ if(mW.depth == found->depth) { mW.setFocused(true); focused = true; } });
 				}
 
 			public:
@@ -91,6 +93,7 @@ namespace ob
 
 				inline void update(FT mFT)
 				{
+					// Set "old" mouse variable and get mouse position/status
 					updateMouse();
 
 					// Recursively remove all dead widgets from children, then refresh widget memory
@@ -98,14 +101,16 @@ namespace ob
 					ssvu::eraseRemoveIf(children, &ssvu::MemoryManager<Widget>::isDead<Widget*>);
 					widgets.refresh();
 
+					// For all widgets: check and set if the widget is hovered/pressed; if it is hovered,
+					// set context.hovered to true. Also, recalculate depth.
 					hovered = false;
 					for(auto& w : widgets) { w->recalculateDepth(); w->checkMouse(); }
 
+					// Focus the correct widgets. If any widget is focused, set context.focused to true.
 					updateFocus();
 
-					busy = focused = false;
 					for(auto& w : children) w->updateRecursive(mFT);
-					for(auto& w : widgets) { w->checkMouse(); if(w->isFocused()) focused = true; }
+					if(!mouseLDown) busyWith = nullptr;
 
 					eventsToPoll.clear();
 				}
@@ -122,7 +127,7 @@ namespace ob
 				inline OBAssets& getAssets() const noexcept				{ return assets; }
 				inline ssvs::GameWindow& getGameWindow() const noexcept	{ return gameWindow; }
 				inline bool isHovered() const noexcept					{ return hovered; }
-				inline bool isBusy() const noexcept						{ return busy; }
+				inline bool isBusy() const noexcept						{ return busyWith != nullptr; }
 				inline bool isFocused() const noexcept					{ return focused; }
 				inline bool isInUse() const noexcept					{ return isFocused() || isHovered() || isBusy(); }
 		};

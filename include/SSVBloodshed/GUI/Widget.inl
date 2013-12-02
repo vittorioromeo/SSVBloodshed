@@ -18,31 +18,39 @@ namespace ob
 			result.setParent(*this); return result;
 		}
 
+		inline void Widget::doInput()
+		{
+			if(pressedLeft)
+			{
+				if(isFocused() && (!onLeftClick.isEmpty() || !onLeftClickDown.isEmpty() || !onLeftRelease.isEmpty()))
+				{
+					if(!context.isBusy())
+					{
+						onLeftClick();
+						context.busyWith = this;
+					}
+					else if(context.busyWith == this) onLeftClickDown();
+				}
+			}
+			else if(!context.mouseLDown && context.busyWith == this) onLeftRelease();
+
+
+			/*if(isPressedRight())
+			{
+				if(isFocused())
+				{
+					if(!context.busy && !wasPressedRight()) onRightClick();
+					onRightClickDown();
+
+					context.busy = true;
+				}
+			}
+			else if(wasPressedRight()) onRightRelease();*/
+		}
+
 		inline void Widget::updateRecursive(FT mFT)
 		{
 			update(mFT);
-
-			if(isPressedLeft())
-			{
-				context.busy = true;
-				if(isFocused())
-				{
-					if(!wasPressedLeft()) onLeftClick();
-					onLeftClickDown();
-				}
-			}
-			else if(wasPressedLeft()) onLeftRelease();
-
-			if(isPressedRight())
-			{
-				context.busy = true;
-				if(isFocused())
-				{
-					if(!wasPressedRight()) onRightClick();
-					onRightClickDown();
-				}
-			}
-			else if(wasPressedRight()) onRightRelease();
 
 			// Recalculate sizing
 			recalculateSize(scalingX, &Widget::setWidth, &Widget::getLeft, &Widget::getRight);
@@ -57,6 +65,8 @@ namespace ob
 			recalculateView();
 
 			onPostUpdate();
+
+			recurseChildrenBF<true, true>([this](Widget& mW){ mW.doInput(); });
 		}
 		inline void Widget::recalculateView()
 		{
@@ -82,13 +92,11 @@ namespace ob
 		{
 			if(!isVisible()) return;
 			hovered = isOverlapping(getMousePos(), 2.f); if(hovered) context.hovered = true;
-			pressedLeftOld = pressedLeft; pressedLeft = isHovered() && context.mouseLDown;
-			pressedRightOld = pressedRight; pressedRight = isHovered() && context.mouseRDown;
+			pressedLeft = isHovered() && context.mouseLDown;
+			pressedRight = isHovered() && context.mouseRDown;
 		}
 		inline const Vec2f& Widget::getMousePos() const noexcept	{ return context.mousePos; }
 		inline const Vec2f& Widget::getMousePosOld() const noexcept	{ return context.mousePosOld; }
-		inline bool Widget::wasPressedLeft() const noexcept			{ return isHovered() && pressedLeftOld; }
-		inline bool Widget::wasPressedRight() const noexcept		{ return isHovered() && pressedRightOld; }
 
 		inline const std::vector<sf::Event>& Widget::getEventsToPoll() const noexcept { return context.eventsToPoll; }
 	}

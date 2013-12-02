@@ -43,7 +43,7 @@ namespace ob
 				bool active{true}, visible{true};
 
 				// Status
-				bool focused{false}, hovered{false}, pressedLeft{false}, pressedLeftOld{false}, pressedRight{false}, pressedRightOld{false};
+				bool focused{false}, hovered{false}, pressedLeft{false}, pressedRight{false};
 
 				// Positioning
 				Widget* neighbor{nullptr};
@@ -60,12 +60,6 @@ namespace ob
 				inline void drawHierarchy()
 				{
 					recurseChildrenBF([this](Widget& mW){ if(mW.isVisible()) { mW.draw(); render(mW); } });
-					return;
-
-					std::vector<Widget*> hierarchy; hierarchy.reserve(25);
-					recurseChildren([&hierarchy](Widget& mW){ hierarchy.push_back(&mW); });
-					ssvu::sortStable(hierarchy, [](const Widget* mA, const Widget* mB){ return mA->depth < mB->depth; });
-					for(auto& w : hierarchy) if(w->isVisible()) { w->draw(); render(*w); }
 				}
 
 				template<typename TS, typename TG> inline void fitToParentImpl(TS mSetter, TG mGetterMin, TG mGetterMax)
@@ -125,9 +119,7 @@ namespace ob
 				void checkMouse();
 				void updateRecursive(FT mFT);
 				void recalculateView();
-
-				bool wasPressedLeft() const noexcept;
-				bool wasPressedRight() const noexcept;
+				void doInput();
 
 			public:
 				using AABBShape::AABBShape;
@@ -147,11 +139,11 @@ namespace ob
 					if(TIncludeCaller) mFunc(*this);
 					for(const auto& w : children) w->recurseChildren<true, T>(mFunc);
 				}
-				template<bool TIncludeCaller = true, typename T> inline void recurseChildrenBF(const T& mFunc)
+				template<bool TIncludeCaller = true, bool TReverse = false, typename T> inline void recurseChildrenBF(const T& mFunc)
 				{
 					std::vector<Widget*> hierarchy; hierarchy.reserve(25);
 					recurseChildren<TIncludeCaller>([&hierarchy](Widget& mW){ hierarchy.push_back(&mW); });
-					ssvu::sortStable(hierarchy, [](const Widget* mA, const Widget* mB){ return mA->depth < mB->depth; });
+					ssvu::sortStable(hierarchy, [](const Widget* mA, const Widget* mB){ return mA->depth < mB->depth == !TReverse; });
 					for(const auto& w : hierarchy) mFunc(*w);
 				}
 				template<bool TIncludeCaller = true, typename T1, typename T2> inline void recurseChildrenIf(const T1& mPred, const T2& mFunc)
