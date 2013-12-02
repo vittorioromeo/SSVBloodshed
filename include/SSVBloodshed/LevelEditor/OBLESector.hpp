@@ -12,7 +12,7 @@ namespace ob
 {
 	class OBLESector
 	{
-		template<typename> friend struct ssvuj::Converter;
+		SSVUJ_CONVERTER_FRIEND;
 
 		private:
 			int cols, rows;

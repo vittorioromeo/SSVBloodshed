@@ -13,7 +13,7 @@ namespace ob
 {
 	class OBLEPack
 	{
-		template<typename> friend struct ssvuj::Converter;
+		SSVUJ_CONVERTER_FRIEND;
 
 		private:
 			std::string name{"unnamed pack"};
