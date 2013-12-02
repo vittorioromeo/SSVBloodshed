@@ -128,8 +128,6 @@ namespace ob
 
 				bool wasPressedLeft() const noexcept;
 				bool wasPressedRight() const noexcept;
-				bool isMBtnLeftDown() const noexcept;
-				bool isMBtnRightDown() const noexcept;
 
 			public:
 				using AABBShape::AABBShape;

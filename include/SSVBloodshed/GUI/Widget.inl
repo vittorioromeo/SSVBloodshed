@@ -82,15 +82,13 @@ namespace ob
 		{
 			if(!isVisible()) return;
 			hovered = isOverlapping(getMousePos(), 2.f); if(hovered) context.hovered = true;
-			pressedLeftOld = pressedLeft; pressedLeft = isMBtnLeftDown() && hovered;
-			pressedRightOld = pressedRight; pressedRight = isMBtnRightDown() && hovered;
+			pressedLeftOld = pressedLeft; pressedLeft = isHovered() && context.mouseLDown;
+			pressedRightOld = pressedRight; pressedRight = isHovered() && context.mouseRDown;
 		}
 		inline const Vec2f& Widget::getMousePos() const noexcept	{ return context.mousePos; }
 		inline const Vec2f& Widget::getMousePosOld() const noexcept	{ return context.mousePosOld; }
-		inline bool Widget::isMBtnLeftDown() const noexcept			{ return isActive() && context.mouseLDown; }
-		inline bool Widget::isMBtnRightDown() const noexcept		{ return isActive() && context.mouseRDown; }
-		inline bool Widget::wasPressedLeft() const noexcept			{ return context.mouseLDownOld || (isHovered() && pressedLeftOld); }
-		inline bool Widget::wasPressedRight() const noexcept		{ return context.mouseRDownOld || (isHovered() && pressedRightOld); }
+		inline bool Widget::wasPressedLeft() const noexcept			{ return isHovered() && pressedLeftOld; }
+		inline bool Widget::wasPressedRight() const noexcept		{ return isHovered() && pressedRightOld; }
 
 		inline const std::vector<sf::Event>& Widget::getEventsToPoll() const noexcept { return context.eventsToPoll; }
 	}

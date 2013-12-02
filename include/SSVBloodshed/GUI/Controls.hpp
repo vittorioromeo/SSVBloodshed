@@ -439,7 +439,7 @@ namespace ob
 					fbResizer.attach(At::SE, *this, At::SE);
 
 					fbBar.onLeftClickDown += [this]{ if(draggable) { action = Action::Move; dragOrigin = getMousePos() - getPosition(); } };
-					fbBar.onLeftRelease += [this]{ if(action == Action::Move) action = Action::None; };
+					fbBar.onLeftRelease += [this]{ ssvu::lo() << "fbBar released" << std::endl; if(action == Action::Move) action = Action::None; };
 					fbResizer.onLeftClickDown += [this]{ if(resizable) { action = Action::Resize; dragOrigin = getMousePos() - getSize(); } };
 					fbResizer.onLeftRelease += [this]{ if(action == Action::Resize) action = Action::None; };
 				}
