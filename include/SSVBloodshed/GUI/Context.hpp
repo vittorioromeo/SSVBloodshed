@@ -26,8 +26,7 @@ namespace ob
 				std::vector<Widget*> children;
 				Widget* busyWith{nullptr};
 				bool hovered{false}, focused{false}, unfocusOnUnhover{true};
-				Vec2f mousePos, mousePosOld;
-				bool mouseLDown{false}, mouseRDown{false};
+				Vec2f mousePos; bool mouseLDown{false}, mouseRDown{false};
 				std::vector<sf::Event> eventsToPoll;
 
 				inline void del(Widget& mWidget) noexcept { widgets.del(mWidget); }
@@ -47,7 +46,6 @@ namespace ob
 
 				inline void updateMouse()
 				{
-					mousePosOld = mousePos;
 					mouseLDown = gameWindow.isBtnPressed(ssvs::MBtn::Left);
 					mouseRDown = gameWindow.isBtnPressed(ssvs::MBtn::Right);
 					mousePos = gameWindow.getMousePosition();
@@ -101,14 +99,12 @@ namespace ob
 					ssvu::eraseRemoveIf(children, &ssvu::MemoryManager<Widget>::isDead<Widget*>);
 					widgets.refresh();
 
-					// For all widgets: check and set if the widget is hovered/pressed; if it is hovered,
-					// set context.hovered to true. Also, recalculate depth.
-					hovered = false;
-					for(auto& w : widgets) { w->recalculateDepth(); w->checkMouse(); }
+					for(auto& w : widgets) { w->recalculateDepth(); }
 
 					// Focus the correct widgets. If any widget is focused, set context.focused to true.
 					updateFocus();
 
+					hovered = false;
 					for(auto& w : children) w->updateRecursive(mFT);
 					if(!mouseLDown) busyWith = nullptr;
 

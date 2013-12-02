@@ -27,7 +27,6 @@ namespace ob
 				void render(const sf::Drawable& mDrawable);
 				const std::vector<sf::Event>& getEventsToPoll() const noexcept;
 				const Vec2f& getMousePos() const noexcept;
-				const Vec2f& getMousePosOld() const noexcept;
 
 			private:
 				std::vector<Widget*> children;
@@ -116,10 +115,28 @@ namespace ob
 					focused = mValue;
 				}
 
-				void checkMouse();
-				void updateRecursive(FT mFT);
+				inline void updateRecursive(FT mFT)
+				{
+					update(mFT);
+
+					// Recalculate sizing
+					recalculateSize(scalingX, &Widget::setWidth, &Widget::getLeft, &Widget::getRight);
+					recalculateSize(scalingY, &Widget::setHeight, &Widget::getTop, &Widget::getBottom);
+					recalculateFitToChildren(scalingX, scalingY);
+
+					recalculatePosition();
+
+					for(auto& w : children) w->updateRecursive(mFT);
+
+					recalculateChildBounds();
+					recalculateView();
+
+					onPostUpdate();
+
+					recurseChildrenBF<true, true>([this](Widget& mW){ mW.updateInput(); });
+				}
 				void recalculateView();
-				void doInput();
+				void updateInput();
 
 			public:
 				using AABBShape::AABBShape;
@@ -205,9 +222,7 @@ namespace ob
 				inline bool isHovered() const noexcept		{ return isActive() && hovered; }
 				inline bool isVisible() const noexcept		{ return visible && !isHidden() && !isExcluded(); }
 				inline bool isActive() const noexcept		{ return active && !isHidden() && !isExcluded(); }
-				inline bool isPressedLeft() const noexcept	{ return isHovered() && pressedLeft; }
-				inline bool isPressedRight() const noexcept	{ return isHovered() && pressedRight; }
-				inline bool isPressedAny() const noexcept	{ return isPressedLeft() || isPressedRight(); }
+				inline bool isPressedAny() const noexcept	{ return pressedLeft || pressedRight; }
 				inline bool isHidden() const noexcept		{ return hidden; }
 				inline bool isExcluded() const noexcept		{ return excluded; }
 				inline bool isContainer() const noexcept	{ return container; }

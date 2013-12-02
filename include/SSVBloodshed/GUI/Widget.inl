@@ -18,56 +18,43 @@ namespace ob
 			result.setParent(*this); return result;
 		}
 
-		inline void Widget::doInput()
+		inline void Widget::updateInput()
 		{
-			if(pressedLeft)
+			// If the widget is not visible, do not process input
+			if(!isVisible()) return;
+
+			// Check hover - if true, set context.hovered to true
+			hovered = isOverlapping(getMousePos(), 2.f);
+			if(hovered) context.hovered = true;
+
+			// Check if the widget is being pressed
+			pressedLeft = isHovered() && context.mouseLDown;
+			pressedRight = isHovered() && context.mouseRDown;
+
+			// If the context is already busy with another widget, do not process input
+			if(context.isBusy() && context.busyWith != this) return;
+
+			auto processButton([this](bool mContextPressed, bool mPressed, ssvu::Delegate<void()>& onClick, ssvu::Delegate<void()>& onClickDown, ssvu::Delegate<void()>& onRelease)
 			{
-				if(isFocused() && (!onLeftClick.isEmpty() || !onLeftClickDown.isEmpty() || !onLeftRelease.isEmpty()))
+				if(mPressed)
 				{
-					if(!context.isBusy())
+					if(isFocused() && (!onClick.isEmpty() || !onClickDown.isEmpty() || !onRelease.isEmpty()))
 					{
-						onLeftClick();
-						context.busyWith = this;
+						if(!context.isBusy())
+						{
+							onClick();
+							context.busyWith = this;
+						}
+						else if(context.busyWith == this) onClickDown();
 					}
-					else if(context.busyWith == this) onLeftClickDown();
 				}
-			}
-			else if(!context.mouseLDown && context.busyWith == this) onLeftRelease();
+				else if(!mContextPressed && context.busyWith == this) onRelease();
+			});
 
-
-			/*if(isPressedRight())
-			{
-				if(isFocused())
-				{
-					if(!context.busy && !wasPressedRight()) onRightClick();
-					onRightClickDown();
-
-					context.busy = true;
-				}
-			}
-			else if(wasPressedRight()) onRightRelease();*/
+			processButton(context.mouseLDown, pressedLeft, onLeftClick, onLeftClickDown, onLeftRelease);
+			processButton(context.mouseRDown, pressedRight, onRightClick, onRightClickDown, onRightRelease);
 		}
 
-		inline void Widget::updateRecursive(FT mFT)
-		{
-			update(mFT);
-
-			// Recalculate sizing
-			recalculateSize(scalingX, &Widget::setWidth, &Widget::getLeft, &Widget::getRight);
-			recalculateSize(scalingY, &Widget::setHeight, &Widget::getTop, &Widget::getBottom);
-			recalculateFitToChildren(scalingX, scalingY);
-
-			recalculatePosition();
-
-			for(auto& w : children) w->updateRecursive(mFT);
-
-			recalculateChildBounds();
-			recalculateView();
-
-			onPostUpdate();
-
-			recurseChildrenBF<true, true>([this](Widget& mW){ mW.doInput(); });
-		}
 		inline void Widget::recalculateView()
 		{
 			viewBoundsMin = getVertexNW();
@@ -88,17 +75,9 @@ namespace ob
 		inline void Widget::gainExclusiveFocus()					{ context.unFocusAll(); recurseChildrenIf([this](Widget& mW){ return mW.depth == depth; }, [](Widget& mW){ mW.setFocused(true); }); }
 		inline void Widget::render(const sf::Drawable& mDrawable)	{ context.render(parent != nullptr ? &parent->view : nullptr, mDrawable); }
 		inline void Widget::destroyRecursive()						{ recurseChildren([this](Widget& mW){ context.del(mW); }); }
-		inline void Widget::checkMouse()
-		{
-			if(!isVisible()) return;
-			hovered = isOverlapping(getMousePos(), 2.f); if(hovered) context.hovered = true;
-			pressedLeft = isHovered() && context.mouseLDown;
-			pressedRight = isHovered() && context.mouseRDown;
-		}
-		inline const Vec2f& Widget::getMousePos() const noexcept	{ return context.mousePos; }
-		inline const Vec2f& Widget::getMousePosOld() const noexcept	{ return context.mousePosOld; }
 
-		inline const std::vector<sf::Event>& Widget::getEventsToPoll() const noexcept { return context.eventsToPoll; }
+		inline const Vec2f& Widget::getMousePos() const noexcept						{ return context.mousePos; }
+		inline const std::vector<sf::Event>& Widget::getEventsToPoll() const noexcept	{ return context.eventsToPoll; }
 	}
 }
 
