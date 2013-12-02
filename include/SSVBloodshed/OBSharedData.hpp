@@ -83,5 +83,3 @@ namespace ob
 }
 
 #endif
-
-// TODO: THERE STILL IS A possible "DIVISION BY ZERO" BUG with collisions!
