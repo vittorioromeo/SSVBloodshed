@@ -29,13 +29,13 @@ namespace ob
 				Vec2f mousePos; bool mouseLDown{false}, mouseRDown{false};
 				std::vector<sf::Event> eventsToPoll;
 
-				inline void del(Widget& mWidget) noexcept { widgets.del(mWidget); }
+				inline void del(Widget& mWidget) const noexcept { widgets.del(mWidget); }
 				inline void render(sf::View* mView, const sf::Drawable& mDrawable)
 				{
 					renderTexture.setView(mView != nullptr ? *mView : gameWindow.getRenderWindow().getView());
 					renderTexture.draw(mDrawable);
 				}
-				inline void unFocusAll() { for(auto& w : widgets) w->setFocused(false); }
+				inline void unFocusAll() { focused = false; for(auto& w : widgets) w->setFocused(false); }
 				inline void bringToFront(Widget& mWidget) { ssvu::eraseRemove(children, &mWidget); children.insert(std::begin(children), &mWidget); }
 
 				template<typename T, typename... TArgs> inline T& allocateWidget(TArgs&&... mArgs)
@@ -44,19 +44,10 @@ namespace ob
 					return widgets.create<T>(*this, std::forward<TArgs>(mArgs)...);
 				}
 
-				inline void updateMouse()
-				{
-					mouseLDown = gameWindow.isBtnPressed(ssvs::MBtn::Left);
-					mouseRDown = gameWindow.isBtnPressed(ssvs::MBtn::Right);
-					mousePos = gameWindow.getMousePosition();
-				}
-
 				inline void updateFocus()
 				{
 					// If the context is busy (dragging, resizing, editing...), do not change focus
 					if(isBusy()) return;
-
-					focused = false;
 
 					// If mouse is pressed outside of the context or context is unfocused, unfocus everything
 					if((unfocusOnUnhover || mouseLDown || mouseRDown) && !hovered) { unFocusAll(); return; }
@@ -92,21 +83,25 @@ namespace ob
 				inline void update(FT mFT)
 				{
 					// Set "old" mouse variable and get mouse position/status
-					updateMouse();
+					mouseLDown = gameWindow.isBtnPressed(ssvs::MBtn::Left);
+					mouseRDown = gameWindow.isBtnPressed(ssvs::MBtn::Right);
+					mousePos = gameWindow.getMousePosition();
 
 					// Recursively remove all dead widgets from children, then refresh widget memory
 					for(auto& w : children) w->recurseChildren([](Widget& mW){ ssvu::eraseRemoveIf(mW.children, &ssvu::MemoryManager<Widget>::isDead<Widget*>); });
 					ssvu::eraseRemoveIf(children, &ssvu::MemoryManager<Widget>::isDead<Widget*>);
 					widgets.refresh();
 
-					for(auto& w : widgets) { w->recalculateDepth(); }
-
-					// Focus the correct widgets. If any widget is focused, set context.focused to true.
+					// Focus the correct widgets. If any is focused, set `focused` to true.
 					updateFocus();
 
+					// Update all widgets
+					// * Set `hovered` to false: if any widget is hovered, it will become true
+					// * Recursively update all widgets
+					// * If the mouse is not pressed, stop "being busy"
 					hovered = false;
 					for(auto& w : children) w->updateRecursive(mFT);
-					if(!mouseLDown) busyWith = nullptr;
+					if(!mouseLDown && !mouseRDown) busyWith = nullptr;
 
 					eventsToPoll.clear();
 				}

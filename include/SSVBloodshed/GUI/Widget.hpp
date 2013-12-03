@@ -103,8 +103,6 @@ namespace ob
 					if(mScalingY == Scaling::FitToChildren) fitToChildrenImpl(&Widget::setHeight, childBoundsMin.y, childBoundsMax.y);
 				}
 
-				inline void recalculateDepth() noexcept { depth = parent == nullptr ? 0 : parent->depth + static_cast<int>(container); }
-
 				inline void setFocused(bool mValue)
 				{
 					if(focused != mValue)
@@ -117,6 +115,9 @@ namespace ob
 
 				inline void updateRecursive(FT mFT)
 				{
+					// Recalculate depth
+					depth = parent == nullptr ? 0 : parent->depth + static_cast<int>(container);
+
 					update(mFT);
 
 					// Recalculate sizing

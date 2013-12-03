@@ -21,9 +21,15 @@ namespace ob
 		{
 			static Vec2f vecs[9]
 			{
-				{-1.f, 0.f}, {1.f, 0.f}, {0.f, -1.f}, {0.f, 1.f},
-				{-1.f, -1.f}, {1.f, -1.f}, {-1.f, 1.f}, {1.f, 1.f},
-				{0.f, 0.f}
+				{-1.f, 0.f},	// Left
+				{1.f, 0.f},		// Right
+				{0.f, -1.f},	// Top
+				{0.f, 1.f},		// Bottom
+				{-1.f, -1.f},	// NW
+				{1.f, -1.f},	// NE
+				{-1.f, 1.f},	// SW
+				{1.f, 1.f},		// SE
+				{0.f, 0.f}		// Center
 			};
 
 			return vecs[int(mAt)] * mMag;
