@@ -87,25 +87,29 @@ namespace ob
 					mouseRDown = gameWindow.isBtnPressed(ssvs::MBtn::Right);
 					mousePos = gameWindow.getMousePosition();
 
-					// Recursively remove all dead widgets from children, then refresh widget memory
+					// Recursively remove all dead widgets from children and set "not recalculated"
 					for(auto& w : children) w->recurseChildren([](Widget& mW)
 					{
-						mW.recalcedSizeX = mW.recalcedSizeY = false;
+						mW.recalculated.x = mW.recalculated.y = false;
 						ssvu::eraseRemoveIf(mW.children, &ssvu::MemoryManager<Widget>::isDead<Widget*>);
 					});
 					ssvu::eraseRemoveIf(children, &ssvu::MemoryManager<Widget>::isDead<Widget*>);
+
+					// If mouse buttons are not down or the `busyWith` widget is dead, stop being busy
+					if((!mouseLDown && !mouseRDown) || (busyWith != nullptr && ssvu::MemoryManager<Widget>::isDead<Widget*>(busyWith)))
+						busyWith = nullptr;
+
+					// Free dead widgets memory / initialize new widgets
 					widgets.refresh();
 
 					// Focus the correct widgets. If any is focused, set `focused` to true.
 					updateFocus();
 
-					// Update all widgets
-					// * Set `hovered` to false: if any widget is hovered, it will become true
-					// * Recursively update all widgets
-					// * If the mouse is not pressed, stop "being busy"
+					// Set `hovered` to false: if any widget is hovered, it will become true
 					hovered = false;
+
+					// Recursively update all widgets
 					for(auto& w : children) w->updateRecursive(mFT);
-					if(!mouseLDown && !mouseRDown) busyWith = nullptr;
 
 					eventsToPoll.clear();
 				}

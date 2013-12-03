@@ -35,6 +35,7 @@ namespace ob
 				bool container{false}; // If true, children have a deeper depth
 				sf::View view;
 				Vec2f childBoundsMin, childBoundsMax, viewBoundsMin, viewBoundsMax;
+				Vec2<bool> recalculated;
 
 				// Settings
 				bool hidden{false}; // Controlled by hide/show: if true, it makes the widget implicitly invisible and inactive
@@ -71,15 +72,14 @@ namespace ob
 					focused = mValue;
 				}
 
-				bool recalcedSizeX{false}, recalcedSizeY{false};
-				template<typename TS, typename TG> inline void recalcSizeSmart(bool Widget::*mRecalcVar, Scaling Widget::*mScaling, TS mSetter, TG mGetterMin, TG mGetterMax, float Vec2f::*mDimension)
+				template<typename TS, typename TG> inline void recalcSizeSmart(Scaling Widget::*mScaling, TS mSetter, TG mGetterMin, TG mGetterMax, float Vec2f::*mDimension, bool Vec2<bool>::*mDimensionBool)
 				{
-					if(this->*mRecalcVar) return;
-					this->*mRecalcVar = true;
+					if(recalculated.*mDimensionBool) return;
+					recalculated.*mDimensionBool = true;
 
 					if(neighbor != nullptr)
 					{
-						neighbor->recalcSizeSmart(mRecalcVar, mScaling, mSetter, mGetterMin, mGetterMax, mDimension);
+						neighbor->recalcSizeSmart(mScaling, mSetter, mGetterMin, mGetterMax, mDimension, mDimensionBool);
 						setPosition(getVecPos(to, *neighbor) + offset + (getPosition() - getVecPos(from, *this)));
 					}
 
@@ -89,7 +89,7 @@ namespace ob
 
 						for(auto& w : children)
 						{
-							w->recalcSizeSmart(mRecalcVar, mScaling, mSetter, mGetterMin, mGetterMax, mDimension);
+							w->recalcSizeSmart(mScaling, mSetter, mGetterMin, mGetterMax, mDimension, mDimensionBool);
 							if(w->isHidden() || w->isExcluded() || w->external) continue;
 
 							childBoundsMin.*mDimension = std::min(childBoundsMin.*mDimension, (w->*mGetterMin)());
@@ -102,7 +102,7 @@ namespace ob
 					{
 						if(neighbor != nullptr)
 						{
-							neighbor->recalcSizeSmart(mRecalcVar, mScaling, mSetter, mGetterMin, mGetterMax, mDimension);
+							neighbor->recalcSizeSmart(mScaling, mSetter, mGetterMin, mGetterMax, mDimension, mDimensionBool);
 							(this->*mSetter)((((neighbor->*mGetterMax)() - (neighbor->*mGetterMin)()) * (scalePercent / 100.f)) - padding * 2.f);
 						}
 					}
@@ -110,7 +110,7 @@ namespace ob
 					{
 						if(parent != nullptr)
 						{
-							parent->recalcSizeSmart(mRecalcVar, mScaling, mSetter, mGetterMin, mGetterMax, mDimension);
+							parent->recalcSizeSmart(mScaling, mSetter, mGetterMin, mGetterMax, mDimension, mDimensionBool);
 							(this->*mSetter)((((parent->*mGetterMax)() - (parent->*mGetterMin)()) * (scalePercent / 100.f)) - padding * 2.f);
 						}
 					}
@@ -124,13 +124,12 @@ namespace ob
 					update(mFT);
 
 					// Recalculate size and position
-					recalcSizeSmart(&Widget::recalcedSizeX, &Widget::scalingX, &Widget::setWidth, &Widget::getLeft, &Widget::getRight, &Vec2f::x);
-					recalcSizeSmart(&Widget::recalcedSizeY, &Widget::scalingY, &Widget::setHeight, &Widget::getTop, &Widget::getBottom, &Vec2f::y);
+					recalcSizeSmart(&Widget::scalingX, &Widget::setWidth, &Widget::getLeft, &Widget::getRight, &Vec2f::x, &Vec2<bool>::x);
+					recalcSizeSmart(&Widget::scalingY, &Widget::setHeight, &Widget::getTop, &Widget::getBottom, &Vec2f::y, &Vec2<bool>::y);
 
 					for(auto& w : children) w->updateRecursive(mFT);
 
 					recalculateView();
-
 					onPostUpdate();
 
 					recurseChildrenBF<true, true>([this](Widget& mW){ mW.updateInput(); });

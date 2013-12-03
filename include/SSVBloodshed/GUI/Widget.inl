@@ -20,6 +20,9 @@ namespace ob
 
 		inline void Widget::updateInput()
 		{
+			// Reset pressed status
+			pressedLeft = pressedRight = false;
+
 			// If the widget is not visible, do not process input
 			if(!isVisible()) return;
 
@@ -48,7 +51,7 @@ namespace ob
 						else if(context.busyWith == this) onClickDown();
 					}
 				}
-				else if(!mContextPressed && context.busyWith == this) onRelease();
+				else if(!mContextPressed) onRelease();
 			});
 
 			processButton(context.mouseLDown, pressedLeft, onLeftClick, onLeftClickDown, onLeftRelease);
