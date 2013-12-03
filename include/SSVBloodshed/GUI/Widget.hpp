@@ -159,7 +159,7 @@ namespace ob
 				{
 					std::vector<Widget*> hierarchy; hierarchy.reserve(25);
 					recurseChildren<TIncludeCaller>([&hierarchy](Widget& mW){ hierarchy.push_back(&mW); });
-					ssvu::sortStable(hierarchy, [](const Widget* mA, const Widget* mB){ return mA->depth < mB->depth == !TReverse; });
+					ssvu::sortStable(hierarchy, [](const Widget* mA, const Widget* mB){ return (mA->depth < mB->depth) == !TReverse; });
 					for(const auto& w : hierarchy) mFunc(*w);
 				}
 				template<bool TIncludeCaller = true, typename T1, typename T2> inline void recurseChildrenIf(const T1& mPred, const T2& mFunc)
