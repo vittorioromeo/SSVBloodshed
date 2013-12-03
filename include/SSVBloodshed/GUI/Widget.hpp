@@ -61,48 +61,6 @@ namespace ob
 					recurseChildrenBF([this](Widget& mW){ if(mW.isVisible()) { mW.draw(); render(mW); } });
 				}
 
-				template<typename TS, typename TG> inline void fitToParentImpl(TS mSetter, TG mGetterMin, TG mGetterMax)
-				{
-					if(parent != nullptr) (this->*mSetter)((((parent->*mGetterMax)() - (parent->*mGetterMin)()) * (scalePercent / 100.f)) - padding * 2.f);
-				}
-				template<typename TS, typename TG> inline void fitToNeighborImpl(TS mSetter, TG mGetterMin, TG mGetterMax)
-				{
-					if(neighbor != nullptr) (this->*mSetter)((((neighbor->*mGetterMax)() - (neighbor->*mGetterMin)()) * (scalePercent / 100.f)) - padding * 2.f);
-				}
-				template<typename TS> inline void fitToChildrenImpl(TS mSetter, float mMin, float mMax)
-				{
-					if(!children.empty()) (this->*mSetter)(mMax - mMin + padding * 2.f);
-				}
-
-				inline void recalculatePosition()
-				{
-					if(neighbor != nullptr) setPosition(getVecPos(to, *neighbor) + offset + (getPosition() - getVecPos(from, *this)));
-				}
-				inline void recalculateChildBounds()
-				{
-					childBoundsMin = childBoundsMax = getPosition();
-
-					for(const auto& w : children)
-					{
-						if(w->isHidden() || w->isExcluded() || w->external) continue;
-
-						childBoundsMin.x = std::min(childBoundsMin.x, w->getLeft());
-						childBoundsMax.x = std::max(childBoundsMax.x, w->getRight());
-						childBoundsMin.y = std::min(childBoundsMin.y, w->getTop());
-						childBoundsMax.y = std::max(childBoundsMax.y, w->getBottom());
-					}
-				}
-				template<typename TS, typename TG> inline void recalculateSize(Scaling mScaling, TS mSetter, TG mGetterMin, TG mGetterMax)
-				{
-					if(mScaling == Scaling::FitToParent) fitToParentImpl(mSetter, mGetterMin, mGetterMax);
-					else if(mScaling == Scaling::FitToNeighbor) fitToNeighborImpl(mSetter, mGetterMin, mGetterMax);
-				}
-				inline void recalculateFitToChildren(Scaling mScalingX, Scaling mScalingY)
-				{
-					if(mScalingX == Scaling::FitToChildren) fitToChildrenImpl(&Widget::setWidth, childBoundsMin.x, childBoundsMax.x);
-					if(mScalingY == Scaling::FitToChildren) fitToChildrenImpl(&Widget::setHeight, childBoundsMin.y, childBoundsMax.y);
-				}
-
 				inline void setFocused(bool mValue)
 				{
 					if(focused != mValue)
@@ -113,6 +71,51 @@ namespace ob
 					focused = mValue;
 				}
 
+				bool recalcedSizeX{false}, recalcedSizeY{false};
+				template<typename TS, typename TG> inline void recalcSizeSmart(bool Widget::*mRecalcVar, Scaling Widget::*mScaling, TS mSetter, TG mGetterMin, TG mGetterMax, float Vec2f::*mDimension)
+				{
+					if(this->*mRecalcVar) return;
+					this->*mRecalcVar = true;
+
+					if(neighbor != nullptr)
+					{
+						neighbor->recalcSizeSmart(mRecalcVar, mScaling, mSetter, mGetterMin, mGetterMax, mDimension);
+						setPosition(getVecPos(to, *neighbor) + offset + (getPosition() - getVecPos(from, *this)));
+					}
+
+					if(this->*mScaling == Scaling::FitToChildren)
+					{
+						childBoundsMin.*mDimension = childBoundsMax.*mDimension = getPosition().*mDimension;
+
+						for(auto& w : children)
+						{
+							w->recalcSizeSmart(mRecalcVar, mScaling, mSetter, mGetterMin, mGetterMax, mDimension);
+							if(w->isHidden() || w->isExcluded() || w->external) continue;
+
+							childBoundsMin.*mDimension = std::min(childBoundsMin.*mDimension, (w->*mGetterMin)());
+							childBoundsMax.*mDimension = std::max(childBoundsMax.*mDimension, (w->*mGetterMax)());
+						}
+
+						(this->*mSetter)(childBoundsMax.*mDimension - childBoundsMin.*mDimension + padding * 2.f);
+					}
+					else if(this->*mScaling == Scaling::FitToNeighbor)
+					{
+						if(neighbor != nullptr)
+						{
+							neighbor->recalcSizeSmart(mRecalcVar, mScaling, mSetter, mGetterMin, mGetterMax, mDimension);
+							(this->*mSetter)((((neighbor->*mGetterMax)() - (neighbor->*mGetterMin)()) * (scalePercent / 100.f)) - padding * 2.f);
+						}
+					}
+					else if(this->*mScaling == Scaling::FitToParent)
+					{
+						if(parent != nullptr)
+						{
+							parent->recalcSizeSmart(mRecalcVar, mScaling, mSetter, mGetterMin, mGetterMax, mDimension);
+							(this->*mSetter)((((parent->*mGetterMax)() - (parent->*mGetterMin)()) * (scalePercent / 100.f)) - padding * 2.f);
+						}
+					}
+				}
+
 				inline void updateRecursive(FT mFT)
 				{
 					// Recalculate depth
@@ -120,16 +123,12 @@ namespace ob
 
 					update(mFT);
 
-					// Recalculate sizing
-					recalculateSize(scalingX, &Widget::setWidth, &Widget::getLeft, &Widget::getRight);
-					recalculateSize(scalingY, &Widget::setHeight, &Widget::getTop, &Widget::getBottom);
-					recalculateFitToChildren(scalingX, scalingY);
-
-					recalculatePosition();
+					// Recalculate size and position
+					recalcSizeSmart(&Widget::recalcedSizeX, &Widget::scalingX, &Widget::setWidth, &Widget::getLeft, &Widget::getRight, &Vec2f::x);
+					recalcSizeSmart(&Widget::recalcedSizeY, &Widget::scalingY, &Widget::setHeight, &Widget::getTop, &Widget::getBottom, &Vec2f::y);
 
 					for(auto& w : children) w->updateRecursive(mFT);
 
-					recalculateChildBounds();
 					recalculateView();
 
 					onPostUpdate();

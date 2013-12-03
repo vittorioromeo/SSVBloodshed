@@ -400,7 +400,6 @@ namespace ob
 				Widget& fbResizer;
 				bool draggable{true}, resizable{true}, collapsed{false};
 				Action action;
-				//float minWidth{45.f}, minHeight{45.f};
 				float oldHeight;
 				Scaling oldScalingX, oldScalingY;
 				Vec2f dragOrigin;
@@ -412,8 +411,6 @@ namespace ob
 					if(action == Action::Move) setPosition(getMousePos() - dragOrigin);
 					else if(action == Action::Resize)
 					{
-						//setSize(ssvu::getClampedMin(getWidth(), minWidth), ssvu::getClampedMin(getHeight(), minHeight));
-
 						auto oldNW(getVertexNW());
 						setSize(getMousePos() - dragOrigin);
 						setPosition(oldNW + getHalfSize());
@@ -438,8 +435,8 @@ namespace ob
 					fbBar.attach(At::Bottom, *this, At::Top);
 					fbResizer.attach(At::SE, *this, At::SE);
 
-					fbBar.onLeftClickDown += [this]{ ssvu::lo() << "fbBar down" << std::endl;  if(draggable) { action = Action::Move; dragOrigin = getMousePos() - getPosition(); } };
-					fbBar.onLeftRelease += [this]{ ssvu::lo() << "fbBar released" << std::endl; if(action == Action::Move) action = Action::None; };
+					fbBar.onLeftClickDown += [this]{ if(draggable) { action = Action::Move; dragOrigin = getMousePos() - getPosition(); } };
+					fbBar.onLeftRelease += [this]{ if(action == Action::Move) action = Action::None; };
 					fbResizer.onLeftClickDown += [this]{ if(resizable) { action = Action::Resize; dragOrigin = getMousePos() - getSize(); } };
 					fbResizer.onLeftRelease += [this]{ if(action == Action::Resize) action = Action::None; };
 				}
@@ -455,7 +452,7 @@ namespace ob
 						oldScalingY = getScalingY();
 						setScaling(Scaling::Manual);
 						fbBar.getBtnCollapse().getLabel().setString("v");
-						resizeFromBottom(0.f);
+						resizeFromBottom(1.f);
 					}
 					else
 					{
