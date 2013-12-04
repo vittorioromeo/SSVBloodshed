@@ -301,7 +301,6 @@ namespace ob
 				{
 					if(editing)
 					{
-						ssvu::clamp(cursorPos, 0, editStr.size());
 						float spacing(lblText.getText().getBitmapFont().getCellWidth() + lblText.getText().getTracking());
 						cursorShape.setPosition(Vec2f{ssvs::getGlobalLeft(lblText.getText()), lblText.getY()} + Vec2f(spacing * cursorPos + 3.f, 0.f));
 
@@ -322,6 +321,7 @@ namespace ob
 						lblText.getText().setColor(sf::Color::White);
 					}
 
+					ssvu::clamp(cursorPos, 0, editStr.size());
 					for(const auto& e : getEventsToPoll())
 					{
 						if(!editing) return;
@@ -349,6 +349,8 @@ namespace ob
 							if(e.key.code == ssvs::KKey::Return) finishEditing();
 							else if(e.key.code == ssvs::KKey::Left) --cursorPos;
 							else if(e.key.code == ssvs::KKey::Right) ++cursorPos;
+							else if(e.key.code == ssvs::KKey::Home) cursorPos = 0;
+							else if(e.key.code == ssvs::KKey::End) cursorPos = editStr.size();
 						}
 					}
 				}
