@@ -22,6 +22,7 @@ namespace ob
 
 			protected:
 				Context& context;
+				std::vector<Widget*> children;
 				bool external{false}; // If true, this widget will not be taken into account for scaling
 
 				void render(const sf::Drawable& mDrawable);
@@ -29,7 +30,6 @@ namespace ob
 				const Vec2f& getMousePos() const noexcept;
 
 			private:
-				std::vector<Widget*> children;
 				Widget* parent{nullptr};
 				int depth{0};
 				bool container{false}; // If true, children have a deeper depth
@@ -225,8 +225,6 @@ namespace ob
 				inline bool isHidden() const noexcept		{ return hidden; }
 				inline bool isExcluded() const noexcept		{ return excluded; }
 				inline bool isContainer() const noexcept	{ return container; }
-
-				inline decltype(children)& getChildren() noexcept { return children; }
 
 				inline float getPadding() const noexcept		{ return padding; }
 				inline Scaling getScalingX() const noexcept		{ return scalingX; }

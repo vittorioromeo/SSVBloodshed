@@ -130,15 +130,14 @@ namespace ob
 
 				inline void update(FT) override
 				{
-					auto& widgets(getChildren());
-					if(widgets.empty()) return;
+					if(children.empty()) return;
 
-					auto prev(widgets[0]);
+					auto prev(children[0]);
 					prev->attach(alignFrom, *this, alignFrom, getAtVec(alignDir, getPadding()));
 
-					for(auto i(1u); i < widgets.size(); ++i)
+					for(auto i(1u); i < children.size(); ++i)
 					{
-						auto& w(*widgets[i]);
+						auto& w(*children[i]);
 						if(w.isHidden() || w.isExcluded()) continue;
 
 						if(tabbed) w.attach(alignFrom, *prev, alignFrom, getAtVec(alignDir, i++ * tabSize));
