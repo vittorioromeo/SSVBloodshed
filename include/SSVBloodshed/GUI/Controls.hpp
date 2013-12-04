@@ -294,11 +294,17 @@ namespace ob
 				bool editing{false};
 				std::string editStr, str;
 				float green{0.f}, greenDir{1.f};
+				AABBShape cursorShape;
+				int cursorPos{0};
 
 				inline void update(FT mFT) override
 				{
 					if(editing)
 					{
+						ssvu::clamp(cursorPos, 0, editStr.size());
+						float spacing(lblText.getText().getBitmapFont().getCellWidth() + lblText.getText().getTracking());
+						cursorShape.setPosition(Vec2f{ssvs::getGlobalLeft(lblText.getText()), lblText.getY()} + Vec2f(spacing * cursorPos + 3.f, 0.f));
+
 						if(!lblText.isFocused()) finishEditing();
 
 						// TODO: pingpongvalue<t>
@@ -308,6 +314,7 @@ namespace ob
 
 						lblText.setString(editStr);
 						lblText.getText().setColor(sf::Color(255, green, 255, 255));
+						cursorShape.setFillColor(sf::Color(0, 0, 0, green));
 					}
 					else
 					{
@@ -321,12 +328,27 @@ namespace ob
 
 						if(e.type == sf::Event::TextEntered)
 						{
-							if(e.text.unicode == '\b' && !editStr.empty()) editStr.erase(std::end(editStr) - 1, std::end(editStr));
-							else if(e.text.unicode > 31 && e.text.unicode < 127) editStr += static_cast<char>(e.text.unicode);
+							auto cursorItr(std::begin(editStr) + cursorPos);
+
+							if(e.text.unicode == '\b' && !editStr.empty())
+							{
+								if(cursorItr > std::begin(editStr) && cursorItr <= std::end(editStr))
+								{
+									editStr.erase(cursorItr - 1, cursorItr);
+									--cursorPos;
+								}
+							}
+							else if(e.text.unicode > 31 && e.text.unicode < 127)
+							{
+								editStr.insert(cursorItr, static_cast<char>(e.text.unicode));
+								++cursorPos;
+							}
 						}
 						else if(e.type == sf::Event::KeyPressed)
 						{
 							if(e.key.code == ssvs::KKey::Return) finishEditing();
+							else if(e.key.code == ssvs::KKey::Left) --cursorPos;
+							else if(e.key.code == ssvs::KKey::Right) ++cursorPos;
 						}
 					}
 				}
@@ -337,9 +359,12 @@ namespace ob
 				ssvu::Delegate<void()> onTextChanged;
 
 				TextBox(Context& mContext, const Vec2f& mSize) : Widget{mContext, mSize / 2.f},
-					tBox(create<Widget>()), lblText(tBox.create<Label>(""))
+					tBox(create<Widget>()), lblText(tBox.create<Label>("")),
+					cursorShape{lblText.getPosition(), Vec2f(2.f, lblText.getText().getBitmapFont().getCellHeight()) / 2.f}
 				{
 					setFillColor(sf::Color::Transparent);
+
+					lblText.onPostDraw += [this]{ if(editing) render(cursorShape); };
 
 					tBox.setOutlineColor(sf::Color::Black);
 					tBox.setOutlineThickness(2);
