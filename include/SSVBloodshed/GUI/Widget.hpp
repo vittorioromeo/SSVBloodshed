@@ -59,7 +59,7 @@ namespace ob
 
 				inline void drawHierarchy()
 				{
-					recurseChildrenBF([this](Widget& mW){ if(mW.isVisible()) { mW.draw(); render(mW); } });
+					recurseChildrenBF([this](Widget& mW){ if(mW.isVisible()) { mW.draw(); mW.onPostDraw(); render(mW); } });
 				}
 
 				inline void setFocused(bool mValue)
@@ -141,7 +141,7 @@ namespace ob
 				using AABBShape::AABBShape;
 
 				ssvu::Delegate<void(bool)> onFocusChanged, onAnyChildFocusChanged;
-				ssvu::Delegate<void()> onPostUpdate;
+				ssvu::Delegate<void()> onPostUpdate, onPostDraw;
 				ssvu::Delegate<void()> onLeftClick, onLeftClickDown, onLeftRelease;
 				ssvu::Delegate<void()> onRightClick, onRightClickDown, onRightRelease;
 
