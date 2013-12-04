@@ -22,7 +22,14 @@ namespace ob
 			OBLEPack pack;
 			OBLESector* currentSector{nullptr};
 			OBLELevel* currentLevel{nullptr};
+			ssvufs::Path currentPath;
 			int currentSectorIdx{0}, currentLevelX{0}, currentLevelY{0};
+
+			inline void setPath(const ssvufs::Path& mPath)
+			{
+				currentPath = mPath;
+				assert(!currentPath.isNull());
+			}
 
 		public:
 			inline void createEmptyPack()
@@ -34,13 +41,17 @@ namespace ob
 			}
 			inline void loadPack(const ssvufs::Path& mPath)
 			{
-				assert(database != nullptr);
-				try { pack = ssvuj::as<OBLEPack>(ssvuj::readFromFile(mPath)); }
+				assert(database != nullptr && mPath.exists());
+				setPath(mPath);
+
+				try { pack = ssvuj::as<OBLEPack>(ssvuj::readFromFile(currentPath)); }
 				catch(...) { ssvu::lo("Fatal error") << "Failed to load pack" << std::endl; }
 			}
 			inline void savePack(const ssvufs::Path& mPath)
 			{
-				try { ssvuj::writeToFile(ssvuj::getArch(pack), mPath); }
+				setPath(mPath);
+
+				try { ssvuj::writeToFile(ssvuj::getArch(pack), currentPath); }
 				catch(...) { ssvu::lo("Fatal error") << "Failed to save pack" << std::endl; }
 			}
 
@@ -70,6 +81,7 @@ namespace ob
 			inline OBLESector& getCurrentSector() const noexcept				{ assert(currentSector != nullptr); return *currentSector; }
 			inline OBLELevel& getCurrentLevel() const noexcept					{ assert(currentLevel != nullptr); return *currentLevel; }
 			inline decltype(currentLevel->getTiles()) getCurrentTiles() const	{ return getCurrentLevel().getTiles(); }
+			inline const ssvufs::Path& getCurrentPath() const noexcept			{ return currentPath; }
 
 			inline bool isCurrentLevelNull() const noexcept						{ return currentLevel == nullptr; }
 			inline bool isSectorValid(int mIdx) const noexcept					{ return pack.isValid(mIdx); }

@@ -24,11 +24,13 @@
 
 namespace ob
 {
+	class FormIO;
 	class FormPack;
 	class FormParams;
 
 	class OBLEEditor
 	{
+		friend class FormIO;
 		friend class FormPack;
 		friend class FormParams;
 		template<typename> friend class OBLEGInput;
@@ -62,6 +64,7 @@ namespace ob
 			GUI::Label* lblInfo{nullptr};
 
 			FormPack* formPack{nullptr};
+			FormIO* formIO{nullptr};
 
 		public:
 			inline OBLEEditor(ssvs::GameWindow& mGameWindow, OBAssets& mAssets) : gameWindow(mGameWindow), assets(mAssets), guiCtx(assets, gameWindow)
@@ -108,6 +111,7 @@ namespace ob
 				lblInfo->attach(GUI::At::NW, *formInfo, GUI::At::NW, Vec2f{2.f, 2.f});
 
 				formPack = &guiCtx.create<FormPack>(*this);
+				formIO = &guiCtx.create<FormIO>(*this);
 			}
 
 			template<typename T = FormParams> inline void createFormParams(OBLETile& mTile)
@@ -124,7 +128,7 @@ namespace ob
 			}
 
 			inline void loadPackFromFile(const ssvufs::Path& mPath)	{ sharedData.loadPack(mPath); loadSector(0); }
-			inline void savePackToFile(const ssvufs::Path& mPath)		{ sharedData.savePack(mPath); }
+			inline void savePackToFile(const ssvufs::Path& mPath)	{ sharedData.savePack(mPath); }
 
 			template<typename TFormPack = FormPack> inline void loadSector(int mIdx)
 			{
@@ -237,6 +241,54 @@ namespace ob
 			inline const OBLEDatabaseEntry& getCurrentEntry()			{ return sharedData.getDatabase().get(OBLETType(brush.getIdx())); }
 	};
 
+	class FormIO : public GUI::Form
+	{
+		private:
+			OBLEEditor& editor;
+			GUI::Strip& mainStrip;
+			GUI::Label& lblCurrentPath;
+			GUI::TextBox& tboxFilename;
+			GUI::Strip& stripBtns;
+			GUI::Button& btnSave;
+			GUI::Button& btnLoad;
+
+		public:
+			FormIO(GUI::Context& mCtx, OBLEEditor& mEditor) : GUI::Form{mCtx, "IO", Vec2f{300.f, 300.f}, Vec2f{100.f, 100.f}},
+				editor(mEditor), mainStrip(create<GUI::Strip>(GUI::At::Top, GUI::At::Bottom, GUI::At::Bottom)),
+				lblCurrentPath(mainStrip.create<GUI::Label>("CURRENT: null")),
+				tboxFilename(mainStrip.create<GUI::TextBox>(Vec2f{56.f * 2.f, 8.f})),
+				stripBtns(mainStrip.create<GUI::Strip>(GUI::At::Left, GUI::At::Right, GUI::At::Right)),
+				btnSave(stripBtns.create<GUI::Button>("save", Vec2f{40.f, 8.f})),
+				btnLoad(stripBtns.create<GUI::Button>("load", Vec2f{40.f, 8.f}))
+			{
+				setScaling(GUI::Scaling::FitToChildren);
+				setResizable(false); setPadding(2.f);
+
+				mainStrip.attach(GUI::At::Center, *this, GUI::At::Center);
+				mainStrip.setPadding(2.f);
+
+				tboxFilename.setString("./level.lvl");
+
+				btnSave.onLeftClick += [this]
+				{
+					if(tboxFilename.getString().empty()) return;
+					editor.savePackToFile(tboxFilename.getString());
+
+					lblCurrentPath.setString("CURRENT: " + editor.sharedData.getCurrentPath());
+				};
+				btnLoad.onLeftClick += [this]
+				{
+					if(tboxFilename.getString().empty()) return;
+					ssvufs::Path path{tboxFilename.getString()};
+
+					if(!path.exists()) return;
+					editor.loadPackFromFile(path);
+
+					lblCurrentPath.setString("CURRENT: " + editor.sharedData.getCurrentPath());
+				};
+			}
+	};
+
 	class FormPack : public GUI::Form
 	{
 		private:
@@ -248,14 +300,13 @@ namespace ob
 			GUI::Button& btnAddSector;
 
 		public:
-			FormPack(GUI::Context& mCtx, OBLEEditor& mEditor) : GUI::Form{mCtx, "", Vec2f{300.f, 300.f}, Vec2f{100.f, 100.f}},
+			FormPack(GUI::Context& mCtx, OBLEEditor& mEditor) : GUI::Form{mCtx, "PACK", Vec2f{300.f, 300.f}, Vec2f{100.f, 100.f}},
 				editor(mEditor), mainStrip(create<GUI::Strip>(GUI::At::Top, GUI::At::Bottom, GUI::At::Bottom)),
 				tboxName(mainStrip.create<GUI::TextBox>(Vec2f{56.f * 2.f, 8.f})),
 				shtrSectors(mainStrip.create<GUI::ChoiceShutter>(std::initializer_list<std::string>{}, Vec2f{56.f, 8.f})),
 				tboxSectorIdx(mainStrip.create<GUI::TextBox>(Vec2f{56.f, 8.f})),
 				btnAddSector(mainStrip.create<GUI::Button>("add sector", Vec2f{56.f, 8.f}))
 			{
-				setTitle("PACK");
 				setScaling(GUI::Scaling::FitToChildren);
 				setResizable(false); setPadding(2.f);
 
