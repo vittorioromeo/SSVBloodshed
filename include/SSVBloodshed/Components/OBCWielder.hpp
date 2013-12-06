@@ -47,8 +47,8 @@ namespace ob
 
 			inline OBCDir8& getCDir8() const noexcept		{ return cDir8; }
 			inline bool isShooting() const noexcept			{ return shooting; }
-			inline Vec2i getShootingPos() const noexcept	{ return cPhys.getPosI() + Vec2i(cDir8.getVec(toCoords(wieldDist)) * 1.3f); }
-			inline Vec2f getShootingPosPx() const noexcept	{ return toPixels(getShootingPos()); }
+			inline Vec2i getShootingPos() const noexcept	{ return cPhys.getPosI() + Vec2i(cDir8.getVec(toCoords(wieldDist * 0.6f))); }
+			inline Vec2f getShootingPosPx() const noexcept	{ return toPixels(cPhys.getPosI() + Vec2i(cDir8.getVec(toCoords(wieldDist * 1.3f)))); }
 	};
 }
 

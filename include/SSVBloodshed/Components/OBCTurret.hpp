@@ -56,7 +56,7 @@ namespace ob
 			{
 				assets.playSound("Sounds/spark.wav");
 				Vec2i shootPos{body.getPosition() + getVecFromDir8<int>(direction) * 600};
-				wpn.shoot(shootPos, getDegFromDir8(direction));
+				wpn.shoot(shootPos, getDegFromDir8(direction), toPixels(shootPos));
 			}
 
 			inline OBCKillable& getCKillable() const noexcept { return cKillable; }

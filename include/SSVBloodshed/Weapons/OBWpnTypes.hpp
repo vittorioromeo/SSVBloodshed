@@ -30,67 +30,67 @@ namespace ob
 		inline OBWpnType createMachineGun()
 		{
 			return {4.5f, 1.f, 420.f, "Sounds/machineGun.wav",
-			[](OBWpnType& mWpn, OBGame& mGame, const Vec2i& mPos, float mDeg)
+			[](OBWpnType& mWpn, OBGame& mGame, const Vec2i& mPos, float mDeg, const Vec2f& mMuzzlePxPos)
 			{
 				mWpn.shotProjectile(mGame.getFactory().createPJBullet(mPos, mDeg));
-				mGame.createPCaseBullet(1, toPixels(mPos), mDeg);
-				mGame.createPMuzzleBullet(16, toPixels(mPos));
+				mGame.createPCaseBullet(1, mMuzzlePxPos, mDeg);
+				mGame.createPMuzzleBullet(16, mMuzzlePxPos);
 			}};
 		}
 		inline OBWpnType createPlasmaBolter()
 		{
 			return {9.5f, 2.f, 290.f, "Sounds/machineGun.wav",
-			[](OBWpnType& mWpn, OBGame& mGame, const Vec2i& mPos, float mDeg)
+			[](OBWpnType& mWpn, OBGame& mGame, const Vec2i& mPos, float mDeg, const Vec2f& mMuzzlePxPos)
 			{
 				mWpn.shotProjectile(mGame.getFactory().createPJBoltPlasma(mPos, mDeg));
-				mGame.createPMuzzlePlasma(20, toPixels(mPos));
+				mGame.createPMuzzlePlasma(20, mMuzzlePxPos);
 			}};
 		}
 		inline OBWpnType createEPlasmaBulletGun(int mFanCount = 0, float mStep = 12.f)
 		{
 			return {45.f, 0.5f, 320.f, "Sounds/machineGun.wav",
-			[mFanCount, mStep](OBWpnType& mWpn, OBGame& mGame, const Vec2i& mPos, float mDeg)
+			[mFanCount, mStep](OBWpnType& mWpn, OBGame& mGame, const Vec2i& mPos, float mDeg, const Vec2f& mMuzzlePxPos)
 			{
 				fanShoot(&OBFactory::createPJBulletPlasma, mWpn, mGame, mPos, mDeg, mFanCount, mStep, 40.f);
-				mGame.createPMuzzlePlasma(16, toPixels(mPos));
+				mGame.createPMuzzlePlasma(16, mMuzzlePxPos);
 			}};
 		}
 		inline OBWpnType createEPlasmaStarGun(int mFanCount = 0, float mStep = 12.f)
 		{
 			return {75.f, 1.f, 260.f, "Sounds/machineGun.wav",
-			[mFanCount, mStep](OBWpnType& mWpn, OBGame& mGame, const Vec2i& mPos, float mDeg)
+			[mFanCount, mStep](OBWpnType& mWpn, OBGame& mGame, const Vec2i& mPos, float mDeg, const Vec2f& mMuzzlePxPos)
 			{
 				fanShoot(&OBFactory::createPJStarPlasma, mWpn, mGame, mPos, mDeg, mFanCount, mStep, 40.f);
-				mGame.createPMuzzlePlasma(16, toPixels(mPos));
+				mGame.createPMuzzlePlasma(16, mMuzzlePxPos);
 			}};
 		}
 		inline OBWpnType createPlasmaCannon()
 		{
 			return {120.f, 5.f, 180.f, "Sounds/machineGun.wav",
-			[](OBWpnType& mWpn, OBGame& mGame, const Vec2i& mPos, float mDeg)
+			[](OBWpnType& mWpn, OBGame& mGame, const Vec2i& mPos, float mDeg, const Vec2f& mMuzzlePxPos)
 			{
 				mWpn.shotProjectile(mGame.getFactory().createPJCannonPlasma(mPos, mDeg));
-				mGame.createPMuzzlePlasma(30, toPixels(mPos));
+				mGame.createPMuzzlePlasma(30, mMuzzlePxPos);
 			}};
 		}
 		inline OBWpnType createRocketLauncher()
 		{
 			return {80.f, 5.f, 25.f, "Sounds/machineGun.wav",
-			[](OBWpnType& mWpn, OBGame& mGame, const Vec2i& mPos, float mDeg)
+			[](OBWpnType& mWpn, OBGame& mGame, const Vec2i& mPos, float mDeg, const Vec2f& mMuzzlePxPos)
 			{
 				mWpn.shotProjectile(mGame.getFactory().createPJRocket(mPos, mDeg));
-				mGame.createPCaseRocket(1, toPixels(mPos), mDeg);
-				mGame.createPMuzzleRocket(14, toPixels(mPos));
+				mGame.createPCaseRocket(1, mMuzzlePxPos, mDeg);
+				mGame.createPMuzzleRocket(14, mMuzzlePxPos);
 			}};
 		}
 		inline OBWpnType createGrenadeLauncher()
 		{
 			return {45.f, 5.f, 180.f, "Sounds/machineGun.wav",
-			[](OBWpnType& mWpn, OBGame& mGame, const Vec2i& mPos, float mDeg)
+			[](OBWpnType& mWpn, OBGame& mGame, const Vec2i& mPos, float mDeg, const Vec2f& mMuzzlePxPos)
 			{
 				mWpn.shotProjectile(mGame.getFactory().createPJGrenade(mPos, mDeg));
-				mGame.createPCaseRocket(1, toPixels(mPos), mDeg);
-				mGame.createPMuzzleRocket(8, toPixels(mPos));
+				mGame.createPCaseRocket(1, mMuzzlePxPos, mDeg);
+				mGame.createPMuzzleRocket(8, mMuzzlePxPos);
 			}};
 		}
 	}

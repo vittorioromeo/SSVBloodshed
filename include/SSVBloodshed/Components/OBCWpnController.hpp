@@ -29,11 +29,11 @@ namespace ob
 			inline void init()						{ tckShoot.setLoop(false); }
 			inline void update(FT mFT) override	{ tckShoot.update(mFT); }
 
-			inline bool shoot(const Vec2i& mPos, float mDeg)
+			inline bool shoot(const Vec2i& mPos, float mDeg, const Vec2f& mMuzzlePxPos)
 			{
 				if(tckShoot.isRunning()) return false;
 				tckShoot.restart(wpn.getDelay());
-				wpn.shoot(mPos, mDeg); wpn.playSound();
+				wpn.shoot(mPos, mDeg, mMuzzlePxPos); wpn.playSound();
 				return true;
 			}
 

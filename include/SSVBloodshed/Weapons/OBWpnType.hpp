@@ -19,7 +19,7 @@ namespace ob
 			std::string soundId{""};
 
 		public:
-			ssvu::Delegate<void(OBWpnType&, OBGame&, const Vec2i&, float)> onShoot;
+			ssvu::Delegate<void(OBWpnType&, OBGame&, const Vec2i&, float, const Vec2f&)> onShoot;
 			ssvu::Delegate<void(OBCProjectile&)> onShotProjectile;
 
 			inline OBWpnType() = default;
@@ -29,7 +29,10 @@ namespace ob
 				onShoot += mOnShoot;
 			}
 
-			inline void shoot(OBGame& mGame, const Vec2i& mPos, float mDeg) { onShoot(*this, mGame, mPos, mDeg); }
+			inline void shoot(OBGame& mGame, const Vec2i& mPos, float mDeg, const Vec2f& mMuzzlePosPx)
+			{
+				onShoot(*this, mGame, mPos, mDeg, mMuzzlePosPx);
+			}
 			inline OBCProjectile& shotProjectile(Entity& mEntity)
 			{
 				auto& pj(mEntity.getComponent<OBCProjectile>());
