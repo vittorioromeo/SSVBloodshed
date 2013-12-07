@@ -68,11 +68,7 @@ namespace ob
 			inline Vec2f getVertexSW() const noexcept { return Vec2f(getLeft(), getBottom()); }
 			inline Vec2f getVertexSE() const noexcept { return Vec2f(getRight(), getBottom()); }
 
-			inline bool isOverlapping(const Vec2f& mPoint, float mPadding) const noexcept
-			{
-				return mPoint.x >= getLeft() - mPadding && mPoint.x < getRight() + mPadding
-						&& mPoint.y >= getTop() - mPadding && mPoint.y < getBottom() + mPadding;
-			}
+			inline bool isOverlapping(const Vec2f& mPoint, float mPadding) const noexcept { return ssvs::isInAABB(getVertexNW(), getVertexSE(), mPoint, mPadding); }
 		};
 	}
 }
