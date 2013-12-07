@@ -12,25 +12,106 @@ namespace ob
 {
 	namespace GUI
 	{
-		const sf::Color colorFocused{190, 190, 190, 255};
-		const sf::Color colorUnfocused{150, 150, 150, 255};
-
 		namespace Internal
 		{
 			class ClickEffect
 			{
 				private:
+					sf::Color color;
 					AABBShape& target;
 					float value{0.f};
 
 				public:
-					inline ClickEffect(AABBShape& mTarget) noexcept : target(mTarget) { }
+					inline ClickEffect(sf::Color mColor, AABBShape& mTarget) noexcept : color{std::move(mColor)}, target(mTarget) { }
 					inline void update(FT mFT) noexcept
 					{
-						target.setFillColor(sf::Color(255, value, 0, 255));
+						auto colorNew(color); colorNew.g = value;
+						target.setFillColor(colorNew);
 						value = ssvu::getClampedMin(value - mFT * 15.f, 0.f);
 					}
 					inline void click() noexcept { value = 255; }
+			};
+
+			class TextCursor
+			{
+				private:
+					AABBShape shape;
+					int idxStart{0}, idxEnd{0}, idxMin, idxMax;
+					float blinkValue{0.f};
+
+					inline void delSelection(std::string& mStr)
+					{
+						mStr.erase(std::begin(mStr) + idxMin, std::begin(mStr) + idxMax);
+						setBoth(idxMin);
+					}
+					inline void moveBoth(int mDir) noexcept	{ idxStart += mDir; idxEnd += mDir; }
+					inline bool isSingle() const noexcept { return idxStart == idxEnd; }
+
+				public:
+					inline TextCursor(float mFontHeight) : shape{Vec2f{0.f, 0.f}, Vec2f{1.f, mFontHeight / 2.f}} { }
+
+					inline void update(FT mFT, std::size_t mStrSize) noexcept
+					{
+						blinkValue += mFT * 0.08f;
+
+						ssvu::clamp(idxStart, 0, mStrSize);
+						ssvu::clamp(idxEnd, 0, mStrSize);
+						idxMin = std::min(idxStart, idxEnd);
+						idxMax = std::max(idxStart, idxEnd);
+					}
+
+					inline const AABBShape& getShape() { return shape; }
+
+					inline void refreshShape(float mLeft, float mY, float mSpacing)
+					{
+						auto effect(std::abs(std::sin(blinkValue)));
+						shape.setPosition(Vec2f{mLeft + ssvs::getGlobalWidth(shape) / 2.f, mY} + Vec2f(mSpacing * idxMin, 0.f));
+
+						if(isSingle())
+						{
+							shape.setFillColor(sf::Color(0, 0, 0, 155 + effect * 100));
+							shape.setWidth(2.f);
+						}
+						else
+						{
+							shape.setFillColor(sf::Color(0, 55, 200, 75 + effect * 75));
+							shape.setWidth(mSpacing * (idxMax - idxMin) + 3.f);
+						}
+					}
+
+					inline void setEnd(int mIdx) noexcept	{ idxEnd = mIdx; }
+					inline void setBoth(int mIdx) noexcept	{ idxStart = idxEnd = mIdx; }
+
+					inline void delStrBack(std::string& mStr)
+					{
+						if(!isSingle()) { delSelection(mStr); return; }
+
+						auto itrStart(std::begin(mStr) + idxStart);
+						if(itrStart > std::begin(mStr)) mStr.erase(itrStart - 1, itrStart);
+						moveBoth(-1);
+					}
+
+					inline void delStrFwd(std::string& mStr)
+					{
+						if(!isSingle()) { delSelection(mStr); return; }
+
+						auto itrStart(std::begin(mStr) + idxStart);
+						if(itrStart < std::end(mStr)) mStr.erase(itrStart, itrStart + 1);
+					}
+
+					inline void insertStr(std::string& mStr, char mChar)
+					{
+						if(!isSingle()) delSelection(mStr);
+						mStr.insert(std::begin(mStr) + idxMin, mChar);
+						moveBoth(1);
+					}
+
+					inline void move(bool mShift, int mDir)
+					{
+						if(mShift) idxEnd += mDir;
+						else if(!isSingle()) setBoth(mDir > 0 ? idxMax + 1 : idxMin - 1);
+						else moveBoth(mDir);
+					}
 			};
 		}
 
@@ -43,7 +124,7 @@ namespace ob
 				inline void draw() override { text.setPosition(getX(), getY() - 1.f); render(text); }
 
 			public:
-				Label(Context& mContext, std::string mText = "") : Widget{mContext}, text{*context.getAssets().obStroked}
+				Label(Context& mContext, std::string mText = "") : Widget{mContext}, text{getStyle().font}
 				{
 					text.setColor(sf::Color::White); text.setTracking(-3);
 					setFillColor(sf::Color::Transparent);
@@ -65,7 +146,7 @@ namespace ob
 		{
 			private:
 				Label& lblLabel;
-				Internal::ClickEffect clickEffect{*this};
+				Internal::ClickEffect clickEffect{getStyle().colorBtnUnpressed, *this};
 
 				inline void update(FT mFT) override { clickEffect.update(mFT); }
 
@@ -87,7 +168,7 @@ namespace ob
 			{
 				private:
 					Label& lblState;
-					Internal::ClickEffect clickEffect{*this};
+					Internal::ClickEffect clickEffect{getStyle().colorBtnUnpressed, *this};
 
 					inline void update(FT mFT) override { clickEffect.update(mFT); }
 
@@ -187,14 +268,14 @@ namespace ob
 				{
 					setSize(wsBar.getSize());
 					if(!wsShutter.isAnyChildRecursive([](const Widget& mW){ return mW.isFocused(); })) wsShutter.setExcludedRecursive(true);
-					wsShutter.setFillColor(wsShutter.isFocused() ? colorFocused : colorUnfocused);
+					wsShutter.setFillColor(wsShutter.isFocused() ? getStyle().colorBaseFocused : getStyle().colorBaseUnfocused);
 				}
 
 			public:
 				Shutter(Context& mContext, std::string mLabel, const Vec2f& mSize) : Widget{mContext},
 					wsBar(create<Strip>(At::Right, At::Left, At::Left)),
 					wsShutter(create<Strip>(At::Top, At::Bottom, At::Bottom)),
-					btnOpen(wsBar.create<Button>("v", Vec2f{8.f, 8.f})),
+					btnOpen(wsBar.create<Button>("v", getStyle().getBtnSquareSize())),
 					lblLabel(wsBar.create<Label>(std::move(mLabel)))
 				{
 					setFillColor(sf::Color::Transparent);
@@ -267,8 +348,8 @@ namespace ob
 						: Shutter{mContext, "", mSize}, choices{mChoices},
 						wsChoices(getShutter().create<Strip>(At::Top, At::Bottom, At::Bottom)),
 						wsScroll(getShutter().create<Strip>(At::Right, At::Left, At::Left)),
-						btnUp(wsScroll.create<Button>("^", Vec2f{8.f, 8.f})),
-						btnDown(wsScroll.create<Button>("v", Vec2f{8.f, 8.f})),
+						btnUp(wsScroll.create<Button>("^", getStyle().getBtnSquareSize())),
+						btnDown(wsScroll.create<Button>("v", getStyle().getBtnSquareSize())),
 						lblCount(wsScroll.create<Label>(""))
 				{
 					btnUp.onLeftClick += [this]{ --idxOffset; refreshChoices(); };
@@ -305,23 +386,21 @@ namespace ob
 				bool editing{false};
 				std::string editStr, str;
 				float green{0.f};
-				AABBShape cursorShape;
-				int cursorPos{0};
+				Internal::TextCursor cursor;
 
 				inline void update(FT mFT) override
 				{
+					cursor.update(mFT, editStr.size());
+
 					if(editing)
 					{
-						cursorShape.setPosition(Vec2f{ssvs::getGlobalLeft(lblText.getText()), lblText.getY()} + Vec2f(getCursorSpacing() * cursorPos + 3.f, 0.f));
-
-						if(!lblText.isFocused()) finishEditing();
-
 						green += mFT * 0.08f;
 						auto effect(std::abs(std::sin(green)));
-						lblText.getText().setColor(sf::Color(255, effect * 255, 255, 255));
 
+						cursor.refreshShape(ssvs::getGlobalLeft(lblText.getText()), lblText.getY(), getCursorSpacing());
+
+						lblText.getText().setColor(sf::Color(255, effect * 255, 255, 255));
 						lblText.setString(editStr);
-						cursorShape.setFillColor(sf::Color(0, 0, 0, 155 + effect * 100));
 					}
 					else
 					{
@@ -329,54 +408,41 @@ namespace ob
 						lblText.getText().setColor(sf::Color::White);
 					}
 
-					ssvu::clamp(cursorPos, 0, editStr.size());
 					for(const auto& e : getEventsToPoll())
 					{
 						if(!editing) return;
 
 						if(e.type == sf::Event::TextEntered)
 						{
-							auto cursorItr(std::begin(editStr) + cursorPos);
-
-							if(e.text.unicode == '\b' && !editStr.empty()) deleteCharBack();
-							else if(e.text.unicode > 31 && e.text.unicode < 127) editStr.insert(cursorItr++, static_cast<char>(e.text.unicode));
+							if(e.text.unicode == '\b' && !editStr.empty()) cursor.delStrBack(editStr);
+							else if(e.text.unicode > 31 && e.text.unicode < 127) cursor.insertStr(editStr, char(e.text.unicode));
 						}
 						else if(e.type == sf::Event::KeyPressed)
 						{
 							if(e.key.code == ssvs::KKey::Return) finishEditing();
-							else if(e.key.code == ssvs::KKey::Left) --cursorPos;
-							else if(e.key.code == ssvs::KKey::Right) ++cursorPos;
-							else if(e.key.code == ssvs::KKey::Home) cursorPos = 0;
-							else if(e.key.code == ssvs::KKey::End) cursorPos = editStr.size();
-							else if(e.key.code == ssvs::KKey::Delete) deleteCharFwd();
+							else if(e.key.code == ssvs::KKey::Left) cursor.move(isKeyPressed(ssvs::KKey::LShift), -1);
+							else if(e.key.code == ssvs::KKey::Right) cursor.move(isKeyPressed(ssvs::KKey::LShift), 1);
+							else if(e.key.code == ssvs::KKey::Home) cursor.setBoth(0);
+							else if(e.key.code == ssvs::KKey::End) cursor.setBoth(editStr.size());
+							else if(e.key.code == ssvs::KKey::Delete) cursor.delStrFwd(editStr);
 						}
 					}
 				}
 
-				inline void deleteCharBack()
-				{
-					auto cursorItr(std::begin(editStr) + cursorPos);
-					if(cursorItr-- > std::begin(editStr)) editStr.erase(cursorItr - 1, cursorItr);
-				}
-				inline void deleteCharFwd()
-				{
-					auto cursorItr(std::begin(editStr) + cursorPos);
-					if(cursorItr < std::end(editStr)) editStr.erase(cursorItr, cursorItr + 1);
-				}
-
 				inline void finishEditing() { editing = false; str = editStr; onTextChanged(); }
-				inline float getCursorSpacing() const noexcept { return lblText.getText().getBitmapFont().getCellWidth() + lblText.getText().getTracking(); }
+				inline float getCursorSpacing() const noexcept { return getStyle().getGlyphHeight() + lblText.getText().getTracking(); }
+				inline int getCursorPos() const noexcept { return (getMousePos().x - ssvs::getGlobalLeft(lblText.getText())) / getCursorSpacing(); }
 
 			public:
 				ssvu::Delegate<void()> onTextChanged;
 
 				TextBox(Context& mContext, const Vec2f& mSize) : Widget{mContext, mSize / 2.f},
 					tBox(create<Widget>()), lblText(tBox.create<Label>("")),
-					cursorShape{lblText.getPosition(), Vec2f(2.f, lblText.getText().getBitmapFont().getCellHeight()) / 2.f}
+					cursor{float(getStyle().getGlyphHeight())}
 				{
 					setFillColor(sf::Color::Transparent);
 
-					lblText.onPostDraw += [this]{ if(editing) render(cursorShape); };
+					lblText.onPostDraw += [this]{ if(editing) render(cursor.getShape()); };
 
 					tBox.setOutlineColor(sf::Color::Black);
 					tBox.setOutlineThickness(2);
@@ -391,9 +457,13 @@ namespace ob
 					onLeftClick += [this]
 					{
 						if(!editing) editStr = str;
-						editing = true; lblText.gainExclusiveFocus();
-						cursorPos = (getMousePos().x - ssvs::getGlobalLeft(lblText.getText())) / getCursorSpacing();
+						editing = true;
+
+						if(isKeyPressed(ssvs::KKey::LShift)) cursor.setEnd(getCursorPos());
+						else cursor.setBoth(getCursorPos());
 					};
+					onLeftClickDown += [this]{ cursor.setEnd(getCursorPos()); };
+					onFocusChanged += [this](bool mFocus){ if(!mFocus) finishEditing(); };
 				}
 
 				inline void setString(std::string mString) { str = std::move(mString); }
@@ -412,9 +482,9 @@ namespace ob
 			public:
 				FormBar(Context& mContext, std::string mTitle) : Widget{mContext},
 					wsBtns(create<Strip>(At::Right, At::Left, At::Left)),
-					btnClose(wsBtns.create<Button>("x", Vec2f{8.f, 8.f})),
-					btnMinimize(wsBtns.create<Button>("_", Vec2f{8.f, 8.f})),
-					btnCollapse(wsBtns.create<Button>("^", Vec2f{8.f, 8.f})),
+					btnClose(wsBtns.create<Button>("x", getStyle().getBtnSquareSize())),
+					btnMinimize(wsBtns.create<Button>("_", getStyle().getBtnSquareSize())),
+					btnCollapse(wsBtns.create<Button>("^", getStyle().getBtnSquareSize())),
 					lblTitle(create<Label>(std::move(mTitle)))
 				{
 					external = true;
@@ -447,7 +517,7 @@ namespace ob
 
 				inline void update(FT) override
 				{
-					setFillColor(isFocused() ? colorFocused : colorUnfocused);
+					setFillColor(isFocused() ? getStyle().colorBaseFocused : getStyle().colorBaseUnfocused);
 
 					if(action == Action::Move) setPosition(getMousePos() - dragOrigin);
 					else if(action == Action::Resize)
@@ -468,7 +538,7 @@ namespace ob
 					fbBar.getBtnMinimize().onLeftClick += [this]{ /* TODO */ };
 					fbBar.getBtnCollapse().onLeftClick += [this]{ toggleCollapsed(); };
 					fbBar.setScalingX(Scaling::FitToNeighbor);
-					fbBar.setHeight(12.f); fbBar.setPadding(-2.f);
+					fbBar.setScalingY(Scaling::FitToChildren); fbBar.setPadding(2.f);
 
 					fbResizer.setFillColor(sf::Color::Transparent);
 					fbResizer.setOutlineThickness(2); fbResizer.setOutlineColor(sf::Color::Black);
