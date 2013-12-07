@@ -65,7 +65,10 @@ namespace ssvces
 	};
 
 	template<typename T> inline constexpr std::tuple<T*> buildComponentsTpl(Entity& mEntity) { return std::tuple<T*>{&mEntity.getComponent<T>()}; }
-	template<typename T1, typename T2, typename... TArgs> inline constexpr std::tuple<T1*, T2*, TArgs*...> buildComponentsTpl(Entity& mEntity) { return std::tuple_cat(buildComponentsTpl<T1>(mEntity), buildComponentsTpl<T2, TArgs...>(mEntity)); }
+	template<typename T1, typename T2, typename... TArgs> inline constexpr std::tuple<T1*, T2*, TArgs*...> buildComponentsTpl(Entity& mEntity)
+	{
+		return std::tuple_cat(buildComponentsTpl<T1>(mEntity), buildComponentsTpl<T2, TArgs...>(mEntity));
+	}
 }
 
 #endif
