@@ -42,7 +42,7 @@ namespace ob
 				gs.addInput({{k::E}},		[this](FT){ if(isUsingGUI()) return; game.gameCamera.zoomIn(1.1f); });
 
 				gs.addInput({{k::R}},		[this](FT){ if(isUsingGUI()) return; game.newGame(); }, t::Once);
-				gs.addInput({{k::P}},		[this](FT){ if(isUsingGUI()) return; game.paused = !game.paused; }, t::Once);
+				gs.addInput({{k::Pause}},	[this](FT){ if(isUsingGUI()) return; game.paused = !game.paused; }, t::Once);
 
 				gs.addInput({{k::Num0}},	[this](FT){ if(isUsingGUI()) return; game.factory.createPit(game.getMousePosition()); }, t::Once);
 				gs.addInput({{k::Num1}},	[this](FT){ if(isUsingGUI()) return; game.factory.createWall(game.getMousePosition(), game.getAssets().wallSingle); }, t::Once);
