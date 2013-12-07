@@ -13,6 +13,20 @@ namespace ob
 {
 	namespace GUI
 	{
+		struct Style
+		{
+			ssvs::BitmapFont& font;
+			sf::Color colorOutline{sf::Color::Black};
+			sf::Color colorBaseFocused{190, 190, 190, 255};
+			sf::Color colorBaseUnfocused{150, 150, 150, 255};
+			sf::Color colorBtnUnpressed{255, 0, 0, 255};
+
+			inline Style(ssvs::BitmapFont& mFont) : font(mFont) { }
+
+			inline float getGlyphHeight() const noexcept	{ return font.getCellHeight(); }
+			inline Vec2f getBtnSquareSize() const noexcept	{ return Vec2f{getGlyphHeight() - 2.f, getGlyphHeight() - 2.f}; }
+		};
+
 		class Context
 		{
 			friend class Widget;
@@ -20,6 +34,7 @@ namespace ob
 			private:
 				OBAssets& assets;
 				ssvs::GameWindow& gameWindow;
+				Style style;
 				sf::RenderTexture renderTexture;
 				sf::Sprite sprite;
 				ssvu::MemoryManager<Widget> widgets;
@@ -61,12 +76,15 @@ namespace ob
 					found->recurseChildren([&found](Widget& mW){ if(mW.isPressedAny() && mW.depth > found->depth) found = &mW; });
 
 					// Unfocus everything but the widgets as deep as the deepest child, and focus the context
-					unFocusAll();
+					for(auto& w : children) w->recurseChildrenIf<true>([found](Widget& mW){ return mW.isFocused() && &mW != found; }, [](Widget& mW){ mW.setFocused(false); });
 					found->recurseChildren([this, found](Widget& mW){ if(mW.depth == found->depth) { mW.setFocused(true); focused = true; } });
 				}
 
+				inline bool isKeyPressed(ssvs::KKey mKey) const noexcept { return gameWindow.isKeyPressed(mKey); }
+
 			public:
-				Context(OBAssets& mAssets, ssvs::GameWindow& mGameWindow) : assets(mAssets), gameWindow(mGameWindow)
+				Context(OBAssets& mAssets, ssvs::GameWindow& mGameWindow) : assets(mAssets), gameWindow(mGameWindow),
+					style{*assets.obStroked}
 				{
 					renderTexture.create(gameWindow.getWidth(), gameWindow.getHeight());
 					sprite.setTexture(renderTexture.getTexture());
