@@ -13,6 +13,7 @@ namespace ob
 	{
 		private:
 			bool soundEnabled{true}, musicEnabled{true};
+			float particleMult{1.f};
 			ssvs::Input::Trigger tLeft, tRight, tUp, tDown;	// Movement triggers
 			ssvs::Input::Trigger tShoot, tSwitch, tBomb;	// Action triggers
 
@@ -35,9 +36,11 @@ namespace ob
 			}
 
 		public:
+			inline static void setParticleMult(float mValue) noexcept		{ get().particleMult = mValue; }
 			inline static void setSoundEnabled(bool mValue) noexcept		{ get().soundEnabled = mValue; }
 			inline static void setMusicEnabled(bool mValue) noexcept		{ get().musicEnabled = mValue; }
 
+			inline static float getParticleMult() noexcept					{ return get().particleMult; }
 			inline static bool isSoundEnabled() noexcept					{ return get().soundEnabled; }
 			inline static bool isMusicEnabled() noexcept					{ return get().musicEnabled; }
 

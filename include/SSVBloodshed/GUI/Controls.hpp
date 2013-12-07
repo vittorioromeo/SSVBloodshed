@@ -15,6 +15,25 @@ namespace ob
 		const sf::Color colorFocused{190, 190, 190, 255};
 		const sf::Color colorUnfocused{150, 150, 150, 255};
 
+		namespace Internal
+		{
+			class ClickEffect
+			{
+				private:
+					AABBShape& target;
+					float value{0.f};
+
+				public:
+					inline ClickEffect(AABBShape& mTarget) noexcept : target(mTarget) { }
+					inline void update(FT mFT) noexcept
+					{
+						target.setFillColor(sf::Color(255, value, 0, 255));
+						value = ssvu::getClampedMin(value - mFT * 15.f, 0.f);
+					}
+					inline void click() noexcept { value = 255; }
+			};
+		}
+
 		class Label : public Widget
 		{
 			private:
@@ -46,13 +65,9 @@ namespace ob
 		{
 			private:
 				Label& lblLabel;
-				float green{0.f};
+				Internal::ClickEffect clickEffect{*this};
 
-				inline void update(FT mFT) override
-				{
-					setFillColor(sf::Color(255, green, 0, 255));
-					green = ssvu::getClampedMin(green - mFT * 15.f, 0.f);
-				}
+				inline void update(FT mFT) override { clickEffect.update(mFT); }
 
 			public:
 				Button(Context& mContext, std::string mLabel, const Vec2f& mSize) : Widget{mContext, mSize / 2.f},
@@ -60,7 +75,7 @@ namespace ob
 				{
 					setOutlineThickness(2); setOutlineColor(sf::Color::Black);
 					lblLabel.attach(At::Center, *this, At::Center);
-					onLeftClick += [this]{ green = 255; };
+					onLeftClick += [this]{ clickEffect.click(); };
 				}
 
 				inline Label& getLabel() noexcept { return lblLabel; }
@@ -72,13 +87,9 @@ namespace ob
 			{
 				private:
 					Label& lblState;
-					float green{0.f};
+					Internal::ClickEffect clickEffect{*this};
 
-					inline void update(FT mFT) override
-					{
-						setFillColor(sf::Color(255, green, 0, 255));
-						green = ssvu::getClampedMin(green - mFT * 15.f, 0.f);
-					}
+					inline void update(FT mFT) override { clickEffect.update(mFT); }
 
 				public:
 					CheckBoxStateBox(Context& mContext) : Widget{mContext, Vec2f{4.f, 4.f}}, lblState(create<Label>(""))
@@ -87,7 +98,7 @@ namespace ob
 						lblState.attach(At::Center, *this, At::Center);
 					}
 
-					inline void setState(bool mValue) { green = 255.f; lblState.setString(mValue ? "x" : ""); }
+					inline void setState(bool mValue) { clickEffect.click(); lblState.setString(mValue ? "x" : ""); }
 					inline Label& getLabel() noexcept { return lblState; }
 			};
 		}
@@ -293,7 +304,7 @@ namespace ob
 				Label& lblText;
 				bool editing{false};
 				std::string editStr, str;
-				float green{0.f}, greenDir{1.f};
+				float green{0.f};
 				AABBShape cursorShape;
 				int cursorPos{0};
 
@@ -301,19 +312,16 @@ namespace ob
 				{
 					if(editing)
 					{
-						float spacing(lblText.getText().getBitmapFont().getCellWidth() + lblText.getText().getTracking());
-						cursorShape.setPosition(Vec2f{ssvs::getGlobalLeft(lblText.getText()), lblText.getY()} + Vec2f(spacing * cursorPos + 3.f, 0.f));
+						cursorShape.setPosition(Vec2f{ssvs::getGlobalLeft(lblText.getText()), lblText.getY()} + Vec2f(getCursorSpacing() * cursorPos + 3.f, 0.f));
 
 						if(!lblText.isFocused()) finishEditing();
 
-						// TODO: pingpongvalue<t>
-						green = green + mFT * greenDir * 15.f;
-						if(green <= 0) { green = 0; greenDir = 1.f; }
-						else if(green >= 255) { green = 255; greenDir = -1.f; }
+						green += mFT * 0.08f;
+						auto effect(std::abs(std::sin(green)));
+						lblText.getText().setColor(sf::Color(255, effect * 255, 255, 255));
 
 						lblText.setString(editStr);
-						lblText.getText().setColor(sf::Color(255, green, 255, 255));
-						cursorShape.setFillColor(sf::Color(0, 0, 0, green));
+						cursorShape.setFillColor(sf::Color(0, 0, 0, 155 + effect * 100));
 					}
 					else
 					{
@@ -330,19 +338,8 @@ namespace ob
 						{
 							auto cursorItr(std::begin(editStr) + cursorPos);
 
-							if(e.text.unicode == '\b' && !editStr.empty())
-							{
-								if(cursorItr > std::begin(editStr) && cursorItr <= std::end(editStr))
-								{
-									editStr.erase(cursorItr - 1, cursorItr);
-									--cursorPos;
-								}
-							}
-							else if(e.text.unicode > 31 && e.text.unicode < 127)
-							{
-								editStr.insert(cursorItr, static_cast<char>(e.text.unicode));
-								++cursorPos;
-							}
+							if(e.text.unicode == '\b' && !editStr.empty()) deleteCharBack();
+							else if(e.text.unicode > 31 && e.text.unicode < 127) editStr.insert(cursorItr++, static_cast<char>(e.text.unicode));
 						}
 						else if(e.type == sf::Event::KeyPressed)
 						{
@@ -351,11 +348,24 @@ namespace ob
 							else if(e.key.code == ssvs::KKey::Right) ++cursorPos;
 							else if(e.key.code == ssvs::KKey::Home) cursorPos = 0;
 							else if(e.key.code == ssvs::KKey::End) cursorPos = editStr.size();
+							else if(e.key.code == ssvs::KKey::Delete) deleteCharFwd();
 						}
 					}
 				}
 
+				inline void deleteCharBack()
+				{
+					auto cursorItr(std::begin(editStr) + cursorPos);
+					if(cursorItr-- > std::begin(editStr)) editStr.erase(cursorItr - 1, cursorItr);
+				}
+				inline void deleteCharFwd()
+				{
+					auto cursorItr(std::begin(editStr) + cursorPos);
+					if(cursorItr < std::end(editStr)) editStr.erase(cursorItr, cursorItr + 1);
+				}
+
 				inline void finishEditing() { editing = false; str = editStr; onTextChanged(); }
+				inline float getCursorSpacing() const noexcept { return lblText.getText().getBitmapFont().getCellWidth() + lblText.getText().getTracking(); }
 
 			public:
 				ssvu::Delegate<void()> onTextChanged;
@@ -378,7 +388,12 @@ namespace ob
 					tBox.attach(At::Center, *this, At::Center);
 					lblText.attach(At::Center, tBox, At::Center);
 
-					onLeftClick += [this]{ editing = true; editStr = str; lblText.gainExclusiveFocus(); };
+					onLeftClick += [this]
+					{
+						if(!editing) editStr = str;
+						editing = true; lblText.gainExclusiveFocus();
+						cursorPos = (getMousePos().x - ssvs::getGlobalLeft(lblText.getText())) / getCursorSpacing();
+					};
 				}
 
 				inline void setString(std::string mString) { str = std::move(mString); }

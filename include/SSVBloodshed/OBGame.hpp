@@ -58,7 +58,7 @@ namespace ob
 			OBSharedData sharedData;
 			std::unordered_map<OBLELevel*, OBGLevelStat> levelStats;
 
-			bool paused{false};
+			bool paused{true};
 			sf::RectangleShape pauseRect{Vec2f(gameWindow.getWidth(), gameWindow.getHeight())};
 			ssvs::BitmapText pauseTxt{*assets.obBigStroked, "PAUSED"};
 			GUI::Context guiCtx{assets, gameWindow};
@@ -66,7 +66,8 @@ namespace ob
 
 			template<typename T, typename... TArgs> inline void createParticles(const T& mFunc, OBParticleSystem& mPS, unsigned int mCount, const Vec2f& mPos, TArgs&&... mArgs)
 			{
-				for(auto i(0u); i < mCount; ++i) mFunc(mPS, mPos, std::forward<TArgs>(mArgs)...);
+				unsigned int total(mCount * OBConfig::getParticleMult());
+				for(auto i(0u); i < total; ++i) mFunc(mPS, mPos, std::forward<TArgs>(mArgs)...);
 			}
 
 		public:
@@ -106,18 +107,20 @@ namespace ob
 				pauseTxt.setPosition(overlayCamera.getCenter());
 				pauseTxt.setOrigin(ssvs::getGlobalHalfSize(pauseTxt));
 
+				gameState.onAnyEvent += [this](const sf::Event& mEvent){ guiCtx.onAnyEvent(mEvent); };
+
 				formIO = &guiCtx.create<FormIO>();
 				formIO->onLoad += [this](const std::string& mFilename)
 				{
 					ssvufs::Path path{mFilename};
-
 					if(!path.exists()) return;
+
 					sharedData.loadPack(path);
 					formIO->getLblCurrentPath().setString("CURRENT: " + sharedData.getCurrentPath());
+					newGame(); manager.update(0);
 				};
 			}
 
-			inline void reloadPack() { sharedData.loadPack("./level.txt"); newGame(); }
 			inline void newGame()
 			{
 				sharedData.setCurrentSector(0);
@@ -192,7 +195,7 @@ namespace ob
 
 			inline void update(FT mFT)
 			{
-				if(!paused)
+				if(!paused && !sharedData.isCurrentLevelNull())
 				{
 					manager.update(mFT);
 					world.update(mFT);
@@ -205,7 +208,7 @@ namespace ob
 				debugText.update(mFT);
 				gameCamera.update<int>(mFT);
 
-				if(!paused)
+				if(!paused && !sharedData.isCurrentLevelNull())
 				{
 					updateLevelStat();
 					onPostUpdate();
@@ -296,11 +299,9 @@ namespace ob
 // refactor everything, check code quality
 // customize turret rates in editor! (and projectile speed mult)
 // add small red gun asset and implement red bouncing laser shots
-// one way projectile shields
 // lock room until clear? (remove green doors?)
-// global particle mult
 // cloning machines! (controlling multiple players can be really fun)
 // pack/saving loading, pack options
-// blueprint class for pack/sector/level data
+// TODO: physics-driven gibs
 
 #endif

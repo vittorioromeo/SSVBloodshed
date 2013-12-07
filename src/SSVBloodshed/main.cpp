@@ -266,7 +266,6 @@ int main()
 	editor.setDatabase(database);
 
 	editor.newPack();
-	game.reloadPack();
 
 	gameWindow.setGameState(editor.getGameState());
 	gameWindow.run();
