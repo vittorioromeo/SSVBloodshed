@@ -15,6 +15,7 @@ namespace ob
 	namespace GUI
 	{
 		class Context;
+		struct Style;
 
 		class Widget : public AABBShape, public ssvu::MemoryManageable
 		{
@@ -28,6 +29,8 @@ namespace ob
 				void render(const sf::Drawable& mDrawable);
 				const std::vector<sf::Event>& getEventsToPoll() const noexcept;
 				const Vec2f& getMousePos() const noexcept;
+				bool isKeyPressed(ssvs::KKey mKey) const noexcept;
+				const Style& getStyle() const noexcept;
 
 			private:
 				Widget* parent{nullptr};

@@ -28,6 +28,18 @@ namespace ob
 
 			// Check hover - if true, set context.hovered to true
 			hovered = isOverlapping(getMousePos(), 2.f);
+
+			// If the hovered widget is out of view-bounds, fail
+			if(!external)
+			{
+				bool fail{false};
+				recurseParents([this, &fail](Widget& mW)
+				{
+					if(!fail && !ssvs::isInAABB(mW.viewBoundsMin, mW.viewBoundsMax, getMousePos(), 2.f)) fail = true;
+				});
+				if(fail) return;
+			}
+
 			if(hovered) context.hovered = true;
 
 			// Check if the widget is being pressed
@@ -81,6 +93,8 @@ namespace ob
 
 		inline const Vec2f& Widget::getMousePos() const noexcept						{ return context.mousePos; }
 		inline const std::vector<sf::Event>& Widget::getEventsToPoll() const noexcept	{ return context.eventsToPoll; }
+		inline bool Widget::isKeyPressed(ssvs::KKey mKey) const noexcept				{ return context.isKeyPressed(mKey); }
+		inline const Style& Widget::getStyle() const noexcept							{ return context.style; }
 	}
 }
 
