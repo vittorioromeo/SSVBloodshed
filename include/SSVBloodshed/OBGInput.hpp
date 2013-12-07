@@ -43,6 +43,7 @@ namespace ob
 
 				gs.addInput({{k::R}},		[this](FT){ game.newGame(); }, t::Once);
 				gs.addInput({{k::T}},		[this](FT){ game.reloadPack(); }, t::Once);
+				gs.addInput({{k::P}},		[this](FT){ game.paused = !game.paused; }, t::Once);
 
 				gs.addInput({{k::Num0}},	[this](FT){ game.factory.createPit(game.getMousePosition()); }, t::Once);
 				gs.addInput({{k::Num1}},	[this](FT){ game.factory.createWall(game.getMousePosition(), game.getAssets().wallSingle); }, t::Once);

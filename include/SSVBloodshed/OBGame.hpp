@@ -20,6 +20,9 @@
 #include "SSVBloodshed/LevelEditor/OBLEEditor.hpp"
 #include "SSVBloodshed/LevelEditor/OBLEDatabase.hpp"
 
+#include "SSVBloodshed/GUI/GUI.hpp"
+#include "SSVBloodshed/GUIOB/FormIO.hpp"
+
 namespace ob
 {
 	class OBCVMachine;
@@ -55,6 +58,12 @@ namespace ob
 			OBSharedData sharedData;
 			std::unordered_map<OBLELevel*, OBGLevelStat> levelStats;
 
+			bool paused{false};
+			sf::RectangleShape pauseRect{Vec2f(gameWindow.getWidth(), gameWindow.getHeight())};
+			ssvs::BitmapText pauseTxt{*assets.obBigStroked, "PAUSED"};
+			GUI::Context guiCtx{assets, gameWindow};
+			FormIO* formIO{nullptr};
+
 			template<typename T, typename... TArgs> inline void createParticles(const T& mFunc, OBParticleSystem& mPS, unsigned int mCount, const Vec2f& mPos, TArgs&&... mArgs)
 			{
 				for(auto i(0u); i < mCount; ++i) mFunc(mPS, mPos, std::forward<TArgs>(mArgs)...);
@@ -89,6 +98,23 @@ namespace ob
 				txtInfo.setColor(sf::Color{225, 225, 225, 255}); txtInfo.setTracking(-3);
 				txtInfo.setPosition(270, (240 - ssvs::getGlobalHeight(hudSprite) / 2.f) - 3.f);
 				txtInfo.setString("Sector 1");
+
+				pauseRect.setFillColor(sf::Color{0, 0, 0, 150});
+				pauseRect.setOrigin(0.f, 0.f);
+				pauseRect.setPosition(0.f, 0.f);
+
+				pauseTxt.setPosition(overlayCamera.getCenter());
+				pauseTxt.setOrigin(ssvs::getGlobalHalfSize(pauseTxt));
+
+				formIO = &guiCtx.create<FormIO>();
+				formIO->onLoad += [this](const std::string& mFilename)
+				{
+					ssvufs::Path path{mFilename};
+
+					if(!path.exists()) return;
+					sharedData.loadPack(path);
+					formIO->getLblCurrentPath().setString("CURRENT: " + sharedData.getCurrentPath());
+				};
 			}
 
 			inline void reloadPack() { sharedData.loadPack("./level.txt"); newGame(); }
@@ -166,27 +192,48 @@ namespace ob
 
 			inline void update(FT mFT)
 			{
-				manager.update(mFT);
-				world.update(mFT);
+				if(!paused)
+				{
+					manager.update(mFT);
+					world.update(mFT);
+				}
+				else
+				{
+					guiCtx.update(mFT);
+				}
+
 				debugText.update(mFT);
 				gameCamera.update<int>(mFT);
 
-				updateLevelStat();
-
-				onPostUpdate();
-				onPostUpdate.clear();
+				if(!paused)
+				{
+					updateLevelStat();
+					onPostUpdate();
+					onPostUpdate.clear();
+				}
 
 				testAmmoTxt.setString(ssvu::toStr(testhp.getValue()));
 			}
 			inline void draw()
 			{
+				//TODO: canc in textbox
 				gameCamera.apply<int>();
 				manager.draw();
 				gameCamera.unapply();
 
 				overlayCamera.apply<int>();
-				render(hudSprite); render(testhp); render(testAmmoTxt); render(txtShards); render(txtVM); render(txtInfo);
+				{
+					if(paused)
+					{
+						render(pauseRect);
+						render(pauseTxt);
+					}
+
+					render(hudSprite); render(testhp); render(testAmmoTxt); render(txtShards); render(txtVM); render(txtInfo);
+				}
 				overlayCamera.unapply();
+
+				if(paused) guiCtx.draw();
 
 				debugText.draw();
 			}
