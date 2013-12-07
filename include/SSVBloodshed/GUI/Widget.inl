@@ -30,7 +30,7 @@ namespace ob
 			hovered = isOverlapping(getMousePos(), 2.f);
 
 			// If the hovered widget is out of view-bounds, fail
-			if(!external)
+			if(!external && !isAnyParentRecursive([](const Widget& mW){ return mW.external; }))
 			{
 				bool fail{false};
 				recurseParents([this, &fail](Widget& mW)

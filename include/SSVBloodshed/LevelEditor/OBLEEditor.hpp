@@ -66,7 +66,8 @@ namespace ob
 			FormIO* formIO{nullptr};
 
 		public:
-			inline OBLEEditor(ssvs::GameWindow& mGameWindow, OBAssets& mAssets) : gameWindow(mGameWindow), assets(mAssets), guiCtx(assets, gameWindow)
+			inline OBLEEditor(ssvs::GameWindow& mGameWindow, OBAssets& mAssets) : gameWindow(mGameWindow), assets(mAssets),
+				guiCtx(assets, gameWindow, GUI::Style{*assets.obStroked})
 			{
 				gameCamera.pan(-5, -5);
 				gameState.onUpdate += [this](FT mFT){ update(mFT); };
@@ -75,20 +76,23 @@ namespace ob
 				gameState.onAnyEvent += [this](const sf::Event& mEvent){ guiCtx.onAnyEvent(mEvent); };
 
 				formMenu = &guiCtx.create<GUI::Form>("MENU", Vec2f{400, 100}, Vec2f{64, 80});
-				formMenu->setResizable(false); formMenu->show();
+				formMenu->setResizable(false);
+				formMenu->setPadding(4.f);
+				formMenu->setScaling(GUI::Scaling::FitToChildren);
+				formMenu->show();
 
-				auto& btnInfo(formMenu->create<GUI::Button>("info", Vec2f{56.f, 8.f}));
+				auto& btnInfo(formMenu->create<GUI::Button>("info", guiCtx.getStyle().getBtnSizePerChar(7)));
 				btnInfo.onLeftClick += [this]{ formInfo->show(); };
-				btnInfo.attach(GUI::At::Top, *formMenu, GUI::At::Top, Vec2f{0.f, 6.f});
+				btnInfo.attach(GUI::At::Top, *formMenu, GUI::At::Top, Vec2f{0.f, 4.f});
 
-				auto& shtrOptions(formMenu->create<GUI::Shutter>("options", Vec2f{56.f, 8.f}));
+				auto& shtrOptions(formMenu->create<GUI::Shutter>("options", guiCtx.getStyle().getBtnSizePerChar(7)));
 				auto& shtrOptionsInside(shtrOptions.getShutter());
 				shtrOptions.attach(GUI::At::Top, btnInfo, GUI::At::Bottom, Vec2f{0.f, 6.f});
 
 				chbShowId = &shtrOptionsInside.create<GUI::CheckBox>("show id", true);
 				chbOnion = &shtrOptionsInside.create<GUI::CheckBox>("onion", true);
 
-				auto& shtrList(formMenu->create<GUI::Shutter>("list 1", Vec2f{56.f, 8.f}));
+				auto& shtrList(formMenu->create<GUI::Shutter>("list 1", guiCtx.getStyle().getBtnSizePerChar(7)));
 				auto& shtrListInside(shtrList.getShutter());
 				shtrList.attach(GUI::At::Top, shtrOptions, GUI::At::Bottom, Vec2f{0.f, 6.f});
 				shtrListInside.create<GUI::Label>("hello");
@@ -96,7 +100,7 @@ namespace ob
 				shtrListInside.create<GUI::Label>("are");
 				shtrListInside.create<GUI::Label>("you");
 
-				auto& shtrList2(shtrList.getShutter().create<GUI::Shutter>("list 2", Vec2f{56.f, 8.f}));
+				auto& shtrList2(shtrList.getShutter().create<GUI::Shutter>("list 2", guiCtx.getStyle().getBtnSizePerChar(7)));
 				auto& shtrList2Inside(shtrList2.getShutter());
 				shtrList2Inside.create<GUI::Label>("i'm");
 				shtrList2Inside.create<GUI::Label>("fine");
@@ -267,10 +271,10 @@ namespace ob
 		public:
 			FormPack(GUI::Context& mCtx, OBLEEditor& mEditor) : GUI::Form{mCtx, "PACK", Vec2f{300.f, 300.f}, Vec2f{100.f, 100.f}},
 				editor(mEditor), mainStrip(create<GUI::Strip>(GUI::At::Top, GUI::At::Bottom, GUI::At::Bottom)),
-				tboxName(mainStrip.create<GUI::TextBox>(Vec2f{56.f * 2.f, 8.f})),
-				shtrSectors(mainStrip.create<GUI::ChoiceShutter>(std::initializer_list<std::string>{}, Vec2f{56.f, 8.f})),
-				tboxSectorIdx(mainStrip.create<GUI::TextBox>(Vec2f{56.f, 8.f})),
-				btnAddSector(mainStrip.create<GUI::Button>("add sector", Vec2f{56.f, 8.f}))
+				tboxName(mainStrip.create<GUI::TextBox>(getStyle().getBtnSize(56.f * 2))),
+				shtrSectors(mainStrip.create<GUI::ChoiceShutter>(std::initializer_list<std::string>{}, getStyle().getBtnSizePerChar(7))),
+				tboxSectorIdx(mainStrip.create<GUI::TextBox>(getStyle().getBtnSizePerChar(7))),
+				btnAddSector(mainStrip.create<GUI::Button>("add sector", getStyle().getBtnSizePerChar(7)))
 			{
 				setScaling(GUI::Scaling::FitToChildren);
 				setResizable(false); setPadding(2.f);
@@ -373,7 +377,7 @@ namespace ob
 					if(entry.isEnumParam(key))
 					{
 						// Enum parameters
-						auto& choiceShutter(strip.create<GUI::ChoiceShutter>(getEnumStrVecByName(entry.getEnumName(key)), Vec2f{56.f, 8.f}));
+						auto& choiceShutter(strip.create<GUI::ChoiceShutter>(getEnumStrVecByName(entry.getEnumName(key)), getStyle().getBtnSizePerChar(7)));
 						choiceShutter.onChoiceSelected += [key, tile, &choiceShutter]{ tile->setParam(key, ssvu::toStr(choiceShutter.getChoiceIdx())); };
 						choiceShutter.getShutter().setScalingX(GUI::Scaling::Manual); choiceShutter.getShutter().setWidth(100.f);
 						enumChoiceShutters[key] = &choiceShutter;
@@ -389,7 +393,7 @@ namespace ob
 						}
 						else
 						{
-							auto& textBox(strip.create<GUI::TextBox>(Vec2f(56.f, 8.f)));
+							auto& textBox(strip.create<GUI::TextBox>(getStyle().getBtnSizePerChar(7)));
 							auto str(ssvu::toStr(p.second));
 
 							{

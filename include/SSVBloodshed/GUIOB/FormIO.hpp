@@ -25,10 +25,10 @@ namespace ob
 			FormIO(GUI::Context& mCtx) : GUI::Form{mCtx, "IO", Vec2f{300.f, 300.f}, Vec2f{100.f, 100.f}},
 				mainStrip(create<GUI::Strip>(GUI::At::Top, GUI::At::Bottom, GUI::At::Bottom)),
 				lblCurrentPath(mainStrip.create<GUI::Label>("CURRENT: null")),
-				tboxFilename(mainStrip.create<GUI::TextBox>(Vec2f{56.f * 2.f, 8.f})),
+				tboxFilename(mainStrip.create<GUI::TextBox>(getStyle().getBtnSizePerChar(14))),
 				stripBtns(mainStrip.create<GUI::Strip>(GUI::At::Left, GUI::At::Right, GUI::At::Right)),
-				btnSave(stripBtns.create<GUI::Button>("save", Vec2f{40.f, 8.f})),
-				btnLoad(stripBtns.create<GUI::Button>("load", Vec2f{40.f, 8.f}))
+				btnSave(stripBtns.create<GUI::Button>("save", getStyle().getBtnSizePerChar(6))),
+				btnLoad(stripBtns.create<GUI::Button>("load", getStyle().getBtnSizePerChar(6)))
 			{
 				setScaling(GUI::Scaling::FitToChildren);
 				setResizable(false); setPadding(2.f);
@@ -42,7 +42,8 @@ namespace ob
 				btnLoad.onLeftClick += [this]{ if(!tboxFilename.getString().empty()) onLoad(tboxFilename.getString()); };
 			}
 
-			inline GUI::Label& getLblCurrentPath() noexcept { return lblCurrentPath; }
+			inline GUI::Label& getLblCurrentPath() noexcept	{ return lblCurrentPath; }
+			inline GUI::Button& getBtnSave() noexcept		{ return btnSave; }
 	};
 }
 

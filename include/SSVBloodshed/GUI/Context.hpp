@@ -16,15 +16,22 @@ namespace ob
 		struct Style
 		{
 			ssvs::BitmapFont& font;
-			sf::Color colorOutline{sf::Color::Black};
+			sf::Color colorOutline{0, 0, 0, 255};
 			sf::Color colorBaseFocused{190, 190, 190, 255};
 			sf::Color colorBaseUnfocused{150, 150, 150, 255};
 			sf::Color colorBtnUnpressed{255, 0, 0, 255};
+			sf::Color colorText{255, 255, 255, 255};
+			sf::Color colorLabelBG{0, 0, 0, 0};
+			float outlineThickness{2.f}, padding{2.f};
 
 			inline Style(ssvs::BitmapFont& mFont) : font(mFont) { }
 
-			inline float getGlyphHeight() const noexcept	{ return font.getCellHeight(); }
-			inline Vec2f getBtnSquareSize() const noexcept	{ return Vec2f{getGlyphHeight() - 2.f, getGlyphHeight() - 2.f}; }
+			inline float getGlyphWidth() const noexcept							{ return font.getCellWidth(); }
+			inline float getGlyphHeight() const noexcept						{ return font.getCellHeight(); }
+			inline Vec2f getBtnSquareSize() const noexcept						{ return Vec2f{getGlyphHeight() - 2.f, getGlyphHeight() - 2.f}; }
+			inline Vec2f getBtnSize(float mWidth) const noexcept				{ return Vec2f{mWidth, getGlyphHeight() - 2.f}; }
+			inline float getWidthPerChar(std::size_t mCount) const noexcept		{ return getGlyphWidth() * mCount; }
+			inline Vec2f getBtnSizePerChar(std::size_t mCount) const noexcept	{ return Vec2f{getWidthPerChar(mCount), getGlyphHeight() - 2.f}; }
 		};
 
 		class Context
@@ -83,8 +90,8 @@ namespace ob
 				inline bool isKeyPressed(ssvs::KKey mKey) const noexcept { return gameWindow.isKeyPressed(mKey); }
 
 			public:
-				Context(OBAssets& mAssets, ssvs::GameWindow& mGameWindow) : assets(mAssets), gameWindow(mGameWindow),
-					style{*assets.obStroked}
+				Context(OBAssets& mAssets, ssvs::GameWindow& mGameWindow, Style mStyle) : assets(mAssets), gameWindow(mGameWindow),
+					style{std::move(mStyle)}
 				{
 					renderTexture.create(gameWindow.getWidth(), gameWindow.getHeight());
 					sprite.setTexture(renderTexture.getTexture());
@@ -147,6 +154,7 @@ namespace ob
 				inline bool isBusy() const noexcept						{ return busyWith != nullptr; }
 				inline bool isFocused() const noexcept					{ return focused; }
 				inline bool isInUse() const noexcept					{ return isFocused() || isHovered() || isBusy(); }
+				inline const Style& getStyle() const noexcept			{ return style; }
 		};
 	}
 }

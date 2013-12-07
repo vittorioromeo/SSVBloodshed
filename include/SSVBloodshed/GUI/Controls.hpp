@@ -126,8 +126,8 @@ namespace ob
 			public:
 				Label(Context& mContext, std::string mText = "") : Widget{mContext}, text{getStyle().font}
 				{
-					text.setColor(sf::Color::White); text.setTracking(-3);
-					setFillColor(sf::Color::Transparent);
+					text.setColor(getStyle().colorText); text.setTracking(-3);
+					setFillColor(getStyle().colorLabelBG);
 					setString(std::move(mText));
 				}
 
@@ -154,7 +154,7 @@ namespace ob
 				Button(Context& mContext, std::string mLabel, const Vec2f& mSize) : Widget{mContext, mSize / 2.f},
 					lblLabel(create<Label>(std::move(mLabel)))
 				{
-					setOutlineThickness(2); setOutlineColor(sf::Color::Black);
+					setOutlineThickness(getStyle().outlineThickness); setOutlineColor(getStyle().colorOutline);
 					lblLabel.attach(At::Center, *this, At::Center);
 					onLeftClick += [this]{ clickEffect.click(); };
 				}
@@ -173,9 +173,10 @@ namespace ob
 					inline void update(FT mFT) override { clickEffect.update(mFT); }
 
 				public:
-					CheckBoxStateBox(Context& mContext) : Widget{mContext, Vec2f{4.f, 4.f}}, lblState(create<Label>(""))
+					CheckBoxStateBox(Context& mContext) : Widget{mContext}, lblState(create<Label>(""))
 					{
-						setOutlineThickness(2); setOutlineColor(sf::Color::Black);
+						setOutlineThickness(getStyle().outlineThickness); setOutlineColor(getStyle().colorOutline);
+						setSize(getStyle().getBtnSquareSize());
 						lblState.attach(At::Center, *this, At::Center);
 					}
 
@@ -201,7 +202,7 @@ namespace ob
 					setFillColor(sf::Color::Transparent); setState(mState);
 
 					cbsbBox.attach(At::NW, *this, At::NW);
-					lblLabel.attach(At::Left, cbsbBox, At::Right, Vec2f{2.f, 0.f});
+					lblLabel.attach(At::Left, cbsbBox, At::Right, Vec2f{getStyle().outlineThickness, 0.f});
 
 					onLeftClick += [this]{ setState(!state); };
 				}
@@ -224,13 +225,18 @@ namespace ob
 				{
 					if(children.empty()) return;
 
-					auto prev(children[0]);
-					prev->attach(alignFrom, *this, alignFrom, getAtVec(alignDir, getPadding()));
-
-					for(auto i(1u); i < children.size(); ++i)
+					Widget* prev{nullptr};
+					for(auto i(0u); i < children.size(); ++i)
 					{
 						auto& w(*children[i]);
-						if(w.isHidden() || w.isExcluded()) continue;
+						if(!w.isVisible()) continue;
+
+						if(prev == nullptr)
+						{
+							prev = &w;
+							prev->attach(alignFrom, *this, alignFrom, getAtVec(alignDir, getPadding()));
+							continue;
+						}
 
 						if(tabbed) w.attach(alignFrom, *prev, alignFrom, getAtVec(alignDir, i++ * tabSize));
 						else
@@ -281,19 +287,20 @@ namespace ob
 					setFillColor(sf::Color::Transparent);
 
 					wsBar.setFillColor(sf::Color::Red);
-					wsBar.setOutlineColor(sf::Color::Black);
-					wsBar.setOutlineThickness(2);
+					wsBar.setOutlineColor(getStyle().colorOutline);
+					wsBar.setOutlineThickness(getStyle().outlineThickness);
 					wsBar.setScaling(Scaling::Manual);
 					wsBar.setSize(mSize);
 
-					wsShutter.setOutlineColor(sf::Color::Black);
-					wsShutter.setOutlineThickness(2);
+					wsShutter.setOutlineColor(getStyle().colorOutline);
+					wsShutter.setOutlineThickness(getStyle().outlineThickness);
 					wsShutter.setExcludedRecursive(true);
 					wsShutter.setContainer(true);
-					wsShutter.setPadding(4.f);
+					wsShutter.setPadding(getStyle().padding * 2.f);
+					wsShutter.setExternal(true);
 
 					wsBar.attach(At::Right, *this, At::Right);
-					wsShutter.attach(At::Top, wsBar, At::Bottom, Vec2f{0.f, 2.f});
+					wsShutter.attach(At::Top, wsBar, At::Bottom, Vec2f{0.f, getStyle().padding});
 
 					btnOpen.onLeftClick += [this]
 					{
@@ -357,7 +364,7 @@ namespace ob
 
 					for(auto i(0u); i < choiceBtnsMax; ++i)
 					{
-						auto& btn(wsChoices.create<Button>("", Vec2f{56.f, 8.f}));
+						auto& btn(wsChoices.create<Button>("", getStyle().getBtnSizePerChar(7)));
 						btn.onLeftClick += [this, i]
 						{
 							if(choices.empty()) return;
@@ -430,7 +437,7 @@ namespace ob
 				}
 
 				inline void finishEditing() { editing = false; str = editStr; onTextChanged(); }
-				inline float getCursorSpacing() const noexcept { return getStyle().getGlyphHeight() + lblText.getText().getTracking(); }
+				inline float getCursorSpacing() const noexcept { return getStyle().getGlyphWidth() + lblText.getText().getTracking(); }
 				inline int getCursorPos() const noexcept { return (getMousePos().x - ssvs::getGlobalLeft(lblText.getText())) / getCursorSpacing(); }
 
 			public:
@@ -444,8 +451,8 @@ namespace ob
 
 					lblText.onPostDraw += [this]{ if(editing) render(cursor.getShape()); };
 
-					tBox.setOutlineColor(sf::Color::Black);
-					tBox.setOutlineThickness(2);
+					tBox.setOutlineColor(getStyle().colorOutline);
+					tBox.setOutlineThickness(getStyle().outlineThickness);
 					tBox.setFillColor(sf::Color::White);
 					tBox.setScaling(Scaling::FitToNeighbor);
 
@@ -463,7 +470,7 @@ namespace ob
 						else cursor.setBoth(getCursorPos());
 					};
 					onLeftClickDown += [this]{ cursor.setEnd(getCursorPos()); };
-					onFocusChanged += [this](bool mFocus){ if(!mFocus) finishEditing(); };
+					onFocusChanged += [this](bool mFocus){ if(editing && !mFocus) finishEditing(); };
 				}
 
 				inline void setString(std::string mString) { str = std::move(mString); }
@@ -490,10 +497,10 @@ namespace ob
 					external = true;
 					setFillColor(sf::Color::Black);
 
-					wsBtns.setWidgetOffset(2.f);
+					wsBtns.setWidgetOffset(getStyle().outlineThickness);
 
-					wsBtns.attach(At::Right, *this, At::Right, Vec2f{-2.f, 0.f});
-					lblTitle.attach(At::NW, *this, At::NW, Vec2f{0.f, 2.f});
+					wsBtns.attach(At::Right, *this, At::Right, Vec2f{-getStyle().padding, 0.f});
+					lblTitle.attach(At::NW, *this, At::NW, Vec2f{0.f, getStyle().padding});
 				}
 
 				inline Button& getBtnClose() const noexcept		{ return btnClose; }
@@ -532,16 +539,16 @@ namespace ob
 				Form(Context& mContext, std::string mTitle, const Vec2f& mPosition, const Vec2f& mSize) : Widget{mContext, mPosition, mSize / 2.f},
 					fbBar(create<FormBar>(std::move(mTitle))), fbResizer(create<Widget>(Vec2f{4.f, 4.f}))
 				{
-					setOutlineThickness(2); setOutlineColor(sf::Color::Black);
+					setOutlineThickness(getStyle().outlineThickness); setOutlineColor(getStyle().colorOutline);
 
 					fbBar.getBtnClose().onLeftClick += [this]{ hide(); };
 					fbBar.getBtnMinimize().onLeftClick += [this]{ /* TODO */ };
 					fbBar.getBtnCollapse().onLeftClick += [this]{ toggleCollapsed(); };
 					fbBar.setScalingX(Scaling::FitToNeighbor);
-					fbBar.setScalingY(Scaling::FitToChildren); fbBar.setPadding(2.f);
+					fbBar.setScalingY(Scaling::FitToChildren); fbBar.setPadding(getStyle().padding);
 
 					fbResizer.setFillColor(sf::Color::Transparent);
-					fbResizer.setOutlineThickness(2); fbResizer.setOutlineColor(sf::Color::Black);
+					fbResizer.setOutlineThickness(getStyle().outlineThickness); fbResizer.setOutlineColor(getStyle().colorOutline);
 
 					fbBar.attach(At::Bottom, *this, At::Top);
 					fbResizer.attach(At::SE, *this, At::SE);
@@ -573,7 +580,7 @@ namespace ob
 					}
 
 					collapsed = !collapsed;
-					recurseChildrenIf<false>([this](Widget& mW){ return &mW != &fbBar; }, [this](Widget& mW){ mW.setHiddenRecursive(collapsed); });
+					recurseChildrenIf<false>([this](Widget& mW){ return &mW != &fbBar; }, [this](Widget& mW){ mW.setCollapsedRecursive(collapsed); });
 				}
 
 				inline void setDraggable(bool mValue) noexcept { draggable = mValue; }

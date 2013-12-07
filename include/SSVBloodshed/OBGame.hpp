@@ -61,7 +61,7 @@ namespace ob
 			bool paused{true};
 			sf::RectangleShape pauseRect{Vec2f(gameWindow.getWidth(), gameWindow.getHeight())};
 			ssvs::BitmapText pauseTxt{*assets.obBigStroked, "PAUSED"};
-			GUI::Context guiCtx{assets, gameWindow};
+			GUI::Context guiCtx{assets, gameWindow, GUI::Style{*assets.obBigStroked}};
 			FormIO* formIO{nullptr};
 
 			template<typename T, typename... TArgs> inline void createParticles(const T& mFunc, OBParticleSystem& mPS, unsigned int mCount, const Vec2f& mPos, TArgs&&... mArgs)
@@ -119,6 +119,7 @@ namespace ob
 					formIO->getLblCurrentPath().setString("CURRENT: " + sharedData.getCurrentPath());
 					newGame(); manager.update(0);
 				};
+				formIO->getBtnSave().hide();
 			}
 
 			inline void newGame()

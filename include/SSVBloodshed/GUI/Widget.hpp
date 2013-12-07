@@ -43,6 +43,7 @@ namespace ob
 				// Settings
 				bool hidden{false}; // Controlled by hide/show: if true, it makes the widget implicitly invisible and inactive
 				bool excluded{false}; // Controlled by setExcludedRecursive: if true, it makes the widget implicitly invisible and inactive
+				bool collapsed{false}; // Controlled by window collapsing: if true, it makes the widget implicitly invisible and inactive
 				bool active{true}, visible{true};
 
 				// Status
@@ -93,7 +94,7 @@ namespace ob
 						for(auto& w : children)
 						{
 							w->recalcSizeSmart(mScaling, mSetter, mGetterMin, mGetterMax, mDimension, mDimensionBool);
-							if(w->isHidden() || w->isExcluded() || w->external) continue;
+							if(!w->isVisible() || w->external) continue;
 
 							childBoundsMin.*mDimension = std::min(childBoundsMin.*mDimension, (w->*mGetterMin)());
 							childBoundsMax.*mDimension = std::max(childBoundsMax.*mDimension, (w->*mGetterMax)());
@@ -185,12 +186,18 @@ namespace ob
 					for(const auto& w : children) if(w->isAnyChildRecursive<true, T>(mFunc)) return true;
 					return false;
 				}
+				template<bool TIncludeCaller = true, typename T> inline bool isAnyParentRecursive(const T& mFunc) const
+				{
+					if(TIncludeCaller) if(mFunc(*this)) return true;
+					if(parent != nullptr) if(parent->isAnyParentRecursive<true, T>(mFunc)) return true;
+					return false;
+				}
 
 				inline void attach(At mFrom, Widget &mNeigh, At mTo, const Vec2f& mOffset = ssvs::zeroVec2f) { from = mFrom; neighbor = &mNeigh; to = mTo; offset = mOffset; }
 				inline void show() { setHiddenRecursive(false); }
 				inline void hide() { setHiddenRecursive(true); }
 
-				// An hidden widget is both invisible and inactive (should be controlled by collapsing windows)
+				// An hidden widget is both invisible and inactive (should be controlled by user)
 				inline void setHidden(bool mValue) noexcept		{ hidden = mValue; }
 				inline void setHiddenRecursive(bool mValue)		{ recurseChildren([mValue](Widget& mW){ mW.setHidden(mValue); }); }
 
@@ -198,6 +205,10 @@ namespace ob
 				inline void setExcluded(bool mValue) noexcept	{ excluded = mValue; }
 				inline void setExcludedRecursive(bool mValue)	{ recurseChildren([mValue](Widget& mW){ mW.setExcluded(mValue); });  }
 				inline void setExcludedSameDepth(bool mValue)	{ recurseChildrenIf([this](Widget& mW){ return mW.depth == depth; }, [mValue](Widget& mW){ mW.setExcluded(mValue); }); }
+
+				// A collapsed widget is both invisible and inactive (should be controlled by collapsing windows)
+				inline void setCollapsed(bool mValue) noexcept	{ collapsed = mValue; }
+				inline void setCollapsedRecursive(bool mValue)	{ recurseChildren([mValue](Widget& mW){ mW.setCollapsed(mValue); }); }
 
 				inline void setActiveRecursive(bool mValue)		{ active = mValue; for(auto& w : children) w->setActiveRecursive(mValue); }
 				inline void setVisibleRecursive(bool mValue)	{ visible = mValue; for(auto& w : children) w->setVisibleRecursive(mValue); }
@@ -211,6 +222,7 @@ namespace ob
 
 					setHiddenRecursive(mWidget.isHidden());
 					setExcludedRecursive(mWidget.isExcluded());
+					setCollapsedRecursive(mWidget.isCollapsed());
 					setActiveRecursive(mWidget.isActive());
 					setVisibleRecursive(mWidget.isVisible());
 				}
@@ -219,14 +231,16 @@ namespace ob
 				inline void setScaling(Scaling mValue) noexcept		{ scalingX = scalingY = mValue; }
 				inline void setPadding(float mValue) noexcept		{ padding = mValue; }
 				inline void setScalePercent(float mValue) noexcept	{ scalePercent = mValue; }
+				inline void setExternal(bool mValue) noexcept		{ external = mValue; }
 
 				inline bool isFocused() const noexcept		{ return focused; }
 				inline bool isHovered() const noexcept		{ return isActive() && hovered; }
-				inline bool isVisible() const noexcept		{ return visible && !isHidden() && !isExcluded(); }
-				inline bool isActive() const noexcept		{ return active && !isHidden() && !isExcluded(); }
+				inline bool isVisible() const noexcept		{ return visible && !isHidden() && !isExcluded() && !isCollapsed(); }
+				inline bool isActive() const noexcept		{ return active && !isHidden() && !isExcluded() && !isCollapsed(); }
 				inline bool isPressedAny() const noexcept	{ return pressedLeft || pressedRight; }
 				inline bool isHidden() const noexcept		{ return hidden; }
 				inline bool isExcluded() const noexcept		{ return excluded; }
+				inline bool isCollapsed() const noexcept	{ return collapsed; }
 				inline bool isContainer() const noexcept	{ return container; }
 
 				inline float getPadding() const noexcept		{ return padding; }
