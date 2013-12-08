@@ -237,8 +237,61 @@ using namespace ssvu::FileSystem;
 using namespace ssvs;
 using namespace ssvms;
 
+// |1|4|7|11|12|17|18|19|22|26|29|
+//  ^						   ^
+//  0						   N - 1
+
+template<typename TKey, typename TValue> class FlatMap
+{
+	public:
+		using Pair = std::pair<TKey, TValue>;
+
+	public:
+		std::vector<Pair> items;
+
+	public:
+		inline void insert(Pair mPair)
+		{
+			auto itr(std::begin(items));
+			for(; itr != std::end(items); ++itr) if(std::get<0>(*itr) > std::get<0>(mPair)) break;
+			items.emplace(itr, std::move(mPair));
+		}
+
+		inline TValue& at(const TKey& mKey)
+		{
+			std::size_t lb{0u}, ub{items.size()}, mid;
+
+			while(lb <= ub)
+			{
+				mid = (lb + ub) / 2;
+				const auto& currentKey(std::get<0>(items[mid]));
+
+				if(currentKey > mKey)		ub = mid - 1;
+				else if(currentKey < mKey)	lb = mid + 1;
+				else						return std::get<1>(items[mid]);
+			}
+
+			throw;
+		}
+};
+
 int main()
 {
+	FlatMap<int, std::string> test;
+	test.insert({0, "ciao"});
+	test.insert({5, "bro"});
+	test.insert({12, "come"});
+	test.insert({33, "stai?"});
+	test.insert({3, "mio"});
+
+	ssvu::lo() << test.items << std::endl;
+
+	ssvu::lo() << test.at(0) << std::endl;
+	ssvu::lo() << test.at(33) << std::endl;
+	ssvu::lo() << test.at(3) << std::endl;
+
+	return 0;
+
 	SSVU_TEST_RUN_ALL();
 
 	OBConfig::setSoundEnabled(false);
