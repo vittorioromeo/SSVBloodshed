@@ -46,6 +46,16 @@ namespace ob
 					}
 					inline void moveBoth(int mDir) noexcept	{ idxStart += mDir; idxEnd += mDir; }
 					inline bool isSingle() const noexcept { return idxStart == idxEnd; }
+					inline int getBreakGroup(char mChar) { if(std::isspace(mChar)) return 0; if(std::ispunct(mChar)) return 1; return -1; }
+					inline int findNextWordBeginEnd(std::string& mStr, int mPos, int mDir)
+					{
+						do
+						{
+							mPos += mDir;
+						} while(getBreakGroup(mStr[mPos]) == getBreakGroup(mStr[mPos - std::abs(mDir)]));
+
+						return mPos;
+					}
 
 				public:
 					inline TextCursor(float mFontHeight) : shape{Vec2f{0.f, 0.f}, Vec2f{1.f, mFontHeight / 2.f}} { }
@@ -106,11 +116,33 @@ namespace ob
 						moveBoth(1);
 					}
 
-					inline void move(bool mShift, int mDir)
+
+					inline void move(std::string& mStr, bool mShift, bool mCtrl, int mDir)
 					{
-						if(mShift) idxEnd += mDir;
-						else if(!isSingle()) setBoth(mDir > 0 ? idxMax + 1 : idxMin - 1);
-						else moveBoth(mDir);
+						if(mShift)
+						{
+							if(mCtrl) idxEnd = findNextWordBeginEnd(mStr, idxEnd, mDir);
+							else idxEnd += mDir;
+						}
+						else if(!isSingle())
+						{
+							if(mCtrl)
+							{
+								int& idxVar(mDir > 0 ? idxMax : idxMin);
+								idxVar = findNextWordBeginEnd(mStr, idxVar, mDir);
+								setBoth(idxVar);
+							}
+							else setBoth(mDir > 0 ? idxMax + 1 : idxMin - 1);
+						}
+						else
+						{
+							if(mCtrl)
+							{
+								idxStart = findNextWordBeginEnd(mStr, idxStart, mDir);
+								setBoth(idxStart);
+							}
+							else moveBoth(mDir);
+						}
 					}
 			};
 		}
@@ -427,8 +459,8 @@ namespace ob
 						else if(e.type == sf::Event::KeyPressed)
 						{
 							if(e.key.code == ssvs::KKey::Return) finishEditing();
-							else if(e.key.code == ssvs::KKey::Left) cursor.move(isKeyPressed(ssvs::KKey::LShift), -1);
-							else if(e.key.code == ssvs::KKey::Right) cursor.move(isKeyPressed(ssvs::KKey::LShift), 1);
+							else if(e.key.code == ssvs::KKey::Left) cursor.move(editStr, isKeyPressed(ssvs::KKey::LShift), isKeyPressed(ssvs::KKey::LControl), -1);
+							else if(e.key.code == ssvs::KKey::Right) cursor.move(editStr, isKeyPressed(ssvs::KKey::LShift), isKeyPressed(ssvs::KKey::LControl), 1);
 							else if(e.key.code == ssvs::KKey::Home) cursor.setBoth(0);
 							else if(e.key.code == ssvs::KKey::End) cursor.setBoth(editStr.size());
 							else if(e.key.code == ssvs::KKey::Delete) cursor.delStrFwd(editStr);
