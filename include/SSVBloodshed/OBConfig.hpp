@@ -14,6 +14,7 @@ namespace ob
 		private:
 			bool soundEnabled{true}, musicEnabled{true};
 			float particleMult{1.f};
+			std::size_t particleMax{10000};
 			ssvs::Input::Trigger tLeft, tRight, tUp, tDown;	// Movement triggers
 			ssvs::Input::Trigger tShoot, tSwitch, tBomb;	// Action triggers
 
@@ -37,10 +38,12 @@ namespace ob
 
 		public:
 			inline static void setParticleMult(float mValue) noexcept		{ get().particleMult = mValue; }
+			inline static void setParticleMax(std::size_t mValue) noexcept	{ get().particleMax = mValue; }
 			inline static void setSoundEnabled(bool mValue) noexcept		{ get().soundEnabled = mValue; }
 			inline static void setMusicEnabled(bool mValue) noexcept		{ get().musicEnabled = mValue; }
 
 			inline static float getParticleMult() noexcept					{ return get().particleMult; }
+			inline static std::size_t getParticleMax() noexcept				{ return get().particleMax; }
 			inline static bool isSoundEnabled() noexcept					{ return get().soundEnabled; }
 			inline static bool isMusicEnabled() noexcept					{ return get().musicEnabled; }
 

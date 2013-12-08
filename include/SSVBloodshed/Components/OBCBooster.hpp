@@ -45,7 +45,7 @@ namespace ob
 					game.createPForceField(1, toPixels(mDI.body.getPosition()));
 
 					if(forceMult > 0.f) mDI.body.applyAccel(dirVec * 30.f * forceMult);
-					else if(ssvs::getDeg(mDI.body.getVelocity()) != ssvs::getDeg(dirVec))
+					else if(ssvs::getRad(mDI.body.getVelocity()) != ssvs::getRad(dirVec))
 					{
 						mDI.body.setVelocity(dirVec * ssvs::getMag(mDI.body.getVelocity()));
 						mDI.body.setPosition(body.getPosition());

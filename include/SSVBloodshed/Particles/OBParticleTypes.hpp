@@ -13,7 +13,7 @@ namespace ob
 	inline void createPBlood(OBParticleSystem& mPS, const Vec2f& mPos, float mMult)
 	{
 		mPS.emplace(mPos,
-				ssvs::getVecFromDeg(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(0.f, 13.f * mMult)),
+				ssvs::getVecFromRad(ssvu::getRndR<float>(0.f, ssvu::tau), ssvu::getRndR<float>(0.f, 13.f * mMult)),
 				0.9f,
 				sf::Color{ssvu::getRnd<unsigned char>(185, 255), 0, 0, 255},
 				0.5f + ssvu::getRndR<float>(-0.3f, 0.3f),
@@ -23,7 +23,7 @@ namespace ob
 	inline void createPGib(OBParticleSystem& mPS, const Vec2f& mPos)
 	{
 		mPS.emplace(mPos,
-				ssvs::getVecFromDeg(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(0.1f, 13.f)),
+				ssvs::getVecFromRad(ssvu::getRndR<float>(0.f, ssvu::tau), ssvu::getRndR<float>(0.1f, 13.f)),
 				0.93f,
 				sf::Color{ssvu::getRnd<unsigned char>(95, 170), 15, 15, 255},
 				0.6f + ssvu::getRndR<float>(-0.3f, 0.3f),
@@ -33,7 +33,7 @@ namespace ob
 	inline void createPDebris(OBParticleSystem& mPS, const Vec2f& mPos)
 	{
 		mPS.emplace(mPos,
-				ssvs::getVecFromDeg(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(1.f, 9.f)),
+				ssvs::getVecFromRad(ssvu::getRndR<float>(0.f, ssvu::tau), ssvu::getRndR<float>(1.f, 9.f)),
 				0.9f,
 				sf::Color::Black,
 				0.5f + ssvu::getRndR<float>(-0.3f, 0.3f),
@@ -43,7 +43,7 @@ namespace ob
 	inline void createPDebrisFloor(OBParticleSystem& mPS, const Vec2f& mPos)
 	{
 		mPS.emplace(mPos,
-				ssvs::getVecFromDeg(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(0.5f, 3.4f)),
+				ssvs::getVecFromRad(ssvu::getRndR<float>(0.f, ssvu::tau), ssvu::getRndR<float>(0.5f, 3.4f)),
 				0.9f,
 				sf::Color{179, 179, 179, 255},
 				2.5f,
@@ -53,7 +53,7 @@ namespace ob
 	inline void createPMuzzleBullet(OBParticleSystem& mPS, const Vec2f& mPos)
 	{
 		mPS.emplace(mPos,
-				ssvs::getVecFromDeg(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(1.f, 4.5f)),
+				ssvs::getVecFromRad(ssvu::getRndR<float>(0.f, ssvu::tau), ssvu::getRndR<float>(1.f, 4.5f)),
 				0.9f,
 				sf::Color{255, ssvu::getRnd<unsigned char>(95, 100), 15, 255},
 				0.6f + ssvu::getRndR<float>(-0.3f, 0.3f),
@@ -63,7 +63,7 @@ namespace ob
 	inline void createPMuzzlePlasma(OBParticleSystem& mPS, const Vec2f& mPos)
 	{
 		mPS.emplace(mPos,
-				ssvs::getVecFromDeg(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(1.f, 4.5f)),
+				ssvs::getVecFromRad(ssvu::getRndR<float>(0.f, ssvu::tau), ssvu::getRndR<float>(1.f, 4.5f)),
 				0.89f,
 				sf::Color{225, 55, ssvu::getRnd<unsigned char>(95, 100), 255},
 				0.65f + ssvu::getRndR<float>(-0.3f, 0.3f),
@@ -74,7 +74,7 @@ namespace ob
 	inline void createPMuzzleRocket(OBParticleSystem& mPS, const Vec2f& mPos)
 	{
 		mPS.emplace(mPos,
-				ssvs::getVecFromDeg(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(1.f, 4.5f)),
+				ssvs::getVecFromRad(ssvu::getRndR<float>(0.f, ssvu::tau), ssvu::getRndR<float>(1.f, 4.5f)),
 				0.9f,
 				sf::Color{255, ssvu::getRnd<unsigned char>(95, 100), 15, 255},
 				0.85f + ssvu::getRndR<float>(-0.3f, 0.3f),
@@ -84,7 +84,7 @@ namespace ob
 	inline void createPPlasma(OBParticleSystem& mPS, const Vec2f& mPos)
 	{
 		mPS.emplace(mPos,
-				ssvs::getVecFromDeg(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(0.3f, 1.5f)),
+				ssvs::getVecFromRad(ssvu::getRndR<float>(0.f, ssvu::tau), ssvu::getRndR<float>(0.3f, 1.5f)),
 				0.95f,
 				sf::Color{255, 15, ssvu::getRnd<unsigned char>(95, 100), 255},
 				0.62f + ssvu::getRndR<float>(-0.3f, 0.3f),
@@ -94,7 +94,7 @@ namespace ob
 	inline void createPSmoke(OBParticleSystem& mPS, const Vec2f& mPos)
 	{
 		mPS.emplace(mPos,
-				ssvs::getVecFromDeg(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(0.3f, 1.5f)),
+				ssvs::getVecFromRad(ssvu::getRndR<float>(0.f, ssvu::tau), ssvu::getRndR<float>(0.3f, 1.5f)),
 				0.96f,
 				sf::Color{45, 45, 45, 225},
 				0.6f + ssvu::getRndR<float>(-0.3f, 0.3f),
@@ -104,7 +104,7 @@ namespace ob
 	inline void createPElectric(OBParticleSystem& mPS, const Vec2f& mPos)
 	{
 		mPS.emplace(mPos,
-				ssvs::getVecFromDeg(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(0.3f, 7.4f)),
+				ssvs::getVecFromRad(ssvu::getRndR<float>(0.f, ssvu::tau), ssvu::getRndR<float>(0.3f, 7.4f)),
 				0.94f,
 				(ssvu::getRnd(0, 10) > 8) ? sf::Color::Cyan : sf::Color::Yellow,
 				0.6f + ssvu::getRndR<float>(-0.3f, 0.3f),
@@ -114,7 +114,7 @@ namespace ob
 	}
 	inline void createPCharge(OBParticleSystem& mPS, const Vec2f& mPos, float mDist)
 	{
-		Vec2f pos{ssvs::getOrbitDeg(mPos, ssvu::getRndR<float>(0.f, 360.f), mDist)};
+		Vec2f pos{ssvs::getOrbitRad(mPos, ssvu::getRndR<float>(0.f, ssvu::tau), mDist)};
 
 		mPS.emplace(pos,
 				ssvs::getNormalized(mPos - pos) * (mDist / 15.f),
@@ -128,7 +128,7 @@ namespace ob
 	inline void createPShard(OBParticleSystem& mPS, const Vec2f& mPos)
 	{
 		mPS.emplace(mPos,
-				ssvs::getVecFromDeg(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(0.3f, 5.4f)),
+				ssvs::getVecFromRad(ssvu::getRndR<float>(0.f, ssvu::tau), ssvu::getRndR<float>(0.3f, 5.4f)),
 				0.97f,
 				(ssvu::getRnd(0, 10) > 7) ? sf::Color::Yellow : sf::Color::Red,
 				0.7f + ssvu::getRndR<float>(-0.3f, 0.3f),
@@ -139,7 +139,7 @@ namespace ob
 	inline void createPExplosion(OBParticleSystem& mPS, const Vec2f& mPos)
 	{
 		mPS.emplace(mPos,
-				ssvs::getVecFromDeg(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(0.3f, 6.7f)),
+				ssvs::getVecFromRad(ssvu::getRndR<float>(0.f, ssvu::tau), ssvu::getRndR<float>(0.3f, 6.7f)),
 				0.965f,
 				(ssvu::getRnd(0, 10) > 7) ? sf::Color::Yellow : sf::Color::Red,
 				0.7f + ssvu::getRndR<float>(-1.2f, 1.8f),
@@ -150,7 +150,7 @@ namespace ob
 	inline void createPHeal(OBParticleSystem& mPS, const Vec2f& mPos)
 	{
 		mPS.emplace(mPos,
-				ssvs::getVecFromDeg(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(0.3f, 5.4f)),
+				ssvs::getVecFromRad(ssvu::getRndR<float>(0.f, ssvu::tau), ssvu::getRndR<float>(0.3f, 5.4f)),
 				0.97f,
 				(ssvu::getRnd(0, 10) > 7) ? sf::Color::White : sf::Color::Green,
 				0.7f + ssvu::getRndR<float>(-0.3f, 0.3f),
@@ -183,7 +183,7 @@ namespace ob
 	inline void createPForceField(OBParticleSystem& mPS, const Vec2f& mPos)
 	{
 		mPS.emplace(mPos,
-				ssvs::getVecFromDeg(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(0.3f, 5.4f)),
+				ssvs::getVecFromRad(ssvu::getRndR<float>(0.f, ssvu::tau), ssvu::getRndR<float>(0.3f, 5.4f)),
 				0.91f,
 				(ssvu::getRnd(0, 9) > 4) ? sf::Color::Red : sf::Color::Blue,
 				0.5f + ssvu::getRndR<float>(-0.3f, 0.3f),

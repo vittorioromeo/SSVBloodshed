@@ -33,7 +33,7 @@ namespace ob
 					getEntity().destroy(); game.createPShard(20, cPhys.getPosPx());
 				};
 
-				body.setVelocity(ssvs::getVecFromDeg(ssvu::getRndR<float>(0.f, 360.f), ssvu::getRndR<float>(100.f, 370.f)));
+				body.setVelocity(ssvs::getVecFromRad(ssvu::getRndR<float>(0.f, ssvu::tau), ssvu::getRndR<float>(100.f, 370.f)));
 				cDraw.setBlendMode(sf::BlendMode::BlendAdd);
 				cDraw.setGlobalScale(0.65f);
 				cDraw.setRotation(ssvu::getRnd(0, 360));

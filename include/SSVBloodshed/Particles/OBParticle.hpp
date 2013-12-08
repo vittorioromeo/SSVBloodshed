@@ -19,13 +19,13 @@ namespace ob
 
 		public:
 			inline OBParticle(const Vec2f& mPosition, const Vec2f& mVelocity, float mAcceleration, const sf::Color& mColor, float mSize, float mLife, float mAlphaMult = 1.f, float mCurveSpeed = 0.f) noexcept
-				: position{mPosition}, velocity{mVelocity}, acceleration{mAcceleration}, color{mColor}, size{mSize}, life{mLife}, lifeMax{mLife}, alphaMult{mAlphaMult}, curveSpeed{mCurveSpeed} { }
+				: position{mPosition}, velocity{mVelocity}, acceleration{mAcceleration}, color{mColor}, size{mSize}, life{mLife}, lifeMax{mLife}, alphaMult{mAlphaMult}, curveSpeed{ssvu::toRad(mCurveSpeed)} { }
 
 			inline void update(FT mFT) noexcept
 			{
 				life -= mFT;
-				color.a = static_cast<unsigned char>(ssvu::getClamped(life * (255.f / lifeMax) * alphaMult, 0.f, 255.f));
-				if(curveSpeed != 0) ssvs::rotateDegAroundCenter(velocity, ssvs::zeroVec2f, curveSpeed);
+				color.a = (ssvu::getClamped(life * (255.f / lifeMax) * alphaMult, 0.f, 255.f));
+				if(curveSpeed != 0) ssvs::rotateRadAroundCenter(velocity, ssvs::zeroVec2f, curveSpeed);
 				velocity *= acceleration;
 				position += velocity * mFT;
 			}
