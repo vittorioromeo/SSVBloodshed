@@ -284,6 +284,9 @@ int main()
 	std::pair<int, std::string> pair{10, "gsig"};
 	ssvu::lo() << pair << std::endl;
 
+	std::tuple<int, float, std::string, sf::Color> tpl = std::make_tuple(1, 15.f, "cia", sf::Color(215, 112, 111, 22));
+	ssvu::lo() << tpl << std::endl;
+
 	ssvu::lo() << sf::Color(215, 112, 111, 22) << std::endl;
 	ssvu::lo() << ssvs::Vec2f(15, 55.f) << std::endl;
 	ssvu::lo() << ssvs::Vec2i(4, 3) << std::endl;
