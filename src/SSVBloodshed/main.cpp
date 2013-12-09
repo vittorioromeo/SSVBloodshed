@@ -1,4 +1,4 @@
-#ifdef HGJSIOPHSJH
+#ifndef HGJSIOPHSJH
 
 #include <chrono>
 #include "SSVBloodshed/CESystem/CES.hpp"
