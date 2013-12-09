@@ -237,10 +237,6 @@ using namespace ssvu::FileSystem;
 using namespace ssvs;
 using namespace ssvms;
 
-// |1|4|7|11|12|17|18|19|22|26|29|
-//  ^						   ^
-//  0						   N - 1
-
 template<typename TKey, typename TValue> class FlatMap
 {
 	public:
@@ -277,6 +273,21 @@ template<typename TKey, typename TValue> class FlatMap
 
 int main()
 {
+	int array[]{10, 15, 33, 22, 159};
+	int* ptr = &array[2];
+	int* ptr2 = nullptr;
+
+	ssvu::lo() << (int(&)[5])(array) << std::endl;
+	ssvu::lo() << ptr << std::endl;
+	ssvu::lo() << ptr2 << std::endl;
+
+	std::pair<int, std::string> pair{10, "gsig"};
+	ssvu::lo() << pair << std::endl;
+
+	ssvu::lo() << sf::Color(215, 112, 111, 22) << std::endl;
+	ssvu::lo() << ssvs::Vec2f(15, 55.f) << std::endl;
+	ssvu::lo() << ssvs::Vec2i(4, 3) << std::endl;
+
 	FlatMap<int, std::string> test;
 	test.insert({0, "ciao"});
 	test.insert({5, "bro"});
@@ -289,8 +300,6 @@ int main()
 	ssvu::lo() << test.at(0) << std::endl;
 	ssvu::lo() << test.at(33) << std::endl;
 	ssvu::lo() << test.at(3) << std::endl;
-
-	return 0;
 
 	SSVU_TEST_RUN_ALL();
 
@@ -327,3 +336,4 @@ int main()
 }
 
 #endif
+
