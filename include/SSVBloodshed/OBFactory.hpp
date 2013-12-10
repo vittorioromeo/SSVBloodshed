@@ -20,6 +20,8 @@ namespace ob
 	class OBParticleSystem;
 	class OBWpnType;
 
+	template<typename T, typename TTpl> inline constexpr T& gt(const TTpl& mTpl) noexcept { return std::get<T&>(mTpl); }
+
 	class OBFactory
 	{
 		private:
@@ -91,13 +93,13 @@ namespace ob
 
 			template<typename T> inline void deathExplode(T& mTpl, unsigned int mCount, float mRangeMult = 1.f)
 			{
-				auto& cp(createPJExplosion(getCPhys(mTpl).getPosI(), 0, 0).template getComponent<OBCProjectile>());
+				auto& cp(createPJExplosion(gt<OBCPhys>(mTpl).getPosI(), 0, 0).template getComponent<OBCProjectile>());
 				cp.setTargetGroup(OBGroup::GKillable); cp.setLife(16.f * mRangeMult); cp.setKillDestructible(true);
 
 				assert(mCount != 0);
 				for(int i{0}; i < 360; i += 360 / mCount)
 				{
-					auto& cp(createPJExplosion(getCPhys(mTpl).getPosI() + Vec2i(ssvs::getVecFromDeg(i, 251.f)), i).template getComponent<OBCProjectile>());
+					auto& cp(createPJExplosion(gt<OBCPhys>(mTpl).getPosI() + Vec2i(ssvs::getVecFromDeg(i, 251.f)), i).template getComponent<OBCProjectile>());
 					cp.setTargetGroup(OBGroup::GKillable); cp.setLife(16.f * mRangeMult); cp.setKillDestructible(true);
 				}
 			}
