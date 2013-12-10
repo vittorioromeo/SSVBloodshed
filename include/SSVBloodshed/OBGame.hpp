@@ -64,7 +64,7 @@ namespace ob
 			GUI::Context guiCtx{assets, gameWindow, GUI::Style{*assets.obBigStroked}};
 			FormIO* formIO{nullptr};
 
-			template<typename T, typename... TArgs> inline void createParticles(const T& mFunc, OBParticleSystem& mPS, unsigned int mCount, const Vec2f& mPos, TArgs&&... mArgs)
+			template<typename T, typename... TArgs> inline void createParticles(const T& mFunc, OBParticleSystem& mPS, std::size_t mCount, const Vec2f& mPos, TArgs&&... mArgs)
 			{
 				unsigned int total(mCount * OBConfig::getParticleMult());
 				for(auto i(0u); i < total; ++i) mFunc(mPS, mPos, std::forward<TArgs>(mArgs)...);
@@ -256,33 +256,37 @@ namespace ob
 			inline sses::Manager& getManager() noexcept					{ return manager; }
 			inline const decltype(input)& getInput() const noexcept		{ return input; }
 
-			inline void createPBlood(unsigned int mCount, const Vec2f& mPos, float mMult = 1.f)
+			inline void createPBlood(std::size_t mCount, const Vec2f& mPos, float mMult = 1.f)
 			{
-				createParticles(ob::createPBlood, particles.getPSPerm(), mCount, mPos, mMult);
-				createParticles(ob::createPGib, particles.getPSTemp(), mCount / 2, mPos);
+				static OBParticleData test{ssvuj::as<OBParticleData>(ssvuj::readFromFile("Data/Particles/test.json"))};
+
+				createParticles(ob::createFromData, particles.getPSPerm(), mCount, mPos, test, 0.f, mMult, 0.f);
+
+				//createParticles(ob::createPBlood, particles.getPSPerm(), mCount, mPos, mMult);
+				//createParticles(ob::createPGib, particles.getPSTemp(), mCount / 2, mPos);
 			}
-			inline void createPExplosion(unsigned int mCount, const Vec2f& mPos)
+			inline void createPExplosion(std::size_t mCount, const Vec2f& mPos)
 			{
 				createParticles(ob::createPExplosion, particles.getPSTempAdd(), mCount, mPos);
 				createParticles(ob::createPExplosion, particles.getPSTemp(), mCount / 4 + 1, mPos);
 			}
-			inline void createPGib(unsigned int mCount, const Vec2f& mPos)						{ createParticles(ob::createPGib,			particles.getPSTemp(),		mCount, mPos); }
-			inline void createPDebris(unsigned int mCount, const Vec2f& mPos)					{ createParticles(ob::createPDebris,		particles.getPSTemp(),		mCount, mPos); }
-			inline void createPDebrisFloor(unsigned int mCount, const Vec2f& mPos)				{ createParticles(ob::createPDebrisFloor,	particles.getPSTemp(),		mCount, mPos); }
-			inline void createPMuzzleBullet(unsigned int mCount, const Vec2f& mPos)				{ createParticles(ob::createPMuzzleBullet,	particles.getPSTempAdd(),	mCount, mPos); }
-			inline void createPMuzzlePlasma(unsigned int mCount, const Vec2f& mPos)				{ createParticles(ob::createPMuzzlePlasma,	particles.getPSTempAdd(),	mCount, mPos); }
-			inline void createPMuzzleRocket(unsigned int mCount, const Vec2f& mPos)				{ createParticles(ob::createPMuzzleRocket,	particles.getPSTempAdd(),	mCount, mPos); }
-			inline void createPPlasma(unsigned int mCount, const Vec2f& mPos)					{ createParticles(ob::createPPlasma,		particles.getPSTempAdd(),	mCount, mPos); }
-			inline void createPSmoke(unsigned int mCount, const Vec2f& mPos)					{ createParticles(ob::createPSmoke,			particles.getPSTemp(),		mCount, mPos); }
-			inline void createPElectric(unsigned int mCount, const Vec2f& mPos)					{ createParticles(ob::createPElectric,		particles.getPSTempAdd(),	mCount, mPos); }
-			inline void createPCharge(unsigned int mCount, const Vec2f& mPos, float mDist)		{ createParticles(ob::createPCharge,		particles.getPSTempAdd(),	mCount, mPos, mDist); }
-			inline void createPShard(unsigned int mCount, const Vec2f& mPos)					{ createParticles(ob::createPShard,			particles.getPSTempAdd(),	mCount, mPos); }
-			inline void createPHeal(unsigned int mCount, const Vec2f& mPos)						{ createParticles(ob::createPHeal,			particles.getPSTempAdd(),	mCount, mPos); }
-			inline void createPCaseBullet(unsigned int mCount, const Vec2f& mPos, float mDeg)	{ createParticles(ob::createPCaseBullet,	particles.getPSTemp(),		mCount, mPos, mDeg); }
-			inline void createPCaseRocket(unsigned int mCount, const Vec2f& mPos, float mDeg)	{ createParticles(ob::createPCaseRocket,	particles.getPSTemp(),		mCount, mPos, mDeg); }
-			inline void createPForceField(unsigned int mCount, const Vec2f& mPos)				{ createParticles(ob::createPForceField,	particles.getPSTempAdd(),	mCount, mPos); }
+			inline void createPGib(std::size_t mCount, const Vec2f& mPos)						{ createParticles(ob::createPGib,			particles.getPSTemp(),		mCount, mPos); }
+			inline void createPDebris(std::size_t mCount, const Vec2f& mPos)					{ createParticles(ob::createPDebris,		particles.getPSTemp(),		mCount, mPos); }
+			inline void createPDebrisFloor(std::size_t mCount, const Vec2f& mPos)				{ createParticles(ob::createPDebrisFloor,	particles.getPSTemp(),		mCount, mPos); }
+			inline void createPMuzzleBullet(std::size_t mCount, const Vec2f& mPos)				{ createParticles(ob::createPMuzzleBullet,	particles.getPSTempAdd(),	mCount, mPos); }
+			inline void createPMuzzlePlasma(std::size_t mCount, const Vec2f& mPos)				{ createParticles(ob::createPMuzzlePlasma,	particles.getPSTempAdd(),	mCount, mPos); }
+			inline void createPMuzzleRocket(std::size_t mCount, const Vec2f& mPos)				{ createParticles(ob::createPMuzzleRocket,	particles.getPSTempAdd(),	mCount, mPos); }
+			inline void createPPlasma(std::size_t mCount, const Vec2f& mPos)					{ createParticles(ob::createPPlasma,		particles.getPSTempAdd(),	mCount, mPos); }
+			inline void createPSmoke(std::size_t mCount, const Vec2f& mPos)					{ createParticles(ob::createPSmoke,			particles.getPSTemp(),		mCount, mPos); }
+			inline void createPElectric(std::size_t mCount, const Vec2f& mPos)					{ createParticles(ob::createPElectric,		particles.getPSTempAdd(),	mCount, mPos); }
+			inline void createPCharge(std::size_t mCount, const Vec2f& mPos, float mDist)		{ createParticles(ob::createPCharge,		particles.getPSTempAdd(),	mCount, mPos, mDist); }
+			inline void createPShard(std::size_t mCount, const Vec2f& mPos)					{ createParticles(ob::createPShard,			particles.getPSTempAdd(),	mCount, mPos); }
+			inline void createPHeal(std::size_t mCount, const Vec2f& mPos)						{ createParticles(ob::createPHeal,			particles.getPSTempAdd(),	mCount, mPos); }
+			inline void createPCaseBullet(std::size_t mCount, const Vec2f& mPos, float mDeg)	{ createParticles(ob::createPCaseBullet,	particles.getPSTemp(),		mCount, mPos, mDeg); }
+			inline void createPCaseRocket(std::size_t mCount, const Vec2f& mPos, float mDeg)	{ createParticles(ob::createPCaseRocket,	particles.getPSTemp(),		mCount, mPos, mDeg); }
+			inline void createPForceField(std::size_t mCount, const Vec2f& mPos)				{ createParticles(ob::createPForceField,	particles.getPSTempAdd(),	mCount, mPos); }
 
-			inline void createEShard(unsigned int mCount, const Vec2i& mPos) { for(auto i(0u); i < mCount; ++i) factory.createShard(mPos); }
+			inline void createEShard(std::size_t mCount, const Vec2i& mPos) { for(auto i(0u); i < mCount; ++i) factory.createShard(mPos); }
 	};
 }
 

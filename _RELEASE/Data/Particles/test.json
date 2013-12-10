@@ -1,0 +1,17 @@
+[
+	0,					// Type
+	[0.0, 13.0],		// Velocity range
+	[0.3, 0.8],			// Size range
+	[50.0, 100.0],		// Life range
+	[-0.0, 0.0],		// Curve speed range
+	[-0.4, 0.4],		// Fuzziness range
+	0.9,				// Acceleration/deceleration
+	0.42,				// Alpha multilplier
+
+	// Possible colors
+	[
+		[155, 0, 0, 245],
+		[190, 0, 0, 245],
+		[255, 0, 0, 245]
+	]
+]

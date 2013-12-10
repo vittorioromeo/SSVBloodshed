@@ -31,14 +31,11 @@ namespace ob
 					auto& p(particles[i]); p.update(mFT);
 					const auto& vIdx(i * 4);
 
-					constexpr float fuzzyness{1.f};
+					vertices[vIdx + 0].position = p.nw;
+					vertices[vIdx + 1].position = p.ne;
+					vertices[vIdx + 2].position = p.se;
+					vertices[vIdx + 3].position = p.sw;
 
-					// TODO: add fuzzyness to particle type
-					// TODO: store l/r/t/b in particle
-					vertices[vIdx + 0].position = Vec2f{p.getPosition().x - p.getSize() + ssvu::getRndR(-fuzzyness, fuzzyness), p.getPosition().y - p.getSize() + ssvu::getRndR(-fuzzyness, fuzzyness)};
-					vertices[vIdx + 1].position = Vec2f{p.getPosition().x - p.getSize() + ssvu::getRndR(-fuzzyness, fuzzyness), p.getPosition().y + p.getSize() + ssvu::getRndR(-fuzzyness, fuzzyness)};
-					vertices[vIdx + 2].position = Vec2f{p.getPosition().x + p.getSize() + ssvu::getRndR(-fuzzyness, fuzzyness), p.getPosition().y - p.getSize() + ssvu::getRndR(-fuzzyness, fuzzyness)};
-					vertices[vIdx + 3].position = Vec2f{p.getPosition().x + p.getSize() + ssvu::getRndR(-fuzzyness, fuzzyness), p.getPosition().y + p.getSize() + ssvu::getRndR(-fuzzyness, fuzzyness)};
 					vertices[vIdx + 0].color = p.getColor();
 					vertices[vIdx + 1].color = p.getColor();
 					vertices[vIdx + 2].color = p.getColor();

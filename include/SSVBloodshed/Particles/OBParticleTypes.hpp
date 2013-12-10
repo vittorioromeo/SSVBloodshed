@@ -10,6 +10,28 @@
 
 namespace ob
 {
+	// TODO: to json?
+	// TODO: faster rndr
+	inline void createFromData(OBParticleSystem& mPS, Vec2f mPos, OBParticleData& mData, float mRad, float mMult, float mDist)
+	{
+		if(mData.type == int(OBParticleDataType::Implode)) mPos = ssvs::getOrbitRad(mPos, ssvu::getRndR<float>(0.f, ssvu::tau), mDist);
+		Vec2f vel;
+
+		if(mData.type == int(OBParticleDataType::Eject)) vel = ssvs::getVecFromRad(mRad + 90.f) * ssvu::getRndR<float>(1.f, 3.f);
+		else vel = ssvs::getVecFromRad(ssvu::getRndR<float>(0.f, ssvu::tau), ssvu::getRndR<float>(mData.velocityRange[0], mData.velocityRange[1] * mMult));
+
+		mPS.emplace(mPos,
+			vel,
+			mData.acceleration,
+			mData.colors[ssvu::getRnd<std::size_t>(0u, mData.colors.size())],
+			ssvu::getRndR<float>(mData.sizeRange[0], mData.sizeRange[1]),
+			ssvu::getRndR<float>(mData.lifeRange[0], mData.lifeRange[1]),
+			mData.alphaMult,
+			ssvu::getRndR<float>(mData.curveSpeedRange[0], mData.curveSpeedRange[1]),
+			ssvu::getRndR<float>(mData.fuzzinessRange[0], mData.fuzzinessRange[1]));
+
+	}
+
 	inline void createPBlood(OBParticleSystem& mPS, const Vec2f& mPos, float mMult)
 	{
 		mPS.emplace(mPos,
@@ -18,7 +40,9 @@ namespace ob
 				sf::Color{ssvu::getRnd<unsigned char>(185, 255), 0, 0, 255},
 				0.5f + ssvu::getRndR<float>(-0.3f, 0.3f),
 				75 + ssvu::getRnd(-65, 65),
-				0.42f);
+				0.42f,
+				0.f,
+				0.4f);
 	}
 	inline void createPGib(OBParticleSystem& mPS, const Vec2f& mPos)
 	{
@@ -28,7 +52,9 @@ namespace ob
 				sf::Color{ssvu::getRnd<unsigned char>(95, 170), 15, 15, 255},
 				0.6f + ssvu::getRndR<float>(-0.3f, 0.3f),
 				150 + ssvu::getRnd(-50, 50),
-				1.5f);
+				1.5f,
+				0.f,
+				0.5f);
 	}
 	inline void createPDebris(OBParticleSystem& mPS, const Vec2f& mPos)
 	{
@@ -58,7 +84,9 @@ namespace ob
 				sf::Color{255, ssvu::getRnd<unsigned char>(95, 100), 15, 255},
 				0.6f + ssvu::getRndR<float>(-0.3f, 0.3f),
 				6 + ssvu::getRnd(-5, 7),
-				1.5f);
+				1.5f,
+				0.f,
+				ssvu::getRndR(-2.5f, 2.5f));
 	}
 	inline void createPMuzzlePlasma(OBParticleSystem& mPS, const Vec2f& mPos)
 	{
@@ -110,7 +138,8 @@ namespace ob
 				0.6f + ssvu::getRndR<float>(-0.3f, 0.3f),
 				65 + ssvu::getRnd(-25, 55),
 				1.5f,
-				ssvu::getRndR(-2.5f, 2.5f));
+				ssvu::getRndR(-2.5f, 2.5f),
+				1.4f);
 	}
 	inline void createPCharge(OBParticleSystem& mPS, const Vec2f& mPos, float mDist)
 	{
@@ -123,7 +152,8 @@ namespace ob
 				0.7f + ssvu::getRndR<float>(-0.3f, 0.3f),
 				mDist + ssvu::getRnd(-10, 15),
 				1.f,
-				ssvu::getRndR(-2.5f, 2.5f));
+				ssvu::getRndR(-2.5f, 2.5f),
+				2.5f);
 	}
 	inline void createPShard(OBParticleSystem& mPS, const Vec2f& mPos)
 	{
@@ -145,7 +175,8 @@ namespace ob
 				0.7f + ssvu::getRndR<float>(-1.2f, 1.8f),
 				20 + ssvu::getRnd(-15, 25),
 				1.f,
-				ssvu::getRndR(-2.5f, 2.5f));
+				ssvu::getRndR(-2.5f, 2.5f),
+				4.5f);
 	}
 	inline void createPHeal(OBParticleSystem& mPS, const Vec2f& mPos)
 	{
@@ -189,7 +220,8 @@ namespace ob
 				0.5f + ssvu::getRndR<float>(-0.3f, 0.3f),
 				35 + ssvu::getRnd(-25, 25),
 				1.5f,
-				ssvu::getRndR(-3.5f, 3.5f));
+				ssvu::getRndR(-3.5f, 3.5f),
+				6.f);
 	}
 }
 

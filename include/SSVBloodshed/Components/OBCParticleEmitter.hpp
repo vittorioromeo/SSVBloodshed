@@ -15,15 +15,15 @@ namespace ob
 	class OBCParticleEmitter : public OBCActorNoDrawBase
 	{
 		public:
-			using GameParticleMemFn = void(OBGame::*)(unsigned int mCount, const Vec2f& mPos);
+			using GameParticleMemFn = void(OBGame::*)(std::size_t mCount, const Vec2f& mPos);
 
 		private:
 			Vec2f offset;
 			GameParticleMemFn particleMemFn;
-			unsigned int count;
+			std::size_t count;
 
 		public:
-			OBCParticleEmitter(OBCPhys& mCPhys, GameParticleMemFn mParticleMemFn, unsigned int mCount = 1) : OBCActorNoDrawBase{mCPhys}, particleMemFn{mParticleMemFn}, count{mCount} { }
+			OBCParticleEmitter(OBCPhys& mCPhys, GameParticleMemFn mParticleMemFn, std::size_t mCount = 1) : OBCActorNoDrawBase{mCPhys}, particleMemFn{mParticleMemFn}, count{mCount} { }
 
 			inline void update(FT) override { (game.*particleMemFn)(count, cPhys.getPosPx() + offset); }
 
