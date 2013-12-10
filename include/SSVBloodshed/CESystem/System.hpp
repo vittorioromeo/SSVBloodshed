@@ -52,9 +52,7 @@ namespace ssvces
 			using Tpl = typename TReq::TplType;
 			std::vector<Tpl> tuples;
 
-			inline static constexpr Entity& getEntity(const Tpl& mTpl) noexcept { return *std::get<0>(mTpl); }
-			template<std::size_t TIdx> inline static constexpr auto getComponent(const Tpl& mTpl) noexcept -> decltype(*std::get<TIdx + 1>(mTpl)) { return *std::get<TIdx + 1>(mTpl); }
-
+			inline static constexpr Entity& getEntity(const Tpl& mTpl) noexcept { return *std::get<Entity*>(mTpl); }
 			inline TDerived& getThisDerived() noexcept { return *reinterpret_cast<TDerived*>(this); }
 
 			inline void refresh() override
@@ -81,5 +79,3 @@ namespace ssvces
 }
 
 #endif
-
-// C++14: get tuple elements by type
