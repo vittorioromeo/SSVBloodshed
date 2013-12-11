@@ -95,7 +95,7 @@ namespace ob
 				soundPlayer.setVolume(5);
 				musicPlayer.setVolume(30);
 
-				ssvs::loadAssetsFromJson(assetManager, "Data/", ssvuj::readFromFile("Data/assets.json"));
+				ssvs::loadAssetsFromJson(assetManager, "Data/", ssvuj::getFromFile("Data/assets.json"));
 
 				// Tilesets
 				tsSmall = &assetManager.get<ssvs::Tileset>("tsSmall");
@@ -170,30 +170,30 @@ namespace ob
 				T_TSGIANT(e4Stand);
 
 				// Animations
-				ssvuj::Obj jAForceField{ssvuj::readFromFile("Data/Animations/forceField.json")};
+				ssvuj::Obj jAForceField{ssvuj::getFromFile("Data/Animations/forceField.json")};
 				aForceField = ssvs::getAnimationFromJson(*tsSmall, jAForceField["on"]);
 
-				ssvuj::Obj jABulletBooster{ssvuj::readFromFile("Data/Animations/bulletBooster.json")};
+				ssvuj::Obj jABulletBooster{ssvuj::getFromFile("Data/Animations/bulletBooster.json")};
 				aBulletBooster = ssvs::getAnimationFromJson(*tsSmall, jABulletBooster["on"]);
 
 				// Particle data
-				pdBloodRed =		ssvuj::getAs<OBParticleData>(ssvuj::readFromFile("Data/Particles/bloodRed.json"));
-				pdGibRed =			ssvuj::getAs<OBParticleData>(ssvuj::readFromFile("Data/Particles/gibRed.json"));
-				pdExplosion =		ssvuj::getAs<OBParticleData>(ssvuj::readFromFile("Data/Particles/explosion.json"));
-				pdDebris =			ssvuj::getAs<OBParticleData>(ssvuj::readFromFile("Data/Particles/debris.json"));
-				pdDebrisFloor =		ssvuj::getAs<OBParticleData>(ssvuj::readFromFile("Data/Particles/debrisFloor.json"));
-				pdMuzzleBullet =	ssvuj::getAs<OBParticleData>(ssvuj::readFromFile("Data/Particles/muzzleBullet.json"));
-				pdMuzzlePlasma =	ssvuj::getAs<OBParticleData>(ssvuj::readFromFile("Data/Particles/muzzlePlasma.json"));
-				pdMuzzleRocket =	ssvuj::getAs<OBParticleData>(ssvuj::readFromFile("Data/Particles/muzzleRocket.json"));
-				pdPlasma =			ssvuj::getAs<OBParticleData>(ssvuj::readFromFile("Data/Particles/plasma.json"));
-				pdElectric =		ssvuj::getAs<OBParticleData>(ssvuj::readFromFile("Data/Particles/electric.json"));
-				pdSmoke =			ssvuj::getAs<OBParticleData>(ssvuj::readFromFile("Data/Particles/smoke.json"));
-				pdShard =			ssvuj::getAs<OBParticleData>(ssvuj::readFromFile("Data/Particles/shard.json"));
-				pdCharge =			ssvuj::getAs<OBParticleData>(ssvuj::readFromFile("Data/Particles/charge.json"));
-				pdHeal =			ssvuj::getAs<OBParticleData>(ssvuj::readFromFile("Data/Particles/heal.json"));
-				pdForceField =		ssvuj::getAs<OBParticleData>(ssvuj::readFromFile("Data/Particles/forceField.json"));
-				pdCaseBullet =		ssvuj::getAs<OBParticleData>(ssvuj::readFromFile("Data/Particles/caseBullet.json"));
-				pdCaseRocket =		ssvuj::getAs<OBParticleData>(ssvuj::readFromFile("Data/Particles/caseRocket.json"));
+				pdBloodRed =		ssvuj::getAs<OBParticleData>(ssvuj::getFromFile("Data/Particles/bloodRed.json"));
+				pdGibRed =			ssvuj::getAs<OBParticleData>(ssvuj::getFromFile("Data/Particles/gibRed.json"));
+				pdExplosion =		ssvuj::getAs<OBParticleData>(ssvuj::getFromFile("Data/Particles/explosion.json"));
+				pdDebris =			ssvuj::getAs<OBParticleData>(ssvuj::getFromFile("Data/Particles/debris.json"));
+				pdDebrisFloor =		ssvuj::getAs<OBParticleData>(ssvuj::getFromFile("Data/Particles/debrisFloor.json"));
+				pdMuzzleBullet =	ssvuj::getAs<OBParticleData>(ssvuj::getFromFile("Data/Particles/muzzleBullet.json"));
+				pdMuzzlePlasma =	ssvuj::getAs<OBParticleData>(ssvuj::getFromFile("Data/Particles/muzzlePlasma.json"));
+				pdMuzzleRocket =	ssvuj::getAs<OBParticleData>(ssvuj::getFromFile("Data/Particles/muzzleRocket.json"));
+				pdPlasma =			ssvuj::getAs<OBParticleData>(ssvuj::getFromFile("Data/Particles/plasma.json"));
+				pdElectric =		ssvuj::getAs<OBParticleData>(ssvuj::getFromFile("Data/Particles/electric.json"));
+				pdSmoke =			ssvuj::getAs<OBParticleData>(ssvuj::getFromFile("Data/Particles/smoke.json"));
+				pdShard =			ssvuj::getAs<OBParticleData>(ssvuj::getFromFile("Data/Particles/shard.json"));
+				pdCharge =			ssvuj::getAs<OBParticleData>(ssvuj::getFromFile("Data/Particles/charge.json"));
+				pdHeal =			ssvuj::getAs<OBParticleData>(ssvuj::getFromFile("Data/Particles/heal.json"));
+				pdForceField =		ssvuj::getAs<OBParticleData>(ssvuj::getFromFile("Data/Particles/forceField.json"));
+				pdCaseBullet =		ssvuj::getAs<OBParticleData>(ssvuj::getFromFile("Data/Particles/caseBullet.json"));
+				pdCaseRocket =		ssvuj::getAs<OBParticleData>(ssvuj::getFromFile("Data/Particles/caseRocket.json"));
 
 				#undef T_TSSMALL
 				#undef T_TSMEDIUM
