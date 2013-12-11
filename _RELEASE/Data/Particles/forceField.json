@@ -1,0 +1,21 @@
+[
+	[0.0, 6.28], 		// Angle range 						[incl, incl]
+	[-2.1, 2.1],		// Velocity range 					[incl, incl]
+	[0.3, 1.1],			// Size range 						[incl, incl]
+	[15.0, 32.0],		// Life range 						[incl, incl]
+	[-4.0, 4.0],		// Curve speed range 				[incl, incl]
+	[1.1, 2.6],			// Fuzziness range 					[incl, incl]
+	[0.9, 0.91],		// Acceleration/deceleration range 	[incl, incl]
+	[0.0, 0.0],			// Distance range 					[incl, incl]
+	1.5,				// Alpha multiplier					float	
+
+	// Possible color ranges 
+	// [[R1, R2], [G1, G2], [B1, B2], [A1, A2]] - [incl, excl]
+	[
+		// Blue-ish
+		[[15, 25], [220, 255], [15, 35], [245, 255]],
+
+		// Red-ish
+		[[215, 255], [15, 35], [0, 1], [245, 255]]
+	]
+]
