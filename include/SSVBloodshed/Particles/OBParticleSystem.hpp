@@ -16,6 +16,7 @@ namespace ob
 		private:
 			ssvs::VertexVector<sf::PrimitiveType::Quads> vertices;
 			std::vector<OBParticle> particles;
+			std::size_t currentCount{0};
 
 		public:
 			inline OBParticleSystem() { vertices.resize(OBConfig::getParticleMax() * 4); particles.reserve(OBConfig::getParticleMax()); }
@@ -25,24 +26,28 @@ namespace ob
 				// Remove excess particles
 				if(particles.size() > OBConfig::getParticleMax()) particles.erase(std::begin(particles) + OBConfig::getParticleMax(), std::end(particles));
 
-				ssvu::eraseRemoveIf(particles, [](const OBParticle& mParticle){ return mParticle.getLife() <= 0; });
-				for(auto i(0u); i < particles.size(); ++i)
+				ssvu::eraseRemoveIf(particles, [](const OBParticle& mParticle){ return mParticle.life <= 0; });
+				currentCount = particles.size();
+
+				for(auto i(0u); i < currentCount; ++i)
 				{
 					auto& p(particles[i]); p.update(mFT);
 					const auto& vIdx(i * 4);
 
-					vertices[vIdx + 0].position = p.nw;
-					vertices[vIdx + 1].position = p.ne;
-					vertices[vIdx + 2].position = p.se;
-					vertices[vIdx + 3].position = p.sw;
+					auto& vNW(vertices[vIdx + 0]);
+					auto& vNE(vertices[vIdx + 1]);
+					auto& vSE(vertices[vIdx + 2]);
+					auto& vSW(vertices[vIdx + 3]);
 
-					vertices[vIdx + 0].color = p.getColor();
-					vertices[vIdx + 1].color = p.getColor();
-					vertices[vIdx + 2].color = p.getColor();
-					vertices[vIdx + 3].color = p.getColor();
+					vNW.position = p.nw;
+					vNE.position = p.ne;
+					vSE.position = p.se;
+					vSW.position = p.sw;
+
+					vNW.color = vNE.color = vSE.color = vSW.color = p.color;
 				}
 			}
-			inline void draw(sf::RenderTarget& mRenderTarget, sf::RenderStates mRenderStates) const override { mRenderTarget.draw(&vertices[0], particles.size() * 4, sf::PrimitiveType::Quads, mRenderStates); }
+			inline void draw(sf::RenderTarget& mRenderTarget, sf::RenderStates mRenderStates) const override { mRenderTarget.draw(&vertices[0], currentCount * 4, sf::PrimitiveType::Quads, mRenderStates); }
 			inline void clear() { particles.clear(); }
 	};
 }
