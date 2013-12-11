@@ -7,33 +7,7 @@
 
 #include "SSVBloodshed/OBCommon.hpp"
 #include "SSVBloodshed/OBConfig.hpp"
-
-// TODO: move to new header file
-namespace ob
-{
-	struct OBParticleData
-	{
-		using RngI = std::pair<int, int>;
-		using RngF = std::pair<float, float>;
-		using ColorRange = std::tuple<RngI, RngI, RngI, RngI>;
-
-		RngF angleRng{0.f, 0.f}, velocityRng{0.f, 0.f}, sizeRng{0.f, 0.f}, lifeRng{0.f, 0.f}, curveSpeedRng{0.f, 0.f}, fuzzinessRng{0.f, 0.f}, accelerationRng{0.f, 0.f}, distanceRng{0.f, 0.f};
-		float alphaMult;
-		std::vector<ColorRange> colorRngs;
-	};
-}
-
-namespace ssvuj
-{
-	template<> struct Converter<ob::OBParticleData>
-	{
-		using T = ob::OBParticleData;
-		inline static void fromObj(T& mValue, const Obj& mObj)	{ extrArray(mObj, mValue.angleRng, mValue.velocityRng, mValue.sizeRng, mValue.lifeRng, mValue.curveSpeedRng,
-																			mValue.fuzzinessRng, mValue.accelerationRng, mValue.distanceRng, mValue.alphaMult, mValue.colorRngs); }
-		inline static void toObj(Obj& mObj, const T& mValue)	{ archArray(mObj, mValue.angleRng, mValue.velocityRng, mValue.sizeRng, mValue.lifeRng, mValue.curveSpeedRng,
-																			mValue.fuzzinessRng, mValue.accelerationRng, mValue.distanceRng, mValue.alphaMult, mValue.colorRngs); }
-	};
-}
+#include "SSVBloodshed/Particles/OBParticleData.hpp"
 
 namespace ob
 {
@@ -103,7 +77,9 @@ namespace ob
 
 			// Particle data
 			OBParticleData pdBloodRed,		pdGibRed,		pdExplosion,	pdDebris,		pdDebrisFloor;
-			OBParticleData pdMuzzleBullet,	pdMuzzlePlasma;
+			OBParticleData pdMuzzleBullet,	pdMuzzlePlasma,	pdMuzzleRocket,	pdPlasma,		pdElectric;
+			OBParticleData pdSmoke,			pdShard,		pdCharge,		pdHeal,			pdForceField;
+			OBParticleData pdCaseBullet,	pdCaseRocket;
 
 			#define WALLTSDECL(x)	sf::IntRect x ## Single,	x ## Cross,		x ## V,			x ## H, \
 												x ## CornerSW,	x ## CornerSE,	x ## CornerNW,	x ## CornerNE, \
@@ -208,6 +184,16 @@ namespace ob
 				pdDebrisFloor =		ssvuj::getAs<OBParticleData>(ssvuj::readFromFile("Data/Particles/debrisFloor.json"));
 				pdMuzzleBullet =	ssvuj::getAs<OBParticleData>(ssvuj::readFromFile("Data/Particles/muzzleBullet.json"));
 				pdMuzzlePlasma =	ssvuj::getAs<OBParticleData>(ssvuj::readFromFile("Data/Particles/muzzlePlasma.json"));
+				pdMuzzleRocket =	ssvuj::getAs<OBParticleData>(ssvuj::readFromFile("Data/Particles/muzzleRocket.json"));
+				pdPlasma =			ssvuj::getAs<OBParticleData>(ssvuj::readFromFile("Data/Particles/plasma.json"));
+				pdElectric =		ssvuj::getAs<OBParticleData>(ssvuj::readFromFile("Data/Particles/electric.json"));
+				pdSmoke =			ssvuj::getAs<OBParticleData>(ssvuj::readFromFile("Data/Particles/smoke.json"));
+				pdShard =			ssvuj::getAs<OBParticleData>(ssvuj::readFromFile("Data/Particles/shard.json"));
+				pdCharge =			ssvuj::getAs<OBParticleData>(ssvuj::readFromFile("Data/Particles/charge.json"));
+				pdHeal =			ssvuj::getAs<OBParticleData>(ssvuj::readFromFile("Data/Particles/heal.json"));
+				pdForceField =		ssvuj::getAs<OBParticleData>(ssvuj::readFromFile("Data/Particles/forceField.json"));
+				pdCaseBullet =		ssvuj::getAs<OBParticleData>(ssvuj::readFromFile("Data/Particles/caseBullet.json"));
+				pdCaseRocket =		ssvuj::getAs<OBParticleData>(ssvuj::readFromFile("Data/Particles/caseRocket.json"));
 
 				#undef T_TSSMALL
 				#undef T_TSMEDIUM
