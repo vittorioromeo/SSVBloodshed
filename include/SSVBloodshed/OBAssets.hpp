@@ -8,6 +8,33 @@
 #include "SSVBloodshed/OBCommon.hpp"
 #include "SSVBloodshed/OBConfig.hpp"
 
+// TODO: move to new header file
+namespace ob
+{
+	struct OBParticleData
+	{
+		using RngI = std::pair<int, int>;
+		using RngF = std::pair<float, float>;
+		using ColorRange = std::tuple<RngI, RngI, RngI, RngI>;
+
+		RngF angleRng{0.f, 0.f}, velocityRng{0.f, 0.f}, sizeRng{0.f, 0.f}, lifeRng{0.f, 0.f}, curveSpeedRng{0.f, 0.f}, fuzzinessRng{0.f, 0.f}, accelerationRng{0.f, 0.f}, distanceRng{0.f, 0.f};
+		float alphaMult;
+		std::vector<ColorRange> colorRngs;
+	};
+}
+
+namespace ssvuj
+{
+	template<> struct Converter<ob::OBParticleData>
+	{
+		using T = ob::OBParticleData;
+		inline static void fromObj(T& mValue, const Obj& mObj)	{ extrArray(mObj, mValue.angleRng, mValue.velocityRng, mValue.sizeRng, mValue.lifeRng, mValue.curveSpeedRng,
+																			mValue.fuzzinessRng, mValue.accelerationRng, mValue.distanceRng, mValue.alphaMult, mValue.colorRngs); }
+		inline static void toObj(Obj& mObj, const T& mValue)	{ archArray(mObj, mValue.angleRng, mValue.velocityRng, mValue.sizeRng, mValue.lifeRng, mValue.curveSpeedRng,
+																			mValue.fuzzinessRng, mValue.accelerationRng, mValue.distanceRng, mValue.alphaMult, mValue.colorRngs); }
+	};
+}
+
 namespace ob
 {
 	class OBAssets
@@ -73,6 +100,10 @@ namespace ob
 
 			// Animations
 			ssvs::Animation aForceField, aBulletBooster;
+
+			// Particle data
+			OBParticleData pdBloodRed,		pdGibRed,		pdExplosion,	pdDebris,		pdDebrisFloor;
+			OBParticleData pdMuzzleBullet,	pdMuzzlePlasma;
 
 			#define WALLTSDECL(x)	sf::IntRect x ## Single,	x ## Cross,		x ## V,			x ## H, \
 												x ## CornerSW,	x ## CornerSE,	x ## CornerNW,	x ## CornerNE, \
@@ -168,6 +199,15 @@ namespace ob
 
 				ssvuj::Obj jABulletBooster{ssvuj::readFromFile("Data/Animations/bulletBooster.json")};
 				aBulletBooster = ssvs::getAnimationFromJson(*tsSmall, jABulletBooster["on"]);
+
+				// Particle data
+				pdBloodRed =		ssvuj::getAs<OBParticleData>(ssvuj::readFromFile("Data/Particles/bloodRed.json"));
+				pdGibRed =			ssvuj::getAs<OBParticleData>(ssvuj::readFromFile("Data/Particles/gibRed.json"));
+				pdExplosion =		ssvuj::getAs<OBParticleData>(ssvuj::readFromFile("Data/Particles/explosion.json"));
+				pdDebris =			ssvuj::getAs<OBParticleData>(ssvuj::readFromFile("Data/Particles/debris.json"));
+				pdDebrisFloor =		ssvuj::getAs<OBParticleData>(ssvuj::readFromFile("Data/Particles/debrisFloor.json"));
+				pdMuzzleBullet =	ssvuj::getAs<OBParticleData>(ssvuj::readFromFile("Data/Particles/muzzleBullet.json"));
+				pdMuzzlePlasma =	ssvuj::getAs<OBParticleData>(ssvuj::readFromFile("Data/Particles/muzzlePlasma.json"));
 
 				#undef T_TSSMALL
 				#undef T_TSMEDIUM

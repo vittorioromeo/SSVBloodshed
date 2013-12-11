@@ -44,7 +44,7 @@ namespace ob
 				assert(database != nullptr && mPath.exists());
 				setPath(mPath);
 
-				try { pack = ssvuj::as<OBLEPack>(ssvuj::readFromFile(currentPath)); }
+				try { pack = ssvuj::getAs<OBLEPack>(ssvuj::readFromFile(currentPath)); }
 				catch(...) { ssvu::lo("Fatal error") << "Failed to load pack" << std::endl; }
 			}
 			inline void savePack(const ssvufs::Path& mPath)

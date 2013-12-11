@@ -9,30 +9,6 @@
 
 namespace ob
 {
-	enum class OBParticleDataType : int{Explode = 0, Implode = 1, Eject = 2};
-
-	// TODO: acceleration and angle range, distance from spawn, remove datatypes
-	struct OBParticleData
-	{
-		int type{int(OBParticleDataType::Explode)};
-		float velocityRange[2], sizeRange[2], lifeRange[2], curveSpeedRange[2], fuzzinessRange[2];
-		float acceleration, alphaMult;
-		std::vector<sf::Color> colors;
-	};
-}
-
-namespace ssvuj
-{
-	template<> struct Converter<ob::OBParticleData>
-	{
-		using T = ob::OBParticleData;
-		inline static void fromObj(T& mValue, const Obj& mObj)	{ extrArray(mObj, mValue.type, mValue.velocityRange, mValue.sizeRange, mValue.lifeRange, mValue.curveSpeedRange, mValue.fuzzinessRange, mValue.acceleration, mValue.alphaMult, mValue.colors); }
-		inline static void toObj(Obj& mObj, const T& mValue)	{ archArray(mObj, mValue.type, mValue.velocityRange, mValue.sizeRange, mValue.lifeRange, mValue.curveSpeedRange, mValue.fuzzinessRange, mValue.acceleration, mValue.alphaMult, mValue.colors); }
-	};
-}
-
-namespace ob
-{
 	class OBParticle
 	{
 		private:

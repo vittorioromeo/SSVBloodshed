@@ -7,7 +7,7 @@
 	[-0.4, 0.4],		// Fuzziness range 					[incl, incl]
 	[0.8, 0.95],		// Acceleration/deceleration range 	[incl, incl]
 	[0.0, 0.0],			// Distance range 					[incl, incl]
-	0.42,				// Alpha multiplier					float	
+	0.6,				// Alpha multiplier					float	
 
 	// Possible color ranges 
 	// [[R1, R2], [G1, G2], [B1, B2], [A1, A2]] - [incl, excl]

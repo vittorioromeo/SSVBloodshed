@@ -258,29 +258,25 @@ namespace ob
 
 			inline void createPBlood(std::size_t mCount, const Vec2f& mPos, float mMult = 1.f)
 			{
-				static OBParticleData test{ssvuj::as<OBParticleData>(ssvuj::readFromFile("Data/Particles/test.json"))};
-
-				createParticles(ob::createFromData, particles.getPSPerm(), mCount, mPos, test, 0.f, mMult, 0.f);
-
-				//createParticles(ob::createPBlood, particles.getPSPerm(), mCount, mPos, mMult);
-				//createParticles(ob::createPGib, particles.getPSTemp(), mCount / 2, mPos);
+				createParticles(ob::createFromData, particles.getPSPerm(), mCount, mPos, assets.pdBloodRed, 0.f, mMult);
+				createParticles(ob::createFromData, particles.getPSTemp(), mCount / 2, mPos, assets.pdGibRed, 0.f, mMult);
 			}
 			inline void createPExplosion(std::size_t mCount, const Vec2f& mPos)
 			{
-				createParticles(ob::createPExplosion, particles.getPSTempAdd(), mCount, mPos);
-				createParticles(ob::createPExplosion, particles.getPSTemp(), mCount / 4 + 1, mPos);
+				createParticles(ob::createFromData, particles.getPSTempAdd(), mCount, mPos, assets.pdExplosion, 0.f, 1.f);
+				createParticles(ob::createFromData, particles.getPSTemp(), mCount / 2, mPos, assets.pdExplosion, 0.f, 1.f);
 			}
-			inline void createPGib(std::size_t mCount, const Vec2f& mPos)						{ createParticles(ob::createPGib,			particles.getPSTemp(),		mCount, mPos); }
-			inline void createPDebris(std::size_t mCount, const Vec2f& mPos)					{ createParticles(ob::createPDebris,		particles.getPSTemp(),		mCount, mPos); }
-			inline void createPDebrisFloor(std::size_t mCount, const Vec2f& mPos)				{ createParticles(ob::createPDebrisFloor,	particles.getPSTemp(),		mCount, mPos); }
-			inline void createPMuzzleBullet(std::size_t mCount, const Vec2f& mPos)				{ createParticles(ob::createPMuzzleBullet,	particles.getPSTempAdd(),	mCount, mPos); }
-			inline void createPMuzzlePlasma(std::size_t mCount, const Vec2f& mPos)				{ createParticles(ob::createPMuzzlePlasma,	particles.getPSTempAdd(),	mCount, mPos); }
+			inline void createPGib(std::size_t mCount, const Vec2f& mPos)						{ createParticles(ob::createFromData,		particles.getPSTemp(),		mCount, mPos, assets.pdGibRed, 0.f, 1.f); }
+			inline void createPDebris(std::size_t mCount, const Vec2f& mPos)					{ createParticles(ob::createFromData,		particles.getPSTemp(),		mCount, mPos, assets.pdDebris, 0.f, 1.f); }
+			inline void createPDebrisFloor(std::size_t mCount, const Vec2f& mPos)				{ createParticles(ob::createFromData,		particles.getPSTemp(),		mCount, mPos, assets.pdDebrisFloor, 0.f, 1.f); }
+			inline void createPMuzzleBullet(std::size_t mCount, const Vec2f& mPos)				{ createParticles(ob::createFromData,		particles.getPSTempAdd(),	mCount, mPos, assets.pdMuzzleBullet, 0.f, 1.f); }
+			inline void createPMuzzlePlasma(std::size_t mCount, const Vec2f& mPos)				{ createParticles(ob::createFromData,		particles.getPSTempAdd(),	mCount, mPos, assets.pdMuzzlePlasma, 0.f, 1.f); }
 			inline void createPMuzzleRocket(std::size_t mCount, const Vec2f& mPos)				{ createParticles(ob::createPMuzzleRocket,	particles.getPSTempAdd(),	mCount, mPos); }
 			inline void createPPlasma(std::size_t mCount, const Vec2f& mPos)					{ createParticles(ob::createPPlasma,		particles.getPSTempAdd(),	mCount, mPos); }
-			inline void createPSmoke(std::size_t mCount, const Vec2f& mPos)					{ createParticles(ob::createPSmoke,			particles.getPSTemp(),		mCount, mPos); }
+			inline void createPSmoke(std::size_t mCount, const Vec2f& mPos)						{ createParticles(ob::createPSmoke,			particles.getPSTemp(),		mCount, mPos); }
 			inline void createPElectric(std::size_t mCount, const Vec2f& mPos)					{ createParticles(ob::createPElectric,		particles.getPSTempAdd(),	mCount, mPos); }
 			inline void createPCharge(std::size_t mCount, const Vec2f& mPos, float mDist)		{ createParticles(ob::createPCharge,		particles.getPSTempAdd(),	mCount, mPos, mDist); }
-			inline void createPShard(std::size_t mCount, const Vec2f& mPos)					{ createParticles(ob::createPShard,			particles.getPSTempAdd(),	mCount, mPos); }
+			inline void createPShard(std::size_t mCount, const Vec2f& mPos)						{ createParticles(ob::createPShard,			particles.getPSTempAdd(),	mCount, mPos); }
 			inline void createPHeal(std::size_t mCount, const Vec2f& mPos)						{ createParticles(ob::createPHeal,			particles.getPSTempAdd(),	mCount, mPos); }
 			inline void createPCaseBullet(std::size_t mCount, const Vec2f& mPos, float mDeg)	{ createParticles(ob::createPCaseBullet,	particles.getPSTemp(),		mCount, mPos, mDeg); }
 			inline void createPCaseRocket(std::size_t mCount, const Vec2f& mPos, float mDeg)	{ createParticles(ob::createPCaseRocket,	particles.getPSTemp(),		mCount, mPos, mDeg); }

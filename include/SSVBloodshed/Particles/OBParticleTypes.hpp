@@ -10,95 +10,29 @@
 
 namespace ob
 {
-	// TODO: to json?
-	// TODO: faster rndr
-	inline void createFromData(OBParticleSystem& mPS, Vec2f mPos, OBParticleData& mData, float mRad, float mMult, float mDist)
+	inline int getRndRngI(const OBParticleData::RngI& mRng) noexcept	{ return ssvu::getRnd(std::get<0>(mRng), std::get<1>(mRng)); }
+	inline float getRndRngF(const OBParticleData::RngF& mRng) noexcept	{ return ssvu::getRndR(std::get<0>(mRng), std::get<1>(mRng)); }
+	inline sf::Color getColorFromRng(const OBParticleData::ColorRange& mRng) noexcept
 	{
-		if(mData.type == int(OBParticleDataType::Implode)) mPos = ssvs::getOrbitRad(mPos, ssvu::getRndR<float>(0.f, ssvu::tau), mDist);
-		Vec2f vel;
+		return sf::Color(getRndRngI(std::get<0>(mRng)), getRndRngI(std::get<1>(mRng)), getRndRngI(std::get<2>(mRng)), getRndRngI(std::get<3>(mRng)));
+	}
 
-		if(mData.type == int(OBParticleDataType::Eject)) vel = ssvs::getVecFromRad(mRad + 90.f) * ssvu::getRndR<float>(1.f, 3.f);
-		else vel = ssvs::getVecFromRad(ssvu::getRndR<float>(0.f, ssvu::tau), ssvu::getRndR<float>(mData.velocityRange[0], mData.velocityRange[1] * mMult));
+	inline void createFromData(OBParticleSystem& mPS, const Vec2f& mPos, OBParticleData& mData, float mRad = 0.f, float mMult = 1.f)
+	{
+		float rad(mRad + getRndRngF(mData.angleRng));
 
-		mPS.emplace(mPos,
-			vel,
-			mData.acceleration,
-			mData.colors[ssvu::getRnd<std::size_t>(0u, mData.colors.size())],
-			ssvu::getRndR<float>(mData.sizeRange[0], mData.sizeRange[1]),
-			ssvu::getRndR<float>(mData.lifeRange[0], mData.lifeRange[1]),
+		mPS.emplace(
+			ssvs::getOrbitRad(mPos, rad, getRndRngF(mData.distanceRng)),
+			ssvs::getVecFromRad(rad, getRndRngF(mData.velocityRng) * mMult),
+			getRndRngF(mData.accelerationRng),
+			getColorFromRng(mData.colorRngs[ssvu::getRnd(0ul, mData.colorRngs.size())]),
+			getRndRngF(mData.sizeRng),
+			getRndRngF(mData.lifeRng),
 			mData.alphaMult,
-			ssvu::getRndR<float>(mData.curveSpeedRange[0], mData.curveSpeedRange[1]),
-			ssvu::getRndR<float>(mData.fuzzinessRange[0], mData.fuzzinessRange[1]));
-
+			getRndRngF(mData.curveSpeedRng),
+			getRndRngF(mData.fuzzinessRng));
 	}
 
-	inline void createPBlood(OBParticleSystem& mPS, const Vec2f& mPos, float mMult)
-	{
-		mPS.emplace(mPos,
-				ssvs::getVecFromRad(ssvu::getRndR<float>(0.f, ssvu::tau), ssvu::getRndR<float>(0.f, 13.f * mMult)),
-				0.9f,
-				sf::Color{ssvu::getRnd<unsigned char>(185, 255), 0, 0, 255},
-				0.5f + ssvu::getRndR<float>(-0.3f, 0.3f),
-				75 + ssvu::getRnd(-65, 65),
-				0.42f,
-				0.f,
-				0.4f);
-	}
-	inline void createPGib(OBParticleSystem& mPS, const Vec2f& mPos)
-	{
-		mPS.emplace(mPos,
-				ssvs::getVecFromRad(ssvu::getRndR<float>(0.f, ssvu::tau), ssvu::getRndR<float>(0.1f, 13.f)),
-				0.93f,
-				sf::Color{ssvu::getRnd<unsigned char>(95, 170), 15, 15, 255},
-				0.6f + ssvu::getRndR<float>(-0.3f, 0.3f),
-				150 + ssvu::getRnd(-50, 50),
-				1.5f,
-				0.f,
-				0.5f);
-	}
-	inline void createPDebris(OBParticleSystem& mPS, const Vec2f& mPos)
-	{
-		mPS.emplace(mPos,
-				ssvs::getVecFromRad(ssvu::getRndR<float>(0.f, ssvu::tau), ssvu::getRndR<float>(1.f, 9.f)),
-				0.9f,
-				sf::Color::Black,
-				0.5f + ssvu::getRndR<float>(-0.3f, 0.3f),
-				65 + ssvu::getRnd(-50, 50),
-				0.8f);
-	}
-	inline void createPDebrisFloor(OBParticleSystem& mPS, const Vec2f& mPos)
-	{
-		mPS.emplace(mPos,
-				ssvs::getVecFromRad(ssvu::getRndR<float>(0.f, ssvu::tau), ssvu::getRndR<float>(0.5f, 3.4f)),
-				0.9f,
-				sf::Color{179, 179, 179, 255},
-				2.5f,
-				65 + ssvu::getRnd(-50, 50),
-				0.8f);
-	}
-	inline void createPMuzzleBullet(OBParticleSystem& mPS, const Vec2f& mPos)
-	{
-		mPS.emplace(mPos,
-				ssvs::getVecFromRad(ssvu::getRndR<float>(0.f, ssvu::tau), ssvu::getRndR<float>(1.f, 4.5f)),
-				0.9f,
-				sf::Color{255, ssvu::getRnd<unsigned char>(95, 100), 15, 255},
-				0.6f + ssvu::getRndR<float>(-0.3f, 0.3f),
-				6 + ssvu::getRnd(-5, 7),
-				1.5f,
-				0.f,
-				ssvu::getRndR(-2.5f, 2.5f));
-	}
-	inline void createPMuzzlePlasma(OBParticleSystem& mPS, const Vec2f& mPos)
-	{
-		mPS.emplace(mPos,
-				ssvs::getVecFromRad(ssvu::getRndR<float>(0.f, ssvu::tau), ssvu::getRndR<float>(1.f, 4.5f)),
-				0.89f,
-				sf::Color{225, 55, ssvu::getRnd<unsigned char>(95, 100), 255},
-				0.65f + ssvu::getRndR<float>(-0.3f, 0.3f),
-				9 + ssvu::getRnd(-4, 7),
-				1.5f,
-				ssvu::getRndR(-1.5f, 1.5f));
-	}
 	inline void createPMuzzleRocket(OBParticleSystem& mPS, const Vec2f& mPos)
 	{
 		mPS.emplace(mPos,
@@ -165,18 +99,6 @@ namespace ob
 				25 + ssvu::getRnd(-10, 15),
 				1.f,
 				ssvu::getRndR(-2.5f, 2.5f));
-	}
-	inline void createPExplosion(OBParticleSystem& mPS, const Vec2f& mPos)
-	{
-		mPS.emplace(mPos,
-				ssvs::getVecFromRad(ssvu::getRndR<float>(0.f, ssvu::tau), ssvu::getRndR<float>(0.3f, 6.7f)),
-				0.965f,
-				(ssvu::getRnd(0, 10) > 7) ? sf::Color::Yellow : sf::Color::Red,
-				0.7f + ssvu::getRndR<float>(-1.2f, 1.8f),
-				20 + ssvu::getRnd(-15, 25),
-				1.f,
-				ssvu::getRndR(-2.5f, 2.5f),
-				4.5f);
 	}
 	inline void createPHeal(OBParticleSystem& mPS, const Vec2f& mPos)
 	{
