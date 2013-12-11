@@ -13,16 +13,16 @@ namespace ob
 	{
 		using RngI = std::pair<int, int>;
 		using RngF = std::pair<float, float>;
-		using ColorRange = std::tuple<RngI, RngI, RngI, RngI>;
+		using ColorRng = std::tuple<RngI, RngI, RngI, RngI>;
 
 		RngF angleRng{0.f, 0.f}, velRng{0.f, 0.f}, sizeRng{0.f, 0.f}, lifeRng{0.f, 0.f}, curveSpdRng{0.f, 0.f}, fuzzinessRng{0.f, 0.f}, accelRng{0.f, 0.f}, distRng{0.f, 0.f};
 		float alphaMult;
-		std::vector<ColorRange> colorRngs;
+		std::vector<ColorRng> colorRngs;
 	};
 
 	inline int getRndRngI(const OBParticleData::RngI& mRng) noexcept	{ return ssvu::getRnd(std::get<0>(mRng), std::get<1>(mRng)); }
 	inline float getRndRngF(const OBParticleData::RngF& mRng) noexcept	{ return ssvu::getRndR(std::get<0>(mRng), std::get<1>(mRng)); }
-	inline sf::Color getColorFromRng(const OBParticleData::ColorRange& mRng) noexcept
+	inline sf::Color getColorFromRng(const OBParticleData::ColorRng& mRng) noexcept
 	{
 		return sf::Color(getRndRngI(std::get<0>(mRng)), getRndRngI(std::get<1>(mRng)), getRndRngI(std::get<2>(mRng)), getRndRngI(std::get<3>(mRng)));
 	}
