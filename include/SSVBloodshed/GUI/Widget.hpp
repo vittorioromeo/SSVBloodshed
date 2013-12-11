@@ -256,3 +256,5 @@ namespace ob
 
 #endif
 
+// TODO: fix warnings
+// TODO: hiddenlevel instead of multiple bools?
