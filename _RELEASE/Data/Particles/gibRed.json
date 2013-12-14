@@ -4,7 +4,7 @@
 	[0.4, 0.9],			// Size range 						[incl, incl]
 	[30.0, 65.0],		// Life range 						[incl, incl]
 	[-0.0, 0.0],		// Curve speed range 				[incl, incl]
-	[-0.6, 0.6],		// Fuzziness range 					[incl, incl]
+	[0.0, 0.6],			// Fuzziness range 					[incl, incl]
 	[0.9, 0.95],		// Acceleration/deceleration range 	[incl, incl]
 	[0.0, 0.0],			// Distance range 					[incl, incl]
 	1.0,				// Alpha multiplier					float	
