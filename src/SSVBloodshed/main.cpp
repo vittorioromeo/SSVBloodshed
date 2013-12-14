@@ -332,6 +332,9 @@ int main()
 
 	editor.newPack();
 
+	// TODO: getArch -> getArch?
+	ssvu::lo() << ssvuj::getWriteToString(ssvuj::getArch(OBConfig::get())) << std::endl;
+
 	gameWindow.setGameState(editor.getGameState());
 	gameWindow.run();
 

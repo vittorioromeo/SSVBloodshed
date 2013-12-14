@@ -61,6 +61,8 @@ namespace ob
 			inline bool isValid(int mX, int mY, int mZ) const noexcept	{ return mX >= 0 && mY >= 0 && mZ >= -depth && mX < cols && mY < rows && mZ < depth; }
 			inline const decltype(tiles)& getTiles() const noexcept		{ return tiles; }
 			inline decltype(tiles)& getTiles() noexcept					{ return tiles; }
+
+			// TODO: remove?
 			inline decltype(tiles) getTilesNonNull() const noexcept		{ decltype(tiles) result; for(const auto& p : tiles) if(!p.second.isNull()) result.insert(p); return result; }
 			inline OBLETile& getTile(int mX, int mY, int mZ) noexcept	{ auto& t(tiles[ssvu::get1DIdxFrom3D(mX, mY, mZ, cols, rows)]); t.setX(mX); t.setY(mY); t.setZ(mZ); return t; }
 	};

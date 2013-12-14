@@ -50,9 +50,9 @@ namespace ob
 				auto& p(params[mKey]);
 				try
 				{
-					if(ssvuj::is<int>(p)) p = std::stoi(mValue);
-					else if(ssvuj::is<float>(p)) p = std::stof(mValue);
-					else if(ssvuj::is<bool>(p)) p = mValue == "true" ? true : false;
+					if(ssvuj::isObjType<int>(p)) p = std::stoi(mValue);
+					else if(ssvuj::isObjType<float>(p)) p = std::stof(mValue);
+					else if(ssvuj::isObjType<bool>(p)) p = mValue == "true" ? true : false;
 				}
 				catch(const std::exception& mError)
 				{
@@ -64,7 +64,7 @@ namespace ob
 			inline void update()
 			{
 				sprite.setOrigin(sprite.getTextureRect().width / 2.f, sprite.getTextureRect().height / 2.f);
-				sprite.setRotation(params.count("rot") > 0 ? ssvuj::getAs<int>(params["rot"]) : 0);
+				sprite.setRotation(params.count("rot") > 0 ? ssvuj::getExtr<int>(params["rot"]) : 0);
 				sprite.setPosition(x * 10.f, y * 10.f);
 
 				if(idText != nullptr)
@@ -94,7 +94,7 @@ namespace ob
 			inline void setZ(int mZ) noexcept								{ z = mZ; }
 			inline void setType(OBLETType mType) noexcept					{ type = mType; }
 			inline void setParams(decltype(params) mParams)					{ params = std::move(mParams); }
-			template<typename T> inline T getParam(const std::string& mKey)	{ return ssvuj::getAs<T>(params[mKey]); }
+			template<typename T> inline T getParam(const std::string& mKey)	{ return ssvuj::getExtr<T>(params[mKey]); }
 			inline bool hasParam(const std::string& mKey) const noexcept	{ return params.count(mKey) > 0; }
 
 			inline OBLETType getType() const noexcept					{ return type; }

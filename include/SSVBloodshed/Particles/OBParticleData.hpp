@@ -30,12 +30,7 @@ namespace ob
 
 namespace ssvuj
 {
-	template<> struct Converter<ob::OBParticleData>
-	{
-		using T = ob::OBParticleData;
-		inline static void fromObj(T& mValue, const Obj& mObj)	{ extrArray(mObj, mValue.angleRng, mValue.velRng, mValue.sizeRng, mValue.lifeRng, mValue.curveSpdRng, mValue.fuzzinessRng, mValue.accelRng, mValue.distRng, mValue.alphaMult, mValue.colorRngs); }
-		inline static void toObj(Obj& mObj, const T& mValue)	{ archArray(mObj, mValue.angleRng, mValue.velRng, mValue.sizeRng, mValue.lifeRng, mValue.curveSpdRng, mValue.fuzzinessRng, mValue.accelRng, mValue.distRng, mValue.alphaMult, mValue.colorRngs); }
-	};
+	template<> SSVUJ_CNV_SIMPLE(ob::OBParticleData, mObj, mV) { ssvuj::convertArray(mObj, mV.angleRng, mV.velRng, mV.sizeRng, mV.lifeRng, mV.curveSpdRng, mV.fuzzinessRng, mV.accelRng, mV.distRng, mV.alphaMult, mV.colorRngs); } SSVUJ_CNV_SIMPLE_END();
 }
 
 #endif

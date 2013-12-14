@@ -13,40 +13,12 @@
 
 namespace ssvuj
 {
-	template<> struct Converter<ob::OBLETType>
-	{
-		using T = ob::OBLETType;
-		inline static void fromObj(T& mValue, const Obj& mObj)	{ ssvuj::extrEnum<T, int>(mObj, mValue); }
-		inline static void toObj(Obj& mObj, const T& mValue)	{ ssvuj::archEnum<T, int>(mObj, mValue); }
-	};
+	template<> SSVUJ_CNV_SIMPLE(ob::OBLETType, mObj, mV)	{ ssvuj::convertEnum<ob::OBLETType, int>(mObj, mV); }								SSVUJ_CNV_SIMPLE_END();
+	template<> SSVUJ_CNV_SIMPLE(ob::OBLETile, mObj, mV)		{ ssvuj::convertArray(mObj, mV.x, mV.y, mV.z, mV.type, mV.params); }				SSVUJ_CNV_SIMPLE_END();
+	template<> SSVUJ_CNV_SIMPLE(ob::OBLELevel, mObj, mV)	{ ssvuj::convertArray(mObj, mV.x, mV.y, mV.cols, mV.rows, mV.depth, mV.tiles); }	SSVUJ_CNV_SIMPLE_END();
+	template<> SSVUJ_CNV_SIMPLE(ob::OBLESector, mObj, mV)	{ ssvuj::convert(mObj, mV.levels); }												SSVUJ_CNV_SIMPLE_END();
+	template<> SSVUJ_CNV_SIMPLE(ob::OBLEPack, mObj, mV)		{ ssvuj::convertArray(mObj, mV.name, mV.sectors); }									SSVUJ_CNV_SIMPLE_END();
 
-	template<> struct Converter<ob::OBLETile>
-	{
-		using T = ob::OBLETile;
-		inline static void fromObj(T& mValue, const Obj& mObj)	{ ssvuj::extrArray(mObj, mValue.x, mValue.y, mValue.z, mValue.type, mValue.params); }
-		inline static void toObj(Obj& mObj, const T& mValue)	{ ssvuj::archArray(mObj, mValue.x, mValue.y, mValue.z, mValue.type, mValue.params); }
-	};
-
-	template<> struct Converter<ob::OBLELevel>
-	{
-		using T = ob::OBLELevel;
-		inline static void fromObj(T& mValue, const Obj& mObj)	{ ssvuj::extrArray(mObj, mValue.x, mValue.y, mValue.cols, mValue.rows, mValue.depth, mValue.tiles); }
-		inline static void toObj(Obj& mObj, const T& mValue)	{ ssvuj::archArray(mObj, mValue.x, mValue.y, mValue.cols, mValue.rows, mValue.depth, mValue.getTilesNonNull()); }
-	};
-
-	template<> struct Converter<ob::OBLESector>
-	{
-		using T = ob::OBLESector;
-		inline static void fromObj(T& mValue, const Obj& mObj)	{ ssvuj::extr(mObj, mValue.levels); }
-		inline static void toObj(Obj& mObj, const T& mValue)	{ ssvuj::arch(mObj, mValue.levels); }
-	};
-
-	template<> struct Converter<ob::OBLEPack>
-	{
-		using T = ob::OBLEPack;
-		inline static void fromObj(T& mValue, const Obj& mObj)	{ ssvuj::extrArray(mObj, mValue.name, mValue.sectors); }
-		inline static void toObj(Obj& mObj, const T& mValue)	{ ssvuj::archArray(mObj, mValue.name, mValue.sectors); }
-	};
 }
 
 #endif

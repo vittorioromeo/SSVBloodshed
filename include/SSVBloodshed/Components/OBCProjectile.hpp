@@ -23,7 +23,14 @@ namespace ob
 			OBGroup targetGroup{OBGroup::GEnemyKillable};
 			float acceleration{0.f}, minSpeed{0}, maxSpeed{1000};
 			bool bounce{false}, fallInPit{false};
+			float dmgMult{1.f};
 
+			inline void refreshMult()
+			{
+				if(targetGroup == OBGroup::GEnemyKillable) dmgMult = OBConfig::getDmgMultPlayer();
+				else if(targetGroup == OBGroup::GFriendlyKillable) dmgMult = OBConfig::getDmgMultEnemy();
+				else dmgMult = OBConfig::getDmgMultGlobal();
+			}
 
 		public:
 			ssvu::Delegate<void()> onDestroy;
@@ -46,7 +53,7 @@ namespace ob
 						destroy();
 					}
 
-					if(mDI.body.hasGroup(targetGroup) && getComponentFromBody<OBCHealth>(mDI.body).damage(dmg) && pierceOrganic-- == 0)
+					if(mDI.body.hasGroup(targetGroup) && getComponentFromBody<OBCHealth>(mDI.body).damage(dmg * dmgMult) && pierceOrganic-- == 0)
 					{
 						destroy();
 					}
@@ -60,6 +67,8 @@ namespace ob
 				};
 				body.setRestitutionX(1.f);
 				body.setRestitutionY(1.f);
+
+				refreshMult();
 			}
 			inline void destroy() { getEntity().destroy(); onDestroy(); }
 
@@ -86,7 +95,7 @@ namespace ob
 			inline void setCurveSpeed(float mValue) noexcept		{ curveSpeed = mValue; }
 			inline void setDamage(float mValue) noexcept			{ dmg = mValue; }
 			inline void setPierceOrganic(int mValue) noexcept		{ pierceOrganic = mValue; }
-			inline void setTargetGroup(OBGroup mValue) noexcept		{ targetGroup = mValue; }
+			inline void setTargetGroup(OBGroup mValue) noexcept		{ targetGroup = mValue; refreshMult(); }
 			inline void setKillDestructible(bool mValue) noexcept	{ killDestructible = mValue; }
 			inline void setAcceleration(float mValue) noexcept		{ acceleration = mValue; }
 			inline void setMinSpeed(float mValue) noexcept			{ minSpeed = mValue; }

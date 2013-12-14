@@ -73,6 +73,7 @@ namespace ob
 	using DetectionInfo = World::DetectionInfoType;
 	using ResolutionInfo = World::ResolutionInfoType;
 	using FT = ssvu::FT;
+	using Trigger = ssvs::Input::Trigger;
 
 	// Pixel <-> coords utils
 	template<typename T> inline constexpr float toPixels(T mValue) noexcept		{ return mValue / 100; }

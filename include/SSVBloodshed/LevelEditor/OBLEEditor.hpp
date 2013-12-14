@@ -385,9 +385,9 @@ namespace ob
 					else
 					{
 						// Generic parameters (bool, textbox)
-						if(ssvuj::is<bool>(p.second))
+						if(ssvuj::isObjType<bool>(p.second))
 						{
-							auto& checkBox(strip.create<GUI::CheckBox>("on", ssvuj::getAs<bool>(p.second)));
+							auto& checkBox(strip.create<GUI::CheckBox>("on", ssvuj::getExtr<bool>(p.second)));
 							checkBox.onStateChanged += [key, tile, &checkBox]{ tile->setParam(key, checkBox.getState() ? "true" : "false"); };
 							checkBoxes[key] = &checkBox;
 						}
