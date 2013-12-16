@@ -153,7 +153,7 @@ namespace ob
 				ssvs::BitmapText text;
 				bool scaleWithText{true};
 
-				inline void draw() override { text.setPosition(getX(), getY() - 1.f); render(text); }
+				inline void drawWidget() override { text.setPosition(getX(), getY() - 1.f); render(text); }
 
 			public:
 				Label(Context& mContext, std::string mText = "") : Widget{mContext}, text{getStyle().font}

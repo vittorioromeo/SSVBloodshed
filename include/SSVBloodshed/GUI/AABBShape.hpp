@@ -16,8 +16,8 @@ namespace ob
 			using sf::RectangleShape::RectangleShape;
 
 			// TODO: remove 1.f; 1.f when SFML2.2 is released
-			AABBShape() : sf::RectangleShape{Vec2f{1.f, 1.f}} { }
-			AABBShape(const Vec2f& mPosition, const Vec2f& mHalfSize) : sf::RectangleShape{mHalfSize * 2.f}
+			inline AABBShape() : sf::RectangleShape{Vec2f{1.f, 1.f}} { }
+			inline AABBShape(const Vec2f& mPosition, const Vec2f& mHalfSize) : sf::RectangleShape{mHalfSize * 2.f}
 			{
 				AABBShape::setSize(mHalfSize * 2.f);
 				AABBShape::setPosition(mPosition);

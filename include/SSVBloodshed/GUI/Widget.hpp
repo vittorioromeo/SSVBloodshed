@@ -59,11 +59,11 @@ namespace ob
 				float padding{0.f}, scalePercent{100.f};
 
 				inline virtual void update(FT) { }
-				inline virtual void draw() { }
+				inline virtual void drawWidget() { }
 
 				inline void drawHierarchy()
 				{
-					recurseChildrenBF([this](Widget& mW){ if(mW.isVisible()) { mW.draw(); mW.onPostDraw(); render(mW); } });
+					recurseChildrenBF([this](Widget& mW){ if(mW.isVisible()) { mW.drawWidget(); mW.onPostDraw(); render(mW); } });
 				}
 
 				inline void setFocused(bool mValue)
@@ -255,6 +255,3 @@ namespace ob
 }
 
 #endif
-
-// TODO: fix warnings
-// TODO: hiddenlevel instead of multiple bools?
