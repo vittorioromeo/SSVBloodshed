@@ -12,7 +12,7 @@ namespace ob
 {
 	class OBLESector
 	{
-		SSVUJ_CONVERTER_FRIEND;
+		SSVUJ_CONVERTER_FRIEND();
 
 		private:
 			int cols, rows;
