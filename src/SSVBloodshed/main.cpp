@@ -237,73 +237,9 @@ using namespace ssvu::FileSystem;
 using namespace ssvs;
 using namespace ssvms;
 
-template<typename TKey, typename TValue> class FlatMap
-{
-	public:
-		using Pair = std::pair<TKey, TValue>;
-
-	public:
-		std::vector<Pair> items;
-
-	public:
-		inline void insert(Pair mPair)
-		{
-			auto itr(std::begin(items));
-			for(; itr != std::end(items); ++itr) if(std::get<0>(*itr) > std::get<0>(mPair)) break;
-			items.emplace(itr, std::move(mPair));
-		}
-
-		inline TValue& at(const TKey& mKey)
-		{
-			std::size_t lb{0u}, ub{items.size()}, mid;
-
-			while(lb <= ub)
-			{
-				mid = (lb + ub) / 2;
-				const auto& currentKey(std::get<0>(items[mid]));
-
-				if(currentKey > mKey)		ub = mid - 1;
-				else if(currentKey < mKey)	lb = mid + 1;
-				else						return std::get<1>(items[mid]);
-			}
-
-			throw;
-		}
-};
 
 int main()
 {
-	int array[]{10, 15, 33, 22, 159};
-	int* ptr = &array[2];
-	int* ptr2 = nullptr;
-
-	ssvu::lo() << (int(&)[5])(array) << std::endl;
-	ssvu::lo() << ptr << std::endl;
-	ssvu::lo() << ptr2 << std::endl;
-
-	std::pair<int, std::string> pair{10, "gsig"};
-	ssvu::lo() << pair << std::endl;
-
-	std::tuple<int, float, std::string, sf::Color> tpl = std::make_tuple(1, 15.f, "cia", sf::Color(215, 112, 111, 22));
-	ssvu::lo() << tpl << std::endl;
-
-	ssvu::lo() << sf::Color(215, 112, 111, 22) << std::endl;
-	ssvu::lo() << ssvs::Vec2f(15, 55.f) << std::endl;
-	ssvu::lo() << ssvs::Vec2i(4, 3) << std::endl;
-
-	FlatMap<int, std::string> test;
-	test.insert({0, "ciao"});
-	test.insert({5, "bro"});
-	test.insert({12, "come"});
-	test.insert({33, "stai?"});
-	test.insert({3, "mio"});
-
-	ssvu::lo() << test.items << std::endl;
-
-	ssvu::lo() << test.at(0) << std::endl;
-	ssvu::lo() << test.at(33) << std::endl;
-	ssvu::lo() << test.at(3) << std::endl;
-
 	SSVU_TEST_RUN_ALL();
 
 	OBConfig::setSoundEnabled(false);
@@ -325,14 +261,14 @@ int main()
 	OBLEEditor editor{gameWindow, assets};
 	OBLEDatabase database{assets};
 
+	std::cout << Console::clear();
+
 	game.setEditor(editor);
 	game.setDatabase(database);
 	editor.setGame(game);
 	editor.setDatabase(database);
 
 	editor.newPack();
-
-	//ssvu::lo() << ssvuj::getWriteToString(ssvuj::getArch(OBConfig::get())) << std::endl;
 
 	gameWindow.setGameState(editor.getGameState());
 	gameWindow.run();
