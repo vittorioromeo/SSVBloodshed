@@ -261,8 +261,6 @@ int main()
 	OBLEEditor editor{gameWindow, assets};
 	OBLEDatabase database{assets};
 
-	std::cout << Console::clear();
-
 	game.setEditor(editor);
 	game.setDatabase(database);
 	editor.setGame(game);
