@@ -557,7 +557,7 @@ template<typename TTokenType, typename TTokenAttribute> class LexicalAnalyzer
 
 	private:
 		std::string source;
-		std::size_t currentIdx{0}, nextIdx;
+		std::size_t markerBegin, markerEnd, nextStep;
 
 	public:
 		inline void setSource(std::string mSource) { source = std::move(mSource); }
@@ -565,66 +565,70 @@ template<typename TTokenType, typename TTokenAttribute> class LexicalAnalyzer
 		{
 			matches[mTokenType] = &mFSM;
 		}
-		inline char getCurrentChar() { ssvu::lo() << "returning " << source[nextIdx] << std::endl; return source[nextIdx++]; }
-		inline bool match(const std::string& mMatch)
+		inline char getCurrentChar() { ++nextStep; return source[markerEnd]; }
+		inline bool match(const std::string& mMatch, bool mConsume = true)
 		{
-			ssvu::lo()	<< "match against " << mMatch;
 			for(auto i(0u); i < mMatch.size(); ++i)
 			{
-				auto idxToCheck(nextIdx + i);
+				auto idxToCheck(markerEnd + i);
 				if(idxToCheck >= source.size())
 				{
-					ssvu::lo() << "false" << std::endl;
 					return false;
 				}
 				if(source[idxToCheck] != mMatch[i])
 				{
-					ssvu::lo() << "false" << std::endl;
 					return false;
 				}
 			}
 
-			nextIdx += mMatch.size();
-			ssvu::lo() << "true" << std::endl;
+			nextStep = mMatch.size();
 
 			return true;
 		}
+		inline bool matchAnything() { ++nextStep; return true; }
 
 		inline void tokenize()
 		{
-			while(currentIdx < source.size())
+			markerBegin = markerEnd = 0;
+
+			while(markerEnd < source.size())
 			{
 				bool foundAnyMatch{false};
 
 				for(const auto& p : matches)
 				{
+
 					const auto& tokenType(p.first);
 					auto& fsm(*p.second);
-
 					auto current(fsm.currentState);
 
-					nextIdx = currentIdx;
+					markerEnd = markerBegin;
+					nextStep = 0;
 
-					while(true)
+					if(current->rule())
 					{
-						ssvu::lo() << "calling current.rule()" << std::endl;
-						if(!current->rule())
+						while(true)
 						{
-							ssvu::lo() << "current didn't match" << std::endl;
-							break;
-						}
+							markerEnd += nextStep;
+							nextStep = 0;
 
-						if(current->terminal) foundAnyMatch = true;
-						if(current->transitions.empty()) break;
+							if(current->terminal) foundAnyMatch = true;
+							if(current->transitions.empty()) break;
 
-						for(const auto& t : current->transitions)
-						{
-							if(t->rule())
+							bool found{false};
+							for(const auto& t : current->transitions)
 							{
-								current = t;
-								break;
+								if(t->rule())
+								{
+									current = t;
+									found = true;
+									break;
+								}
 							}
+
+							if(!found) break;
 						}
+
 					}
 
 					if(foundAnyMatch) break;
@@ -636,9 +640,9 @@ template<typename TTokenType, typename TTokenAttribute> class LexicalAnalyzer
 					return;
 				}
 
-				ssvu::lo() << "found match" << std::endl;
-				ssvu::lo() << source.substr(currentIdx, nextIdx - currentIdx) << std::endl;
-				currentIdx = nextIdx;
+				//ssvu::lo() << "found match" << std::endl;
+				ssvu::lo() << source.substr(markerBegin, markerEnd - markerBegin) << std::endl;
+				markerBegin = markerEnd;
 			}
 		}
 };
@@ -672,19 +676,19 @@ int main()
 	fsmParenthesisRoundOpen.startOnce([&la]{ return la.match("("); });
 	fsmParenthesisRoundClose.startOnce([&la]{ return la.match(")"); });
 	fsmNumber.startRepeat([&la]{ return std::isdigit(la.getCurrentChar()); }).continueOnce([&la]{ return la.match(".f"); });
-	fsmIdentifier.startRepeat([&la]{ return std::isalpha(la.getCurrentChar()); });//.continueRepeat([&la]{ return std::isdigit(la.getCurrentChar()); }).connectWithPrevious();
-	fsmComment.startOnce([&la]{ return la.match("//"); }).continueRepeatUntilOnce([&la]{ return true; }, [&la]{ return la.match("/n"); });
+	fsmIdentifier.startRepeat([&la]{ return std::isalpha(la.getCurrentChar()); }).continueRepeat([&la]{ return std::isdigit(la.getCurrentChar()); }).connectWithPrevious();
+	fsmComment.startOnce([&la]{ return la.match("//"); }).continueRepeatUntilOnce([&la]{ return la.matchAnything(); }, [&la]{ return la.match("\n", false); });
 
-	//la.addMatch(TokenType::PreprocessorStart, fsmPreprocessorStart);
-	//la.addMatch(TokenType::Semicolon, fsmSemicolon);
-	//la.addMatch(TokenType::ParenthesisRoundOpen, fsmParenthesisRoundOpen);
-	//la.addMatch(TokenType::ParenthesisRoundClose, fsmParenthesisRoundClose);
-	//la.addMatch(TokenType::Number, fsmNumber);
+	la.addMatch(TokenType::PreprocessorStart, fsmPreprocessorStart);
+	la.addMatch(TokenType::Semicolon, fsmSemicolon);
+	la.addMatch(TokenType::ParenthesisRoundOpen, fsmParenthesisRoundOpen);
+	la.addMatch(TokenType::ParenthesisRoundClose, fsmParenthesisRoundClose);
+	la.addMatch(TokenType::Number, fsmNumber);
 	la.addMatch(TokenType::Identifier, fsmIdentifier);
-	//la.addMatch(TokenType::Comment, fsmComment);
+	la.addMatch(TokenType::Comment, fsmComment);
 
-	//la.setSource("(source)1234");
-	la.setSource("abcdef");
+	la.setSource("(2s2our22ce)1234//cocks\n");
+	//la.setSource("abcdef");
 	la.tokenize();
 
 	ssvu::lo() << "end" << std::endl;
