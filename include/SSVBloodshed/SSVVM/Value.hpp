@@ -22,6 +22,7 @@ namespace ssvvm
 			template<typename T> inline Value(T mContents) noexcept { setType<T>(); set<T>(mContents); }
 
 			template<typename T> inline void setType() noexcept { type = getValueType<T>(); }
+			inline void setType(ValueType mType) noexcept { type = mType; }
 			template<typename T> inline void set(T mContents) noexcept;
 			template<typename T> inline T get() const noexcept;
 			inline ValueType getType() const noexcept { return type; }

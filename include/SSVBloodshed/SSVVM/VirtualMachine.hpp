@@ -46,6 +46,7 @@ namespace ssvvm
 
 					return mFn(a, b);
 				}
+				template<typename T> inline T getFromValue(const Value& mValue) const noexcept { return mValue.template get<T>(); }
 
 				// Instructions
 				inline void halt() noexcept
@@ -63,7 +64,7 @@ namespace ssvvm
 
 					if(TDebug)
 					{
-						const auto& dbgIdxReg(params[0].get<Register::Idx>());
+						const auto& dbgIdxReg(getFromValue<Register::Idx>(params[0]));
 						ssvu::lo("loadIntCVToR") << "Loaded " << params[1] << " into register " << dbgIdxReg << "\n";
 					}
 				}
@@ -76,15 +77,15 @@ namespace ssvvm
 
 					if(TDebug)
 					{
-						const auto& dbgIdxReg(params[0].get<Register::Idx>());
+						const auto& dbgIdxReg(getFromValue<Register::Idx>(params[0]));
 						ssvu::lo("loadFloatCVToR") << "Loaded " << params[1] << " into register " << dbgIdxReg << "\n";
 					}
 				}
 
 				inline void moveRVToR() noexcept
 				{
-					const auto& idxDst(params[0].get<Register::Idx>());
-					const auto& idxSrc(params[1].get<Register::Idx>());
+					const auto& idxDst(getFromValue<Register::Idx>(params[0]));
+					const auto& idxSrc(params[1].template get<Register::Idx>());
 
 					registry.get(idxDst) = registry.get(idxSrc);
 
@@ -102,7 +103,7 @@ namespace ssvvm
 
 					if(TDebug)
 					{
-						const auto& dbgIdxReg(params[0].get<Register::Idx>());
+						const auto& dbgIdxReg(getFromValue<Register::Idx>(params[0]));
 						ssvu::lo("pushRVToS") << "Pushed register " << dbgIdxReg << " value " << toPush << " onto stack" << "\n";
 					}
 				}
@@ -113,17 +114,17 @@ namespace ssvvm
 
 					if(TDebug)
 					{
-						const auto& dbgIdxReg(params[0].get<Register::Idx>());
+						const auto& dbgIdxReg(getFromValue<Register::Idx>(params[0]));
 						ssvu::lo("popSVToR") << "Popped value " << popDst << " in register " << dbgIdxReg << " from stack" << "\n";
 					}
 				}
 				inline void moveSBOVToR() noexcept
 				{
-					const auto& sbOffset(stack.getFromBase(params[1].get<int>()));
+					const auto& sbOffset(stack.getFromBase(params[1].template get<int>()));
 
 					if(TDebug)
 					{
-						const auto& dbgIdxReg(params[0].get<Register::Idx>());
+						const auto& dbgIdxReg(getFromValue<Register::Idx>(params[0]));
 						ssvu::lo("moveSBOVToR") << "Moved SBO value " << sbOffset << " into register " << dbgIdxReg << " from stack base offset" << "\n";
 					}
 
@@ -174,7 +175,7 @@ namespace ssvvm
 
 				inline void goToPI() noexcept
 				{
-					const auto& jmpDst(params[0].get<Instruction::Idx>());
+					const auto& jmpDst(getFromValue<Instruction::Idx>(params[0]));
 
 					if(TDebug)
 					{
@@ -185,12 +186,12 @@ namespace ssvvm
 				}
 				inline void goToPIIfIntRV() noexcept
 				{
-					const auto& jmpDst(params[0].get<Instruction::Idx>());
+					const auto& jmpDst(getFromValue<Instruction::Idx>(params[0]));
 					const auto& cndVal(getRV(params[1]));
 
 					if(TDebug)
 					{
-						const auto& dbgIdxReg(params[1].get<Register::Idx>());
+						const auto& dbgIdxReg(getFromValue<Register::Idx>(params[1]));
 						ssvu::lo("goToPIIfIntRV") << "Conditional jump to instruction " << jmpDst << "\n";
 						ssvu::lo("goToPIIfIntRV") << "Condition: register " << dbgIdxReg << " value " << cndVal << " != 0\n";
 					}
@@ -205,12 +206,12 @@ namespace ssvvm
 
 				inline void goToPIIfCompareRVGreater() noexcept
 				{
-					const auto& jmpDst(params[0].get<Instruction::Idx>());
+					const auto& jmpDst(getFromValue<Instruction::Idx>(params[0]));
 					const auto& cndVal(getRV(params[1]));
 
 					if(TDebug)
 					{
-						const auto& dbgIdxReg(params[1].get<Register::Idx>());
+						const auto& dbgIdxReg(getFromValue<Register::Idx>(params[1]));
 						ssvu::lo("goToPIIfCompareRVGreater") << "Conditional jump to instruction " << jmpDst << "\n";
 						ssvu::lo("goToPIIfCompareRVGreater") << "Condition GREATER: register " << dbgIdxReg << " compare value " << cndVal << " > 0\n";
 					}
@@ -224,12 +225,12 @@ namespace ssvvm
 				}
 				inline void goToPIIfCompareRVSmaller() noexcept
 				{
-					const auto& jmpDst(params[0].get<Instruction::Idx>());
+					const auto& jmpDst(getFromValue<Instruction::Idx>(params[0]));
 					const auto& cndVal(getRV(params[1]));
 
 					if(TDebug)
 					{
-						const auto& dbgIdxReg(params[1].get<Register::Idx>());
+						const auto& dbgIdxReg(getFromValue<Register::Idx>(params[1]));
 						ssvu::lo("goToPIIfCompareRVSmaller") << "Conditional jump to instruction " << jmpDst << "\n";
 						ssvu::lo("goToPIIfCompareRVSmaller") << "Condition SMALLER: register " << dbgIdxReg << " compare value " << cndVal << " < 0\n";
 					}
@@ -243,12 +244,12 @@ namespace ssvvm
 				}
 				inline void goToPIIfCompareRVEqual() noexcept
 				{
-					const auto& jmpDst(params[0].get<Instruction::Idx>());
+					const auto& jmpDst(getFromValue<Instruction::Idx>(params[0]));
 					const auto& cndVal(getRV(params[1]));
 
 					if(TDebug)
 					{
-						const auto& dbgIdxReg(params[1].get<Register::Idx>());
+						const auto& dbgIdxReg(getFromValue<Register::Idx>(params[1]));
 						ssvu::lo("goToPIIfCompareRVEqual") << "Conditional jump to instruction " << jmpDst << "\n";
 						ssvu::lo("goToPIIfCompareRVEqual") << "Condition EQUAL: register " << dbgIdxReg << " compare value " << cndVal << " == 0\n";
 					}
@@ -264,7 +265,7 @@ namespace ssvvm
 
 				inline void callPI() noexcept
 				{
-					const auto& callDst(params[0].get<Instruction::Idx>());
+					const auto& callDst(getFromValue<Instruction::Idx>(params[0]));
 
 					if(TDebug) ssvu::lo("callPI") << "Preparing to call function at instruction " << callDst << "\n";
 
@@ -286,7 +287,7 @@ namespace ssvvm
 					}
 
 					stack.popBaseOffset();
-					const auto& returnDst(stack.getPop().get<Instruction::Idx>());
+					const auto& returnDst(getFromValue<Instruction::Idx>(stack.getPop()));
 
 					if(TDebug)
 					{
@@ -303,7 +304,7 @@ namespace ssvvm
 
 					if(TDebug)
 					{
-						const auto& dbgIdxReg(params[0].get<Register::Idx>());
+						const auto& dbgIdxReg(getFromValue<Register::Idx>(params[0]));
 						ssvu::lo("incrementIntRV") << "Incrementing value " << regVal << " in register " << dbgIdxReg << "\n";
 					}
 
@@ -315,7 +316,7 @@ namespace ssvvm
 
 					if(TDebug)
 					{
-						const auto& dbgIdxReg(params[0].get<Register::Idx>());
+						const auto& dbgIdxReg(getFromValue<Register::Idx>(params[0]));
 						ssvu::lo("decrementIntRV") << "Decrementing value " << regVal << " in register " << dbgIdxReg << "\n";
 					}
 
@@ -369,11 +370,11 @@ namespace ssvvm
 
 				inline void compareIntRVIntRVToR() noexcept
 				{
-					const auto& idxDst(params[0].get<Register::Idx>());
-					const auto& idxA(params[1].get<Register::Idx>());
-					const auto& idxB(params[2].get<Register::Idx>());
-					const auto& valA(registry.get(idxA).value.template get<int>());
-					const auto& valB(registry.get(idxB).value.template get<int>());
+					const auto& idxDst(getFromValue<Register::Idx>(params[0]));
+					const auto& idxA(getFromValue<Register::Idx>(params[1]));
+					const auto& idxB(getFromValue<Register::Idx>(params[2]));
+					const auto& valA(getFromValue<int>(registry.get(idxA).value));
+					const auto& valB(getFromValue<int>(registry.get(idxB).value));
 					const auto& result(VMOperations::getIntComparison(valA, valB));
 
 					registry.get(idxDst).value = result;
@@ -386,9 +387,9 @@ namespace ssvvm
 				}
 				inline void compareIntRVIntSVToR() noexcept
 				{
-					const auto& idxDst(params[0].get<Register::Idx>());
-					const auto& idxA(params[1].get<Register::Idx>());
-					const auto& valA(registry.get(idxA).value.template get<int>());
+					const auto& idxDst(getFromValue<Register::Idx>(params[0]));
+					const auto& idxA(getFromValue<Register::Idx>(params[1]));
+					const auto& valA(getFromValue<int>(registry.get(idxA).value));
 					const auto& valB(stack.getTop());
 					const auto& result(VMOperations::getIntComparison(valA, valB));
 
@@ -402,7 +403,7 @@ namespace ssvvm
 				}
 				inline void compareIntSVIntSVToR() noexcept
 				{
-					const auto& idxDst(params[0].get<Register::Idx>());
+					const auto& idxDst(getFromValue<Register::Idx>(params[0]));
 					const auto& valA(stack.getTop());
 					const auto& valB(stack.getTop(1));
 					const auto& result(VMOperations::getIntComparison(valA, valB));
@@ -417,10 +418,10 @@ namespace ssvvm
 				}
 				inline void compareIntRVIntCVToR() noexcept
 				{
-					const auto& idxDst(params[0].get<Register::Idx>());
-					const auto& idxA(params[1].get<Register::Idx>());
-					const auto& valA(registry.get(idxA).value.template get<int>());
-					const auto& valB(params[2].get<int>());
+					const auto& idxDst(getFromValue<Register::Idx>(params[0]));
+					const auto& idxA(getFromValue<Register::Idx>(params[1]));
+					const auto& valA(getFromValue<int>(registry.get(idxA).value));
+					const auto& valB(getFromValue<int>(params[2]));
 					const auto& result(VMOperations::getIntComparison(valA, valB));
 
 					registry.get(idxDst).value = result;
@@ -433,9 +434,9 @@ namespace ssvvm
 				}
 				inline void compareIntSVIntCVToR() noexcept
 				{
-					const auto& idxDst(params[0].get<Register::Idx>());
+					const auto& idxDst(getFromValue<Register::Idx>(params[0]));
 					const auto& valA(stack.getTop());
-					const auto& valB(params[1].get<int>());
+					const auto& valB(getFromValue<int>(params[1]));
 					const auto& result(VMOperations::getIntComparison(valA, valB));
 
 					registry.get(idxDst).value = result;
@@ -492,9 +493,11 @@ namespace ssvvm
 								if(sIdx == 0) ssvu::lo() << "\t|--------------------|\n";
 							}
 
-							ssvu::lo() << std::endl;
+							ssvu::lo() << "\n";
 						}
 					}
+
+					ssvu::lo().flush();
 				}
 
 				inline void setProgram(Program mProgram) noexcept { program = std::move(mProgram); }

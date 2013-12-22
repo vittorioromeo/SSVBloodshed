@@ -290,25 +290,25 @@ int main()
 
 	// 2.f * 15
 
-	vm.program += {IT::LoadFloatCVToR, 0, 2.f};
-	vm.program += {IT::LoadFloatCVToR, 2, 12.f};
-	vm.program += {IT::LoadIntCVToR, 1, 14};
+	vm.program += {IT::loadFloatCVToR, 0, 2.f};
+	vm.program += {IT::loadFloatCVToR, 2, 12.f};
+	vm.program += {IT::loadIntCVToR, 1, 14};
 
-	vm.program += {IT::PushRVToS, 0};
-	vm.program += {IT::PushRVToS, 2};
+	vm.program += {IT::pushRVToS, 0};
+	vm.program += {IT::pushRVToS, 2};
 
 	vm.program += {IT::MultiplyFloat2SVs};
-	vm.program += {IT::PopSVToR, 0};
+	vm.program += {IT::popSVToR, 0};
 
 
-	vm.program += {IT::PushRVToS, 0};
-	vm.program += {IT::PushRVToS, 2};
+	vm.program += {IT::pushRVToS, 0};
+	vm.program += {IT::pushRVToS, 2};
 
-	vm.program += {IT::AddFloat2SVs};
-	vm.program += {IT::PopSVToR, 0};
+	vm.program += {IT::addFloat2SVs};
+	vm.program += {IT::popSVToR, 0};
 
-	vm.program += {IT::DecrementIntRV, 1};
-	vm.program += {IT::GoToPIIfIntRV, 3, 1};
+	vm.program += {IT::decrementIntRV, 1};
+	vm.program += {IT::goToPIIfIntRV, 3, 1};
 
 
 	vm.run();
@@ -318,6 +318,7 @@ int main()
 	return 0;
 }
 */
+
 
 std::string source{
 	R"(
@@ -461,8 +462,250 @@ std::string source{
 			returnPI();
 	)"};
 
+
+struct FSM
+{
+	using Rule = ssvu::Func<bool()>;
+
+	struct State
+	{
+		Rule rule;
+		std::vector<State*> transitions;
+		bool terminal{true};
+	};
+
+	std::vector<std::unique_ptr<State>> states;
+	State* currentState;
+	std::vector<State*> history;
+
+	inline State& createState()
+	{
+		auto result(new State);
+		states.emplace_back(result);
+		return *result;
+	}
+
+	inline FSM& startOnce(const Rule& mRule)
+	{
+		auto& state(createState());
+		state.rule = mRule;
+		currentState = &state;
+		history.push_back(&state);
+		return *this;
+	}
+	inline FSM& startRepeat(const Rule& mRule)
+	{
+		auto& state(createState());
+		state.rule = mRule;
+		state.transitions.push_back(&state);
+		currentState = &state;
+		history.push_back(&state);
+		return *this;
+	}
+
+	inline FSM& continueOnce(const Rule& mRule)
+	{
+		auto& state(createState());
+		state.rule = mRule;
+		history.back()->transitions.push_back(&state);
+		history.push_back(&state);
+		return *this;
+	}
+	inline FSM& continueRepeat(const Rule& mRule)
+	{
+		auto& state(createState());
+		state.rule = mRule;
+		state.transitions.push_back(&state);
+		history.back()->transitions.push_back(&state);
+		history.push_back(&state);
+		return *this;
+	}
+
+	inline FSM& connectWithPrevious()
+	{
+		history.back()->transitions.push_back(*(std::end(history) - 2));
+		return *this;
+	}
+
+	inline FSM& continueRepeatUntilOnce(const Rule& mLoop, const Rule& mEnd)
+	{
+		auto& stateEnd(createState());
+		stateEnd.rule = mEnd;
+
+		auto& stateLoop(createState());
+		stateLoop.rule = mLoop;
+		stateLoop.transitions.push_back(&stateEnd);
+		stateLoop.transitions.push_back(&stateLoop);
+
+		history.back()->transitions.push_back(&stateEnd);
+		history.back()->transitions.push_back(&stateLoop);
+
+		return *this;
+	}
+};
+
+template<typename TTokenType, typename TTokenAttribute> class LexicalAnalyzer
+{
+	public:
+		struct Token
+		{
+			TTokenType type;
+			TTokenAttribute attribute;
+		};
+
+		std::map<TTokenType, FSM*> matches;
+
+	private:
+		std::string source;
+		std::size_t currentIdx{0}, nextIdx;
+
+	public:
+		inline void setSource(std::string mSource) { source = std::move(mSource); }
+		inline void addMatch(TTokenType mTokenType, FSM& mFSM)
+		{
+			matches[mTokenType] = &mFSM;
+		}
+		inline char getCurrentChar() { ssvu::lo() << "returning " << source[nextIdx] << std::endl; return source[nextIdx++]; }
+		inline bool match(const std::string& mMatch)
+		{
+			ssvu::lo()	<< "match against " << mMatch;
+			for(auto i(0u); i < mMatch.size(); ++i)
+			{
+				auto idxToCheck(nextIdx + i);
+				if(idxToCheck >= source.size())
+				{
+					ssvu::lo() << "false" << std::endl;
+					return false;
+				}
+				if(source[idxToCheck] != mMatch[i])
+				{
+					ssvu::lo() << "false" << std::endl;
+					return false;
+				}
+			}
+
+			nextIdx += mMatch.size();
+			ssvu::lo() << "true" << std::endl;
+
+			return true;
+		}
+
+		inline void tokenize()
+		{
+			while(currentIdx < source.size())
+			{
+				bool foundAnyMatch{false};
+
+				for(const auto& p : matches)
+				{
+					const auto& tokenType(p.first);
+					auto& fsm(*p.second);
+
+					auto current(fsm.currentState);
+
+					nextIdx = currentIdx;
+
+					while(true)
+					{
+						ssvu::lo() << "calling current.rule()" << std::endl;
+						if(!current->rule())
+						{
+							ssvu::lo() << "current didn't match" << std::endl;
+							break;
+						}
+
+						if(current->terminal) foundAnyMatch = true;
+						if(current->transitions.empty()) break;
+
+						for(const auto& t : current->transitions)
+						{
+							if(t->rule())
+							{
+								current = t;
+								break;
+							}
+						}
+					}
+
+					if(foundAnyMatch) break;
+				}
+
+				if(!foundAnyMatch)
+				{
+					ssvu::lo() << "didn't find any match" << std::endl;
+					return;
+				}
+
+				ssvu::lo() << "found match" << std::endl;
+				ssvu::lo() << source.substr(currentIdx, nextIdx - currentIdx) << std::endl;
+				currentIdx = nextIdx;
+			}
+		}
+};
+
+int main()
+{
+	enum class TokenType
+	{
+		PreprocessorStart,		// '$'
+		Semicolon,				// ';'
+		ParenthesisRoundOpen,	// '('
+		ParenthesisRoundClose,	// ')'
+		Number,
+		Identifier,
+		Comment
+	};
+
+	struct TokenAttribute { };
+	LexicalAnalyzer<TokenType, TokenAttribute> la;
+
+	FSM fsmPreprocessorStart;
+	FSM fsmSemicolon;
+	FSM fsmParenthesisRoundOpen;
+	FSM fsmParenthesisRoundClose;
+	FSM fsmNumber;
+	FSM fsmIdentifier;
+	FSM fsmComment;
+
+	fsmPreprocessorStart.startOnce([&la]{ return la.match("$"); });
+	fsmSemicolon.startOnce([&la]{ return la.match(";"); });
+	fsmParenthesisRoundOpen.startOnce([&la]{ return la.match("("); });
+	fsmParenthesisRoundClose.startOnce([&la]{ return la.match(")"); });
+	fsmNumber.startRepeat([&la]{ return std::isdigit(la.getCurrentChar()); }).continueOnce([&la]{ return la.match(".f"); });
+	fsmIdentifier.startRepeat([&la]{ return std::isalpha(la.getCurrentChar()); });//.continueRepeat([&la]{ return std::isdigit(la.getCurrentChar()); }).connectWithPrevious();
+	fsmComment.startOnce([&la]{ return la.match("//"); }).continueRepeatUntilOnce([&la]{ return true; }, [&la]{ return la.match("/n"); });
+
+	//la.addMatch(TokenType::PreprocessorStart, fsmPreprocessorStart);
+	//la.addMatch(TokenType::Semicolon, fsmSemicolon);
+	//la.addMatch(TokenType::ParenthesisRoundOpen, fsmParenthesisRoundOpen);
+	//la.addMatch(TokenType::ParenthesisRoundClose, fsmParenthesisRoundClose);
+	//la.addMatch(TokenType::Number, fsmNumber);
+	la.addMatch(TokenType::Identifier, fsmIdentifier);
+	//la.addMatch(TokenType::Comment, fsmComment);
+
+	//la.setSource("(source)1234");
+	la.setSource("abcdef");
+	la.tokenize();
+
+	ssvu::lo() << "end" << std::endl;
+
+	return 0;
+}
+
+
+			/*
+template<typename T> inline void addSrcInstr(T& mTarget, ssvvm::OpCode mOpCode,
+											 ssvvm::ValueType mArgType0 = ssvvm::ValueType::Void,
+											 ssvvm::ValueType mArgType1 = ssvvm::ValueType::Void,
+											 ssvvm::ValueType mArgType2 = ssvvm::ValueType::Void)
+{
+	mTarget[getOpCodeStr(mOpCode)] = {mOpCode, mArgType0, mArgType1, mArgType2};
+}
+
 ssvvm::Program makeProgram(std::string mSource)
 {
+	using namespace ssvvm;
+
 	struct Tkn
 	{
 		std::string str;
@@ -510,7 +753,7 @@ ssvvm::Program makeProgram(std::string mSource)
 	std::vector<Tkn> tokens;
 	for(const auto& x : ssvu::getSplit<ssvu::Split::Normal>(mSource, splits)) tokens.emplace_back(x);
 	mSource = ""; for(auto& s : tokens) mSource += s.str; tokens.clear();
-	for(const auto& x : ssvu::getSplit<ssvu::Split::KeepSeparatorAsToken>(mSource, splitsKeep)) tokens.emplace_back(x);
+	for(const auto& x : ssvu::getSplit<ssvu::Split::TokenizeSeparator>(mSource, splitsKeep)) tokens.emplace_back(x);
 
 	//for(auto& s : tokens) ssvu::lo()<<s.c_str()<<std::endl;
 
@@ -607,48 +850,100 @@ ssvvm::Program makeProgram(std::string mSource)
 	for(auto& kk : labelIdxs) for(auto& i : instructions) for(auto& arg : i.args) if(arg == kk.first) arg = kk.second;
 	//for(auto& s : instructions) ssvu::lo() << s.idnf << " " << s.args << "\n";
 
-	ssvvm::Program result;
+	Program result;
+
+	struct SrcInstr
+	{
+		std::size_t requiredArgs{0u};
+		OpCode opCode;
+		ValueType argTypes[3];
+
+		inline SrcInstr() = default;
+		inline SrcInstr(OpCode mOpCode,
+						ValueType mArgType0 = ValueType::Void,
+						ValueType mArgType1 = ValueType::Void,
+						ValueType mArgType2 = ValueType::Void)
+			: opCode{mOpCode}
+		{
+			argTypes[0] = mArgType0;	if(argTypes[0] != ValueType::Void) ++requiredArgs;
+			argTypes[1] = mArgType1;	if(argTypes[1] != ValueType::Void) ++requiredArgs;
+			argTypes[2] = mArgType2;	if(argTypes[2] != ValueType::Void) ++requiredArgs;
+		}
+
+		inline void addToProgram(Program& mProgram, std::vector<std::string>& mArgs)
+		{
+			Params params;
+			for(auto i(0u); i < requiredArgs; ++i)
+			{
+				params[i].setType(argTypes[i]);
+				if(argTypes[i] == ValueType::Int)			params[i].set<int>(std::atoi(mArgs[i].c_str()));
+				else if(argTypes[i] == ValueType::Float)	params[i].set<float>(float(std::atof(mArgs[i].c_str())));
+			}
+
+			Instruction instruction;
+			instruction.opCode = opCode;
+			instruction.params = params;
+
+			mProgram += instruction;
+		}
+	};
+
+	std::unordered_map<std::string, SrcInstr> srcInstrs;
+
+	addSrcInstr(srcInstrs,	OpCode::halt																						);
+	addSrcInstr(srcInstrs,	OpCode::loadIntCVToR,				ValueType::Int,			ValueType::Int							);
+	addSrcInstr(srcInstrs,	OpCode::loadFloatCVToR,				ValueType::Int,			ValueType::Float						);
+	addSrcInstr(srcInstrs,	OpCode::moveRVToR,					ValueType::Int,			ValueType::Int							);
+	addSrcInstr(srcInstrs,	OpCode::pushRVToS,					ValueType::Int													);
+	addSrcInstr(srcInstrs,	OpCode::popSVToR,					ValueType::Int													);
+	addSrcInstr(srcInstrs,	OpCode::moveSBOVToR,				ValueType::Int,			ValueType::Int							);
+	addSrcInstr(srcInstrs,	OpCode::pushIntCVToS,				ValueType::Int													);
+	addSrcInstr(srcInstrs,	OpCode::pushFloatCVToS,				ValueType::Float												);
+	addSrcInstr(srcInstrs,	OpCode::pushSVToS																					);
+	addSrcInstr(srcInstrs,	OpCode::popSV																						);
+	addSrcInstr(srcInstrs,	OpCode::callPI,						ValueType::Int													);
+	addSrcInstr(srcInstrs,	OpCode::returnPI																					);
+	addSrcInstr(srcInstrs,	OpCode::goToPI,						ValueType::Int													);
+	addSrcInstr(srcInstrs,	OpCode::goToPIIfIntRV,				ValueType::Int,			ValueType::Int							);
+	addSrcInstr(srcInstrs,	OpCode::goToPIIfCompareRVGreater,	ValueType::Int,			ValueType::Int							);
+	addSrcInstr(srcInstrs,	OpCode::goToPIIfCompareRVSmaller,	ValueType::Int,			ValueType::Int							);
+	addSrcInstr(srcInstrs,	OpCode::goToPIIfCompareRVEqual,		ValueType::Int,			ValueType::Int							);
+	addSrcInstr(srcInstrs,	OpCode::incrementIntRV,				ValueType::Int													);
+	addSrcInstr(srcInstrs,	OpCode::decrementIntRV,				ValueType::Int													);
+	addSrcInstr(srcInstrs,	OpCode::addInt2SVs																					);
+	addSrcInstr(srcInstrs,	OpCode::addFloat2SVs																				);
+	addSrcInstr(srcInstrs,	OpCode::subtractInt2SVs																				);
+	addSrcInstr(srcInstrs,	OpCode::subtractFloat2SVs																			);
+	addSrcInstr(srcInstrs,	OpCode::multiplyInt2SVs																				);
+	addSrcInstr(srcInstrs,	OpCode::multiplyFloat2SVs																			);
+	addSrcInstr(srcInstrs,	OpCode::divideInt2SVs																				);
+	addSrcInstr(srcInstrs,	OpCode::divideFloat2SVs																				);
+	addSrcInstr(srcInstrs,	OpCode::compareIntRVIntRVToR,		ValueType::Int,			ValueType::Int,			ValueType::Int	);
+	addSrcInstr(srcInstrs,	OpCode::compareIntRVIntSVToR,		ValueType::Int,			ValueType::Int							);
+	addSrcInstr(srcInstrs,	OpCode::compareIntSVIntSVToR,		ValueType::Int													);
+	addSrcInstr(srcInstrs,	OpCode::compareIntRVIntCVToR,		ValueType::Int,			ValueType::Int,			ValueType::Int	);
+	addSrcInstr(srcInstrs,	OpCode::compareIntSVIntCVToR,		ValueType::Int,			ValueType::Int							);
 
 	int idx{0};
 	for(auto& s : instructions)
 	{
 		ssvu::lo() << idx++ << ":\t" << s.idnf << " " << s.args << "\n";
-		if(s.idnf == "halt")					{ if(s.args.size() == 0) result += {ssvvm::OpCode::Halt};																								else throw; }
-		else if(s.idnf == "loadIntCVToR")		{ if(s.args.size() == 2) result += {ssvvm::OpCode::LoadIntCVToR,		std::atoi(s.args[0].c_str()),			std::atoi(s.args[1].c_str())};			else throw; }
-		else if(s.idnf == "loadFloatCVToR")		{ if(s.args.size() == 2) result += {ssvvm::OpCode::LoadFloatCVToR,		std::atoi(s.args[0].c_str()),			(float)std::atof(s.args[1].c_str())};	else throw; }
-		else if(s.idnf == "moveRVToR")			{ if(s.args.size() == 2) result += {ssvvm::OpCode::MoveRVToR,			std::atoi(s.args[0].c_str()),			std::atoi(s.args[1].c_str())};			else throw; }
-		else if(s.idnf == "pushRVToS")			{ if(s.args.size() == 1) result += {ssvvm::OpCode::PushRVToS,			std::atoi(s.args[0].c_str())};													else throw; }
-		else if(s.idnf == "popSVToR")			{ if(s.args.size() == 1) result += {ssvvm::OpCode::PopSVToR,			std::atoi(s.args[0].c_str())};													else throw; }
-		else if(s.idnf == "moveSBOVToR")		{ if(s.args.size() == 2) result += {ssvvm::OpCode::MoveSBOVToR,			std::atoi(s.args[0].c_str()),			std::atoi(s.args[1].c_str())};			else throw; }
-		else if(s.idnf == "pushIntCVToS")		{ if(s.args.size() == 1) result += {ssvvm::OpCode::PushIntCVToS,		std::atoi(s.args[0].c_str())};													else throw; }
-		else if(s.idnf == "pushFloatCVToS")		{ if(s.args.size() == 1) result += {ssvvm::OpCode::PushFloatCVToS,		(float)std::atof(s.args[0].c_str())};											else throw; }
-		else if(s.idnf == "pushSVToS")			{ if(s.args.size() == 0) result += {ssvvm::OpCode::PushSVToS};																							else throw; }
-		else if(s.idnf == "popSV")				{ if(s.args.size() == 0) result += {ssvvm::OpCode::PopSV};																								else throw; }
-		else if(s.idnf == "callPI")				{ if(s.args.size() == 1) result += {ssvvm::OpCode::CallPI,				std::atoi(s.args[0].c_str())};													else throw; }
-		else if(s.idnf == "returnPI")			{ if(s.args.size() == 0) result += {ssvvm::OpCode::ReturnPI};																							else throw; }
-		else if(s.idnf == "goToPI")				{ if(s.args.size() == 1) result += {ssvvm::OpCode::GoToPI,				std::atoi(s.args[0].c_str())};													else throw; }
-		else if(s.idnf == "goToPIIfIntRV")		{ if(s.args.size() == 2) result += {ssvvm::OpCode::GoToPIIfIntRV,		std::atoi(s.args[0].c_str()),			std::atoi(s.args[1].c_str())};			else throw; }
-		else if(s.idnf == "goToPIIfCompareRVGreater")	{ if(s.args.size() == 2) result += {ssvvm::OpCode::GoToPIIfCompareRVGreater,		std::atoi(s.args[0].c_str()),			std::atoi(s.args[1].c_str())};			else throw; }
-		else if(s.idnf == "goToPIIfCompareRVSmaller")	{ if(s.args.size() == 2) result += {ssvvm::OpCode::GoToPIIfCompareRVSmaller,		std::atoi(s.args[0].c_str()),			std::atoi(s.args[1].c_str())};			else throw; }
-		else if(s.idnf == "goToPIIfCompareRVEqual")		{ if(s.args.size() == 2) result += {ssvvm::OpCode::GoToPIIfCompareRVEqual,			std::atoi(s.args[0].c_str()),			std::atoi(s.args[1].c_str())};			else throw; }
-		else if(s.idnf == "incrementIntRV")		{ if(s.args.size() == 1) result += {ssvvm::OpCode::IncrementIntRV,		std::atoi(s.args[0].c_str())};													else throw; }
-		else if(s.idnf == "decrementIntRV")		{ if(s.args.size() == 1) result += {ssvvm::OpCode::DecrementIntRV,		std::atoi(s.args[0].c_str())};													else throw; }
-		else if(s.idnf == "addInt2SVs")			{ if(s.args.size() == 0) result += {ssvvm::OpCode::AddInt2SVs};																							else throw; }
-		else if(s.idnf == "addFloat2SVs")		{ if(s.args.size() == 0) result += {ssvvm::OpCode::AddFloat2SVs};																						else throw; }
-		else if(s.idnf == "subtractInt2SVs")	{ if(s.args.size() == 0) result += {ssvvm::OpCode::SubtractInt2SVs};																					else throw; }
-		else if(s.idnf == "subtractFloat2SVs")	{ if(s.args.size() == 0) result += {ssvvm::OpCode::SubtractFloat2SVs};																					else throw; }
-		else if(s.idnf == "multiplyInt2SVs")	{ if(s.args.size() == 0) result += {ssvvm::OpCode::MultiplyInt2SVs};																					else throw; }
-		else if(s.idnf == "multiplyFloat2SVs")	{ if(s.args.size() == 0) result += {ssvvm::OpCode::MultiplyFloat2SVs};																					else throw; }
-		else if(s.idnf == "divideInt2SVs")		{ if(s.args.size() == 0) result += {ssvvm::OpCode::DivideInt2SVs};																						else throw; }
-		else if(s.idnf == "divideFloat2SVs")	{ if(s.args.size() == 0) result += {ssvvm::OpCode::DivideFloat2SVs};																					else throw; }
 
-		else if(s.idnf == "compareIntRVIntRVToR")	{ if(s.args.size() == 3) result += {ssvvm::OpCode::CompareIntRVIntRVToR,	std::atoi(s.args[0].c_str()),	std::atoi(s.args[1].c_str()),	std::atoi(s.args[2].c_str())}; else throw; }
-		else if(s.idnf == "compareIntRVIntSVToR")	{ if(s.args.size() == 2) result += {ssvvm::OpCode::CompareIntRVIntSVToR,	std::atoi(s.args[0].c_str()),	std::atoi(s.args[1].c_str())}; else throw; }
-		else if(s.idnf == "compareIntSVIntSVToR")	{ if(s.args.size() == 1) result += {ssvvm::OpCode::CompareIntSVIntSVToR,	std::atoi(s.args[0].c_str())}; else throw; }
-		else if(s.idnf == "compareIntRVIntCVToR")	{ if(s.args.size() == 3) result += {ssvvm::OpCode::CompareIntRVIntCVToR,	std::atoi(s.args[0].c_str()),	std::atoi(s.args[1].c_str()),	std::atoi(s.args[2].c_str())}; else throw; }
-		else if(s.idnf == "compareIntSVIntCVToR")	{ if(s.args.size() == 2) result += {ssvvm::OpCode::CompareIntSVIntCVToR,	std::atoi(s.args[0].c_str()),	std::atoi(s.args[1].c_str())}; else throw; }
+		if(srcInstrs.count(s.idnf) == 0)
+		{
+			ssvu::lo("ASSEMBLER ERROR") << "No OpCode with name '" << s.idnf << "'" << std::endl;
+			throw;
+		}
 
-		else throw;
+		auto& si(srcInstrs[s.idnf]);
+
+		if(si.requiredArgs != s.args.size())
+		{
+			ssvu::lo("ASSEMBLER ERROR") << "OpCode '" << s.idnf << "' requires '" << si.requiredArgs << "' arguments" << std::endl;
+			throw;
+		}
+
+		si.addToProgram(result, s.args);
 	}
 
 	return result;
@@ -667,7 +962,7 @@ int main()
 	ssvvm::Program program{makeProgram(source)};
 
 	ssvvm::VirtualMachine vm;
-/*
+
 ssvvm::VirtualMachine::BoundFunction bf = vm.bindCFunction(&cfunc);
 
 	ssvvm::Params callParams{21};
@@ -675,7 +970,7 @@ ssvvm::VirtualMachine::BoundFunction bf = vm.bindCFunction(&cfunc);
 
 	ssvu::lo() << returnValue << std::endl;
 
-return 0;*/
+return 0;
 	vm.setProgram(program);
 	vm.run();
 
@@ -685,6 +980,11 @@ return 0;*/
 	return 0;
 }
 
+
+*/
+
+
 #endif
+
 
 

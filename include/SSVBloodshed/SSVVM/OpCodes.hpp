@@ -12,53 +12,53 @@ namespace ssvvm
 	enum class OpCode : std::size_t
 	{
 		// Virtual machine control
-		Halt = 0,
+		halt = 0,
 
 		// Register instructions
-		LoadIntCVToR,
-		LoadFloatCVToR,
-		MoveRVToR,
+		loadIntCVToR,
+		loadFloatCVToR,
+		moveRVToR,
 
 		// Register-stack instructions
-		PushRVToS,
-		PopSVToR,
-		MoveSBOVToR,
+		pushRVToS,
+		popSVToR,
+		moveSBOVToR,
 
 		// Stack instructions
-		PushIntCVToS,
-		PushFloatCVToS,
-		PushSVToS,
-		PopSV,
+		pushIntCVToS,
+		pushFloatCVToS,
+		pushSVToS,
+		popSV,
 
 		// Program logic
-		GoToPI,
-		GoToPIIfIntRV,
-		GoToPIIfCompareRVGreater,
-		GoToPIIfCompareRVSmaller,
-		GoToPIIfCompareRVEqual,
-		CallPI,
-		ReturnPI,
+		goToPI,
+		goToPIIfIntRV,
+		goToPIIfCompareRVGreater,
+		goToPIIfCompareRVSmaller,
+		goToPIIfCompareRVEqual,
+		callPI,
+		returnPI,
 
 		// Register basic arithmetic
-		IncrementIntRV,
-		DecrementIntRV,
+		incrementIntRV,
+		decrementIntRV,
 
 		// Stack basic arithmetic
-		AddInt2SVs,
-		AddFloat2SVs,
-		SubtractInt2SVs,
-		SubtractFloat2SVs,
-		MultiplyInt2SVs,
-		MultiplyFloat2SVs,
-		DivideInt2SVs,
-		DivideFloat2SVs,
+		addInt2SVs,
+		addFloat2SVs,
+		subtractInt2SVs,
+		subtractFloat2SVs,
+		multiplyInt2SVs,
+		multiplyFloat2SVs,
+		divideInt2SVs,
+		divideFloat2SVs,
 
 		// Comparisons
-		CompareIntRVIntRVToR,
-		CompareIntRVIntSVToR,
-		CompareIntSVIntSVToR,
-		CompareIntRVIntCVToR,
-		CompareIntSVIntCVToR
+		compareIntRVIntRVToR,
+		compareIntRVIntSVToR,
+		compareIntSVIntSVToR,
+		compareIntRVIntCVToR,
+		compareIntSVIntCVToR
 	};
 
 	template<typename T> inline VMFnPtr<T> getVMFnPtr(OpCode mOpCode) noexcept
@@ -117,6 +117,60 @@ namespace ssvvm
 
 		return fnPtrs[std::size_t(mOpCode)];
 	}
+
+	constexpr const char* strs[]
+	{
+		// Virtual machine control
+		"halt",
+
+		// Register instructions
+		"loadIntCVToR",
+		"loadFloatCVToR",
+		"moveRVToR",
+
+		// Register-stack instructions
+		"pushRVToS",
+		"popSVToR",
+		"moveSBOVToR",
+
+		// Stack instructions
+		"pushIntCVToS",
+		"pushFloatCVToS",
+		"pushSVToS",
+		"popSV",
+
+		// Program logic
+		"goToPI",
+		"goToPIIfIntRV",
+		"goToPIIfCompareRVGreater",
+		"goToPIIfCompareRVSmaller",
+		"goToPIIfCompareRVEqual",
+		"callPI",
+		"returnPI",
+
+		// Register basic arithmetic
+		"incrementIntRV",
+		"decrementIntRV",
+
+		// Stack basic arithmetic
+		"addInt2SVs",
+		"addFloat2SVs",
+		"subtractInt2SVs",
+		"subtractFloat2SVs",
+		"multiplyInt2SVs",
+		"multiplyFloat2SVs",
+		"divideInt2SVs",
+		"divideFloat2SVs",
+
+		// Comparisons
+		"compareIntRVIntRVToR",
+		"compareIntRVIntSVToR",
+		"compareIntSVIntSVToR",
+		"compareIntRVIntCVToR",
+		"compareIntSVIntCVToR"
+	};
+
+	inline constexpr const char* getOpCodeStr(OpCode mOpCode) noexcept { return strs[std::size_t(mOpCode)]; }
 }
 
 #endif
