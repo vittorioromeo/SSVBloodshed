@@ -462,86 +462,132 @@ std::string source{
 			returnPI();
 	)"};
 
-
-struct FSM
+template<typename TNode> class Graph
 {
-	using Rule = ssvu::Func<bool()>;
+	public:
+		class Node
+		{
+			private:
+				std::vector<TNode*> connections;
 
-	struct State
-	{
-		Rule rule;
-		std::vector<State*> transitions;
-		bool terminal{true};
-	};
+			public:
+				inline void connectToSelf() { connections.push_back(reinterpret_cast<TNode*>(this)); }
+				inline void connectTo(TNode& mVertex)
+				{
+					assert(this != &mVertex);
+					connections.push_back(&mVertex);
+				}
 
-	std::vector<std::unique_ptr<State>> states;
-	State* currentState;
-	std::vector<State*> history;
+				inline const decltype(connections)& getConnections() const { return connections; }
+				inline bool isIsolated() const noexcept { return connections.empty(); }
+		};
 
-	inline State& createState()
-	{
-		auto result(new State);
-		states.emplace_back(result);
-		return *result;
-	}
 
-	inline FSM& startOnce(const Rule& mRule)
-	{
-		auto& state(createState());
-		state.rule = mRule;
-		currentState = &state;
-		history.push_back(&state);
-		return *this;
-	}
-	inline FSM& startRepeat(const Rule& mRule)
-	{
-		auto& state(createState());
-		state.rule = mRule;
-		state.transitions.push_back(&state);
-		currentState = &state;
-		history.push_back(&state);
-		return *this;
-	}
+	private:
+		std::vector<ssvu::Uptr<TNode>> vertices;
 
-	inline FSM& continueOnce(const Rule& mRule)
-	{
-		auto& state(createState());
-		state.rule = mRule;
-		history.back()->transitions.push_back(&state);
-		history.push_back(&state);
-		return *this;
-	}
-	inline FSM& continueRepeat(const Rule& mRule)
-	{
-		auto& state(createState());
-		state.rule = mRule;
-		state.transitions.push_back(&state);
-		history.back()->transitions.push_back(&state);
-		history.push_back(&state);
-		return *this;
-	}
+	protected:
+		template<typename... TArgs> inline TNode& createNode(TArgs&&... mArgs)
+		{
+			static_assert(ssvu::isBaseOf<Node, TNode>(), "TNode must be derived from Graph<TNode>::Vertex");
 
-	inline FSM& connectWithPrevious()
-	{
-		history.back()->transitions.push_back(*(std::end(history) - 2));
-		return *this;
-	}
+			auto result(new TNode(std::forward<TArgs>(mArgs)...));
+			vertices.emplace_back(result);
+			return *result;
+		}
 
-	inline FSM& continueRepeatUntilOnce(const Rule& mLoop, const Rule& mEnd)
-	{
-		auto& stateEnd(createState());
-		stateEnd.rule = mEnd;
+	public:
+};
 
-		auto& stateLoop(createState());
-		stateLoop.rule = mLoop;
-		stateLoop.transitions.push_back(&stateEnd);
-		stateLoop.transitions.push_back(&stateLoop);
+struct FSMState;
 
-		history.back()->transitions.push_back(&stateEnd);
-		history.back()->transitions.push_back(&stateLoop);
+using FSMType = Graph<FSMState>;
+using FSMRule = ssvu::Func<bool()>;
 
-		return *this;
-	}
+struct FSMState : public FSMType::Node
+{
+	private:
+		FSMRule rule;
+		bool terminal;
+
+	public:
+		inline FSMState(const FSMRule& mRule, bool mTerminal = true) : rule{mRule}, terminal{mTerminal} { }
+
+		inline FSMState* getFirstMatchingConnection() const noexcept
+		{
+			for(const auto& c : getConnections()) if(c->matchesRule()) return c;
+			return nullptr;
+		}
+
+		inline bool isTerminal() const noexcept		{ return terminal; }
+		inline bool matchesRule() const noexcept	{ return rule(); }
+
+};
+
+class FSM : public FSMType
+{
+	private:
+		FSMState* startState{nullptr};
+		FSMState* currentState{nullptr};
+		std::vector<FSMState*> history;
+
+	public:
+		template<typename... TArgs> inline FSM& startOnce(TArgs&&... mArgs)
+		{
+			auto& state(createNode(std::forward<TArgs>(mArgs)...));
+			startState = currentState = &state;
+			history.push_back(&state);
+			return *this;
+		}
+		template<typename... TArgs> inline FSM& startRepeat(TArgs&&... mArgs)
+		{
+			auto& state(createNode(std::forward<TArgs>(mArgs)...));
+			state.connectToSelf();
+			startState = currentState = &state;
+			history.push_back(&state);
+			return *this;
+		}
+
+		template<typename... TArgs> inline FSM& continueOnce(TArgs&&... mArgs)
+		{
+			auto& state(createNode(std::forward<TArgs>(mArgs)...));
+			history.back()->connectTo(state);
+			history.push_back(&state);
+			return *this;
+		}
+		template<typename... TArgs> inline FSM& continueRepeat(TArgs&&... mArgs)
+		{
+			auto& state(createNode(std::forward<TArgs>(mArgs)...));
+			state.connectToSelf();
+			history.back()->connectTo(state);
+			history.push_back(&state);
+			return *this;
+		}
+
+		inline FSM& connectWithPrevious()
+		{
+			history.back()->connectTo(**(std::end(history) - 2));
+			return *this;
+		}
+
+		inline FSM& continueRepeatUntilOnce(const FSMRule& mLoop, const FSMRule& mEnd)
+		{
+			auto& stateEnd(createNode(mEnd));
+
+			auto& stateLoop(createNode(mLoop));
+			stateLoop.connectTo(stateEnd);
+			stateLoop.connectToSelf();
+
+			history.back()->connectTo(stateEnd);
+			history.back()->connectTo(stateLoop);
+
+			return *this;
+		}
+
+
+		inline void reset() noexcept { currentState = startState; }
+		inline void setCurrentState(FSMState& mState) noexcept	{ currentState = &mState; }
+		inline const FSMState& getCurrentState() const noexcept	{ assert(currentState != nullptr); return *currentState; }
 };
 
 template<typename TTokenType, typename TTokenAttribute> class LexicalAnalyzer
@@ -551,149 +597,370 @@ template<typename TTokenType, typename TTokenAttribute> class LexicalAnalyzer
 		{
 			TTokenType type;
 			TTokenAttribute attribute;
+			std::string contents;
+
+			inline Token(TTokenType mType, std::string mContents) : type{mType}, contents{std::move(mContents)} { }
 		};
 
-		std::map<TTokenType, FSM*> matches;
-
 	private:
+		std::map<TTokenType, FSM*> matches;
+		std::vector<Token> tokens;
 		std::string source;
-		std::size_t markerBegin, markerEnd, nextStep;
+		std::size_t markerBegin, markerEnd, nextEnd;
+
+		inline void advance() noexcept { markerEnd = nextEnd; }
+		inline void consume(TTokenType mType)
+		{
+			const auto& tokenContents(source.substr(markerBegin, markerEnd - markerBegin));
+			//ssvu::lo() << tokenContents << std::endl;
+
+			tokens.emplace_back(mType, tokenContents);
+			markerBegin = markerEnd;
+		}
 
 	public:
-		inline void setSource(std::string mSource) { source = std::move(mSource); }
-		inline void addMatch(TTokenType mTokenType, FSM& mFSM)
-		{
-			matches[mTokenType] = &mFSM;
-		}
-		inline char getCurrentChar() { ++nextStep; return source[markerEnd]; }
+		inline void setSource(std::string mSource)				{ source = std::move(mSource); }
+		inline void addMatch(TTokenType mTokenType, FSM& mFSM)	{ matches[mTokenType] = &mFSM; }
+
+		inline char getMatchChar() { nextEnd = markerEnd + 1; return source[markerEnd]; }
 		inline bool match(const std::string& mMatch, bool mConsume = true)
 		{
 			for(auto i(0u); i < mMatch.size(); ++i)
 			{
 				auto idxToCheck(markerEnd + i);
-				if(idxToCheck >= source.size())
-				{
-					return false;
-				}
-				if(source[idxToCheck] != mMatch[i])
-				{
-					return false;
-				}
+				if(idxToCheck >= source.size() || source[idxToCheck] != mMatch[i]) return false;
 			}
 
-			nextStep = mMatch.size();
-
+			nextEnd = markerEnd + mMatch.size();
 			return true;
 		}
-		inline bool matchAnything() { ++nextStep; return true; }
+		inline bool matchAnything() { nextEnd = markerEnd + 1; return true; }
 
 		inline void tokenize()
 		{
-			markerBegin = markerEnd = 0;
+			tokens.clear();
+			markerBegin = markerEnd = nextEnd = 0;
 
 			while(markerEnd < source.size())
 			{
-				bool foundAnyMatch{false};
+				bool canConsume{false};
+				TTokenType foundType;
 
 				for(const auto& p : matches)
 				{
-
 					const auto& tokenType(p.first);
 					auto& fsm(*p.second);
-					auto current(fsm.currentState);
+
+					fsm.reset();
 
 					markerEnd = markerBegin;
-					nextStep = 0;
 
-					if(current->rule())
+					if(fsm.getCurrentState().matchesRule())
 					{
+					//	ssvu::lo() << "FT: " << source.substr(markerBegin, nextEnd - markerBegin) << std::endl;
+
+						advance();
+
 						while(true)
 						{
-							markerEnd += nextStep;
-							nextStep = 0;
+							//ssvu::lo() << source.substr(markerBegin, nextEnd - markerBegin) << std::endl;
 
-							if(current->terminal) foundAnyMatch = true;
-							if(current->transitions.empty()) break;
-
-							bool found{false};
-							for(const auto& t : current->transitions)
+							if(fsm.getCurrentState().isTerminal())
 							{
-								if(t->rule())
-								{
-									current = t;
-									found = true;
-									break;
-								}
+								canConsume = true;
+								foundType = tokenType;
+							}
+							else
+							{
+								//ssvu::lo() << "NONTERMINAL" << std::endl;
 							}
 
-							if(!found) break;
+							auto next(fsm.getCurrentState().getFirstMatchingConnection());
+							if(next == nullptr) break;
+
+							advance();
+							fsm.setCurrentState(*next);
 						}
 
+						if(canConsume)
+						{
+							//ssvu::lo() << "CONSUMED" << std::endl;
+							consume(foundType);
+							break;
+						}
 					}
-
-					if(foundAnyMatch) break;
 				}
 
-				if(!foundAnyMatch)
-				{
-					ssvu::lo() << "didn't find any match" << std::endl;
-					return;
-				}
+				if(canConsume) continue;
 
-				//ssvu::lo() << "found match" << std::endl;
-				ssvu::lo() << source.substr(markerBegin, markerEnd - markerBegin) << std::endl;
-				markerBegin = markerEnd;
+				ssvu::lo() << "didn't find any match" << std::endl;
+				ssvu::lo() << source.substr(markerBegin, nextEnd - markerBegin) << std::endl;
+				throw;
 			}
 		}
+
+		inline const decltype(tokens)& getTokens() const noexcept { return tokens; }
 };
+
+template<bool TStart> inline bool isIdnfChar(char mChar)
+{
+	static constexpr char validChars[]{'_'};
+	return (TStart && std::isalpha(mChar)) || (!TStart && std::isalnum(mChar)) || ssvu::contains(validChars, mChar);
+}
+
+template<typename T, bool TDebug = true> ssvvm::Program makeProgram(T mTokens);
+
+enum class TokenType : int
+{
+	Anything = -1,
+
+	PreprocessorStart = 0,	// '$'
+	Semicolon,				// ';'
+	Comma,					// ','
+	ParenthesisRoundOpen,	// '('
+	ParenthesisRoundClose,	// ')'
+	Float,					// "1234.f"
+	Integer,				// "1234"
+	Identifier,				// "hello1234_test"
+	Comment,				// "// fgjisofg"
+	WhiteSpace				// "  \n\t "
+};
+
+struct TokenAttribute { bool toDel{false}; };
+
+using VAToken = LexicalAnalyzer<TokenType, TokenAttribute>::Token;
 
 int main()
 {
-	enum class TokenType
-	{
-		PreprocessorStart,		// '$'
-		Semicolon,				// ';'
-		ParenthesisRoundOpen,	// '('
-		ParenthesisRoundClose,	// ')'
-		Number,
-		Identifier,
-		Comment
-	};
-
-	struct TokenAttribute { };
 	LexicalAnalyzer<TokenType, TokenAttribute> la;
 
 	FSM fsmPreprocessorStart;
 	FSM fsmSemicolon;
+	FSM fsmComma;
 	FSM fsmParenthesisRoundOpen;
 	FSM fsmParenthesisRoundClose;
-	FSM fsmNumber;
+	FSM fsmFloat;
+	FSM fsmInteger;
 	FSM fsmIdentifier;
 	FSM fsmComment;
+	FSM fsmWhiteSpace;
 
 	fsmPreprocessorStart.startOnce([&la]{ return la.match("$"); });
 	fsmSemicolon.startOnce([&la]{ return la.match(";"); });
+	fsmComma.startOnce([&la]{ return la.match(","); });
 	fsmParenthesisRoundOpen.startOnce([&la]{ return la.match("("); });
 	fsmParenthesisRoundClose.startOnce([&la]{ return la.match(")"); });
-	fsmNumber.startRepeat([&la]{ return std::isdigit(la.getCurrentChar()); }).continueOnce([&la]{ return la.match(".f"); });
-	fsmIdentifier.startRepeat([&la]{ return std::isalpha(la.getCurrentChar()); }).continueRepeat([&la]{ return std::isdigit(la.getCurrentChar()); }).connectWithPrevious();
+	fsmFloat.startRepeat([&la]{ return std::isdigit(la.getMatchChar()); }, false).continueOnce([&la]{ return la.match(".f"); });
+	fsmInteger.startRepeat([&la]{ return std::isdigit(la.getMatchChar()); });
+	fsmIdentifier.startRepeat([&la]{ return isIdnfChar<true>(la.getMatchChar()); }).continueRepeat([&la]{ return isIdnfChar<false>(la.getMatchChar()); });
 	fsmComment.startOnce([&la]{ return la.match("//"); }).continueRepeatUntilOnce([&la]{ return la.matchAnything(); }, [&la]{ return la.match("\n", false); });
+	fsmWhiteSpace.startRepeat([&la]{ return std::isspace(la.getMatchChar()); });
 
-	la.addMatch(TokenType::PreprocessorStart, fsmPreprocessorStart);
-	la.addMatch(TokenType::Semicolon, fsmSemicolon);
-	la.addMatch(TokenType::ParenthesisRoundOpen, fsmParenthesisRoundOpen);
-	la.addMatch(TokenType::ParenthesisRoundClose, fsmParenthesisRoundClose);
-	la.addMatch(TokenType::Number, fsmNumber);
-	la.addMatch(TokenType::Identifier, fsmIdentifier);
-	la.addMatch(TokenType::Comment, fsmComment);
+	la.addMatch(TokenType::PreprocessorStart,		fsmPreprocessorStart);
+	la.addMatch(TokenType::Semicolon,				fsmSemicolon);
+	la.addMatch(TokenType::Comma,					fsmComma);
+	la.addMatch(TokenType::ParenthesisRoundOpen,	fsmParenthesisRoundOpen);
+	la.addMatch(TokenType::ParenthesisRoundClose,	fsmParenthesisRoundClose);
+	la.addMatch(TokenType::Float,					fsmFloat);
+	la.addMatch(TokenType::Integer,					fsmInteger);
+	la.addMatch(TokenType::Identifier,				fsmIdentifier);
+	la.addMatch(TokenType::Comment,					fsmComment);
+	la.addMatch(TokenType::WhiteSpace,				fsmWhiteSpace);
 
-	la.setSource("(2s2our22ce)1234//cocks\n");
-	//la.setSource("abcdef");
+	la.setSource(source);
 	la.tokenize();
 
-	ssvu::lo() << "end" << std::endl;
+	makeProgram(la.getTokens());
 
 	return 0;
+}
+
+/*
+namespace Internal
+{
+	template<typename T> struct ExpectHelperDispatcher;
+	template<> struct ExpectHelperDispatcher<TokenType>
+	{
+		template<typename TTokens> inline static bool check(TTokens& mTokens, std::size_t mIdx, TokenType mType) noexcept
+		{
+			return mTokens[mIdx].type == mType;
+		}
+	};
+	template<> struct ExpectHelperDispatcher<const std::string&>
+	{
+		template<typename TTokens> inline static bool check(TTokens& mTokens, std::size_t mIdx, const std::string& mContents) noexcept
+		{
+			return mTokens[mIdx].contents == mContents;
+		}
+	};
+
+	template<typename TTokens, typename TArg> inline bool expectHelper(TTokens& mTokens, std::size_t mIdx, TArg mArg) { return ExpectHelperDispatcher<TArg>::check(mTokens, mIdx, mArg); }
+	template<typename TTokens, typename TArg, typename... TArgs> inline bool expectHelper(TTokens& mTokens, std::size_t mIdx, TArg mArg, TArgs... mArgs)
+	{
+		if(!expectHelper<TTokens, TArg>(mTokens, mIdx, mArg) || expectHelper<TTokens, TArgs...>(mTokens, mIdx + 1, mArgs...)) return false;
+		return true;
+	}
+}
+
+template<typename TTokens, typename... TArgs> inline bool expect(TTokens& mTokens, std::size_t mIdx, TArgs... mArgs)
+{
+	std::size_t ub{mIdx + sizeof...(TArgs)}, typeIdx{0u};
+	if(ub >= mTokens.size()) return false;
+
+	return Internal::expectHelper<TTokens, TArgs...>(mTokens, mIdx, mArgs...);
+}
+*/
+
+template<typename T, bool TDebug> inline ssvvm::Program makeProgram(T mTokens)
+{
+	using namespace ssvvm;
+	Program result;
+
+	// Helper functions
+	auto getTokenAsInt =	[](const VAToken& mT) -> int { return std::stoi(mT.contents.c_str()); };
+	auto getTokenAsFloat =	[](const VAToken& mT) -> float { return std::stof(mT.contents.substr(0, mT.contents.size() - 2).c_str()); };
+	auto getTokenContents =	[](const VAToken& mT) -> const std::string& { return mT.contents; };
+	auto matchTypes = [&mTokens](std::size_t mIdx, const std::vector<TokenType> mTypes) -> bool
+	{
+		std::size_t ub{mIdx + mTypes.size()}, typeIdx{0u};
+		if(ub >= mTokens.size()) return false;
+
+		for(auto i(mIdx); i < ub; ++i)
+		{
+			const auto& type(mTypes[typeIdx++]);
+			if(type != TokenType::Anything && type != mTokens[i].type) return false;
+		}
+		return true;
+	};
+
+
+
+	// Phase 0: discard Comment/WhiteSpace tokens
+	ssvu::eraseRemoveIf(mTokens, [](const VAToken& mT){ return mT.type == TokenType::WhiteSpace || mT.type == TokenType::Comment; });
+
+
+
+	// Phase 1: `$require_registers` directive
+	int requireRegisters{-1};
+
+	for(auto i(0u); i < mTokens.size(); ++i)
+		if(matchTypes(i, {TokenType::PreprocessorStart, TokenType::Identifier, TokenType::ParenthesisRoundOpen, TokenType::Integer, TokenType::ParenthesisRoundClose, TokenType::Semicolon}))
+			if(mTokens[i + 1].contents == "require_registers")
+			{
+				requireRegisters = getTokenAsInt(mTokens[i + 3]);
+				for(auto k(0u); k < 6; ++k) mTokens[i + k].attribute.toDel = true;
+				if(TDebug) ssvu::lo("makeProgram - phase 1") << "Found `$require_registers` = " << requireRegisters << "\n";
+				break;
+			}
+
+	ssvu::eraseRemoveIf(mTokens, [](const VAToken& mT){ return mT.attribute.toDel; });
+
+
+
+	// Phase 2: `$define` directives
+	std::map<std::string, std::string> defines;
+	for(auto i(0u); i < mTokens.size(); ++i)
+		if(matchTypes(i, {TokenType::PreprocessorStart, TokenType::Identifier, TokenType::ParenthesisRoundOpen, TokenType::Identifier, TokenType::Comma, TokenType::Anything, TokenType::ParenthesisRoundClose, TokenType::Semicolon}))
+		{
+			const auto& alias(getTokenContents(mTokens[i + 3]));
+			const auto& replacement(getTokenContents(mTokens[i + 5]));
+
+			if(TDebug) ssvu::lo("makeProgram - phase 2") << "Found `$define`: " << alias << " -> " << replacement << "\n";
+
+			if(defines.count(alias) > 0)
+			{
+				if(TDebug) ssvu::lo("makeProgram - phase 2") << "ERROR: alias `" << alias << "` already previously defined" << "\n";
+				throw;
+			}
+
+			defines[alias] = replacement;
+			for(auto k(0u); k < 8; ++k) mTokens[i + k].attribute.toDel = true;
+		}
+
+	ssvu::eraseRemoveIf(mTokens, [](const VAToken& mT){ return mT.attribute.toDel; });
+
+	if(TDebug) ssvu::lo("makeProgram - phase 2") << "Applying `$define` directives..." << "\n";
+	for(auto& t : mTokens) if(defines.count(t.contents) > 0) t.contents = defines[t.contents];
+	if(TDebug) ssvu::lo("makeProgram - phase 2") << "Done" << "\n";
+
+
+
+	// Phase 3: `$label` directives
+
+
+
+	// Phase 4: separating instructions using semicolons
+	struct Instruction { std::string identifier; std::vector<Value> args; };
+	std::vector<Instruction> instructions;
+
+	std::size_t idx{0u};
+	while(idx < mTokens.size())
+	{
+		Instruction currentInstruction;
+
+		if(mTokens[idx].type != TokenType::Identifier)
+		{
+			if(TDebug) ssvu::lo("makeProgram - phase 3") << "ERROR: expected `" << getTokenContents(mTokens[idx]) << "` to be an identifier" << "\n";
+			throw;
+		}
+
+		currentInstruction.identifier = getTokenContents(mTokens[idx]);
+
+		++idx;
+
+		if(mTokens[idx].type != TokenType::ParenthesisRoundOpen)
+		{
+			if(TDebug) ssvu::lo("makeProgram - phase 3") << "ERROR: expected `" << getTokenContents(mTokens[idx]) << "` to be an open round parenthesis" << "\n";
+			throw;
+		}
+
+		++idx;
+
+		if(mTokens[idx].type == TokenType::ParenthesisRoundClose)
+		{
+			++idx;
+
+			if(mTokens[idx].type != TokenType::Semicolon)
+			{
+				if(TDebug) ssvu::lo("makeProgram - phase 3") << "ERROR: expected `" << getTokenContents(mTokens[idx]) << "` to be a semicolon" << "\n";
+				throw;
+			}
+		}
+		else
+		{
+			while(mTokens[idx].type != TokenType::Semicolon)
+			{
+				if(mTokens[idx].type == TokenType::Float)			currentInstruction.args.push_back(Value::create<float>(getTokenAsFloat(mTokens[idx])));
+				else if(mTokens[idx].type == TokenType::Integer)	currentInstruction.args.push_back(Value::create<int>(getTokenAsInt(mTokens[idx])));
+				else
+				{
+					if(TDebug) ssvu::lo("makeProgram - phase 3") << "ERROR: expected `" << getTokenContents(mTokens[idx]) << "` to be a float or an integer" << "\n";
+					throw;
+				}
+
+				++idx;
+
+				if(mTokens[idx].type != TokenType::Comma)
+				{
+					if(TDebug) ssvu::lo("makeProgram - phase 3") << "ERROR: expected `" << getTokenContents(mTokens[idx]) << "` to be a comma" << "\n";
+					throw;
+				}
+
+				++idx;
+			}
+		}
+
+		instructions.push_back(currentInstruction);
+		++idx;
+	}
+
+
+	//for(auto& t : mTokens) ssvu::lo() << t.contents;
+
+	for(auto& i : instructions) ssvu::lo("Instruction") << i.identifier << ": " << i.args << "\n";
+
+	ssvu::lo().flush();
+	return result;
 }
 
 
