@@ -663,7 +663,7 @@ template<typename TTokenType, typename TTokenAttribute> class LexicalAnalyzer
 
 						while(true)
 						{
-							//ssvu::lo() << source.substr(markerBegin, nextEnd - markerBegin) << std::endl;
+							// ssvu::lo() << source.substr(markerBegin, nextEnd - markerBegin) << std::endl;
 
 							if(fsm.getCurrentState().isTerminal())
 							{
@@ -708,6 +708,7 @@ template<bool TStart> inline bool isIdnfChar(char mChar)
 	return (TStart && std::isalpha(mChar)) || (!TStart && std::isalnum(mChar)) || ssvu::contains(validChars, mChar);
 }
 
+template<typename T, bool TDebug = true> std::string getPreprocessedSource(T mTokens);
 template<typename T, bool TDebug = true> ssvvm::Program makeProgram(T mTokens);
 
 enum class TokenType : int
@@ -770,56 +771,28 @@ int main()
 	la.setSource(source);
 	la.tokenize();
 
-	makeProgram(la.getTokens());
+	std::string preprocessed{getPreprocessedSource(la.getTokens())};
+
+	la.setSource(preprocessed);
+	la.tokenize();
+
+	ssvvm::Program program{makeProgram(la.getTokens())};
+	ssvvm::VirtualMachine vm;
+	vm.setProgram(program);
+	vm.run();
 
 	return 0;
 }
 
-/*
-namespace Internal
-{
-	template<typename T> struct ExpectHelperDispatcher;
-	template<> struct ExpectHelperDispatcher<TokenType>
-	{
-		template<typename TTokens> inline static bool check(TTokens& mTokens, std::size_t mIdx, TokenType mType) noexcept
-		{
-			return mTokens[mIdx].type == mType;
-		}
-	};
-	template<> struct ExpectHelperDispatcher<const std::string&>
-	{
-		template<typename TTokens> inline static bool check(TTokens& mTokens, std::size_t mIdx, const std::string& mContents) noexcept
-		{
-			return mTokens[mIdx].contents == mContents;
-		}
-	};
-
-	template<typename TTokens, typename TArg> inline bool expectHelper(TTokens& mTokens, std::size_t mIdx, TArg mArg) { return ExpectHelperDispatcher<TArg>::check(mTokens, mIdx, mArg); }
-	template<typename TTokens, typename TArg, typename... TArgs> inline bool expectHelper(TTokens& mTokens, std::size_t mIdx, TArg mArg, TArgs... mArgs)
-	{
-		if(!expectHelper<TTokens, TArg>(mTokens, mIdx, mArg) || expectHelper<TTokens, TArgs...>(mTokens, mIdx + 1, mArgs...)) return false;
-		return true;
-	}
-}
-
-template<typename TTokens, typename... TArgs> inline bool expect(TTokens& mTokens, std::size_t mIdx, TArgs... mArgs)
-{
-	std::size_t ub{mIdx + sizeof...(TArgs)}, typeIdx{0u};
-	if(ub >= mTokens.size()) return false;
-
-	return Internal::expectHelper<TTokens, TArgs...>(mTokens, mIdx, mArgs...);
-}
-*/
-
-template<typename T, bool TDebug> inline ssvvm::Program makeProgram(T mTokens)
+template<typename T, bool TDebug> inline std::string getPreprocessedSource(T mTokens)
 {
 	using namespace ssvvm;
-	Program result;
+	std::string result;
 
 	// Helper functions
-	auto getTokenAsInt =	[](const VAToken& mT) -> int { return std::stoi(mT.contents.c_str()); };
-	auto getTokenAsFloat =	[](const VAToken& mT) -> float { return std::stof(mT.contents.substr(0, mT.contents.size() - 2).c_str()); };
-	auto getTokenContents =	[](const VAToken& mT) -> const std::string& { return mT.contents; };
+	auto getTokenAsInt =	[&mTokens](std::size_t mIdx) -> int					{ return std::stoi(mTokens[mIdx].contents.c_str()); };
+	auto getTokenAsFloat =	[&mTokens](std::size_t mIdx) -> float				{ return std::stof(mTokens[mIdx].contents.substr(0, mTokens[mIdx].contents.size() - 2).c_str()); };
+	auto getTokenContents =	[&mTokens](std::size_t mIdx) -> const std::string&	{ return mTokens[mIdx].contents; };
 	auto matchTypes = [&mTokens](std::size_t mIdx, const std::vector<TokenType> mTypes) -> bool
 	{
 		std::size_t ub{mIdx + mTypes.size()}, typeIdx{0u};
@@ -845,9 +818,9 @@ template<typename T, bool TDebug> inline ssvvm::Program makeProgram(T mTokens)
 
 	for(auto i(0u); i < mTokens.size(); ++i)
 		if(matchTypes(i, {TokenType::PreprocessorStart, TokenType::Identifier, TokenType::ParenthesisRoundOpen, TokenType::Integer, TokenType::ParenthesisRoundClose, TokenType::Semicolon}))
-			if(mTokens[i + 1].contents == "require_registers")
+			if(getTokenContents(i + 1) == "require_registers")
 			{
-				requireRegisters = getTokenAsInt(mTokens[i + 3]);
+				requireRegisters = getTokenAsInt(i + 3);
 				for(auto k(0u); k < 6; ++k) mTokens[i + k].attribute.toDel = true;
 				if(TDebug) ssvu::lo("makeProgram - phase 1") << "Found `$require_registers` = " << requireRegisters << "\n";
 				break;
@@ -862,8 +835,10 @@ template<typename T, bool TDebug> inline ssvvm::Program makeProgram(T mTokens)
 	for(auto i(0u); i < mTokens.size(); ++i)
 		if(matchTypes(i, {TokenType::PreprocessorStart, TokenType::Identifier, TokenType::ParenthesisRoundOpen, TokenType::Identifier, TokenType::Comma, TokenType::Anything, TokenType::ParenthesisRoundClose, TokenType::Semicolon}))
 		{
-			const auto& alias(getTokenContents(mTokens[i + 3]));
-			const auto& replacement(getTokenContents(mTokens[i + 5]));
+			if(getTokenContents(i + 1) != "define") continue;
+
+			const auto& alias(getTokenContents(i + 3));
+			const auto& replacement(getTokenContents(i + 5));
 
 			if(TDebug) ssvu::lo("makeProgram - phase 2") << "Found `$define`: " << alias << " -> " << replacement << "\n";
 
@@ -886,31 +861,86 @@ template<typename T, bool TDebug> inline ssvvm::Program makeProgram(T mTokens)
 
 
 	// Phase 3: `$label` directives
+	std::size_t foundLabels{0u}, currentInstruction{0u};
+	std::map<std::string, std::size_t> labels;
+	for(auto i(0u); i < mTokens.size(); ++i)
+	{
+		if(mTokens[i].type == TokenType::Semicolon) ++currentInstruction;
+
+		if(matchTypes(i, {TokenType::PreprocessorStart, TokenType::Identifier, TokenType::ParenthesisRoundOpen, TokenType::Identifier, TokenType::ParenthesisRoundClose, TokenType::Semicolon}))
+		{
+			if(mTokens[i + 1].contents != "label") continue;
+
+			const auto& name(getTokenContents(i + 3));
+			if(TDebug) ssvu::lo("makeProgram - phase 3") << "Found `$label`: " << name << "\n";
+
+			if(defines.count(name) > 0)
+			{
+				if(TDebug) ssvu::lo("makeProgram - phase 3") << "ERROR: label name `" << name << "` already previously encountered" << "\n";
+				throw;
+			}
+
+			labels[name] = currentInstruction - foundLabels;
+			++foundLabels;
+
+			for(auto k(0u); k < 6; ++k) mTokens[i + k].attribute.toDel = true;
+		}
+	}
+
+	ssvu::eraseRemoveIf(mTokens, [](const VAToken& mT){ return mT.attribute.toDel; });
+
+	if(TDebug) ssvu::lo("makeProgram - phase 3") << "Applying `$label` directives..." << "\n";
+	for(auto& t : mTokens) if(labels.count(t.contents) > 0) t.contents = ssvu::toStr(labels[t.contents]);
+	if(TDebug) ssvu::lo("makeProgram - phase 3") << "Done" << "\n";
 
 
+
+	for(auto& t : mTokens) result += t.contents;
+	return result;
+}
+
+template<typename T> inline void addInstructionTemplate(T& mTarget, ssvvm::OpCode mOpCode,
+											 ssvvm::ValueType mArgType0 = ssvvm::ValueType::Void,
+											 ssvvm::ValueType mArgType1 = ssvvm::ValueType::Void,
+											 ssvvm::ValueType mArgType2 = ssvvm::ValueType::Void)
+{
+	mTarget[getOpCodeStr(mOpCode)] = {mOpCode, mArgType0, mArgType1, mArgType2};
+}
+
+template<typename T, bool TDebug> inline ssvvm::Program makeProgram(T mTokens)
+{
+	//for(auto& t : mTokens) ssvu::lo() << t.contents;
+
+	using namespace ssvvm;
+	Program result;
+
+	// Helper functions
+	auto getTokenAsInt =	[&mTokens](std::size_t mIdx) -> int					{ return std::stoi(mTokens[mIdx].contents.c_str()); };
+	auto getTokenAsFloat =	[&mTokens](std::size_t mIdx) -> float				{ return std::stof(mTokens[mIdx].contents.substr(0, mTokens[mIdx].contents.size() - 2).c_str()); };
+	auto getTokenContents =	[&mTokens](std::size_t mIdx) -> const std::string&	{ return mTokens[mIdx].contents; };
 
 	// Phase 4: separating instructions using semicolons
-	struct Instruction { std::string identifier; std::vector<Value> args; };
-	std::vector<Instruction> instructions;
+	struct SrcInstruction { std::string identifier; std::vector<Value> args; };
+	std::vector<SrcInstruction> srcInstructions;
 
 	std::size_t idx{0u};
 	while(idx < mTokens.size())
 	{
-		Instruction currentInstruction;
+		SrcInstruction currentSrcInstruction;
 
 		if(mTokens[idx].type != TokenType::Identifier)
 		{
-			if(TDebug) ssvu::lo("makeProgram - phase 3") << "ERROR: expected `" << getTokenContents(mTokens[idx]) << "` to be an identifier" << "\n";
+			if(TDebug) ssvu::lo("makeProgram - phase 3") << "ERROR: expected `" << getTokenContents(idx) << "` to be an identifier" << "\n";
 			throw;
 		}
 
-		currentInstruction.identifier = getTokenContents(mTokens[idx]);
+		currentSrcInstruction.identifier = getTokenContents(idx);
 
 		++idx;
 
 		if(mTokens[idx].type != TokenType::ParenthesisRoundOpen)
 		{
-			if(TDebug) ssvu::lo("makeProgram - phase 3") << "ERROR: expected `" << getTokenContents(mTokens[idx]) << "` to be an open round parenthesis" << "\n";
+			if(TDebug) ssvu::lo("makeProgram - phase 3") << "ERROR: expected `" << getTokenContents(idx) << "` to be an open round parenthesis" << "\n";
 			throw;
 		}
 
@@ -922,7 +952,7 @@ template<typename T, bool TDebug> inline ssvvm::Program makeProgram(T mTokens)
 
 			if(mTokens[idx].type != TokenType::Semicolon)
 			{
-				if(TDebug) ssvu::lo("makeProgram - phase 3") << "ERROR: expected `" << getTokenContents(mTokens[idx]) << "` to be a semicolon" << "\n";
+				if(TDebug) ssvu::lo("makeProgram - phase 3") << "ERROR: expected `" << getTokenContents(idx) << "` to be a semicolon" << "\n";
 				throw;
 			}
 		}
@@ -930,19 +960,19 @@ template<typename T, bool TDebug> inline ssvvm::Program makeProgram(T mTokens)
 		{
 			while(mTokens[idx].type != TokenType::Semicolon)
 			{
-				if(mTokens[idx].type == TokenType::Float)			currentInstruction.args.push_back(Value::create<float>(getTokenAsFloat(mTokens[idx])));
-				else if(mTokens[idx].type == TokenType::Integer)	currentInstruction.args.push_back(Value::create<int>(getTokenAsInt(mTokens[idx])));
+				if(mTokens[idx].type == TokenType::Float)			currentSrcInstruction.args.push_back(Value::create<float>(getTokenAsFloat(idx)));
+				else if(mTokens[idx].type == TokenType::Integer)	currentSrcInstruction.args.push_back(Value::create<int>(getTokenAsInt(idx)));
 				else
 				{
-					if(TDebug) ssvu::lo("makeProgram - phase 3") << "ERROR: expected `" << getTokenContents(mTokens[idx]) << "` to be a float or an integer" << "\n";
+					if(TDebug) ssvu::lo("makeProgram - phase 3") << "ERROR: expected `" << getTokenContents(idx) << "` to be a float or an integer" << "\n";
 					throw;
 				}
 
 				++idx;
 
-				if(mTokens[idx].type != TokenType::Comma)
+				if(mTokens[idx].type != TokenType::Comma && mTokens[idx].type != TokenType::ParenthesisRoundClose)
 				{
-					if(TDebug) ssvu::lo("makeProgram - phase 3") << "ERROR: expected `" << getTokenContents(mTokens[idx]) << "` to be a comma" << "\n";
+					if(TDebug) ssvu::lo("makeProgram - phase 3") << "ERROR: expected `" << getTokenContents(idx) << "` to be a comma or a close round parenthesis" << "\n";
 					throw;
 				}
 
@@ -950,206 +980,30 @@ template<typename T, bool TDebug> inline ssvvm::Program makeProgram(T mTokens)
 			}
 		}
 
-		instructions.push_back(currentInstruction);
+		srcInstructions.push_back(currentSrcInstruction);
 		++idx;
 	}
 
 
-	//for(auto& t : mTokens) ssvu::lo() << t.contents;
 
-	for(auto& i : instructions) ssvu::lo("Instruction") << i.identifier << ": " << i.args << "\n";
-
-	ssvu::lo().flush();
-	return result;
-}
-
-
-			/*
-template<typename T> inline void addSrcInstr(T& mTarget, ssvvm::OpCode mOpCode,
-											 ssvvm::ValueType mArgType0 = ssvvm::ValueType::Void,
-											 ssvvm::ValueType mArgType1 = ssvvm::ValueType::Void,
-											 ssvvm::ValueType mArgType2 = ssvvm::ValueType::Void)
-{
-	mTarget[getOpCodeStr(mOpCode)] = {mOpCode, mArgType0, mArgType1, mArgType2};
-}
-
-ssvvm::Program makeProgram(std::string mSource)
-{
-	using namespace ssvvm;
-
-	struct Tkn
-	{
-		std::string str;
-		bool toDel{false};
-
-		Tkn(std::string mStr) : str(std::move(mStr)) { }
-	};
-
-	auto expectTkns = [](std::vector<Tkn>& mTkns, std::size_t mIdxStart, const std::vector<std::string>& mExpect) -> bool
-	{
-		if(mIdxStart + mExpect.size() >= mTkns.size()) return false;
-		std::size_t ei{0u};
-		for(auto i(mIdxStart); i < mIdxStart + mExpect.size(); ++i)
-		{
-			if(mExpect[ei] != "?" && mTkns[i].str != mExpect[ei]) return false;
-			++ei;
-		}
-		return true;
-	};
-
-	auto delTkns = [](std::vector<Tkn>& mTkns, std::size_t mIdxStart, const std::vector<std::string>& mExpect)
-	{
-		if(mIdxStart + mExpect.size() >= mTkns.size()) return;
-		std::size_t ei{0u};
-		for(auto i(mIdxStart); i < mIdxStart + mExpect.size(); ++i)
-		{
-			if(mExpect[ei] == "?" || mTkns[i].str == mExpect[ei]) mTkns[i].toDel = true;
-			++ei;
-		}
-	};
-
-	std::vector<std::string> lineByLine;
-	ssvu::split(lineByLine, mSource, "\n");
-
-	// Get rid of comments
-	for(auto& l : lineByLine)
-	{
-		std::size_t commentPos;
-		while((commentPos = l.find("//")) != std::string::npos) l.erase(commentPos, l.size() - commentPos);
-	}
-	mSource = ""; for(auto& s : lineByLine) mSource += s;
-
-	// Tokenize
-	std::vector<std::string> splits{"\n", "\t", " "}, splitsKeep{"(", ")", ";", ","};
-	std::vector<Tkn> tokens;
-	for(const auto& x : ssvu::getSplit<ssvu::Split::Normal>(mSource, splits)) tokens.emplace_back(x);
-	mSource = ""; for(auto& s : tokens) mSource += s.str; tokens.clear();
-	for(const auto& x : ssvu::getSplit<ssvu::Split::TokenizeSeparator>(mSource, splitsKeep)) tokens.emplace_back(x);
-
-	//for(auto& s : tokens) ssvu::lo()<<s.c_str()<<std::endl;
-
-	// Preprocess stage 1: $require directives
-	int requireRegisters{-1};
-	for(auto i(0u); i < tokens.size(); ++i)
-	{
-		if(expectTkns(tokens, i, {"$require_registers", "(", "?", ")", ";"}))
-		{
-			requireRegisters = std::atoi(tokens[i + 2].str.c_str());
-			delTkns(tokens, i, {"$require_registers", "(", "?", ")", ";"});
-		}
-	}
-
-	ssvu::eraseRemoveIf(tokens, [](const Tkn& mTkn){ return mTkn.toDel; });
-
-	// Preprocess stage2: $define directives
-	std::map<std::string, std::string> defines;
-	//for(auto& s : tokens) ssvu::lo()<<s.str.c_str()<<std::endl;
-	for(auto i(0u); i < tokens.size(); ++i)
-	{
-		if(expectTkns(tokens, i, {"$define", "(", "?", ",", "?", ")", ";"}))
-		{
-			std::string alias{tokens[i + 2].str};
-			if(defines.count(alias) > 0) throw;
-			defines[alias] = tokens[i + 4].str;
-
-			delTkns(tokens, i, {"$define", "(", "?", ",", "?", ")", ";"});
-		}
-
-	}
-
-	ssvu::eraseRemoveIf(tokens, [](const Tkn& mTkn){ return mTkn.toDel; });
-
-	for(auto& t : tokens) if(defines.count(t.str) > 0) t.str = defines[t.str];
-	//for(auto& s : tokens) ssvu::lo()<<s.str.c_str()<<std::endl;
-
-	struct Instr
-	{
-		std::string idnf{"NULL"};
-		std::vector<std::string> args;
-	};
-
-	std::vector<Instr> instructions;
-	Instr currentInstr;
-	std::size_t tknIdx{0u};
-
-	while(tknIdx < tokens.size())
-	{
-		currentInstr.idnf = tokens[tknIdx].str;
-		++tknIdx;
-
-		if(tokens[tknIdx].str == "(")
-		{
-			if(tokens[tknIdx + 1].str == ")" && tokens[tknIdx + 2].str == ";")
-			{
-				instructions.push_back(currentInstr); currentInstr = Instr{};
-				tknIdx = tknIdx + 3; continue;
-			}
-
-			++tknIdx;
-			while(tokens[tknIdx].str != ";")
-			{
-				currentInstr.args.push_back(ssvu::getReplaced(tokens[tknIdx].str, ".f", ""));
-				tknIdx += 2;
-			}
-
-			++tknIdx;
-			instructions.push_back(currentInstr); currentInstr = Instr{};
-		}
-	}
-
-	//for(auto& s : instructions) ssvu::lo() << s.idnf << " " << s.args << "\n";
-
-	std::map<std::string, std::string> labelIdxs;
-
-	bool found{true};
-
-	while(found)
-	{
-		found = false;
-		for(auto i(0u); i < instructions.size(); ++i)
-		{
-			if(instructions[i].idnf == "$label")
-			{
-				found = true;
-				labelIdxs[instructions[i].args[0]] = ssvu::toStr(i);
-				instructions.erase(std::begin(instructions) + i);
-				break;
-			}
-		}
-	}
-
-	for(auto& kk : labelIdxs) for(auto& i : instructions) for(auto& arg : i.args) if(arg == kk.first) arg = kk.second;
-	//for(auto& s : instructions) ssvu::lo() << s.idnf << " " << s.args << "\n";
-
-	Program result;
-
-	struct SrcInstr
+	struct InstructionTemplate
 	{
 		std::size_t requiredArgs{0u};
 		OpCode opCode;
 		ValueType argTypes[3];
 
-		inline SrcInstr() = default;
-		inline SrcInstr(OpCode mOpCode,
-						ValueType mArgType0 = ValueType::Void,
-						ValueType mArgType1 = ValueType::Void,
-						ValueType mArgType2 = ValueType::Void)
-			: opCode{mOpCode}
+		inline InstructionTemplate() = default;
+		inline InstructionTemplate(OpCode mOpCode, ValueType mT0 = ValueType::Void, ValueType mT1 = ValueType::Void, ValueType mT2 = ValueType::Void) : opCode{mOpCode}
 		{
-			argTypes[0] = mArgType0;	if(argTypes[0] != ValueType::Void) ++requiredArgs;
-			argTypes[1] = mArgType1;	if(argTypes[1] != ValueType::Void) ++requiredArgs;
-			argTypes[2] = mArgType2;	if(argTypes[2] != ValueType::Void) ++requiredArgs;
+			argTypes[0] = mT0;	if(argTypes[0] != ValueType::Void) ++requiredArgs;
+			argTypes[1] = mT1;	if(argTypes[1] != ValueType::Void) ++requiredArgs;
+			argTypes[2] = mT2;	if(argTypes[2] != ValueType::Void) ++requiredArgs;
 		}
 
-		inline void addToProgram(Program& mProgram, std::vector<std::string>& mArgs)
+		inline void addToProgram(Program& mProgram, std::vector<Value>& mArgs)
 		{
 			Params params;
-			for(auto i(0u); i < requiredArgs; ++i)
-			{
-				params[i].setType(argTypes[i]);
-				if(argTypes[i] == ValueType::Int)			params[i].set<int>(std::atoi(mArgs[i].c_str()));
-				else if(argTypes[i] == ValueType::Float)	params[i].set<float>(float(std::atof(mArgs[i].c_str())));
-			}
+			for(auto i(0u); i < requiredArgs; ++i) params[i] = mArgs[i];
 
 			Instruction instruction;
 			instruction.opCode = opCode;
@@ -1159,103 +1013,68 @@ ssvvm::Program makeProgram(std::string mSource)
 		}
 	};
 
-	std::unordered_map<std::string, SrcInstr> srcInstrs;
+	std::unordered_map<std::string, InstructionTemplate> instructionTemplates;
 
-	addSrcInstr(srcInstrs,	OpCode::halt																						);
-	addSrcInstr(srcInstrs,	OpCode::loadIntCVToR,				ValueType::Int,			ValueType::Int							);
-	addSrcInstr(srcInstrs,	OpCode::loadFloatCVToR,				ValueType::Int,			ValueType::Float						);
-	addSrcInstr(srcInstrs,	OpCode::moveRVToR,					ValueType::Int,			ValueType::Int							);
-	addSrcInstr(srcInstrs,	OpCode::pushRVToS,					ValueType::Int													);
-	addSrcInstr(srcInstrs,	OpCode::popSVToR,					ValueType::Int													);
-	addSrcInstr(srcInstrs,	OpCode::moveSBOVToR,				ValueType::Int,			ValueType::Int							);
-	addSrcInstr(srcInstrs,	OpCode::pushIntCVToS,				ValueType::Int													);
-	addSrcInstr(srcInstrs,	OpCode::pushFloatCVToS,				ValueType::Float												);
-	addSrcInstr(srcInstrs,	OpCode::pushSVToS																					);
-	addSrcInstr(srcInstrs,	OpCode::popSV																						);
-	addSrcInstr(srcInstrs,	OpCode::callPI,						ValueType::Int													);
-	addSrcInstr(srcInstrs,	OpCode::returnPI																					);
-	addSrcInstr(srcInstrs,	OpCode::goToPI,						ValueType::Int													);
-	addSrcInstr(srcInstrs,	OpCode::goToPIIfIntRV,				ValueType::Int,			ValueType::Int							);
-	addSrcInstr(srcInstrs,	OpCode::goToPIIfCompareRVGreater,	ValueType::Int,			ValueType::Int							);
-	addSrcInstr(srcInstrs,	OpCode::goToPIIfCompareRVSmaller,	ValueType::Int,			ValueType::Int							);
-	addSrcInstr(srcInstrs,	OpCode::goToPIIfCompareRVEqual,		ValueType::Int,			ValueType::Int							);
-	addSrcInstr(srcInstrs,	OpCode::incrementIntRV,				ValueType::Int													);
-	addSrcInstr(srcInstrs,	OpCode::decrementIntRV,				ValueType::Int													);
-	addSrcInstr(srcInstrs,	OpCode::addInt2SVs																					);
-	addSrcInstr(srcInstrs,	OpCode::addFloat2SVs																				);
-	addSrcInstr(srcInstrs,	OpCode::subtractInt2SVs																				);
-	addSrcInstr(srcInstrs,	OpCode::subtractFloat2SVs																			);
-	addSrcInstr(srcInstrs,	OpCode::multiplyInt2SVs																				);
-	addSrcInstr(srcInstrs,	OpCode::multiplyFloat2SVs																			);
-	addSrcInstr(srcInstrs,	OpCode::divideInt2SVs																				);
-	addSrcInstr(srcInstrs,	OpCode::divideFloat2SVs																				);
-	addSrcInstr(srcInstrs,	OpCode::compareIntRVIntRVToR,		ValueType::Int,			ValueType::Int,			ValueType::Int	);
-	addSrcInstr(srcInstrs,	OpCode::compareIntRVIntSVToR,		ValueType::Int,			ValueType::Int							);
-	addSrcInstr(srcInstrs,	OpCode::compareIntSVIntSVToR,		ValueType::Int													);
-	addSrcInstr(srcInstrs,	OpCode::compareIntRVIntCVToR,		ValueType::Int,			ValueType::Int,			ValueType::Int	);
-	addSrcInstr(srcInstrs,	OpCode::compareIntSVIntCVToR,		ValueType::Int,			ValueType::Int							);
+	addInstructionTemplate(instructionTemplates,	OpCode::halt																						);
+	addInstructionTemplate(instructionTemplates,	OpCode::loadIntCVToR,				ValueType::Int,			ValueType::Int							);
+	addInstructionTemplate(instructionTemplates,	OpCode::loadFloatCVToR,				ValueType::Int,			ValueType::Float						);
+	addInstructionTemplate(instructionTemplates,	OpCode::moveRVToR,					ValueType::Int,			ValueType::Int							);
+	addInstructionTemplate(instructionTemplates,	OpCode::pushRVToS,					ValueType::Int													);
+	addInstructionTemplate(instructionTemplates,	OpCode::popSVToR,					ValueType::Int													);
+	addInstructionTemplate(instructionTemplates,	OpCode::moveSBOVToR,				ValueType::Int,			ValueType::Int							);
+	addInstructionTemplate(instructionTemplates,	OpCode::pushIntCVToS,				ValueType::Int													);
+	addInstructionTemplate(instructionTemplates,	OpCode::pushFloatCVToS,				ValueType::Float												);
+	addInstructionTemplate(instructionTemplates,	OpCode::pushSVToS																					);
+	addInstructionTemplate(instructionTemplates,	OpCode::popSV																						);
+	addInstructionTemplate(instructionTemplates,	OpCode::callPI,						ValueType::Int													);
+	addInstructionTemplate(instructionTemplates,	OpCode::returnPI																					);
+	addInstructionTemplate(instructionTemplates,	OpCode::goToPI,						ValueType::Int													);
+	addInstructionTemplate(instructionTemplates,	OpCode::goToPIIfIntRV,				ValueType::Int,			ValueType::Int							);
+	addInstructionTemplate(instructionTemplates,	OpCode::goToPIIfCompareRVGreater,	ValueType::Int,			ValueType::Int							);
+	addInstructionTemplate(instructionTemplates,	OpCode::goToPIIfCompareRVSmaller,	ValueType::Int,			ValueType::Int							);
+	addInstructionTemplate(instructionTemplates,	OpCode::goToPIIfCompareRVEqual,		ValueType::Int,			ValueType::Int							);
+	addInstructionTemplate(instructionTemplates,	OpCode::incrementIntRV,				ValueType::Int													);
+	addInstructionTemplate(instructionTemplates,	OpCode::decrementIntRV,				ValueType::Int													);
+	addInstructionTemplate(instructionTemplates,	OpCode::addInt2SVs																					);
+	addInstructionTemplate(instructionTemplates,	OpCode::addFloat2SVs																				);
+	addInstructionTemplate(instructionTemplates,	OpCode::subtractInt2SVs																				);
+	addInstructionTemplate(instructionTemplates,	OpCode::subtractFloat2SVs																			);
+	addInstructionTemplate(instructionTemplates,	OpCode::multiplyInt2SVs																				);
+	addInstructionTemplate(instructionTemplates,	OpCode::multiplyFloat2SVs																			);
+	addInstructionTemplate(instructionTemplates,	OpCode::divideInt2SVs																				);
+	addInstructionTemplate(instructionTemplates,	OpCode::divideFloat2SVs																				);
+	addInstructionTemplate(instructionTemplates,	OpCode::compareIntRVIntRVToR,		ValueType::Int,			ValueType::Int,			ValueType::Int	);
+	addInstructionTemplate(instructionTemplates,	OpCode::compareIntRVIntSVToR,		ValueType::Int,			ValueType::Int							);
+	addInstructionTemplate(instructionTemplates,	OpCode::compareIntSVIntSVToR,		ValueType::Int													);
+	addInstructionTemplate(instructionTemplates,	OpCode::compareIntRVIntCVToR,		ValueType::Int,			ValueType::Int,			ValueType::Int	);
+	addInstructionTemplate(instructionTemplates,	OpCode::compareIntSVIntCVToR,		ValueType::Int,			ValueType::Int							);
 
-	int idx{0};
-	for(auto& s : instructions)
+
+
+	std::size_t instructionIdx{0};
+	for(auto& i : srcInstructions)
 	{
-		ssvu::lo() << idx++ << ":\t" << s.idnf << " " << s.args << "\n";
+		ssvu::lo(instructionIdx++) << i.identifier << " " << i.args << "\n";
 
-		if(srcInstrs.count(s.idnf) == 0)
+		if(instructionTemplates.count(i.identifier) == 0)
 		{
-			ssvu::lo("ASSEMBLER ERROR") << "No OpCode with name '" << s.idnf << "'" << std::endl;
+			ssvu::lo("ASSEMBLER ERROR") << "No OpCode with name '" << i.identifier << "'" << std::endl;
 			throw;
 		}
 
-		auto& si(srcInstrs[s.idnf]);
+		auto& it(instructionTemplates[i.identifier]);
 
-		if(si.requiredArgs != s.args.size())
+		if(it.requiredArgs != i.args.size())
 		{
-			ssvu::lo("ASSEMBLER ERROR") << "OpCode '" << s.idnf << "' requires '" << si.requiredArgs << "' arguments" << std::endl;
+			ssvu::lo("ASSEMBLER ERROR") << "OpCode '" << i.identifier << "' requires '" << it.requiredArgs << "' arguments" << std::endl;
 			throw;
 		}
 
-		si.addToProgram(result, s.args);
+		it.addToProgram(result, i.args);
 	}
 
+	ssvu::lo().flush();
 	return result;
 }
 
-void cfunc(int x, int y) { std::cout << x * y << std::endl; }
-
-int main()
-{
-	SSVU_TEST_RUN_ALL();
-
-	ssvvm::BoundFunction bf{&cfunc};
-	ssvu::lo() << bf.call({2, 4}) << std::endl;
-
-	return 0;
-	ssvvm::Program program{makeProgram(source)};
-
-	ssvvm::VirtualMachine vm;
-
-ssvvm::VirtualMachine::BoundFunction bf = vm.bindCFunction(&cfunc);
-
-	ssvvm::Params callParams{21};
-	ssvvm::Value returnValue = bf.function->call(callParams);
-
-	ssvu::lo() << returnValue << std::endl;
-
-return 0;
-	vm.setProgram(program);
-	vm.run();
-
-	//ssvu::lo() << vm.registry.getValue(0).get<float>() << "\n";
-	//ssvu::lo() << vm.registry.getValue(1).get<float>() << "\n";
-
-	return 0;
-}
-
-
-*/
-
-
 #endif
-
-
-
