@@ -280,46 +280,6 @@ int main()
 #include "SSVBloodshed/OBCommon.hpp"
 #include "SSVBloodshed/SSVVM/SSVVM.hpp"
 
-
-
-/*
-int main()
-{
-	using IT = ssvvm::OpCode;
-	ssvvm::VirtualMachine vm;
-
-	// 2.f * 15
-
-	vm.program += {IT::loadFloatCVToR, 0, 2.f};
-	vm.program += {IT::loadFloatCVToR, 2, 12.f};
-	vm.program += {IT::loadIntCVToR, 1, 14};
-
-	vm.program += {IT::pushRVToS, 0};
-	vm.program += {IT::pushRVToS, 2};
-
-	vm.program += {IT::MultiplyFloat2SVs};
-	vm.program += {IT::popSVToR, 0};
-
-
-	vm.program += {IT::pushRVToS, 0};
-	vm.program += {IT::pushRVToS, 2};
-
-	vm.program += {IT::addFloat2SVs};
-	vm.program += {IT::popSVToR, 0};
-
-	vm.program += {IT::decrementIntRV, 1};
-	vm.program += {IT::goToPIIfIntRV, 3, 1};
-
-
-	vm.run();
-
-	ssvu::lo() << vm.registry.getValue(0).get<float>() << "\n";
-
-	return 0;
-}
-*/
-
-
 std::string source{
 	R"(
 	//!ssvasm
@@ -462,137 +422,194 @@ std::string source{
 			returnPI();
 	)"};
 
-template<typename TNode> class Graph
+template<typename TNode, typename TLink> class Graph
 {
 	public:
+		using NodePtr = TNode*;
+		constexpr static NodePtr nodeNull{nullptr};
+
+		class Link
+		{
+			private:
+				NodePtr node{nodeNull};
+
+			public:
+				inline Link(NodePtr mNode) noexcept : node{mNode} { }
+				inline NodePtr getNode() const noexcept { assert(node != nodeNull); return node; }
+		};
+
 		class Node
 		{
 			private:
-				std::vector<TNode*> connections;
+				std::vector<TLink> links;
 
 			public:
-				inline void connectToSelf() { connections.push_back(reinterpret_cast<TNode*>(this)); }
-				inline void connectTo(TNode& mVertex)
+				template<typename... TArgs> inline void linkToSelf(TArgs&&... mArgs)
 				{
-					assert(this != &mVertex);
-					connections.push_back(&mVertex);
+					links.emplace_back(reinterpret_cast<TNode*>(this), std::forward<TArgs>(mArgs)...);
+				}
+				template<typename... TArgs> inline void linkTo(NodePtr mNode, TArgs&&... mArgs)
+				{
+					assert(this != mNode);
+					links.emplace_back(mNode, std::forward<TArgs>(mArgs)...);
 				}
 
-				inline const decltype(connections)& getConnections() const { return connections; }
-				inline bool isIsolated() const noexcept { return connections.empty(); }
+				inline const decltype(links)& getLinks() const	{ return links; }
+				inline bool isIsolated() const noexcept			{ return links.empty(); }
 		};
 
 
+
+
 	private:
-		std::vector<ssvu::Uptr<TNode>> vertices;
+		std::vector<ssvu::Uptr<TNode>> nodes;
 
 	protected:
-		template<typename... TArgs> inline TNode& createNode(TArgs&&... mArgs)
+		template<typename... TArgs> inline NodePtr createNode(TArgs&&... mArgs)
 		{
 			static_assert(ssvu::isBaseOf<Node, TNode>(), "TNode must be derived from Graph<TNode>::Vertex");
 
 			auto result(new TNode(std::forward<TArgs>(mArgs)...));
-			vertices.emplace_back(result);
-			return *result;
+			nodes.emplace_back(result);
+			return result;
 		}
 
 	public:
+		inline const decltype(nodes)& getNodes() const noexcept { return nodes; }
+		inline decltype(nodes)& getNodes() noexcept { return nodes; }
+		inline NodePtr getLastAddedNode() noexcept { assert(!nodes.empty()); return nodes.back().get(); }
 };
 
 struct FSMState;
+struct FSMTransition;
 
-using FSMType = Graph<FSMState>;
+enum class FSMNodeType{NonTerminal, Terminal};
+
+using FSMType = Graph<FSMState, FSMTransition>;
 using FSMRule = ssvu::Func<bool()>;
+
+class FSMTransition : public FSMType::Link
+{
+	private:
+		FSMRule rule;
+
+	public:
+		inline FSMTransition(FSMType::NodePtr mState, const FSMRule& mRule) noexcept : FSMType::Link{mState}, rule{mRule} { }
+		inline bool matchesRule() const noexcept { return rule(); }
+};
 
 struct FSMState : public FSMType::Node
 {
 	private:
-		FSMRule rule;
-		bool terminal;
+		FSMNodeType terminal;
 
 	public:
-		inline FSMState(const FSMRule& mRule, bool mTerminal = true) : rule{mRule}, terminal{mTerminal} { }
+		inline FSMState(FSMNodeType mTerminal) noexcept : terminal{mTerminal} { }
 
-		inline FSMState* getFirstMatchingConnection() const noexcept
+		inline FSMType::NodePtr getFirstMatchingTransition() const noexcept
 		{
-			for(const auto& c : getConnections()) if(c->matchesRule()) return c;
-			return nullptr;
+			for(const auto& c : getLinks()) if(c.matchesRule()) return c.getNode();
+			return FSMType::nodeNull;
 		}
 
-		inline bool isTerminal() const noexcept		{ return terminal; }
-		inline bool matchesRule() const noexcept	{ return rule(); }
-
+		inline bool isTerminal() const noexcept { return terminal == FSMNodeType::Terminal; }
 };
 
 class FSM : public FSMType
 {
+	public:
+		using NodeType = FSMNodeType;
+
 	private:
-		FSMState* startState{nullptr};
-		FSMState* currentState{nullptr};
-		std::vector<FSMState*> history;
+		NodePtr startState{nodeNull}, currentState{nodeNull};
 
 	public:
-		template<typename... TArgs> inline FSM& startOnce(TArgs&&... mArgs)
-		{
-			auto& state(createNode(std::forward<TArgs>(mArgs)...));
-			startState = currentState = &state;
-			history.push_back(&state);
-			return *this;
-		}
-		template<typename... TArgs> inline FSM& startRepeat(TArgs&&... mArgs)
-		{
-			auto& state(createNode(std::forward<TArgs>(mArgs)...));
-			state.connectToSelf();
-			startState = currentState = &state;
-			history.push_back(&state);
-			return *this;
-		}
+		inline FSM() { startState = createNode(NodeType::NonTerminal); }
 
-		template<typename... TArgs> inline FSM& continueOnce(TArgs&&... mArgs)
+		inline FSM& continueOnce(const FSMRule& mRule, NodeType mTerminal)
 		{
-			auto& state(createNode(std::forward<TArgs>(mArgs)...));
-			history.back()->connectTo(state);
-			history.push_back(&state);
+			auto last(getLastAddedNode());
+			auto state(createNode(mTerminal));
+
+			last->linkTo(state, mRule);
+
 			return *this;
 		}
-		template<typename... TArgs> inline FSM& continueRepeat(TArgs&&... mArgs)
+		inline FSM& continueRepeat(const FSMRule& mRule, NodeType mTerminal)
 		{
-			auto& state(createNode(std::forward<TArgs>(mArgs)...));
-			state.connectToSelf();
-			history.back()->connectTo(state);
-			history.push_back(&state);
+			auto last(getLastAddedNode());
+			auto state(createNode(mTerminal));
+
+			state->linkToSelf(mRule);
+			last->linkTo(state, mRule);
+
 			return *this;
 		}
 
-		inline FSM& connectWithPrevious()
+		inline FSM& continueRepeatUntilOnce(const FSMRule& mLoop, NodeType mLoopTerminal, const FSMRule& mEnd, NodeType mEndTerminal)
 		{
-			history.back()->connectTo(**(std::end(history) - 2));
-			return *this;
-		}
+			auto last(getLastAddedNode());
+			auto stateEnd(createNode(mEndTerminal));
+			auto stateLoop(createNode(mLoopTerminal));
 
-		inline FSM& continueRepeatUntilOnce(const FSMRule& mLoop, const FSMRule& mEnd)
-		{
-			auto& stateEnd(createNode(mEnd));
-
-			auto& stateLoop(createNode(mLoop));
-			stateLoop.connectTo(stateEnd);
-			stateLoop.connectToSelf();
-
-			history.back()->connectTo(stateEnd);
-			history.back()->connectTo(stateLoop);
+			stateLoop->linkTo(stateEnd, mEnd);
+			stateLoop->linkToSelf(mLoop);
+			last->linkTo(stateEnd, mEnd);
+			last->linkTo(stateLoop, mLoop);
 
 			return *this;
 		}
 
 
-		inline void reset() noexcept { currentState = startState; }
+		inline void reset() noexcept							{ assert(startState != nodeNull); currentState = startState; }
 		inline void setCurrentState(FSMState& mState) noexcept	{ currentState = &mState; }
-		inline const FSMState& getCurrentState() const noexcept	{ assert(currentState != nullptr); return *currentState; }
+		inline const FSMState& getCurrentState() const noexcept	{ assert(currentState != nodeNull); return *currentState; }
+};
+
+template<typename T> class LexicalAnalyzerFSM : public FSM
+{
+	private:
+		T* lexicalAnalyzer;
+
+	public:
+		inline LexicalAnalyzerFSM(T& mLexicalAnalyzer) noexcept : lexicalAnalyzer{&mLexicalAnalyzer} { }
+		inline LexicalAnalyzerFSM& matchOnly(const std::string& mStr)
+		{
+			continueOnce([this, mStr]{ return lexicalAnalyzer->match(mStr); }, NodeType::Terminal);
+			return *this;
+		}
+		inline LexicalAnalyzerFSM& matchOnce(const std::string& mStr, NodeType mType)
+		{
+			continueOnce([this, mStr]{ return lexicalAnalyzer->match(mStr); }, mType);
+			return *this;
+		}
+		inline LexicalAnalyzerFSM& matchRepeat(const std::string& mStr, NodeType mType)
+		{
+			continueRepeat([this, mStr]{ return lexicalAnalyzer->match(mStr); }, mType);
+			return *this;
+		}
+		template<typename TFunc> inline LexicalAnalyzerFSM& matchCharOnce(const TFunc& mFunc, NodeType mType)
+		{
+			continueOnce([this, mFunc]{ return mFunc(lexicalAnalyzer->getMatchChar()); }, mType);
+			return *this;
+		}
+		template<typename TFunc> inline LexicalAnalyzerFSM& matchCharRepeat(const TFunc& mFunc, NodeType mType)
+		{
+			continueRepeat([this, mFunc]{ return mFunc(lexicalAnalyzer->getMatchChar()); }, mType);
+			return *this;
+		}
+		inline LexicalAnalyzerFSM& matchRepeatAnythingUntilMatchOnce(NodeType mLoopType, const std::string& mEndStr, NodeType mEndType)
+		{
+			continueRepeatUntilOnce([this]{ return lexicalAnalyzer->matchAnything(); }, mLoopType, [this, mEndStr]{ return lexicalAnalyzer->match(mEndStr); }, mEndType);
+			return *this;
+		}
 };
 
 template<typename TTokenType, typename TTokenAttribute> class LexicalAnalyzer
 {
 	public:
+		using FSM = LexicalAnalyzerFSM<LexicalAnalyzer<TTokenType, TTokenAttribute>>;
+
 		struct Token
 		{
 			TTokenType type;
@@ -603,7 +620,7 @@ template<typename TTokenType, typename TTokenAttribute> class LexicalAnalyzer
 		};
 
 	private:
-		std::map<TTokenType, FSM*> matches;
+		std::map<TTokenType, FSM> matches;
 		std::vector<Token> tokens;
 		std::string source;
 		std::size_t markerBegin, markerEnd, nextEnd;
@@ -619,8 +636,14 @@ template<typename TTokenType, typename TTokenAttribute> class LexicalAnalyzer
 		}
 
 	public:
-		inline void setSource(std::string mSource)				{ source = std::move(mSource); }
-		inline void addMatch(TTokenType mTokenType, FSM& mFSM)	{ matches[mTokenType] = &mFSM; }
+		inline FSM& createMatchFSM(TTokenType mTokenType)
+		{
+			assert(matches.count(mTokenType) == 0);
+			matches.insert(std::make_pair(mTokenType, FSM{*this}));
+			return matches.at(mTokenType);
+		}
+
+		inline void setSource(std::string mSource) { source = std::move(mSource); }
 
 		inline char getMatchChar() { nextEnd = markerEnd + 1; return source[markerEnd]; }
 		inline bool match(const std::string& mMatch, bool mConsume = true)
@@ -646,48 +669,34 @@ template<typename TTokenType, typename TTokenAttribute> class LexicalAnalyzer
 				bool canConsume{false};
 				TTokenType foundType;
 
-				for(const auto& p : matches)
+				for(auto& p : matches)
 				{
 					const auto& tokenType(p.first);
-					auto& fsm(*p.second);
+					auto& fsm(p.second);
 
 					fsm.reset();
-
 					markerEnd = markerBegin;
 
-					if(fsm.getCurrentState().matchesRule())
+					auto nextNode(FSM::nodeNull);
+
+					while((nextNode = fsm.getCurrentState().getFirstMatchingTransition()) != FSM::nodeNull)
 					{
-					//	ssvu::lo() << "FT: " << source.substr(markerBegin, nextEnd - markerBegin) << std::endl;
 
 						advance();
+						ssvu::lo() << source.substr(markerBegin, nextEnd - markerBegin) << std::endl;
 
-						while(true)
+						fsm.setCurrentState(*nextNode);
+						if(fsm.getCurrentState().isTerminal())
 						{
-							// ssvu::lo() << source.substr(markerBegin, nextEnd - markerBegin) << std::endl;
-
-							if(fsm.getCurrentState().isTerminal())
-							{
-								canConsume = true;
-								foundType = tokenType;
-							}
-							else
-							{
-								//ssvu::lo() << "NONTERMINAL" << std::endl;
-							}
-
-							auto next(fsm.getCurrentState().getFirstMatchingConnection());
-							if(next == nullptr) break;
-
-							advance();
-							fsm.setCurrentState(*next);
+							canConsume = true;
+							foundType = tokenType;
 						}
+					}
 
-						if(canConsume)
-						{
-							//ssvu::lo() << "CONSUMED" << std::endl;
-							consume(foundType);
-							break;
-						}
+					if(canConsume)
+					{
+						consume(foundType);
+						break;
 					}
 				}
 
@@ -730,43 +739,22 @@ enum class TokenType : int
 struct TokenAttribute { bool toDel{false}; };
 
 using VAToken = LexicalAnalyzer<TokenType, TokenAttribute>::Token;
+using LAFSM = LexicalAnalyzer<TokenType, TokenAttribute>::FSM;
 
 int main()
 {
 	LexicalAnalyzer<TokenType, TokenAttribute> la;
 
-	FSM fsmPreprocessorStart;
-	FSM fsmSemicolon;
-	FSM fsmComma;
-	FSM fsmParenthesisRoundOpen;
-	FSM fsmParenthesisRoundClose;
-	FSM fsmFloat;
-	FSM fsmInteger;
-	FSM fsmIdentifier;
-	FSM fsmComment;
-	FSM fsmWhiteSpace;
-
-	fsmPreprocessorStart.startOnce([&la]{ return la.match("$"); });
-	fsmSemicolon.startOnce([&la]{ return la.match(";"); });
-	fsmComma.startOnce([&la]{ return la.match(","); });
-	fsmParenthesisRoundOpen.startOnce([&la]{ return la.match("("); });
-	fsmParenthesisRoundClose.startOnce([&la]{ return la.match(")"); });
-	fsmFloat.startRepeat([&la]{ return std::isdigit(la.getMatchChar()); }, false).continueOnce([&la]{ return la.match(".f"); });
-	fsmInteger.startRepeat([&la]{ return std::isdigit(la.getMatchChar()); });
-	fsmIdentifier.startRepeat([&la]{ return isIdnfChar<true>(la.getMatchChar()); }).continueRepeat([&la]{ return isIdnfChar<false>(la.getMatchChar()); });
-	fsmComment.startOnce([&la]{ return la.match("//"); }).continueRepeatUntilOnce([&la]{ return la.matchAnything(); }, [&la]{ return la.match("\n", false); });
-	fsmWhiteSpace.startRepeat([&la]{ return std::isspace(la.getMatchChar()); });
-
-	la.addMatch(TokenType::PreprocessorStart,		fsmPreprocessorStart);
-	la.addMatch(TokenType::Semicolon,				fsmSemicolon);
-	la.addMatch(TokenType::Comma,					fsmComma);
-	la.addMatch(TokenType::ParenthesisRoundOpen,	fsmParenthesisRoundOpen);
-	la.addMatch(TokenType::ParenthesisRoundClose,	fsmParenthesisRoundClose);
-	la.addMatch(TokenType::Float,					fsmFloat);
-	la.addMatch(TokenType::Integer,					fsmInteger);
-	la.addMatch(TokenType::Identifier,				fsmIdentifier);
-	la.addMatch(TokenType::Comment,					fsmComment);
-	la.addMatch(TokenType::WhiteSpace,				fsmWhiteSpace);
+	la.createMatchFSM(TokenType::PreprocessorStart).matchOnly("$");
+	la.createMatchFSM(TokenType::Semicolon).matchOnly(";");
+	la.createMatchFSM(TokenType::Comma).matchOnly(",");
+	la.createMatchFSM(TokenType::ParenthesisRoundOpen).matchOnly("(");
+	la.createMatchFSM(TokenType::ParenthesisRoundClose).matchOnly(")");
+	la.createMatchFSM(TokenType::Float).matchCharRepeat([](char mC){ return std::isdigit(mC); }, FSM::NodeType::NonTerminal).matchOnce(".f", FSM::NodeType::Terminal);
+	la.createMatchFSM(TokenType::Integer).matchCharRepeat([](char mC){ return std::isdigit(mC); }, FSM::NodeType::Terminal);
+	la.createMatchFSM(TokenType::Identifier).matchCharRepeat([](char mC){ return isIdnfChar<true>(mC); }, FSM::NodeType::Terminal).matchCharRepeat([](char mC){ return isIdnfChar<false>(mC); }, FSM::NodeType::Terminal);
+	la.createMatchFSM(TokenType::Comment).matchOnce("//", FSM::NodeType::Terminal).matchRepeatAnythingUntilMatchOnce(FSM::NodeType::NonTerminal, "\n", FSM::NodeType::Terminal);
+	la.createMatchFSM(TokenType::WhiteSpace).matchCharRepeat([](char mC){ return std::isspace(mC); }, FSM::NodeType::Terminal);
 
 	la.setSource(source);
 	la.tokenize();
