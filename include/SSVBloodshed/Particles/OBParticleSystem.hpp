@@ -48,7 +48,7 @@ namespace ob
 				}
 			}
 			inline void draw(sf::RenderTarget& mRenderTarget, sf::RenderStates mRenderStates) const override { mRenderTarget.draw(&vertices[0], currentCount * 4, sf::PrimitiveType::Quads, mRenderStates); }
-			inline void clear() { particles.clear(); currentCount = 0; }
+			inline void clear() noexcept { particles.clear(); currentCount = 0; }
 	};
 }
 

@@ -215,7 +215,9 @@ int main()
 	return 0;
 }
 
-#elseif XXX
+#endif
+
+#ifndef NOT_BLOODSHED
 
 // Copyright (c) 2013 Vittorio Romeo
 // License: Academic Free License ("AFL") v. 3.0
@@ -274,7 +276,9 @@ int main()
 	return 0;
 }
 
-#else
+#endif
+
+#ifdef TOKENS
 
 #include <array>
 #include "SSVBloodshed/OBCommon.hpp"
@@ -458,9 +462,6 @@ template<typename TNode, typename TLink> class Graph
 				inline bool isIsolated() const noexcept			{ return links.empty(); }
 		};
 
-
-
-
 	private:
 		std::vector<ssvu::Uptr<TNode>> nodes;
 
@@ -524,7 +525,7 @@ class FSM : public FSMType
 		NodePtr startState{nodeNull}, currentState{nodeNull};
 
 	public:
-		inline FSM() { startState = createNode(NodeType::NonTerminal); }
+		inline FSM() : startState{createNode(NodeType::NonTerminal)} { }
 
 		inline FSM& continueOnce(const FSMRule& mRule, NodeType mTerminal)
 		{
@@ -560,10 +561,9 @@ class FSM : public FSMType
 			return *this;
 		}
 
-
 		inline void reset() noexcept							{ assert(startState != nodeNull); currentState = startState; }
-		inline void setCurrentState(FSMState& mState) noexcept	{ currentState = &mState; }
-		inline const FSMState& getCurrentState() const noexcept	{ assert(currentState != nodeNull); return *currentState; }
+		inline void setCurrentState(NodePtr mState) noexcept	{ currentState = mState; }
+		inline const NodePtr getCurrentState() const noexcept	{ assert(currentState != nodeNull); return currentState; }
 };
 
 template<typename T> class LexicalAnalyzerFSM : public FSM
@@ -608,7 +608,7 @@ template<typename T> class LexicalAnalyzerFSM : public FSM
 template<typename TTokenType, typename TTokenAttribute> class LexicalAnalyzer
 {
 	public:
-		using FSM = LexicalAnalyzerFSM<LexicalAnalyzer<TTokenType, TTokenAttribute>>;
+		using LAFSM = LexicalAnalyzerFSM<LexicalAnalyzer<TTokenType, TTokenAttribute>>;
 
 		struct Token
 		{
@@ -620,7 +620,7 @@ template<typename TTokenType, typename TTokenAttribute> class LexicalAnalyzer
 		};
 
 	private:
-		std::map<TTokenType, FSM> matches;
+		std::map<TTokenType, LAFSM> matches;
 		std::vector<Token> tokens;
 		std::string source;
 		std::size_t markerBegin, markerEnd, nextEnd;
@@ -636,10 +636,10 @@ template<typename TTokenType, typename TTokenAttribute> class LexicalAnalyzer
 		}
 
 	public:
-		inline FSM& createMatchFSM(TTokenType mTokenType)
+		inline LAFSM& createMatchFSM(TTokenType mTokenType)
 		{
 			assert(matches.count(mTokenType) == 0);
-			matches.insert(std::make_pair(mTokenType, FSM{*this}));
+			matches.insert(std::make_pair(mTokenType, LAFSM{*this}));
 			return matches.at(mTokenType);
 		}
 
@@ -671,25 +671,23 @@ template<typename TTokenType, typename TTokenAttribute> class LexicalAnalyzer
 
 				for(auto& p : matches)
 				{
-					const auto& tokenType(p.first);
 					auto& fsm(p.second);
 
 					fsm.reset();
 					markerEnd = markerBegin;
 
-					auto nextNode(FSM::nodeNull);
+					auto nextNode(LAFSM::nodeNull);
 
-					while((nextNode = fsm.getCurrentState().getFirstMatchingTransition()) != FSM::nodeNull)
+					while((nextNode = fsm.getCurrentState()->getFirstMatchingTransition()) != LAFSM::nodeNull)
 					{
-
 						advance();
-						ssvu::lo() << source.substr(markerBegin, nextEnd - markerBegin) << std::endl;
+						//ssvu::lo() << source.substr(markerBegin, nextEnd - markerBegin) << std::endl;
 
-						fsm.setCurrentState(*nextNode);
-						if(fsm.getCurrentState().isTerminal())
+						fsm.setCurrentState(nextNode);
+						if(fsm.getCurrentState()->isTerminal())
 						{
 							canConsume = true;
-							foundType = tokenType;
+							foundType = p.first;
 						}
 					}
 
@@ -739,7 +737,7 @@ enum class TokenType : int
 struct TokenAttribute { bool toDel{false}; };
 
 using VAToken = LexicalAnalyzer<TokenType, TokenAttribute>::Token;
-using LAFSM = LexicalAnalyzer<TokenType, TokenAttribute>::FSM;
+using LAFSM = LexicalAnalyzer<TokenType, TokenAttribute>::LAFSM;
 
 int main()
 {

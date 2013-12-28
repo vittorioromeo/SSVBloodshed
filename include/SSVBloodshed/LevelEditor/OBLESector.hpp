@@ -20,7 +20,7 @@ namespace ob
 
 		public:
 			inline OBLESector(int mCols = 100, int mRows = 100) noexcept : cols{mCols}, rows{mRows} { }
-			inline void clear() { levels.clear(); }
+			inline void clear() noexcept { levels.clear(); }
 
 			inline int getColumns() const noexcept						{ return cols; }
 			inline int getRows() const noexcept							{ return rows; }
