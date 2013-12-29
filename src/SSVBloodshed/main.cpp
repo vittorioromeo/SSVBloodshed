@@ -1,4 +1,6 @@
-#ifdef HGJSIOPHSJH
+#define TOKENS
+
+#ifdef TESTCES
 
 #include <chrono>
 #include "SSVBloodshed/CESystem/CES.hpp"
@@ -217,7 +219,7 @@ int main()
 
 #endif
 
-#ifndef NOT_BLOODSHED
+#ifdef BLOODSHED
 
 // Copyright (c) 2013 Vittorio Romeo
 // License: Academic Free License ("AFL") v. 3.0
@@ -426,59 +428,105 @@ std::string source{
 			returnPI();
 	)"};
 
-template<typename TNode, typename TLink> class Graph
+// TODO: prealloc iteration tests
+// TODO: tutorailsc
+
+namespace Internal
+{
+	template<typename TGraph> class GraphLink : public TGraph::StorageLinkBase
+	{
+		private:
+			using NodePtr = typename TGraph::NodePtr;
+			NodePtr node{TGraph::getNodeNull()};
+
+		public:
+			inline GraphLink(const NodePtr& mNode) noexcept : node{mNode} { assert(TGraph::isNodeValid(node)); }
+			inline const NodePtr& getNode() const noexcept { assert(TGraph::isNodeValid(node)); return node; }
+	};
+
+	template<typename TGraph> class GraphNode : public TGraph::StorageNodeBase
+	{
+		private:
+			using NodePtr = typename TGraph::NodePtr;
+			using NodeDerived = typename TGraph::NodeDerived;
+
+		public:
+			template<typename... TArgs> inline void linkToSelf(TArgs&&... mArgs)
+			{
+				TGraph::StorageNodeBase::emplaceLink(TGraph::StorageNodeBase::getNodePtr(this), std::forward<TArgs>(mArgs)...);
+			}
+			template<typename... TArgs> inline void linkTo(const NodePtr& mNode, TArgs&&... mArgs)
+			{
+				assert(TGraph::isNodeValid(mNode));
+				TGraph::StorageNodeBase::emplaceLink(mNode, std::forward<TArgs>(mArgs)...);
+			}
+
+			inline const decltype(TGraph::StorageNodeBase::links)& getLinks() const	{ return TGraph::StorageNodeBase::links; }
+			inline bool isIsolated() const noexcept	{ return TGraph::StorageNodeBase::links.empty(); }
+	};
+
+	template<typename TGraph> struct GraphStorageFreeStore
+	{
+		using NodeDerived = typename TGraph::NodeDerived;
+		using LinkDerived = typename TGraph::LinkDerived;
+		using NodePtr = NodeDerived*;
+
+		struct NodeBase
+		{
+			std::vector<LinkDerived> links;
+			template<typename... TArgs> inline void emplaceLink(TArgs&&... mArgs) { links.emplace_back(std::forward<TArgs>(mArgs)...); }
+			inline static NodePtr getNodePtr(GraphNode<TGraph>* mNode) noexcept { return reinterpret_cast<NodeDerived*>(mNode); }
+		};
+		struct LinkBase { };
+
+		std::vector<ssvu::Uptr<NodeDerived>> nodes;
+
+		inline static const NodePtr& getNodeNull() noexcept { static NodePtr result{nullptr}; return result; }
+		inline static constexpr bool isNodeValid(const NodePtr& mNode) noexcept { return mNode != getNodeNull(); }
+
+		template<typename... TArgs> inline NodePtr createNode(TArgs&&... mArgs)
+		{
+			static_assert(ssvu::isBaseOf<GraphNode<TGraph>, NodeDerived>(), "TNode must be derived from Graph::Node");
+
+			auto result(new NodeDerived(std::forward<TArgs>(mArgs)...));
+			nodes.emplace_back(result);
+			return result;
+		}
+	};
+}
+
+template<typename TNode, typename TLink, template<typename> class TStorage = Internal::GraphStorageFreeStore> class Graph
 {
 	public:
-		using NodePtr = TNode*;
-		constexpr static NodePtr nodeNull{nullptr};
-
-		class Link
-		{
-			private:
-				NodePtr node{nodeNull};
-
-			public:
-				inline Link(NodePtr mNode) noexcept : node{mNode} { }
-				inline NodePtr getNode() const noexcept { assert(node != nodeNull); return node; }
-		};
-
-		class Node
-		{
-			private:
-				std::vector<TLink> links;
-
-			public:
-				template<typename... TArgs> inline void linkToSelf(TArgs&&... mArgs)
-				{
-					links.emplace_back(reinterpret_cast<TNode*>(this), std::forward<TArgs>(mArgs)...);
-				}
-				template<typename... TArgs> inline void linkTo(NodePtr mNode, TArgs&&... mArgs)
-				{
-					assert(this != mNode);
-					links.emplace_back(mNode, std::forward<TArgs>(mArgs)...);
-				}
-
-				inline const decltype(links)& getLinks() const	{ return links; }
-				inline bool isIsolated() const noexcept			{ return links.empty(); }
-		};
+		using Node = Internal::GraphNode<Graph>;
+		using Link = Internal::GraphLink<Graph>;
+		using NodeDerived = TNode;
+		using LinkDerived = TLink;
+		using Storage = TStorage<Graph>;
+		using StorageNodeBase = typename Storage::NodeBase;
+		using StorageLinkBase = typename Storage::LinkBase;
+		using NodePtr = typename Storage::NodePtr;
+		friend Storage;
+		friend Node;
+		friend Link;
 
 	private:
-		std::vector<ssvu::Uptr<TNode>> nodes;
+		Storage storage;
+		std::vector<NodePtr> nodes;
 
 	protected:
 		template<typename... TArgs> inline NodePtr createNode(TArgs&&... mArgs)
 		{
-			static_assert(ssvu::isBaseOf<Node, TNode>(), "TNode must be derived from Graph<TNode>::Vertex");
-
-			auto result(new TNode(std::forward<TArgs>(mArgs)...));
-			nodes.emplace_back(result);
-			return result;
+			auto result(storage.createNode(std::forward<TArgs>(mArgs)...));
+			nodes.push_back(result); return result;
 		}
 
 	public:
-		inline const decltype(nodes)& getNodes() const noexcept { return nodes; }
-		inline decltype(nodes)& getNodes() noexcept { return nodes; }
-		inline NodePtr getLastAddedNode() noexcept { assert(!nodes.empty()); return nodes.back().get(); }
+		inline const decltype(nodes)& getNodes() const noexcept				{ return nodes; }
+		inline decltype(nodes)& getNodes() noexcept							{ return nodes; }
+		inline static const NodePtr& getNodeNull() noexcept					{ return Storage::getNodeNull(); }
+		inline static constexpr bool isNodeValid(NodePtr mNode) noexcept	{ return Storage::isNodeValid(mNode); }
+		inline const NodePtr& getLastAddedNode() noexcept					{ assert(!nodes.empty()); return nodes.back(); }
 };
 
 struct FSMState;
@@ -495,7 +543,7 @@ class FSMTransition : public FSMType::Link
 		FSMRule rule;
 
 	public:
-		inline FSMTransition(FSMType::NodePtr mState, const FSMRule& mRule) noexcept : FSMType::Link{mState}, rule{mRule} { }
+		inline FSMTransition(const FSMType::NodePtr& mState, const FSMRule& mRule) noexcept : FSMType::Link{mState}, rule{mRule} { }
 		inline bool matchesRule() const noexcept { return rule(); }
 };
 
@@ -507,10 +555,10 @@ struct FSMState : public FSMType::Node
 	public:
 		inline FSMState(FSMNodeType mTerminal) noexcept : terminal{mTerminal} { }
 
-		inline FSMType::NodePtr getFirstMatchingTransition() const noexcept
+		inline const FSMType::NodePtr& getFirstMatchingTransition() const noexcept
 		{
 			for(const auto& c : getLinks()) if(c.matchesRule()) return c.getNode();
-			return FSMType::nodeNull;
+			return FSMType::getNodeNull();
 		}
 
 		inline bool isTerminal() const noexcept { return terminal == FSMNodeType::Terminal; }
@@ -522,7 +570,7 @@ class FSM : public FSMType
 		using NodeType = FSMNodeType;
 
 	private:
-		NodePtr startState{nodeNull}, currentState{nodeNull};
+		NodePtr startState{getNodeNull()}, currentState{getNodeNull()};
 
 	public:
 		inline FSM() : startState{createNode(NodeType::NonTerminal)} { }
@@ -561,9 +609,9 @@ class FSM : public FSMType
 			return *this;
 		}
 
-		inline void reset() noexcept							{ assert(startState != nodeNull); currentState = startState; }
+		inline void reset() noexcept							{ assert(startState != getNodeNull()); currentState = startState; }
 		inline void setCurrentState(NodePtr mState) noexcept	{ currentState = mState; }
-		inline const NodePtr getCurrentState() const noexcept	{ assert(currentState != nodeNull); return currentState; }
+		inline NodePtr getCurrentState() const noexcept			{ assert(currentState != getNodeNull()); return currentState; }
 };
 
 template<typename T> class LexicalAnalyzerFSM : public FSM
@@ -676,9 +724,9 @@ template<typename TTokenType, typename TTokenAttribute> class LexicalAnalyzer
 					fsm.reset();
 					markerEnd = markerBegin;
 
-					auto nextNode(LAFSM::nodeNull);
+					auto nextNode(LAFSM::getNodeNull());
 
-					while((nextNode = fsm.getCurrentState()->getFirstMatchingTransition()) != LAFSM::nodeNull)
+					while((nextNode = fsm.getCurrentState()->getFirstMatchingTransition()) != LAFSM::getNodeNull())
 					{
 						advance();
 						//ssvu::lo() << source.substr(markerBegin, nextEnd - markerBegin) << std::endl;
@@ -1064,3 +1112,4 @@ template<typename T, bool TDebug> inline ssvvm::Program makeProgram(T mTokens)
 }
 
 #endif
+
