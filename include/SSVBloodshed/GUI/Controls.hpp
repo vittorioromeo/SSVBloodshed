@@ -46,7 +46,7 @@ namespace ob
 					}
 					inline void moveBoth(int mDir) noexcept	{ idxStart += mDir; idxEnd += mDir; }
 					inline bool isSingle() const noexcept { return idxStart == idxEnd; }
-					inline int getBreakGroup(char mChar) { if(std::isspace(mChar)) return 0; if(std::ispunct(mChar)) return 1; return -1; }
+					inline int getBreakGroup(char mChar) { if(ssvu::isSpace(mChar)) return 0; if(ssvu::isPunctuation(mChar)) return 1; return -1; }
 					inline int findNextWordBeginEnd(std::string& mStr, int mPos, int mDir)
 					{
 						do

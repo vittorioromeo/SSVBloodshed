@@ -14,16 +14,16 @@ namespace ssvu
 	{
 		template<bool TFmt> inline static void impl(std::ostream& mStream, const ssvvm::Value& mValue)
 		{
-			if(mValue.getType() == ssvvm::ValueType::Void)
+			if(mValue.getType() == ssvvm::VMVal::Void)
 			{
 				Internal::printBold<TFmt>(mStream, "VOID[");
 			}
-			else if(mValue.getType() == ssvvm::ValueType::Int)
+			else if(mValue.getType() == ssvvm::VMVal::Int)
 			{
 				Internal::printBold<TFmt>(mStream, "INT[");
 				Internal::callStringifyImpl<TFmt>(mStream, mValue.get<int>());
 			}
-			else if(mValue.getType() == ssvvm::ValueType::Float)
+			else if(mValue.getType() == ssvvm::VMVal::Float)
 			{
 				Internal::printBold<TFmt>(mStream, "FLOAT[");
 				Internal::callStringifyImpl<TFmt>(mStream, mValue.get<float>());

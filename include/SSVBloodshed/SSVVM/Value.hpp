@@ -12,7 +12,7 @@ namespace ssvvm
 	class Value
 	{
 		private:
-			ValueType type{ValueType::Void};
+			VMVal type{VMVal::Void};
 			union { int implInt; float implFloat; };
 
 		public:
@@ -21,18 +21,18 @@ namespace ssvvm
 			inline Value() = default;
 			template<typename T> inline Value(T mContents) noexcept { setType<T>(); set<T>(mContents); }
 
-			template<typename T> inline void setType() noexcept { type = getValueType<T>(); }
-			inline void setType(ValueType mType) noexcept { type = mType; }
+			template<typename T> inline void setType() noexcept { type = getVMVal<T>(); }
+			inline void setType(VMVal mType) noexcept { type = mType; }
 			template<typename T> inline void set(T mContents) noexcept;
 			template<typename T> inline T get() const noexcept;
-			inline ValueType getType() const noexcept { return type; }
+			inline VMVal getType() const noexcept { return type; }
 	};
 
-	template<> inline void Value::set<int>(int mContents) noexcept		{ assert(type == ValueType::Int);	implInt = mContents; }
-	template<> inline void Value::set<float>(float mContents) noexcept	{ assert(type == ValueType::Float);	implFloat = mContents; }
+	template<> inline void Value::set<int>(int mContents) noexcept		{ assert(type == VMVal::Int);	implInt = mContents; }
+	template<> inline void Value::set<float>(float mContents) noexcept	{ assert(type == VMVal::Float);	implFloat = mContents; }
 
-	template<> inline int Value::get<int>() const noexcept				{ assert(type == ValueType::Int);	return implInt; }
-	template<> inline float Value::get<float>() const noexcept			{ assert(type == ValueType::Float);	return implFloat; }
+	template<> inline int Value::get<int>() const noexcept				{ assert(type == VMVal::Int);	return implInt; }
+	template<> inline float Value::get<float>() const noexcept			{ assert(type == VMVal::Float);	return implFloat; }
 }
 
 #endif

@@ -18,5 +18,7 @@
 #include "SSVBloodshed/SSVVM/BoundFunction.hpp"
 #include "SSVBloodshed/SSVVM/VirtualMachine.hpp"
 #include "SSVBloodshed/SSVVM/UtilsStringifier.hpp"
+#include "SSVBloodshed/SSVVM/Preprocessor.hpp"
+#include "SSVBloodshed/SSVVM/Assembler.hpp"
 
 #endif

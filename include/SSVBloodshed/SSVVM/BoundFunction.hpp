@@ -19,7 +19,7 @@ namespace ssvvm
 			makeParamsTuple<TIdx, TArg1>(mTpl, mParams); makeParamsTuple<TIdx + 1, TArg2, TArgs...>(mTpl, mParams);
 		}
 
-		template<std::size_t TIdx, typename TArg, typename T> inline static void bfArrayFillHelper(T& mArray) { mArray[TIdx] = getValueType<TArg>(); }
+		template<std::size_t TIdx, typename TArg, typename T> inline static void bfArrayFillHelper(T& mArray) { mArray[TIdx] = getVMVal<TArg>(); }
 		template<std::size_t TIdx, typename TArg1, typename TArg2, typename... TArgs, typename T> inline static void bfArrayFillHelper(T& mArray)
 		{
 			bfArrayFillHelper<TIdx, TArg1>(mArray); bfArrayFillHelper<TIdx + 1, TArg2, TArgs...>(mArray);
@@ -65,13 +65,13 @@ namespace ssvvm
 	class BoundFunction
 	{
 		private:
-			ValueType returnType;
-			std::array<ValueType, Params::valueCount> paramTypes;
+			VMVal returnType;
+			std::array<VMVal, Params::valueCount> paramTypes;
 			std::unique_ptr<Internal::CFunctionBase> cFunction;
 
 		public:
 			template<typename TReturn, typename... TArgs> inline BoundFunction(TReturn(*mFnPtr)(TArgs...))
-				: returnType{getValueType<TReturn>()}, cFunction{std::unique_ptr<Internal::CFunctionBase>(new Internal::CFunction<TReturn(TArgs...)>(mFnPtr))}
+				: returnType{getVMVal<TReturn>()}, cFunction{std::unique_ptr<Internal::CFunctionBase>(new Internal::CFunction<TReturn(TArgs...)>(mFnPtr))}
 			{
 				Internal::bfArrayFillHelper<0, TArgs...>(paramTypes);
 			}

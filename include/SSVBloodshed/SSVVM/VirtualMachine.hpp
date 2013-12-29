@@ -57,7 +57,7 @@ namespace ssvvm
 
 				inline void loadIntCVToR() noexcept
 				{
-					assert(params[1].getType() == ValueType::Int);
+					assert(params[1].getType() == VMVal::Int);
 
 					auto& regValue(getRV(params[0]));
 					regValue = params[1];
@@ -70,7 +70,7 @@ namespace ssvvm
 				}
 				inline void loadFloatCVToR() noexcept
 				{
-					assert(params[1].getType() == ValueType::Float);
+					assert(params[1].getType() == VMVal::Float);
 
 					auto& regValue(getRV(params[0]));
 					regValue = params[1];
@@ -138,7 +138,7 @@ namespace ssvvm
 						ssvu::lo("pushIntCVToS") << "Pushing constant int value " << params[0] << " on stack" << "\n";
 					}
 
-					assert(params[0].getType() == ValueType::Int);
+					assert(params[0].getType() == VMVal::Int);
 					stack.push(params[0]);
 				}
 
@@ -149,7 +149,7 @@ namespace ssvvm
 						ssvu::lo("pushFloatCVToS") << "Pushing constant float value " << params[0] << " on stack" << "\n";
 					}
 
-					assert(params[0].getType() == ValueType::Float);
+					assert(params[0].getType() == VMVal::Float);
 					stack.push(params[0]);
 				}
 
