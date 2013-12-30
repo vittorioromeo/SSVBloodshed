@@ -37,11 +37,11 @@ namespace ob
 				}
 			}
 
-			inline void setRot(int mDeg) noexcept { if(hasParam("rot")) params["rot"] = mDeg; }
+			inline void setRot(int mDeg) noexcept { if(hasParam("rot")) ssvuj::arch(params["rot"], mDeg); }
 			inline void setId(OBAssets& mAssets, int mId) noexcept
 			{
 				if(!hasParam("id")) return;
-				params["id"] = mId;
+				ssvuj::arch(params["id"], mId);
 				refreshIdText(mAssets);
 			}
 

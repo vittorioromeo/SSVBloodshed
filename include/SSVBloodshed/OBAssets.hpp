@@ -171,10 +171,10 @@ namespace ob
 
 				// Animations
 				ssvuj::Obj jAForceField{ssvuj::getFromFile("Data/Animations/forceField.json")};
-				aForceField = ssvs::getAnimationFromJson(*tsSmall, jAForceField["on"]);
+				aForceField = ssvs::getAnimationFromJson(*tsSmall, ssvuj::getObj(jAForceField, "on"));
 
 				ssvuj::Obj jABulletBooster{ssvuj::getFromFile("Data/Animations/bulletBooster.json")};
-				aBulletBooster = ssvs::getAnimationFromJson(*tsSmall, jABulletBooster["on"]);
+				aBulletBooster = ssvs::getAnimationFromJson(*tsSmall, ssvuj::getObj(jABulletBooster, "on"));
 
 				// Particle data
 				pdBloodRed =		ssvuj::getExtr<OBParticleData>(ssvuj::getFromFile("Data/Particles/bloodRed.json"));
