@@ -13,7 +13,6 @@
 
 namespace ssvuj
 {
-	template<> SSVUJ_CNV_SIMPLE(ob::OBLETType, mObj, mV)	{ ssvuj::convertEnum<ob::OBLETType, int>(mObj, mV); }								SSVUJ_CNV_SIMPLE_END();
 	template<> SSVUJ_CNV_SIMPLE(ob::OBLETile, mObj, mV)		{ ssvuj::convertArray(mObj, mV.x, mV.y, mV.z, mV.type, mV.params); }				SSVUJ_CNV_SIMPLE_END();
 	template<> SSVUJ_CNV_SIMPLE(ob::OBLELevel, mObj, mV)	{ ssvuj::convertArray(mObj, mV.x, mV.y, mV.cols, mV.rows, mV.depth, mV.tiles); }	SSVUJ_CNV_SIMPLE_END();
 	template<> SSVUJ_CNV_SIMPLE(ob::OBLESector, mObj, mV)	{ ssvuj::convert(mObj, mV.levels); }												SSVUJ_CNV_SIMPLE_END();

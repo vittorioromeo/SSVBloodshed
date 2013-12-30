@@ -1,4 +1,4 @@
-#define TOKENS
+#define BLOODSHED
 
 #ifdef TESTCES
 
