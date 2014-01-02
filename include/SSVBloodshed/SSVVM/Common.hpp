@@ -30,6 +30,7 @@ namespace ssvvm
 	template<> inline constexpr VMVal getVMVal<int>() noexcept			{ return VMVal::Int; }
 	template<> inline constexpr VMVal getVMVal<float>() noexcept		{ return VMVal::Float; }
 
+	// TODO: move and refactor
 	class SourceVeeAsm
 	{
 		private:

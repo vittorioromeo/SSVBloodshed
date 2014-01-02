@@ -1,4 +1,4 @@
-#define BLOODSHED
+#define TOKENS
 
 #ifdef TESTCES
 
@@ -260,6 +260,7 @@ int main()
 	gameWindow.setFullscreen(false);
 	gameWindow.setFPSLimited(true);
 	gameWindow.setMaxFPS(200);
+	gameWindow.setPixelMult(2);
 
 	OBGame game{gameWindow, assets};
 	OBLEEditor editor{gameWindow, assets};
@@ -427,8 +428,6 @@ std::string source{
 		$label(FN_FIB_RET_ARG);
 			returnPI();
 	)"};
-
-// TODO: prealloc iteration tests
 
 int main()
 {

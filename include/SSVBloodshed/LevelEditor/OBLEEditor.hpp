@@ -172,7 +172,7 @@ namespace ob
 
 			inline void paint()			{ for(auto& t : currentTiles) { t->initFromEntry(getCurrentEntry()); t->setRot(currentRot); t->setId(assets, currentId); } }
 			inline void del()			{ for(auto& t : currentTiles) { sharedData.getCurrentLevel().del(*t); } }
-			inline void pick()			{ brush.setIdx(int(getPickTile().getType())); }
+			inline void pick()			{ const auto& type(int(getPickTile().getType())); if(type != -1) brush.setIdx(type); }
 			inline void openParams()	{ createFormParams(getPickTile()); }
 
 			inline void copyTiles()		{ auto& t(getPickTile()); copiedTile = t; }
