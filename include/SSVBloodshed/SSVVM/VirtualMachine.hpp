@@ -326,45 +326,45 @@ namespace ssvvm
 				inline void addInt2SVs() noexcept
 				{
 					if(TDebug) ssvu::lo("addInt2SVs") << "Adding 2 ints" << "\n";
-					stack.push(execOnStack2(VMOperations::getIntAddition));
+					stack.push(execOnStack2(VMOperations::getAddition<int>));
 				}
 				inline void addFloat2SVs() noexcept
 				{
 					if(TDebug) ssvu::lo("addFloat2SVs") << "Adding 2 floats" << "\n";
-					stack.push(execOnStack2(VMOperations::getFloatAddition));
+					stack.push(execOnStack2(VMOperations::getAddition<float>));
 				}
 
 				inline void subtractInt2SVs() noexcept
 				{
 					if(TDebug) ssvu::lo("subtractInt2SVs") << "Subtracting 2 ints" << "\n";
-					stack.push(execOnStack2(VMOperations::getIntSubtraction));
+					stack.push(execOnStack2(VMOperations::getSubtraction<int>));
 				}
 				inline void subtractFloat2SVs() noexcept
 				{
 					if(TDebug) ssvu::lo("subtractFloat2SVs") << "Subtracting 2 floats" << "\n";
-					stack.push(execOnStack2(VMOperations::getFloatSubtraction));
+					stack.push(execOnStack2(VMOperations::getSubtraction<float>));
 				}
 
 				inline void multiplyInt2SVs() noexcept
 				{
 					if(TDebug) ssvu::lo("multiplyInt2SVs") << "Multiplying 2 ints" << "\n";
-					stack.push(execOnStack2(VMOperations::getIntMultiplication));
+					stack.push(execOnStack2(VMOperations::getMultiplication<int>));
 				}
 				inline void multiplyFloat2SVs() noexcept
 				{
 					if(TDebug) ssvu::lo("multiplyFloat2SVs") << "Multiplying 2 floats" << "\n";
-					stack.push(execOnStack2(VMOperations::getFloatMultiplication));
+					stack.push(execOnStack2(VMOperations::getMultiplication<float>));
 				}
 
 				inline void divideInt2SVs() noexcept
 				{
 					if(TDebug) ssvu::lo("divideInt2SVs") << "Dividing 2 ints" << "\n";
-					stack.push(execOnStack2(VMOperations::getIntDivision));
+					stack.push(execOnStack2(VMOperations::getDivision<int>));
 				}
 				inline void divideFloat2SVs() noexcept
 				{
 					if(TDebug) ssvu::lo("divideFloat2SVs") << "Dividing 2 floats" << "\n";
-					stack.push(execOnStack2(VMOperations::getFloatDivision));
+					stack.push(execOnStack2(VMOperations::getDivision<float>));
 				}
 
 

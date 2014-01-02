@@ -10,21 +10,18 @@
 
 namespace ssvvm
 {
-	struct VMOperations
+	class VMOperations
 	{
-		inline static Value getIntAddition(const Value& mA, const Value& mB) noexcept			{ return {mA.get<int>() + mB.get<int>()}; }
-		inline static Value getFloatAddition(const Value& mA, const Value& mB) noexcept			{ return {mA.get<float>() + mB.get<float>()}; }
+		private:
+			template<typename T> inline static bool isValid(const Value& mA, const Value& mB) noexcept { return mA.getType() == getVMVal<T>() && mB.getType() == getVMVal<T>(); }
 
-		inline static Value getIntSubtraction(const Value& mA, const Value& mB) noexcept		{ return {mA.get<int>() - mB.get<int>()}; }
-		inline static Value getFloatSubtraction(const Value& mA, const Value& mB) noexcept		{ return {mA.get<float>() - mB.get<float>()}; }
+		public:
+			template<typename T> inline static Value getAddition(const Value& mA, const Value& mB) noexcept			{ assert(isValid(mA, mB)); return {mA.get<T>() + mB.get<T>()}; }
+			template<typename T> inline static Value getSubtraction(const Value& mA, const Value& mB) noexcept		{ assert(isValid(mA, mB)); return {mA.get<T>() - mB.get<T>()}; }
+			template<typename T> inline static Value getMultiplication(const Value& mA, const Value& mB) noexcept	{ assert(isValid(mA, mB)); return {mA.get<T>() * mB.get<T>()}; }
+			template<typename T> inline static Value getDivision(const Value& mA, const Value& mB) noexcept			{ assert(isValid(mA, mB) && mB.get<T>() != T(0)); return {mA.get<T>() / mB.get<T>()}; }
 
-		inline static Value getIntMultiplication(const Value& mA, const Value& mB) noexcept		{ return {mA.get<int>() * mB.get<int>()}; }
-		inline static Value getFloatMultiplication(const Value& mA, const Value& mB) noexcept	{ return {mA.get<float>() * mB.get<float>()}; }
-
-		inline static Value getIntDivision(const Value& mA, const Value& mB) noexcept			{ return {mA.get<int>() / mB.get<int>()}; }
-		inline static Value getFloatDivision(const Value& mA, const Value& mB) noexcept			{ return {mA.get<float>() / mB.get<float>()}; }
-
-		inline static Value getIntComparison(const Value& mA, const Value& mB) noexcept			{ return getIntSubtraction(mA, mB); }
+			inline static Value getIntComparison(const Value& mA, const Value& mB) noexcept	{ return getSubtraction<int>(mA, mB); }
 	};
 }
 
