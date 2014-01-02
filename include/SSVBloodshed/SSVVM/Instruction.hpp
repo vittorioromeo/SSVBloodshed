@@ -17,9 +17,6 @@ namespace ssvvm
 
 		OpCode opCode;
 		Params params;
-
-		inline Instruction() = default;
-		template<typename... TArgs> inline Instruction(OpCode mOpCode, TArgs... mArgs) noexcept : opCode{mOpCode}, params{mArgs...} { }
 	};
 }
 
