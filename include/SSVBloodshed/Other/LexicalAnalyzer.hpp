@@ -54,7 +54,7 @@ namespace ssvut
 			inline void setSource(std::string mSource) { source = std::move(mSource); }
 
 			inline char getMatchChar() { nextEnd = markerEnd + 1; return source[markerEnd]; }
-			inline bool match(const std::string& mMatch, bool mConsume = true)
+			inline bool match(const std::string& mMatch/*, bool mConsume = true*/)
 			{
 				for(auto i(0u); i < mMatch.size(); ++i)
 				{
