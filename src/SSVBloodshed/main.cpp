@@ -429,8 +429,29 @@ std::string source{
 			returnPI();
 	)"};
 
+namespace test
+{
+	SSVU_REFLECTED_ENUM_DEFINE_MANAGER(ReflectedEnum);
+	SSVU_REFLECTED_ENUM(ReflectedEnum, TestEnum, int, A = 0, B = 1, C = 2, Z = 21);
+}
+
+
+
 int main()
 {
+	SSVU_TEST_RUN_ALL();
+
+	ssvu::lo() << SSVU_PP_VA_NUM_ARGS() << std::endl;
+	ssvu::lo() << SSVU_PP_VA_NUM_ARGS(1) << std::endl;
+	ssvu::lo() << SSVU_PP_VA_NUM_ARGS(1, 1) << std::endl;
+	ssvu::lo() << SSVU_PP_VA_NUM_ARGS(1, 1, 1) << std::endl;
+	ssvu::lo() << SSVU_PP_VA_NUM_ARGS(1, 1, 1, 1) << std::endl;
+	ssvu::lo() << SSVU_PP_VA_NUM_ARGS(1, 1, 1, 1, 1) << std::endl;
+return 0;
+#define TESTMACRO(mX) ssvu::lo() << mX << std::endl;
+	SSVU_PP_FOREACH(TESTMACRO, 1, 2, 3, 4, "cazzo");
+
+
 	auto src(ssvvm::SourceVeeAsm::fromStringRaw(source));
 	ssvvm::preprocessSourceRaw<true>(src);
 	auto program(ssvvm::getAssembledProgram<true>(src));
