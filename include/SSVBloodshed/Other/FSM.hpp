@@ -12,8 +12,8 @@
 
 namespace ssvut
 {
-	struct FSMState;
-	struct FSMTransition;
+	class FSMState;
+	class FSMTransition;
 
 	enum class FSMNodeType{NonTerminal, Terminal};
 
@@ -30,7 +30,7 @@ namespace ssvut
 			inline bool matchesRule() const noexcept { return rule(); }
 	};
 
-	struct FSMState : public FSMType::Node
+	class FSMState : public FSMType::Node
 	{
 		private:
 			FSMNodeType terminal;

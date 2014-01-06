@@ -43,10 +43,10 @@ namespace ob
 			{
 				int mask{0}, maxX{mL.getColumns()}, maxY{mL.getRows()};
 
-				auto tileIs = [&mL, maxX, maxY, mZ](int mTX, int mTY, OBLETType mType)
+				auto tileIs = [&mL, maxX, maxY, mZ](int mTX, int mTY, OBLETType mTType)
 				{
 					if(mTX < 0 || mTY < 0 || mTX >= maxX || mTY >= maxY) return false;
-					return mL.getTile(mTX, mTY, mZ).getType() == mType;
+					return mL.getTile(mTX, mTY, mZ).getType() == mTType;
 				};
 
 				mask += tileIs(mX, mY - 1, mType) << 0;

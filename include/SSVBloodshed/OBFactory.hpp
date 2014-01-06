@@ -99,8 +99,8 @@ namespace ob
 				assert(mCount != 0);
 				for(int i{0}; i < 360; i += 360 / mCount)
 				{
-					auto& cp(createPJExplosion(gt<OBCPhys>(mTpl).getPosI() + Vec2i(ssvs::getVecFromDeg(i, 251.f)), i).template getComponent<OBCProjectile>());
-					cp.setTargetGroup(OBGroup::GKillable); cp.setLife(16.f * mRangeMult); cp.setKillDestructible(true);
+					auto& cpMv(createPJExplosion(gt<OBCPhys>(mTpl).getPosI() + Vec2i(ssvs::getVecFromDeg(i, 251.f)), i).template getComponent<OBCProjectile>());
+					cpMv.setTargetGroup(OBGroup::GKillable); cpMv.setLife(16.f * mRangeMult); cpMv.setKillDestructible(true);
 				}
 			}
 	};
