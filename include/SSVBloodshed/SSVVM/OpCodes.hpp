@@ -9,89 +9,95 @@
 
 namespace ssvu
 {
-	namespace Internal
-	{
-		inline std::vector<std::string> getSplittedEnumVarArgs(const std::string& mEnumVarArgs)
-		{
-			// Splits on comma, and removes everything after '='
+	#define SSVU_FAT_ENUM_IMPL_MK_ELEM_VALS(mIdx, mData, mArg)				SSVU_PP_TPL_GET(0, mArg) = SSVU_PP_TPL_GET(1, mArg) SSVU_PP_COMMA_IF(mIdx)
+	#define SSVU_FAT_ENUM_IMPL_MK_ELEM_DEF(mIdx, mData, mArg)				mArg SSVU_PP_COMMA_IF(mIdx)
+	#define SSVU_FAT_ENUM_IMPL_MK_ELEM_DISPATCH(mDispatch)					SSVU_PP_TOKENPASTE_2(SSVU_FAT_ENUM_IMPL_MK_ELEM_, mDispatch)
 
-			std::vector<std::string> result;
-			for(const auto& s : getSplit(mEnumVarArgs, ',')) result.emplace_back(getTrimmedStrLR(std::string(std::begin(s), find(s, '='))));
-			return result;
+	#define SSVU_FAT_ENUM_IMPL_MK_BIMAP_ENTRY_VALS(mIdx, mData, mArg)		{ mData :: SSVU_PP_TPL_GET(0, mArg) , SSVU_PP_STRINGIFY(SSVU_PP_TPL_GET(0, mArg)) } SSVU_PP_COMMA_IF(mIdx)
+	#define SSVU_FAT_ENUM_IMPL_MK_BIMAP_ENTRY_DEF(mIdx, mData, mArg)		{ mData :: mArg , SSVU_PP_STRINGIFY(mArg) } SSVU_PP_COMMA_IF(mIdx)
+	#define SSVU_FAT_ENUM_IMPL_MK_BIMAP_ENTRY_DISPATCH(mDispatch)			SSVU_PP_TOKENPASTE_2(SSVU_FAT_ENUM_IMPL_MK_BIMAP_ENTRY_, mDispatch)
+
+	#define SSVU_FAT_ENUM_IMPL_MK_ARRAY_ENTRY_VALS(mIdx, mData, mArg)		mData :: SSVU_PP_TPL_GET(0, mArg) SSVU_PP_COMMA_IF(mIdx)
+	#define SSVU_FAT_ENUM_IMPL_MK_ARRAY_ENTRY_DEF(mIdx, mData, mArg)		mData :: mArg SSVU_PP_COMMA_IF(mIdx)
+	#define SSVU_FAT_ENUM_IMPL_MK_ARRAY_ENTRY_DISPATCH(mDispatch)			SSVU_PP_TOKENPASTE_2(SSVU_FAT_ENUM_IMPL_MK_ARRAY_ENTRY_, mDispatch)
+
+	#define SSVU_FAT_ENUM_IMPL_MK_ARRAY_EN_ENTRY_VALS(mIdx, mData, mArg)	SSVU_PP_STRINGIFY(SSVU_PP_TPL_GET(0, mArg)) SSVU_PP_COMMA_IF(mIdx)
+	#define SSVU_FAT_ENUM_IMPL_MK_ARRAY_EN_ENTRY_DEF(mIdx, mData, mArg)		SSVU_PP_STRINGIFY(mArg) SSVU_PP_COMMA_IF(mIdx)
+	#define SSVU_FAT_ENUM_IMPL_MK_ARRAY_EN_ENTRY_DISPATCH(mDispatch)		SSVU_PP_TOKENPASTE_2(SSVU_FAT_ENUM_IMPL_MK_ARRAY_EN_ENTRY_, mDispatch)
+
+
+	#define SSVU_FAT_ENUM_IMPL_MK_GETASSTRING(mMgr, mEnum, mX)				template<> inline const std::string& mMgr < mEnum > :: getAsStringImpl < mEnum :: mX >() noexcept { static std::string s{SSVU_PP_STRINGIFY(mX)}; return s; }
+	#define SSVU_FAT_ENUM_IMPL_MK_GETASSTRING_VALS(mIdx, mData, mArg)		SSVU_FAT_ENUM_IMPL_MK_GETASSTRING(SSVU_PP_TPL_GET(0, mData), SSVU_PP_TPL_GET(1, mData), SSVU_PP_TPL_GET(0, mArg))
+	#define SSVU_FAT_ENUM_IMPL_MK_GETASSTRING_DEF(mIdx, mData, mArg)		SSVU_FAT_ENUM_IMPL_MK_GETASSTRING(SSVU_PP_TPL_GET(0, mData), SSVU_PP_TPL_GET(1, mData), mArg)
+	#define SSVU_FAT_ENUM_IMPL_MK_GETASSTRING_DISPATCH(mDispatch)			SSVU_PP_TOKENPASTE_2(SSVU_FAT_ENUM_IMPL_MK_GETASSTRING_, mDispatch)
+
+
+	#define SSVU_FAT_ENUM_MGR(mMgr) \
+		template<typename> class mMgr \
+		{ \
+			\
 		}
 
-		template<typename> struct ReflectedEnumImpl;
+	namespace Internal
+	{
+		template<std::size_t, typename> struct FatEnumMgrImpl;
 
-		template<template<typename> class T, typename TEnum> struct ReflectedEnumImpl<T<TEnum>>
+		template<std::size_t TS, template<typename> class T, typename TEnum> struct FatEnumMgrImpl<TS, T<TEnum>>
 		{
-			using EnumType = T<TEnum>;
-			inline static const std::vector<std::string>& getElementsAsStrings() noexcept
-			{
-				static std::vector<std::string> result(getSplittedEnumVarArgs(EnumType::getEnumString()));
-				return result;
-			}
-			inline static std::size_t getElementCount() noexcept
-			{
-				return getElementsAsStrings().size();
-			}
-			inline static const std::string& getElementAsString(TEnum mElement) noexcept
-			{
-				assert(!contains(EnumType::getEnumString(), '='));
-				return getElementsAsStrings()[std::size_t(mElement)];
-			}
+			inline static std::size_t getSize() noexcept									{ return TS; }
+			template<TEnum TVal> inline static const std::string& getAsString() noexcept	{ return T<TEnum>::template getAsStringImpl<TVal>(); }
+			inline static const std::string& getAsString(TEnum mValue) noexcept				{ assert(T<TEnum>::getBimap().has(mValue)); return T<TEnum>::getBimap().at(mValue); }
+			inline static TEnum getFromString(const std::string& mValue) noexcept			{ assert(T<TEnum>::getBimap().has(mValue)); return T<TEnum>::getBimap().at(mValue); }
 		};
 	}
 
-	#define SSVU_REFLECTED_ENUM_DEFINE_MANAGER(mName) template<typename> class mName
-
-	#define SSVU_REFLECTED_ENUM(mManagerName, mName, mUnderlying, ...) enum class mName : mUnderlying { __VA_ARGS__ }; \
-		template<> class mManagerName<mName> : public ssvu::Internal::ReflectedEnumImpl<mManagerName<mName>> \
-		{ \
-			friend ssvu::Internal::ReflectedEnumImpl<mManagerName<mName>>; \
-			inline static const std::string& getEnumString(){ static std::string result{#__VA_ARGS__}; return result; } \
-		}
-
-
-	#define SSVU_REFLECTED_ENUM_CUSTOM_CREATE_ELEMENT(mIdx, mData, mArg)	SSVU_PP_TPL_GET(0, mArg) = SSVU_PP_TPL_GET(1, mArg) SSVU_PP_COMMA_IF(mIdx)
-	#define SSVU_REFLECTED_ENUM_CUSTOM_CREATE_TOSTR(mIdx, mData, mArg)		template<> inline const std::string& SSVU_PP_TPL_GET(0, mData) < SSVU_PP_TPL_GET(1, mData) > :: getAsString < SSVU_PP_TPL_GET(1, mData) :: SSVU_PP_TPL_GET(0, mArg) >() noexcept \
-																			{ \
-																				static std::string result{SSVU_PP_STRINGIFY(SSVU_PP_TPL_GET(0, mArg))}; return result; \
-																			}
-
-	#define SSVU_REFLECTED_ENUM_CUSTOM_SPECIALIZATIONS(mManagerName, mName, ...) SSVU_PP_FOREACH(SSVU_REFLECTED_ENUM_CUSTOM_CREATE_TOSTR, SSVU_PP_TPL_MAKE(mManagerName, mName), __VA_ARGS__)
-
-	#define CREATE_MAPENTRY(mIdx, mData, mArg) { mData :: SSVU_PP_TPL_GET(0, mArg) , SSVU_PP_STRINGIFY(SSVU_PP_TPL_GET(0, mArg)) } SSVU_PP_COMMA_IF(mIdx)
-
-	#define SSVU_REFLECTED_ENUM_CUSTOM_DEFINE_MANAGER(mName) template<typename> class mName
-
-	#define SSVU_REFLECTED_ENUM_CUSTOM(mManagerName, mName, mUnderlying, ...) \
+	#define SSVU_FAT_ENUM_IMPL(mMgr, mName, mUnderlying, mDispatch, ...) \
 		enum class mName : mUnderlying \
 		{ \
-			SSVU_PP_FOREACH(SSVU_REFLECTED_ENUM_CUSTOM_CREATE_ELEMENT, SSVU_PP_EMPTY(), __VA_ARGS__) \
+			SSVU_PP_FOREACH(SSVU_FAT_ENUM_IMPL_MK_ELEM_DISPATCH(mDispatch), SSVU_PP_EMPTY(), __VA_ARGS__) \
 		}; \
-		template<> struct mManagerName<mName> \
+		template<> struct mMgr<mName> : public ssvu::Internal::FatEnumMgrImpl<SSVU_PP_VA_NUM_ARGS(__VA_ARGS__), mMgr<mName>> \
 		{ \
-			template<mName TVal> inline static const std::string& getAsString() noexcept; \
-			inline static const std::string& getAsString(mName mValue) \
+			template<mName TVal> inline static const std::string& getAsStringImpl() noexcept; \
+			inline static const ssvu::Bimap<mName, std::string>& getBimap() \
 			{ \
-				static std::map<mName, std::string> map \
+				static ssvu::Bimap<mName, std::string> result \
 				{ \
-					SSVU_PP_FOREACH(CREATE_MAPENTRY, mName, __VA_ARGS__) \
+					SSVU_PP_FOREACH(SSVU_FAT_ENUM_IMPL_MK_BIMAP_ENTRY_DISPATCH(mDispatch), mName, __VA_ARGS__) \
 				}; \
-				return map[mValue]; \
+				return result; \
+			} \
+			inline static const std::array<mName, SSVU_PP_VA_NUM_ARGS(__VA_ARGS__)>& getValues() \
+			{ \
+				static std::array<mName, SSVU_PP_VA_NUM_ARGS(__VA_ARGS__)> result \
+				{ \
+					SSVU_PP_FOREACH(SSVU_FAT_ENUM_IMPL_MK_ARRAY_ENTRY_DISPATCH(mDispatch), mName, __VA_ARGS__) \
+				}; \
+				return result; \
+			} \
+			inline static const std::array<std::string, SSVU_PP_VA_NUM_ARGS(__VA_ARGS__)>& getElementNames() \
+			{ \
+				static std::array<std::string, SSVU_PP_VA_NUM_ARGS(__VA_ARGS__)> result \
+				{ \
+					SSVU_PP_FOREACH(SSVU_FAT_ENUM_IMPL_MK_ARRAY_EN_ENTRY_DISPATCH(mDispatch), mName, __VA_ARGS__) \
+				}; \
+				return result; \
 			} \
 		}; \
-		SSVU_REFLECTED_ENUM_CUSTOM_SPECIALIZATIONS(mManagerName, mName, __VA_ARGS__)
+		SSVU_PP_FOREACH(SSVU_FAT_ENUM_IMPL_MK_GETASSTRING_DISPATCH(mDispatch), SSVU_PP_TPL_MAKE(mMgr, mName), __VA_ARGS__) \
+		SSVU_DEFINE_DUMMY_STRUCT(mMgr, mName, mDispatch)
 
-	//
+	#define SSVU_FAT_ENUM_VALS(mMgr, mName, mUnderlying, ...)	SSVU_FAT_ENUM_IMPL(mMgr, mName, mUnderlying, VALS, __VA_ARGS__)
+	#define SSVU_FAT_ENUM_DEF(mMgr, mName, mUnderlying, ...)	SSVU_FAT_ENUM_IMPL(mMgr, mName, mUnderlying, DEF, __VA_ARGS__)
 
 
 
 
 	// TODO: cleanup and move to ssvu
 
-	SSVU_REFLECTED_ENUM_DEFINE_MANAGER(TestManager);
-	SSVU_REFLECTED_ENUM_CUSTOM(TestManager, TestEnum, int, (A, 5), (B, 4), (C, -3));
+	SSVU_FAT_ENUM_MGR(TestManager);
+	SSVU_FAT_ENUM_VALS(TestManager, TestEnum, int, (A, 5), (B, 4), (C, -3));
+	SSVU_FAT_ENUM_DEF(TestManager, Colors, int, Red, Green, Blue);
 
 	SSVU_TEST("TESTAGLAOP")
 	{
@@ -106,6 +112,40 @@ namespace ssvu
 		EXPECT(TestManager<TestEnum>::getAsString(TestEnum::A) == "A");
 		EXPECT(TestManager<TestEnum>::getAsString(TestEnum::B) == "B");
 		EXPECT(TestManager<TestEnum>::getAsString(TestEnum::C) == "C");
+
+		EXPECT(TestManager<TestEnum>::getFromString("A") == TestEnum::A);
+		EXPECT(TestManager<TestEnum>::getFromString("B") == TestEnum::B);
+		EXPECT(TestManager<TestEnum>::getFromString("C") == TestEnum::C);
+
+		EXPECT(TestManager<TestEnum>::getSize() == 3);
+
+		for(const auto& v : TestManager<TestEnum>::getValues()) ssvu::lo() << int(v) << std::endl;
+		for(const auto& v : TestManager<TestEnum>::getElementNames()) ssvu::lo() << v << std::endl;
+
+
+		EXPECT(int(Colors::Red) == 0);
+		EXPECT(int(Colors::Green) == 1);
+		EXPECT(int(Colors::Blue) == 2);
+
+		EXPECT(TestManager<Colors>::getAsString<Colors::Red>() == "Red");
+		EXPECT(TestManager<Colors>::getAsString<Colors::Green>() == "Green");
+		EXPECT(TestManager<Colors>::getAsString<Colors::Blue>() == "Blue");
+
+		EXPECT(TestManager<Colors>::getAsString(Colors::Red) == "Red");
+		EXPECT(TestManager<Colors>::getAsString(Colors::Green) == "Green");
+		EXPECT(TestManager<Colors>::getAsString(Colors::Blue) == "Blue");
+
+		EXPECT(TestManager<Colors>::getFromString("Red") == Colors::Red);
+		EXPECT(TestManager<Colors>::getFromString("Green") == Colors::Green);
+		EXPECT(TestManager<Colors>::getFromString("Blue") == Colors::Blue);
+
+		EXPECT(TestManager<Colors>::getSize() == 3);
+
+		for(const auto& v : TestManager<Colors>::getValues()) ssvu::lo() << int(v) << std::endl;
+		for(const auto& v : TestManager<Colors>::getElementNames()) ssvu::lo() << v << std::endl;
+
+		// TODO: element count
+		// TODO: iteration and listing
 	}
 	SSVU_TEST_END();
 
@@ -113,11 +153,12 @@ namespace ssvu
 
 namespace ssvvm
 {
+	SSVU_FAT_ENUM_MGR(ReflectedEnum);
+
 	#define SSVVM_CREATE_MFPTR(mIdx, mData, mArg) & SSVU_PP_EXPAND(T) :: SSVU_PP_EXPAND(mArg) SSVU_PP_COMMA_IF(mIdx)
 
 	#define SSVVM_CREATE_OPCODE_DATABASE(...)	\
-		SSVU_REFLECTED_ENUM_DEFINE_MANAGER(ReflectedEnum); \
-		SSVU_REFLECTED_ENUM(ReflectedEnum, OpCode, std::size_t, __VA_ARGS__); \
+		SSVU_FAT_ENUM_DEF(ReflectedEnum, OpCode, std::size_t, __VA_ARGS__); \
 		template<typename T> inline VMFnPtr<T> getVMFnPtr(OpCode mOpCode) noexcept \
 		{ \
 			static VMFnPtr<T> fnPtrs[] \
@@ -179,7 +220,7 @@ namespace ssvvm
 		compareIntSVIntCVToR
 	)
 
-	inline const std::string& getOpCodeStr(OpCode mOpCode) noexcept { return ReflectedEnum<OpCode>::getElementAsString(mOpCode); }
+	inline const std::string& getOpCodeStr(OpCode mOpCode) noexcept { return ReflectedEnum<OpCode>::getAsString(mOpCode); }
 }
 
 #endif

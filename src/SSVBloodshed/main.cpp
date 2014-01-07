@@ -429,12 +429,6 @@ std::string source{
 			returnPI();
 	)"};
 
-namespace test
-{
-	SSVU_REFLECTED_ENUM_DEFINE_MANAGER(ReflectedEnum);
-	SSVU_REFLECTED_ENUM(ReflectedEnum, TestEnum, int, A = 0, B = 1, C = 2, Z = 21);
-}
-
 
 
 int main()

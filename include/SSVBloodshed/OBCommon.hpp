@@ -56,7 +56,8 @@ namespace ob
 					Internal::getEnumsMap()[#mName] = &getEnumStrVec<mName>(); \
 				} \
 			} t ## mName; \
-		} struct __dummyStruct ## mName { } __attribute((unused))
+		} \
+		SSVU_DEFINE_DUMMY_STRUCT(mName)
 
 	inline std::vector<std::string>& getEnumStrVecByName(const std::string& mName) { return *Internal::getEnumsMap()[mName]; }
 
