@@ -52,22 +52,22 @@ namespace ssvu
 		}
 
 
-	#define SSVU_REFLECTED_ENUM_CUSTOM_CREATE_ELEMENT(mIdx, mData, mArg)	SSVU_PP_TPL_ELEM(0, mArg) = SSVU_PP_TPL_ELEM(1, mArg) SSVU_PP_COMMA_IF(mIdx)
-	#define SSVU_REFLECTED_ENUM_CUSTOM_CREATE_TOSTR(mIdx, mData, mArg)		template<> inline const std::string& SSVU_PP_TPL_ELEM(0, mData) < SSVU_PP_TPL_ELEM(1, mData) > :: getAsString < SSVU_PP_TPL_ELEM(1, mData) :: SSVU_PP_TPL_ELEM(0, mArg) >() noexcept \
+	#define SSVU_REFLECTED_ENUM_CUSTOM_CREATE_ELEMENT(mIdx, mData, mArg)	SSVU_PP_TPL_GET(0, mArg) = SSVU_PP_TPL_GET(1, mArg) SSVU_PP_COMMA_IF(mIdx)
+	#define SSVU_REFLECTED_ENUM_CUSTOM_CREATE_TOSTR(mIdx, mData, mArg)		template<> inline const std::string& SSVU_PP_TPL_GET(0, mData) < SSVU_PP_TPL_GET(1, mData) > :: getAsString < SSVU_PP_TPL_GET(1, mData) :: SSVU_PP_TPL_GET(0, mArg) >() noexcept \
 																			{ \
-																				static std::string result{SSVU_PP_STRINGIFY(SSVU_PP_TPL_ELEM(0, mArg))}; return result; \
+																				static std::string result{SSVU_PP_STRINGIFY(SSVU_PP_TPL_GET(0, mArg))}; return result; \
 																			}
 
-	#define SSVU_REFLECTED_ENUM_CUSTOM_SPECIALIZATIONS(mManagerName, mName, ...) SSVU_PP_FOREACH_IDX(SSVU_REFLECTED_ENUM_CUSTOM_CREATE_TOSTR, SSVU_PP_TPL(mManagerName, mName), __VA_ARGS__)
+	#define SSVU_REFLECTED_ENUM_CUSTOM_SPECIALIZATIONS(mManagerName, mName, ...) SSVU_PP_FOREACH(SSVU_REFLECTED_ENUM_CUSTOM_CREATE_TOSTR, SSVU_PP_TPL_MAKE(mManagerName, mName), __VA_ARGS__)
 
-	#define CREATE_MAPENTRY(mIdx, mData, mArg) { mData :: SSVU_PP_TPL_ELEM(0, mArg) , SSVU_PP_STRINGIFY(SSVU_PP_TPL_ELEM(0, mArg)) } SSVU_PP_COMMA_IF(mIdx)
+	#define CREATE_MAPENTRY(mIdx, mData, mArg) { mData :: SSVU_PP_TPL_GET(0, mArg) , SSVU_PP_STRINGIFY(SSVU_PP_TPL_GET(0, mArg)) } SSVU_PP_COMMA_IF(mIdx)
 
 	#define SSVU_REFLECTED_ENUM_CUSTOM_DEFINE_MANAGER(mName) template<typename> class mName
 
 	#define SSVU_REFLECTED_ENUM_CUSTOM(mManagerName, mName, mUnderlying, ...) \
 		enum class mName : mUnderlying \
 		{ \
-			SSVU_PP_FOREACH_IDX(SSVU_REFLECTED_ENUM_CUSTOM_CREATE_ELEMENT, SSVU_PP_EMPTY(), __VA_ARGS__) \
+			SSVU_PP_FOREACH(SSVU_REFLECTED_ENUM_CUSTOM_CREATE_ELEMENT, SSVU_PP_EMPTY(), __VA_ARGS__) \
 		}; \
 		template<> struct mManagerName<mName> \
 		{ \
@@ -76,7 +76,7 @@ namespace ssvu
 			{ \
 				static std::map<mName, std::string> map \
 				{ \
-					SSVU_PP_FOREACH_IDX(CREATE_MAPENTRY, mName, __VA_ARGS__) \
+					SSVU_PP_FOREACH(CREATE_MAPENTRY, mName, __VA_ARGS__) \
 				}; \
 				return map[mValue]; \
 			} \
@@ -122,7 +122,7 @@ namespace ssvvm
 		{ \
 			static VMFnPtr<T> fnPtrs[] \
 			{ \
-				SSVU_PP_FOREACH_IDX(SSVVM_CREATE_MFPTR, SSVU_PP_EMPTY(), __VA_ARGS__) \
+				SSVU_PP_FOREACH(SSVVM_CREATE_MFPTR, SSVU_PP_EMPTY(), __VA_ARGS__) \
 			}; \
 			return fnPtrs[std::size_t(mOpCode)]; \
 		}
