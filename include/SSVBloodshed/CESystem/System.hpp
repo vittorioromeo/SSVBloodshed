@@ -65,7 +65,7 @@ namespace ssvces
 			}
 			inline void registerEntity(Entity& mEntity) override
 			{
-				auto tpl(TReq::createTuple(mEntity)); tuples.push_back(tpl);
+				auto tpl(TReq::createTuple(mEntity)); tuples.emplace_back(tpl);
 				TReq::onAdded(getThisDerived(), tpl);
 			}
 

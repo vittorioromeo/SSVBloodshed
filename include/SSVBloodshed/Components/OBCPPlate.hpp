@@ -47,7 +47,7 @@ namespace ob
 
 					auto& cPPlate(getEntityFromBody(*body).getComponent<OBCPPlate>());
 					if(cPPlate.cPhys.getPosI().x == cPhys.getPosI().x || cPPlate.cPhys.getPosI().y == cPhys.getPosI().y)
-						if(cPPlate.id == id && cPPlate.type == type) result.push_back(&cPPlate);
+						if(cPPlate.id == id && cPPlate.type == type) result.emplace_back(&cPPlate);
 				}
 
 				return result;

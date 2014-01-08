@@ -32,7 +32,7 @@ namespace ob
 				auto eqPos(s.find_last_of('='));
 				if(eqPos != std::string::npos) s.erase(eqPos, s.size() - 1);
 				ssvu::trimStrLR(s);
-				result.push_back(s);
+				result.emplace_back(s);
 			}
 			return result;
 		}

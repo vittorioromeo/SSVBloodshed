@@ -103,7 +103,7 @@ namespace ob
 					children.insert(std::begin(children), &result); return result;
 				}
 
-				inline void onAnyEvent(const sf::Event& mEvent) { eventsToPoll.push_back(mEvent); }
+				inline void onAnyEvent(const sf::Event& mEvent) { eventsToPoll.emplace_back(mEvent); }
 
 				inline void update(FT mFT)
 				{

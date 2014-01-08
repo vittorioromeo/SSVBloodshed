@@ -98,7 +98,7 @@ namespace ssvut
 			template<typename... TArgs> inline NodePtr createNode(TArgs&&... mArgs)
 			{
 				auto result(storage.createNode(std::forward<TArgs>(mArgs)...));
-				nodes.push_back(result); return result;
+				nodes.emplace_back(result); return result;
 			}
 
 		public:

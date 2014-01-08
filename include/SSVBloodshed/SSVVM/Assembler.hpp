@@ -152,8 +152,8 @@ namespace ssvvm
 			{
 				while(tokens[idx].type != VMToken::Semicolon)
 				{
-					if(tokens[idx].type == VMToken::Float)			currentSrcInstruction.args.push_back(Value::create<float>(getTokenAsFloat(tokens, idx)));
-					else if(tokens[idx].type == VMToken::Integer)	currentSrcInstruction.args.push_back(Value::create<int>(getTokenAsInt(tokens, idx)));
+					if(tokens[idx].type == VMToken::Float)			currentSrcInstruction.args.emplace_back(Value::create<float>(getTokenAsFloat(tokens, idx)));
+					else if(tokens[idx].type == VMToken::Integer)	currentSrcInstruction.args.emplace_back(Value::create<int>(getTokenAsInt(tokens, idx)));
 					else
 					{
 						if(TDebug) ssvu::lo("makeProgram - phase 3") << "ERROR: expected `" << getTokenContents(tokens, idx) << "` to be a float or an integer" << "\n";
@@ -172,7 +172,7 @@ namespace ssvvm
 				}
 			}
 
-			srcInstructions.push_back(currentSrcInstruction);
+			srcInstructions.emplace_back(currentSrcInstruction);
 			++idx;
 		}
 

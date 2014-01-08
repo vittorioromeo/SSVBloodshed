@@ -165,7 +165,7 @@ namespace ob
 				for(int iY{brush.getTop()}; iY < brush.getBottom(); ++iY)
 					for(int iX{brush.getLeft()}; iX < brush.getRight(); ++iX)
 						if(sharedData.isTileValid(iX, iY, currentZ))
-							currentTiles.push_back(&sharedData.getCurrentLevel().getTile(iX, iY, currentZ));
+							currentTiles.emplace_back(&sharedData.getCurrentLevel().getTile(iX, iY, currentZ));
 			}
 
 			inline OBLETile& getPickTile() const noexcept { return sharedData.getCurrentLevel().getTile(brush.getX(), brush.getY(), currentZ); }

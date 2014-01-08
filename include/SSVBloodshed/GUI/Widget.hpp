@@ -162,7 +162,7 @@ namespace ob
 				template<bool TIncludeCaller = true, bool TReverse = false, typename T> inline void recurseChildrenBF(const T& mFunc)
 				{
 					std::vector<Widget*> hierarchy; hierarchy.reserve(25);
-					recurseChildren<TIncludeCaller>([&hierarchy](Widget& mW){ hierarchy.push_back(&mW); });
+					recurseChildren<TIncludeCaller>([&hierarchy](Widget& mW){ hierarchy.emplace_back(&mW); });
 					ssvu::sortStable(hierarchy, [](const Widget* mA, const Widget* mB){ return (mA->depth < mB->depth) == !TReverse; });
 					for(const auto& w : hierarchy) mFunc(*w);
 				}
@@ -218,7 +218,7 @@ namespace ob
 					if(parent != nullptr) ssvu::eraseRemove(parent->children, this);
 
 					parent = &mWidget;
-					mWidget.children.push_back(this);
+					mWidget.children.emplace_back(this);
 
 					setHiddenRecursive(mWidget.isHidden());
 					setExcludedRecursive(mWidget.isExcluded());

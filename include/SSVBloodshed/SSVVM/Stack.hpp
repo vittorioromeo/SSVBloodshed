@@ -20,7 +20,7 @@ namespace ssvvm
 			inline void pushBaseOffset() noexcept	{ push(Value::create<int>(baseOffset)); baseOffset = 0; }
 			inline void popBaseOffset() noexcept	{ baseOffset = getPop().get<int>(); }
 
-			inline void push(Value mValue) noexcept	{ stack.push_back(mValue); ++baseOffset; }
+			inline void push(Value mValue) noexcept	{ stack.emplace_back(mValue); ++baseOffset; }
 			inline Value getPop() noexcept			{ assert(!stack.empty()); auto result(stack.back()); stack.pop_back(); --baseOffset; return result; }
 
 			inline const Value& getTop() const noexcept				{ return stack.back(); }

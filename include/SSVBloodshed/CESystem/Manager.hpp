@@ -26,7 +26,7 @@ namespace ssvces
 
 			inline Entity* create(Manager& mManager, Internal::IdPool& mIdPool) { auto entity(new Entity{mManager, mIdPool.getAvailable()}); entities.emplace_back(entity); return entity; }
 
-			inline void addToGroup(Entity* mEntity, Group mGroup) { assert(mGroup <= maxGroups); grouped[mGroup].push_back(mEntity); }
+			inline void addToGroup(Entity* mEntity, Group mGroup) { assert(mGroup <= maxGroups); grouped[mGroup].emplace_back(mEntity); }
 
 		public:
 			inline void refresh()
@@ -57,7 +57,7 @@ namespace ssvces
 			template<typename T> inline void registerSystem(T& mSystem)
 			{
 				static_assert(ssvu::isBaseOf<Internal::SystemBase, T>(), "Type must derive from SystemBase");
-				systems.push_back(&mSystem);
+				systems.emplace_back(&mSystem);
 			}
 
 			inline const decltype(entities)& getEntities() const noexcept				{ return entities; }

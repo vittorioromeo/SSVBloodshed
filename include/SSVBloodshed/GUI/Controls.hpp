@@ -402,7 +402,7 @@ namespace ob
 							if(choices.empty()) return;
 							setChoiceIdx(ssvu::getWrapIdx(i + idxOffset, choices.size())); onChoiceSelected();
 						};
-						btnsChoices.push_back(&btn);
+						btnsChoices.emplace_back(&btn);
 					}
 
 					refreshChoices();
