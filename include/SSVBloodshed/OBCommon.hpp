@@ -19,34 +19,32 @@
 #include <SSVMenuSystem/SSVMenuSystem.hpp>
 #include <SSVSCollision/SSVSCollision.hpp>
 
+#include "SSVBloodshed/SSVVM/OpCodes.hpp"
+
 namespace ob
 {
 	// Enum helpers
 	namespace Internal
 	{
-		inline std::vector<std::string> getSplittedVarArgs(const std::string& mToSplit)
-		{
-			std::vector<std::string> result;
-			for(auto s : ssvu::getSplit(mToSplit, ','))
-			{
-				auto eqPos(s.find_last_of('='));
-				if(eqPos != std::string::npos) s.erase(eqPos, s.size() - 1);
-				ssvu::trimStrLR(s);
-				result.emplace_back(s);
-			}
-			return result;
-		}
 		inline std::map<std::string, std::vector<std::string>*>& getEnumsMap() noexcept { static std::map<std::string, std::vector<std::string>*> map; return map; }
 		template<typename T> inline std::vector<std::string>& getEnumStrVec() noexcept;
 		template<typename T> inline std::string getEnumStr(T mValue) noexcept { return getEnumStrVec<T>()[int(mValue)]; }
 	}
 
-	#define OB_ENUM(mName, ...) enum class mName : int { __VA_ARGS__ }; \
+	SSVU_FAT_ENUM_MGR(OBEnumMgr);
+
+	#define OB_ENUM_MKSTR(mIdx, mData, mArg) SSVPP_STRINGIFY(mArg) SSVPP_COMMA_IF(mIdx)
+
+	#define OB_ENUM_DEF(mName, ...) \
+		SSVU_FAT_ENUM_DEF(OBEnumMgr, mName, int, __VA_ARGS__); \
 		namespace Internal \
 		{ \
 			template<> inline std::vector<std::string>& getEnumStrVec<mName>() noexcept \
 			{ \
-				static std::vector<std::string> strings(Internal::getSplittedVarArgs(#__VA_ARGS__)); \
+				static std::vector<std::string> strings \
+				{ \
+					SSVPP_FOREACH(OB_ENUM_MKSTR, SSVPP_EMPTY(), __VA_ARGS__) \
+				}; \
 				return strings; \
 			} \
 			volatile static struct __initStruct ## mName \
@@ -133,15 +131,17 @@ namespace ob
 		LBackground
 	};
 
-	OB_ENUM(PPlateType,			Single, Multi, OnOff);
-	OB_ENUM(IdAction,			Toggle = 0, Open = 1, Close = 2);
 
-	OB_ENUM(SpawnerItem,		RunnerUA, RunnerPB, ChargerUA, ChargerPB, ChargerGL, JuggerUA, JuggerPB, JuggerRL, Giant, Enforcer, BallN, BallF);
 
-	OB_ENUM(RunnerType,			Unarmed, PlasmaBolter);
-	OB_ENUM(ChargerType,		Unarmed, PlasmaBolter, GrenadeLauncher);
-	OB_ENUM(JuggernautType,		Unarmed, PlasmaBolter, RocketLauncher);
-	OB_ENUM(BallType,			Normal, Flying);
+	OB_ENUM_DEF(PPlateType,		Single, Multi, OnOff);
+	SSVU_FAT_ENUM_VALS(OBEnumMgr, IdAction, int,		(Toggle, 0), (Open, 1), (Close, 2));
+
+	OB_ENUM_DEF(SpawnerItem,		RunnerUA, RunnerPB, ChargerUA, ChargerPB, ChargerGL, JuggerUA, JuggerPB, JuggerRL, Giant, Enforcer, BallN, BallF);
+
+	OB_ENUM_DEF(RunnerType,		Unarmed, PlasmaBolter);
+	OB_ENUM_DEF(ChargerType,		Unarmed, PlasmaBolter, GrenadeLauncher);
+	OB_ENUM_DEF(JuggernautType, 	Unarmed, PlasmaBolter, RocketLauncher);
+	OB_ENUM_DEF(BallType,			Normal, Flying);
 
 	// Level editor enums
 	enum class OBLETType : int

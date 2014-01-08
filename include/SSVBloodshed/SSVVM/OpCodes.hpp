@@ -11,25 +11,24 @@ namespace ssvu
 {
 	#define SSVU_FAT_ENUM_IMPL_MK_ELEM_VALS(mIdx, mData, mArg)				SSVPP_TPL_GET(0, mArg) = SSVPP_TPL_GET(1, mArg) SSVPP_COMMA_IF(mIdx)
 	#define SSVU_FAT_ENUM_IMPL_MK_ELEM_DEF(mIdx, mData, mArg)				mArg SSVPP_COMMA_IF(mIdx)
-	#define SSVU_FAT_ENUM_IMPL_MK_ELEM_DISPATCH(mDispatch)					SSVPP_TKNCAT_2(SSVU_FAT_ENUM_IMPL_MK_ELEM_, mDispatch)
+	#define SSVU_FAT_ENUM_IMPL_MK_ELEM_DISPATCH(mDispatch)					SSVPP_CAT(SSVU_FAT_ENUM_IMPL_MK_ELEM_, mDispatch)
 
 	#define SSVU_FAT_ENUM_IMPL_MK_BIMAP_ENTRY_VALS(mIdx, mData, mArg)		{ mData :: SSVPP_TPL_GET(0, mArg) , SSVPP_STRINGIFY(SSVPP_TPL_GET(0, mArg)) } SSVPP_COMMA_IF(mIdx)
 	#define SSVU_FAT_ENUM_IMPL_MK_BIMAP_ENTRY_DEF(mIdx, mData, mArg)		{ mData :: mArg , SSVPP_STRINGIFY(mArg) } SSVPP_COMMA_IF(mIdx)
-	#define SSVU_FAT_ENUM_IMPL_MK_BIMAP_ENTRY_DISPATCH(mDispatch)			SSVPP_TKNCAT_2(SSVU_FAT_ENUM_IMPL_MK_BIMAP_ENTRY_, mDispatch)
+	#define SSVU_FAT_ENUM_IMPL_MK_BIMAP_ENTRY(mDispatch)					SSVPP_CAT(SSVU_FAT_ENUM_IMPL_MK_BIMAP_ENTRY_, mDispatch)
 
 	#define SSVU_FAT_ENUM_IMPL_MK_ARRAY_ENTRY_VALS(mIdx, mData, mArg)		mData :: SSVPP_TPL_GET(0, mArg) SSVPP_COMMA_IF(mIdx)
 	#define SSVU_FAT_ENUM_IMPL_MK_ARRAY_ENTRY_DEF(mIdx, mData, mArg)		mData :: mArg SSVPP_COMMA_IF(mIdx)
-	#define SSVU_FAT_ENUM_IMPL_MK_ARRAY_ENTRY_DISPATCH(mDispatch)			SSVPP_TKNCAT_2(SSVU_FAT_ENUM_IMPL_MK_ARRAY_ENTRY_, mDispatch)
+	#define SSVU_FAT_ENUM_IMPL_MK_ARRAY_ENTRY(mDispatch)					SSVPP_CAT(SSVU_FAT_ENUM_IMPL_MK_ARRAY_ENTRY_, mDispatch)
 
 	#define SSVU_FAT_ENUM_IMPL_MK_ARRAY_EN_ENTRY_VALS(mIdx, mData, mArg)	SSVPP_STRINGIFY(SSVPP_TPL_GET(0, mArg)) SSVPP_COMMA_IF(mIdx)
 	#define SSVU_FAT_ENUM_IMPL_MK_ARRAY_EN_ENTRY_DEF(mIdx, mData, mArg)		SSVPP_STRINGIFY(mArg) SSVPP_COMMA_IF(mIdx)
-	#define SSVU_FAT_ENUM_IMPL_MK_ARRAY_EN_ENTRY_DISPATCH(mDispatch)		SSVPP_TKNCAT_2(SSVU_FAT_ENUM_IMPL_MK_ARRAY_EN_ENTRY_, mDispatch)
-
+	#define SSVU_FAT_ENUM_IMPL_MK_ARRAY_EN_ENTRY(mDispatch)					SSVPP_CAT(SSVU_FAT_ENUM_IMPL_MK_ARRAY_EN_ENTRY_, mDispatch)
 
 	#define SSVU_FAT_ENUM_IMPL_MK_GETASSTRING(mMgr, mEnum, mX)				template<> inline const std::string& mMgr < mEnum > :: getAsStringImpl < mEnum :: mX >() noexcept { static std::string s{SSVPP_STRINGIFY(mX)}; return s; }
 	#define SSVU_FAT_ENUM_IMPL_MK_GETASSTRING_VALS(mIdx, mData, mArg)		SSVU_FAT_ENUM_IMPL_MK_GETASSTRING(SSVPP_TPL_GET(0, mData), SSVPP_TPL_GET(1, mData), SSVPP_TPL_GET(0, mArg))
 	#define SSVU_FAT_ENUM_IMPL_MK_GETASSTRING_DEF(mIdx, mData, mArg)		SSVU_FAT_ENUM_IMPL_MK_GETASSTRING(SSVPP_TPL_GET(0, mData), SSVPP_TPL_GET(1, mData), mArg)
-	#define SSVU_FAT_ENUM_IMPL_MK_GETASSTRING_DISPATCH(mDispatch)			SSVPP_TKNCAT_2(SSVU_FAT_ENUM_IMPL_MK_GETASSTRING_, mDispatch)
+	#define SSVU_FAT_ENUM_IMPL_MK_GETASSTRING_DISPATCH(mDispatch)			SSVPP_CAT(SSVU_FAT_ENUM_IMPL_MK_GETASSTRING_, mDispatch)
 
 
 	#define SSVU_FAT_ENUM_MGR(mMgr) \
@@ -51,6 +50,8 @@ namespace ssvu
 		};
 	}
 
+	// TODO: fix macro warnigns
+
 	#define SSVU_FAT_ENUM_IMPL(mMgr, mName, mUnderlying, mDispatch, ...) \
 		enum class mName : mUnderlying \
 		{ \
@@ -63,7 +64,7 @@ namespace ssvu
 			{ \
 				static ssvu::Bimap<mName, std::string> result \
 				{ \
-					SSVPP_FOREACH(SSVU_FAT_ENUM_IMPL_MK_BIMAP_ENTRY_DISPATCH(mDispatch), mName, __VA_ARGS__) \
+					SSVPP_FOREACH(SSVU_FAT_ENUM_IMPL_MK_BIMAP_ENTRY(mDispatch), mName, __VA_ARGS__) \
 				}; \
 				return result; \
 			} \
@@ -71,7 +72,7 @@ namespace ssvu
 			{ \
 				static std::array<mName, SSVPP_VA_NUM_ARGS(__VA_ARGS__)> result \
 				{ \
-					SSVPP_FOREACH(SSVU_FAT_ENUM_IMPL_MK_ARRAY_ENTRY_DISPATCH(mDispatch), mName, __VA_ARGS__) \
+					SSVPP_FOREACH(SSVU_FAT_ENUM_IMPL_MK_ARRAY_ENTRY(mDispatch), mName, __VA_ARGS__) \
 				}; \
 				return result; \
 			} \
@@ -79,7 +80,7 @@ namespace ssvu
 			{ \
 				static std::array<std::string, SSVPP_VA_NUM_ARGS(__VA_ARGS__)> result \
 				{ \
-					SSVPP_FOREACH(SSVU_FAT_ENUM_IMPL_MK_ARRAY_EN_ENTRY_DISPATCH(mDispatch), mName, __VA_ARGS__) \
+					SSVPP_FOREACH(SSVU_FAT_ENUM_IMPL_MK_ARRAY_EN_ENTRY(mDispatch), mName, __VA_ARGS__) \
 				}; \
 				return result; \
 			} \
