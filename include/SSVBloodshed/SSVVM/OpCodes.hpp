@@ -71,17 +71,17 @@ namespace ssvu
 			inline static const std::array<mName, SSVPP_VA_NUM_ARGS(__VA_ARGS__)>& getValues() \
 			{ \
 				static std::array<mName, SSVPP_VA_NUM_ARGS(__VA_ARGS__)> result \
-				{ \
+				{{ \
 					SSVPP_FOREACH(SSVU_FAT_ENUM_IMPL_MK_ARRAY_ENTRY(mDispatch), mName, __VA_ARGS__) \
-				}; \
+				}}; \
 				return result; \
 			} \
 			inline static const std::array<std::string, SSVPP_VA_NUM_ARGS(__VA_ARGS__)>& getElementNames() \
 			{ \
 				static std::array<std::string, SSVPP_VA_NUM_ARGS(__VA_ARGS__)> result \
-				{ \
+				{{ \
 					SSVPP_FOREACH(SSVU_FAT_ENUM_IMPL_MK_ARRAY_EN_ENTRY(mDispatch), mName, __VA_ARGS__) \
-				}; \
+				}}; \
 				return result; \
 			} \
 		}; \
