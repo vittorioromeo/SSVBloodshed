@@ -75,7 +75,7 @@ namespace ssvut
 				while(markerEnd < source.size())
 				{
 					bool canConsume{false};
-					TTType foundType;
+					TTType foundType{};
 
 					for(auto& p : matches)
 					{
