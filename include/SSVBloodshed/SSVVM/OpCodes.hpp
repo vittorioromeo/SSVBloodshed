@@ -100,7 +100,7 @@ namespace ssvu
 	SSVU_FAT_ENUM_VALS(TestManager, TestEnum, int, (A, 5), (B, 4), (C, -3));
 	SSVU_FAT_ENUM_DEF(TestManager, Colors, int, Red, Green, Blue);
 
-	SSVU_TEST("TESTAGLAOP")
+	SSVU_TEST(EnumTestsTemp)
 	{
 		EXPECT(int(TestEnum::A) == 5);
 		EXPECT(int(TestEnum::B) == 4);
