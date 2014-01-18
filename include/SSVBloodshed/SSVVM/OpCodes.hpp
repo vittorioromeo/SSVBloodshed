@@ -50,8 +50,6 @@ namespace ssvu
 		};
 	}
 
-	// TODO: fix macro warnigns
-
 	#define SSVU_FAT_ENUM_IMPL(mMgr, mName, mUnderlying, mDispatch, ...) \
 		enum class mName : mUnderlying \
 		{ \
