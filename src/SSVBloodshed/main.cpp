@@ -1,4 +1,4 @@
-#define TOKENS
+#define BLOODSHED
 
 #ifdef TESTCES
 
@@ -260,7 +260,7 @@ int main()
 	gameWindow.setFullscreen(false);
 	gameWindow.setFPSLimited(true);
 	gameWindow.setMaxFPS(200);
-	gameWindow.setPixelMult(2);
+	gameWindow.setPixelMult(1);
 
 	OBGame game{gameWindow, assets};
 	OBLEEditor editor{gameWindow, assets};
