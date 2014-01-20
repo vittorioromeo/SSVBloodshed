@@ -1,4 +1,4 @@
-#define BLOODSHED
+#define TOKENS
 
 #ifdef TESTCES
 
@@ -309,10 +309,10 @@ std::string source{
 
 	$label(FN_MAIN);
 
-		// Compute the 10th fibonacci number
+		// Compute the 6th fibonacci number
 
 		// Load constants
-		loadIntCVToR(R0, 10);
+		loadIntCVToR(R0, 6);
 
 		// Save registers
 		pushRVToS(R0);
@@ -434,8 +434,6 @@ std::string source{
 int main()
 {
 	SSVU_TEST_RUN_ALL();
-	return 0;
-
 
 	auto src(ssvvm::SourceVeeAsm::fromStringRaw(source));
 	ssvvm::preprocessSourceRaw<true>(src);
@@ -448,8 +446,4 @@ int main()
 	return 0;
 }
 
-
-
 #endif
-
-
