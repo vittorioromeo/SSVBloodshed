@@ -234,7 +234,6 @@ namespace ob
 			}
 			inline void draw()
 			{
-				//TODO: canc in textbox
 				gameCamera.apply<int>();
 				manager.draw();
 				gameCamera.unapply();
