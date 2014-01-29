@@ -294,6 +294,8 @@ namespace ob
 			inline void createPCaseBullet(std::size_t mCount, const Vec2f& mPos, float mDeg)	{ createParticles(particles.getPSTemp(),	mCount, mPos, assets.pdCaseBullet, ssvu::toRad(mDeg + 90), 1.f, 1.f); }
 			inline void createPCaseRocket(std::size_t mCount, const Vec2f& mPos, float mDeg)	{ createParticles(particles.getPSTemp(),	mCount, mPos, assets.pdCaseRocket, ssvu::toRad(mDeg + 90), 1.f, 1.f); }
 			inline void createPForceField(std::size_t mCount, const Vec2f& mPos)				{ createParticles(particles.getPSTempAdd(),	mCount, mPos, assets.pdForceField); }
+			inline void createPMuzzleShockwave(std::size_t mCount, const Vec2f& mPos)			{ createParticles(particles.getPSTempAdd(),	mCount, mPos, assets.pdMuzzleShockwave); }
+			inline void createPShockwave(std::size_t mCount, const Vec2f& mPos)					{ createParticles(particles.getPSTempAdd(),	mCount, mPos, assets.pdShockwave); }
 
 			inline void createEShard(std::size_t mCount, const Vec2i& mPos) { for(auto i(0u); i < mCount; ++i) factory.createShard(mPos); }
 	};

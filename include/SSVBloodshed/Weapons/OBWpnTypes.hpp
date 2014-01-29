@@ -93,6 +93,15 @@ namespace ob
 				mGame.createPMuzzleRocket(8, mMuzzlePxPos);
 			}};
 		}
+		inline OBWpnType createShockwaveGun()
+		{
+			return {19.5f, 1.7f, 220.f, "Sounds/machineGun.wav",
+			[](OBWpnType& mWpn, OBGame& mGame, const Vec2i& mPos, float mDeg, const Vec2f& mMuzzlePxPos)
+			{
+				mWpn.shotProjectile(mGame.getFactory().createPJShockwave(mPos, mDeg, 3));
+				mGame.createPMuzzleShockwave(20, mMuzzlePxPos);
+			}};
+		}
 	}
 }
 

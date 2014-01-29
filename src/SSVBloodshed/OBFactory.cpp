@@ -422,6 +422,26 @@ namespace ob
 		gt<OBCProjectile>(tpl).setDamage(5);
 		return gt<Entity>(tpl);
 	}
+	Entity& OBFactory::createPJShockwave(const Vec2i& mPos, float mDeg, int mNum)
+	{
+		auto str(ssvu::getClampedMin(mNum, 1));
+		auto tpl(createProjectileBase(mPos, {150, 150}, 560.f - (mNum * 70), mDeg, assets.pjShockwave));
+		gt<Entity>(tpl).createComponent<OBCParticleEmitter>(gt<OBCPhys>(tpl), &OBGame::createPShockwave, str);
+		gt<OBCProjectile>(tpl).setPierceOrganic(ssvu::getClampedMax(str / 2 + 1, 2));
+		gt<OBCProjectile>(tpl).setDamage(str / 2 + 1);
+		gt<OBCProjectile>(tpl).setLife(16 + str * 11);
+		if(mNum > 0)
+		{
+			gt<OBCProjectile>(tpl).onDestroy += [this, tpl, mDeg, mNum]
+			{
+				auto offset(ssvs::getVecFromDeg(mDeg + 180, 360));
+				int num{2};
+				for(int i{0}; i < num; ++i) gt<OBCProjectile>(tpl).createChild(createPJShockwave(gt<OBCPhys>(tpl).getPosI() + Vec2i(offset) + Vec2i(ssvs::getVecFromDeg<float>(i) * 100.f), mDeg + 90 + ((360.f / num) * i), mNum - 1));
+			};
+		}
+		gt<OBCDraw>(tpl).setBlendMode(sf::BlendMode::BlendAdd);
+		return gt<Entity>(tpl);
+	}
 
 
 	Entity& OBFactory::createPJTestBomb(const Vec2i& mPos, float mDeg, float mSpeedMult, float mCurveMult)

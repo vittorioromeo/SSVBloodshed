@@ -188,10 +188,10 @@ namespace ob
 	constexpr float dir8StepDeg{45.f};
 	constexpr float dir8StepRad{ssvu::toRad(dir8StepDeg)};
 	enum Dir8 : int {E = 0, SE = 1, S = 2, SW = 3, W = 4, NW = 5, N = 6, NE = 7};
-	template<typename T = float> inline T getDegFromDir8(Dir8 mDir) noexcept { return T(int(mDir) * dir8StepDeg); }
-	template<typename T = float> inline T getRadFromDir8(Dir8 mDir) noexcept { return T(int(mDir) * dir8StepRad); }
-	template<typename T> inline Dir8 getDir8FromDeg(T mDeg) noexcept { return Dir8(int(std::round(mDeg / dir8StepDeg)) % 8); }
-	template<typename T> inline Dir8 getDir8FromRad(T mRad) noexcept { return Dir8(int(std::round(mRad / dir8StepRad)) % 8); }
+	template<typename T = float> constexpr inline T getDegFromDir8(Dir8 mDir) noexcept	{ return T(int(mDir) * dir8StepDeg); }
+	template<typename T = float> constexpr inline T getRadFromDir8(Dir8 mDir) noexcept	{ return T(int(mDir) * dir8StepRad); }
+	template<typename T> inline constexpr Dir8 getDir8FromDeg(T mDeg) noexcept			{ return Dir8(int(std::round(mDeg / dir8StepDeg)) % 8); }
+	template<typename T> inline constexpr Dir8 getDir8FromRad(T mRad) noexcept			{ return Dir8(int(std::round(mRad / dir8StepRad)) % 8); }
 	template<typename T> inline Dir8 getDir8FromXY(T mX, T mY) noexcept
 	{
 		if(mX < 0 && mY == 0)		return Dir8::W;

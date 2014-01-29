@@ -44,11 +44,12 @@ namespace ob
 			int currentWpn{0}, currentShards{0}, shards{0};
 			std::vector<WeaponData> weapons
 			{
-				{OBWpnTypes::createMachineGun(),		assets.p1Gun,		"machine gun"},
-				{OBWpnTypes::createPlasmaBolter(),		assets.e1Gun,		"plasma bolter"},
-				{OBWpnTypes::createPlasmaCannon(),		assets.gunPCannon,	"plasma cannon"},
-				{OBWpnTypes::createRocketLauncher(),	assets.p2Gun,		"rocket launcher"},
-				{OBWpnTypes::createGrenadeLauncher(),	assets.p2Gun,		"grenade launcher"}
+				{OBWpnTypes::createMachineGun(),		assets.p1Gun,			"machine gun"},
+				{OBWpnTypes::createPlasmaBolter(),		assets.e1Gun,			"plasma bolter"},
+				{OBWpnTypes::createPlasmaCannon(),		assets.gunPCannon,		"plasma cannon"},
+				{OBWpnTypes::createRocketLauncher(),	assets.p2Gun,			"rocket launcher"},
+				{OBWpnTypes::createGrenadeLauncher(),	assets.p2Gun,			"grenade launcher"},
+				{OBWpnTypes::createShockwaveGun(),		assets.wpnShockwave,	"shockwave gun"}
 			};
 
 			inline void cycleWeapons(int mDir) noexcept

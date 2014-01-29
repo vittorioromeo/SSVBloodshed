@@ -84,6 +84,7 @@ namespace ob
 			Entity& createPJRocket(const Vec2i& mPos, float mDeg);
 			Entity& createPJGrenade(const Vec2i& mPos, float mDeg);
 			Entity& createPJExplosion(const Vec2i& mPos, float mDeg, float mSpeed = 300.f);
+			Entity& createPJShockwave(const Vec2i& mPos, float mDeg, int mNum);
 
 			// Vending machines
 			Entity& createVMHealth(const Vec2i& mPos);

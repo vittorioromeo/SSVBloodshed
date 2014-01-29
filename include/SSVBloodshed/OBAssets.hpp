@@ -55,7 +55,7 @@ namespace ob
 			sf::IntRect vmHealth;															// Vending machines
 			sf::IntRect null0;																// Empty tile
 			sf::IntRect gunPCannon,		spawner,		forceArrow,		forceArrowMark;
-			sf::IntRect bulletBooster,	bulletChanger;
+			sf::IntRect bulletBooster,	bulletChanger,	pjShockwave,	wpnShockwave;
 
 			sf::IntRect ff0,			ff1,			ff2,			ff3,			ff4;	// Force field frames
 
@@ -79,7 +79,7 @@ namespace ob
 			OBParticleData pdBloodRed,		pdGibRed,		pdExplosion,	pdDebris,		pdDebrisFloor;
 			OBParticleData pdMuzzleBullet,	pdMuzzlePlasma,	pdMuzzleRocket,	pdPlasma,		pdElectric;
 			OBParticleData pdSmoke,			pdShard,		pdCharge,		pdHeal,			pdForceField;
-			OBParticleData pdCaseBullet,	pdCaseRocket;
+			OBParticleData pdCaseBullet,	pdCaseRocket,	pdShockwave,	pdMuzzleShockwave;
 
 			#define WALLTSDECL(x)	sf::IntRect x ## Single,	x ## Cross,		x ## V,			x ## H, \
 												x ## CornerSW,	x ## CornerSE,	x ## CornerNW,	x ## CornerNE, \
@@ -150,7 +150,7 @@ namespace ob
 				T_TSSMALL(vmHealth);
 				T_TSSMALL(null0);
 				T_TSSMALL(gunPCannon);		T_TSSMALL(spawner);			T_TSSMALL(forceArrow);		T_TSSMALL(forceArrowMark);
-				T_TSSMALL(bulletBooster);	T_TSSMALL(bulletChanger);
+				T_TSSMALL(bulletBooster);	T_TSSMALL(bulletChanger);	T_TSSMALL(pjShockwave);		T_TSSMALL(wpnShockwave);
 
 				T_TSSMALL(ff0);				T_TSSMALL(ff1);				T_TSSMALL(ff2);				T_TSSMALL(ff3);				T_TSSMALL(ff4);
 
@@ -194,6 +194,8 @@ namespace ob
 				pdForceField =		ssvuj::getExtr<OBParticleData>(ssvuj::getFromFile("Data/Particles/forceField.json"));
 				pdCaseBullet =		ssvuj::getExtr<OBParticleData>(ssvuj::getFromFile("Data/Particles/caseBullet.json"));
 				pdCaseRocket =		ssvuj::getExtr<OBParticleData>(ssvuj::getFromFile("Data/Particles/caseRocket.json"));
+				pdShockwave =		ssvuj::getExtr<OBParticleData>(ssvuj::getFromFile("Data/Particles/shockwave.json"));
+				pdMuzzleShockwave =	ssvuj::getExtr<OBParticleData>(ssvuj::getFromFile("Data/Particles/muzzleShockwave.json"));
 
 				#undef T_TSSMALL
 				#undef T_TSMEDIUM
