@@ -185,16 +185,13 @@ namespace ob
 	};
 
 	// Direction utils
-	constexpr float dir8Step{45.f};
+	constexpr float dir8StepDeg{45.f};
+	constexpr float dir8StepRad{ssvu::toRad(dir8StepDeg)};
 	enum Dir8 : int {E = 0, SE = 1, S = 2, SW = 3, W = 4, NW = 5, N = 6, NE = 7};
-	template<typename T = float> inline T getDegFromDir8(Dir8 mDir) noexcept { return T(int(mDir) * dir8Step); }
-	template<typename T = float> inline T getRadFromDir8(Dir8 mDir) noexcept { return ssvu::toRad(getDegFromDir8(mDir)); }
-	template<typename T> inline Dir8 getDir8FromDeg(T mDeg) noexcept
-	{
-		mDeg = ssvu::wrapDeg(mDeg);
-		int i{static_cast<int>((mDeg + dir8Step / 2) / dir8Step)};
-		return Dir8(i % 8);
-	}
+	template<typename T = float> inline T getDegFromDir8(Dir8 mDir) noexcept { return T(int(mDir) * dir8StepDeg); }
+	template<typename T = float> inline T getRadFromDir8(Dir8 mDir) noexcept { return T(int(mDir) * dir8StepRad); }
+	template<typename T> inline Dir8 getDir8FromDeg(T mDeg) noexcept { return Dir8(int(std::round(mDeg / dir8StepDeg)) % 8); }
+	template<typename T> inline Dir8 getDir8FromRad(T mRad) noexcept { return Dir8(int(std::round(mRad / dir8StepRad)) % 8); }
 	template<typename T> inline Dir8 getDir8FromXY(T mX, T mY) noexcept
 	{
 		if(mX < 0 && mY == 0)		return Dir8::W;
@@ -225,7 +222,7 @@ namespace ob
 	template<typename T> inline Dir8 getDir8FromVec(const Vec2<T>& mVec) noexcept		{ return getDir8FromXY(mVec.x, mVec.y); }
 	template<typename T = int> inline Vec2<T> getVecFromDir8(Dir8 mDir) noexcept		{ const auto& xy(getXYFromDir8<T>(mDir)); return {xy[0], xy[1]}; }
 	template<typename T> inline T getSnappedDeg(const T& mDeg) noexcept					{ return getDegFromDir8(getDir8FromDeg(mDeg)); }
-	template<typename T> inline Vec2<T> getSnappedVec(const Vec2<T>& mVec) noexcept		{ return Vec2<T>(getVecFromDir8(getDir8FromDeg(ssvs::getDeg(mVec)))); }
+	template<typename T> inline Vec2<T> getSnappedVec(const Vec2<T>& mVec) noexcept		{ return Vec2<T>(getVecFromDir8(getDir8FromRad(ssvs::getRad(mVec)))); }
 
 	// Timeline shortcuts
 	inline void repeat(ssvu::Timeline& mTimeline, const ssvu::Action& mAction, unsigned int mTimes, FT mWait)
