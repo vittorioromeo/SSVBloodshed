@@ -1,4 +1,61 @@
-#define BLOODSHED
+#define TESTING
+
+#ifdef TESTING
+
+#define TEST_VA(b, ...) TEST
+#define STRINGIFY_IMPL(mX) #mX
+#define STRINGIFY(mX) STRINGIFY_IMPL(mX)
+
+#include <iostream>
+
+int main()
+{
+	std::cout << STRINGIFY(TEST_VA(1)) << std::endl;
+	std::cout << STRINGIFY(TEST_VA()) << std::endl;
+	return 0;
+}
+
+#endif
+
+#ifdef TESTING2
+
+#include "SSVBloodshed/OBCommon.hpp"
+
+#define RECURSION_DISPATCHER_IMPL(mFunc, ...) SSVPP_TKNCAT_3(mFunc, _, SSVPP_EXPAND(SSVPP_BOOL(SSVPP_DECREMENT(SSVPP_VA_NUM_ARGS(__VA_ARGS__)))))
+#define RECURSION_DISPATCHER(mFunc, ...) RECURSION_DISPATCHER_IMPL(mFunc, __VA_ARGS__)
+
+#define CALL_RECURSION_DISPATCHED_FUNC(mFunc, ...) RECURSION_DISPATCHER(mFunc, __VA_ARGS__) ( __VA_ARGS__ )
+
+#define EXAMPLE_IMPL_0(mArg)	WELP
+#define EXAMPLE_IMPL_1(mArg0, mArg1, ...) EXAMPLE_IMPL_0(mArg0) CALL_RECURSION_DISPATCHED_FUNC(EXAMPLE_IMPL, mArg1, __VA_ARGS__)
+
+#define SSVPP_IMPL_VA_ARGS_0(...)
+#define SSVPP_IMPL_VA_ARGS_1(...) __VA_ARGS__
+#define SSVPP_VA_ARGS(...) SSVPP_EXPAND(SSVPP_TKNCAT_2(SSVPP_IMPL_VA_ARGS_, SSVPP_IMPL_HAS_ZERO_OR_ONE_ARGS(__VA_ARGS__))) ( __VA_ARGS__ )
+
+int main()
+{
+/*
+	std::cout << SSVPP_STRINGIFY(CALL_RECURSION_DISPATCHED_FUNC(EXAMPLE_IMPL, 1, 2, 3)) << std::endl;
+	std::cout << SSVPP_STRINGIFY(CALL_RECURSION_DISPATCHED_FUNC(EXAMPLE_IMPL, 1, 2)) << std::endl;
+	std::cout << SSVPP_STRINGIFY(CALL_RECURSION_DISPATCHED_FUNC(EXAMPLE_IMPL, 1)) << std::endl;
+
+	std::cout << SSVPP_STRINGIFY(SSVPP_IMPL_HAS_ZERO_OR_ONE_ARGS(1, 1, 1)) << std::endl;
+	std::cout << SSVPP_STRINGIFY(SSVPP_IMPL_HAS_ZERO_OR_ONE_ARGS(1, 1)) << std::endl;
+	std::cout << SSVPP_STRINGIFY(SSVPP_IMPL_HAS_ZERO_OR_ONE_ARGS(1)) << std::endl;
+	std::cout << SSVPP_STRINGIFY(SSVPP_IMPL_HAS_ZERO_OR_ONE_ARGS()) << std::endl;
+
+	std::cout << SSVPP_STRINGIFYWITHCOMMAS(SSVPP_VA_ARGS(1, 1, 1)) << std::endl;
+	std::cout << SSVPP_STRINGIFYWITHCOMMAS(SSVPP_VA_ARGS(1, 1)) << std::endl;
+	std::cout << SSVPP_STRINGIFYWITHCOMMAS(SSVPP_VA_ARGS(1)) << std::endl;
+	std::cout << SSVPP_STRINGIFY(SSVPP_VA_ARGS()) << std::endl;
+*/
+
+	std::cout << SSVPP_STRINGIFY(SSVPP_VA_NUM_ARGS()) << std::endl;
+	return 0;
+}
+
+#endif
 
 #ifdef TESTCES
 
@@ -447,3 +504,6 @@ int main()
 }
 
 #endif
+
+// TODO: generic macro recursion dispatcher
+// TODO: static tokenizer macro generator with tokeninterface ctrp base class
