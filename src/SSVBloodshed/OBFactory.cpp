@@ -23,6 +23,7 @@
 #include "SSVBloodshed/Components/OBCShard.hpp"
 #include "SSVBloodshed/Components/OBCSpawner.hpp"
 #include "SSVBloodshed/Components/OBCDamageOnTouch.hpp"
+#include "SSVBloodshed/Components/OBCUsable.hpp"
 #include "SSVBloodshed/Components/OBCVMachine.hpp"
 
 using namespace std;
@@ -473,7 +474,8 @@ namespace ob
 		auto tpl(createActorBase(mPos, {1000, 1000}, OBLayer::LWall, false));
 		emplaceSpriteByTile(gt<OBCDraw>(tpl), assets.txSmall, assets.vmHealth);
 		gt<OBCPhys>(tpl).getBody().addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir);
-		gt<Entity>(tpl).createComponent<OBCVMachine>(gt<OBCPhys>(tpl), gt<OBCDraw>(tpl));
+		auto& cUsable(gt<Entity>(tpl).createComponent<OBCUsable>(gt<OBCPhys>(tpl)));
+		gt<Entity>(tpl).createComponent<OBCVMachine>(gt<OBCDraw>(tpl), cUsable);
 		return gt<Entity>(tpl);
 	}
 }

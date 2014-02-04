@@ -113,7 +113,8 @@ namespace ob
 		GFlying,
 		GForceField,
 		GBulletForceField,
-		GBooster
+		GBooster,
+		GUsable
 	};
 	enum OBLayer : int
 	{

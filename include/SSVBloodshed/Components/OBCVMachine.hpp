@@ -8,6 +8,7 @@
 #include "SSVBloodshed/OBCommon.hpp"
 #include "SSVBloodshed/OBGame.hpp"
 #include "SSVBloodshed/Components/OBCActorBase.hpp"
+#include "SSVBloodshed/Components/OBCUsable.hpp"
 #include "SSVBloodshed/Components/OBCPlayer.hpp"
 
 namespace ob
@@ -15,50 +16,32 @@ namespace ob
 	class OBCVMachine : public OBCActorBase
 	{
 		private:
+			OBCUsable& cUsable;
 			float healAmount{1};
 			int shardCost{10};
-			std::string msg{"[" + ssvu::toStr(shardCost) + "] Heal <" + ssvu::toStr(healAmount) + "> hp"};
 
 		public:
-			OBCVMachine(OBCPhys& mCPhys, OBCDraw& mCDraw) noexcept : OBCActorBase{mCPhys, mCDraw} { }
+			OBCVMachine(OBCDraw& mCDraw, OBCUsable& mCUsable) noexcept : OBCActorBase{mCUsable.getCPhys(), mCDraw}, cUsable(mCUsable) { }
 
-			inline void init() { body.setResolve(false); }
-
-			inline void update(FT) override
+			inline void init()
 			{
-				for(auto& e : manager.getEntities(OBGroup::GPlayer))
-				{
-					auto& cPhys(e->getComponent<OBCPhys>());
-					auto& cPlayer(e->getComponent<OBCPlayer>());
-
-					if(ssvs::getDistEuclidean(cPhys.getPosI(), body.getPosition()) < 1300) cPlayer.setCurrentVM(this);
-					else if(cPlayer.getCurrentVM() == this) cPlayer.setCurrentVM(nullptr);
-				}
+				body.setResolve(false);
+				cUsable.setMsg("[" + ssvu::toStr(shardCost) + "] Heal <" + ssvu::toStr(healAmount) + "> hp");
+				cUsable.onUse += [this](OBCPlayer& mPlayer){ mPlayer.useVM(*this); };
 			}
 
-			inline float getHealAmount() const noexcept			{ return healAmount; }
-			inline int getShardCost() const noexcept			{ return shardCost; }
-			inline const std::string& getMsg() const noexcept	{ return msg; }
+			inline float getHealAmount() const noexcept	{ return healAmount; }
+			inline int getShardCost() const noexcept	{ return shardCost; }
 	};
 
-	inline void OBCPlayer::updateHUD()
-	{
-		// TODO:
-		auto& cHealth(cKillable.getCHealth());
-		game.testhp.setValue(cHealth.getHealth());
-		game.testhp.setMaxValue(cHealth.getMaxHealth());
-		game.txtShards.setString(ssvu::toStr(shards + currentShards));
-		game.txtVM.setString(currentVM == nullptr ? weapons[currentWpn].name : currentVM->getMsg());
-	}
 
-	inline void OBCPlayer::setCurrentVM(OBCVMachine* mVMachine) { currentVM = mVMachine; }
-	inline void OBCPlayer::useVM()
+	inline void OBCPlayer::useVM(OBCVMachine& mVMachine)
 	{
-		if(currentVM->getShardCost() > shards + currentShards) return;
+		if(mVMachine.getShardCost() > shards + currentShards) return;
 
-		if(cKillable.getCHealth().heal(currentVM->getHealAmount()))
+		if(cKillable.getCHealth().heal(mVMachine.getHealAmount()))
 		{
-			int toRemove{currentVM->getShardCost()};
+			int toRemove{mVMachine.getShardCost()};
 			int fromCurrent(currentShards - toRemove);
 
 			if(fromCurrent > 0) currentShards -= toRemove;
@@ -74,4 +57,3 @@ namespace ob
 }
 
 #endif
-

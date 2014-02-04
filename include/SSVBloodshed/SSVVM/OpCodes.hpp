@@ -100,45 +100,45 @@ namespace ssvu
 
 	SSVU_TEST(EnumTestsTemp)
 	{
-		EXPECT(int(TestEnum::A) == 5);
-		EXPECT(int(TestEnum::B) == 4);
-		EXPECT(int(TestEnum::C) == -3);
+		SSVUT_EXPECT(int(TestEnum::A) == 5);
+		SSVUT_EXPECT(int(TestEnum::B) == 4);
+		SSVUT_EXPECT(int(TestEnum::C) == -3);
 
-		EXPECT(TestManager<TestEnum>::getAsString<TestEnum::A>() == "A");
-		EXPECT(TestManager<TestEnum>::getAsString<TestEnum::B>() == "B");
-		EXPECT(TestManager<TestEnum>::getAsString<TestEnum::C>() == "C");
+		SSVUT_EXPECT(TestManager<TestEnum>::getAsString<TestEnum::A>() == "A");
+		SSVUT_EXPECT(TestManager<TestEnum>::getAsString<TestEnum::B>() == "B");
+		SSVUT_EXPECT(TestManager<TestEnum>::getAsString<TestEnum::C>() == "C");
 
-		EXPECT(TestManager<TestEnum>::getAsString(TestEnum::A) == "A");
-		EXPECT(TestManager<TestEnum>::getAsString(TestEnum::B) == "B");
-		EXPECT(TestManager<TestEnum>::getAsString(TestEnum::C) == "C");
+		SSVUT_EXPECT(TestManager<TestEnum>::getAsString(TestEnum::A) == "A");
+		SSVUT_EXPECT(TestManager<TestEnum>::getAsString(TestEnum::B) == "B");
+		SSVUT_EXPECT(TestManager<TestEnum>::getAsString(TestEnum::C) == "C");
 
-		EXPECT(TestManager<TestEnum>::getFromString("A") == TestEnum::A);
-		EXPECT(TestManager<TestEnum>::getFromString("B") == TestEnum::B);
-		EXPECT(TestManager<TestEnum>::getFromString("C") == TestEnum::C);
+		SSVUT_EXPECT(TestManager<TestEnum>::getFromString("A") == TestEnum::A);
+		SSVUT_EXPECT(TestManager<TestEnum>::getFromString("B") == TestEnum::B);
+		SSVUT_EXPECT(TestManager<TestEnum>::getFromString("C") == TestEnum::C);
 
-		EXPECT(TestManager<TestEnum>::getSize() == 3);
+		SSVUT_EXPECT(TestManager<TestEnum>::getSize() == 3);
 
 		for(const auto& v : TestManager<TestEnum>::getValues()) ssvu::lo() << int(v) << std::endl;
 		for(const auto& v : TestManager<TestEnum>::getElementNames()) ssvu::lo() << v << std::endl;
 
 
-		EXPECT(int(Colors::Red) == 0);
-		EXPECT(int(Colors::Green) == 1);
-		EXPECT(int(Colors::Blue) == 2);
+		SSVUT_EXPECT(int(Colors::Red) == 0);
+		SSVUT_EXPECT(int(Colors::Green) == 1);
+		SSVUT_EXPECT(int(Colors::Blue) == 2);
 
-		EXPECT(TestManager<Colors>::getAsString<Colors::Red>() == "Red");
-		EXPECT(TestManager<Colors>::getAsString<Colors::Green>() == "Green");
-		EXPECT(TestManager<Colors>::getAsString<Colors::Blue>() == "Blue");
+		SSVUT_EXPECT(TestManager<Colors>::getAsString<Colors::Red>() == "Red");
+		SSVUT_EXPECT(TestManager<Colors>::getAsString<Colors::Green>() == "Green");
+		SSVUT_EXPECT(TestManager<Colors>::getAsString<Colors::Blue>() == "Blue");
 
-		EXPECT(TestManager<Colors>::getAsString(Colors::Red) == "Red");
-		EXPECT(TestManager<Colors>::getAsString(Colors::Green) == "Green");
-		EXPECT(TestManager<Colors>::getAsString(Colors::Blue) == "Blue");
+		SSVUT_EXPECT(TestManager<Colors>::getAsString(Colors::Red) == "Red");
+		SSVUT_EXPECT(TestManager<Colors>::getAsString(Colors::Green) == "Green");
+		SSVUT_EXPECT(TestManager<Colors>::getAsString(Colors::Blue) == "Blue");
 
-		EXPECT(TestManager<Colors>::getFromString("Red") == Colors::Red);
-		EXPECT(TestManager<Colors>::getFromString("Green") == Colors::Green);
-		EXPECT(TestManager<Colors>::getFromString("Blue") == Colors::Blue);
+		SSVUT_EXPECT(TestManager<Colors>::getFromString("Red") == Colors::Red);
+		SSVUT_EXPECT(TestManager<Colors>::getFromString("Green") == Colors::Green);
+		SSVUT_EXPECT(TestManager<Colors>::getFromString("Blue") == Colors::Blue);
 
-		EXPECT(TestManager<Colors>::getSize() == 3);
+		SSVUT_EXPECT(TestManager<Colors>::getSize() == 3);
 
 		for(const auto& v : TestManager<Colors>::getValues()) ssvu::lo() << int(v) << std::endl;
 		for(const auto& v : TestManager<Colors>::getElementNames()) ssvu::lo() << v << std::endl;

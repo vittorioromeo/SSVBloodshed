@@ -13,6 +13,7 @@
 #include "SSVBloodshed/Components/OBCWielder.hpp"
 #include "SSVBloodshed/Components/OBCProjectile.hpp"
 #include "SSVBloodshed/Components/OBCWpnController.hpp"
+#include "SSVBloodshed/Components/OBCUsable.hpp"
 #include "SSVBloodshed/Weapons/OBWpnTypes.hpp"
 
 namespace ob
@@ -38,7 +39,7 @@ namespace ob
 			OBCDir8& cDir8;
 			OBCWpnController& cWpnController;
 			float walkSpeed{125.f};
-			OBCVMachine* currentVM{nullptr};
+			OBCUsable* currentUsable{nullptr};
 
 			struct WeaponData { OBWpnType wpn; sf::IntRect rect; std::string name; };
 			int currentWpn{0}, currentShards{0}, shards{0};
@@ -60,7 +61,6 @@ namespace ob
 				cWpnController.setWpn(wpnData.wpn);
 				cDraw[1].setTextureRect(wpnData.rect);
 			}
-			inline void useVM();
 
 		public:
 			OBCPlayer(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCKillable& mCKillable, OBCWielder& mCWielder, OBCWpnController& mCWpnController) noexcept
@@ -94,9 +94,21 @@ namespace ob
 				if(game.getInput().getIBomb()) bomb();
 				if(game.getInput().getISwitch())
 				{
-					// TODO: generalize to usable objects, like switches
-					if(currentVM == nullptr) cycleWeapons(1);
-					else useVM();
+					if(currentUsable == nullptr) cycleWeapons(1);
+					else currentUsable->onUse(*this);
+				}
+			}
+
+			inline void updateUsable()
+			{
+				currentUsable = nullptr;
+				for(auto& e : manager.getEntities(OBGroup::GUsable))
+				{
+					auto& usableCPhys(e->getComponent<OBCPhys>());
+					if(ssvs::getDistSquaredEuclidean(usableCPhys.getPosI(), getCPhys().getPosI()) > 1300 * 1300) continue;
+
+					currentUsable = &(e->getComponent<OBCUsable>());
+					break;
 				}
 			}
 
@@ -124,7 +136,16 @@ namespace ob
 				}
 			}
 
-			void updateHUD();
+			inline void updateHUD()
+			{
+				// TODO:
+				auto& cHealth(cKillable.getCHealth());
+				game.testhp.setValue(cHealth.getHealth());
+				game.testhp.setMaxValue(cHealth.getMaxHealth());
+				game.txtShards.setString(ssvu::toStr(shards + currentShards));
+				game.txtVM.setString(currentUsable == nullptr ? weapons[currentWpn].name : currentUsable->getMsg());
+			}
+
 			inline void checkTransitions()
 			{
 				if(cPhys.getLeft() + cPhys.getVel().x < 0)							game.changeLevel(*this, -1, 0);
@@ -135,7 +156,7 @@ namespace ob
 
 			inline void update(FT) override
 			{
-				updateInput(); updateHUD(); attractShards();
+				updateUsable(); updateInput(); updateHUD(); attractShards();
 
 				if(game.isLevelClear()) { shards += currentShards; currentShards = 0; }
 				if(cWielder.isShooting()) cWpnController.shoot(cWielder.getShootingPos(), cDir8.getDeg(), cWielder.getShootingPosPx());
@@ -149,9 +170,6 @@ namespace ob
 			}
 
 			inline void shardGrabbed() noexcept { ++currentShards; }
-
-			void setCurrentVM(OBCVMachine* mVMachine);
-			inline OBCVMachine* getCurrentVM() { return currentVM; }
 
 			inline void initFromData(const Data& mData) noexcept
 			{
@@ -171,6 +189,8 @@ namespace ob
 				result.shards = shards;
 				return result;
 			}
+
+			inline void useVM(OBCVMachine& mVMachine);
 	};
 }
 

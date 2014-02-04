@@ -55,11 +55,8 @@ namespace ssvces
 		template<typename... TArgs> inline TypeIdsBitset getBuildBitset() noexcept { TypeIdsBitset result; buildBitsetHelper<TArgs...>(result); return result; }
 		template<> inline TypeIdsBitset getBuildBitset<>() noexcept { static TypeIdsBitset nullBitset; return nullBitset; }
 
-		SSVU_DEFINE_HAS_MEMBER_CHECKER(HasAdded, added);
-		SSVU_DEFINE_HAS_MEMBER_CHECKER(HasRemoved, removed);
-
-		SSVU_DEFINE_HAS_MEMBER_INVOKER(callAdded, added, (HasAdded<T, void(TArgs...)>::Value));
-		SSVU_DEFINE_HAS_MEMBER_INVOKER(callRemoved, removed, (HasRemoved<T, void(TArgs...)>::Value));
+		SSVU_DEFINE_MEMFN_CALLER(callAdded, added, void(TArgs...));		// `callAdded(...)` only calls `T::added` if it exists
+		SSVU_DEFINE_MEMFN_CALLER(callRemoved, removed, void(TArgs...));	// `callRemoved(...)` only calls `T::removed` if it exists
 
 		// Shortcut to get the static Bitset of a pack of Component types
 		template<typename... TArgs> inline const TypeIdsBitset& getTypeIdsBitset() noexcept { static TypeIdsBitset bitset{Internal::getBuildBitset<TArgs...>()}; return bitset; }
