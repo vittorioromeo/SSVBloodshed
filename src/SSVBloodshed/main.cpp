@@ -1,4 +1,4 @@
-#define TESTINGMPL
+#define TESTING
 
 #ifdef TESTINGMPL
 
@@ -170,16 +170,19 @@ SSVU_TEST_RUN_ALL();
 
 #ifdef TESTING
 
-#define TEST_VA(b, ...) TEST
-#define STRINGIFY_IMPL(mX) #mX
-#define STRINGIFY(mX) STRINGIFY_IMPL(mX)
-
-#include <iostream>
+#include <stdio.h>
+#include <SSVUtils/SSVUtils.hpp>
 
 int main()
 {
-	std::cout << STRINGIFY(TEST_VA(1)) << std::endl;
-	std::cout << STRINGIFY(TEST_VA()) << std::endl;
+	SSVU_TEST_RUN_ALL();
+
+	printf("%d", SSVPP_VA_NUM_ARGS());
+	printf("%d", SSVPP_VA_NUM_ARGS(1));
+	printf("%d", SSVPP_VA_NUM_ARGS(2,2));
+	printf("%d", SSVPP_VA_NUM_ARGS(3,3,3));
+
+	//printf("%d", PP_NARG(12));
 	return 0;
 }
 
