@@ -13,19 +13,19 @@ namespace ssvu
 	#define SSVU_FAT_ENUM_IMPL_MK_ELEM_DEF(mIdx, mData, mArg)				mArg SSVPP_COMMA_IF(mIdx)
 	#define SSVU_FAT_ENUM_IMPL_MK_ELEM_DISPATCH(mDispatch)					SSVPP_CAT(SSVU_FAT_ENUM_IMPL_MK_ELEM_, mDispatch)
 
-	#define SSVU_FAT_ENUM_IMPL_MK_BIMAP_ENTRY_VALS(mIdx, mData, mArg)		{ mData :: SSVPP_TPL_ELEM(mArg, 0) , SSVPP_STRINGIFY(SSVPP_TPL_ELEM(mArg, 0)) } SSVPP_COMMA_IF(mIdx)
-	#define SSVU_FAT_ENUM_IMPL_MK_BIMAP_ENTRY_DEF(mIdx, mData, mArg)		{ mData :: mArg , SSVPP_STRINGIFY(mArg) } SSVPP_COMMA_IF(mIdx)
+	#define SSVU_FAT_ENUM_IMPL_MK_BIMAP_ENTRY_VALS(mIdx, mData, mArg)		{ mData :: SSVPP_TPL_ELEM(mArg, 0) , SSVPP_TOSTR(SSVPP_TPL_ELEM(mArg, 0)) } SSVPP_COMMA_IF(mIdx)
+	#define SSVU_FAT_ENUM_IMPL_MK_BIMAP_ENTRY_DEF(mIdx, mData, mArg)		{ mData :: mArg , SSVPP_TOSTR(mArg) } SSVPP_COMMA_IF(mIdx)
 	#define SSVU_FAT_ENUM_IMPL_MK_BIMAP_ENTRY(mDispatch)					SSVPP_CAT(SSVU_FAT_ENUM_IMPL_MK_BIMAP_ENTRY_, mDispatch)
 
 	#define SSVU_FAT_ENUM_IMPL_MK_ARRAY_ENTRY_VALS(mIdx, mData, mArg)		mData :: SSVPP_TPL_ELEM(mArg, 0) SSVPP_COMMA_IF(mIdx)
 	#define SSVU_FAT_ENUM_IMPL_MK_ARRAY_ENTRY_DEF(mIdx, mData, mArg)		mData :: mArg SSVPP_COMMA_IF(mIdx)
 	#define SSVU_FAT_ENUM_IMPL_MK_ARRAY_ENTRY(mDispatch)					SSVPP_CAT(SSVU_FAT_ENUM_IMPL_MK_ARRAY_ENTRY_, mDispatch)
 
-	#define SSVU_FAT_ENUM_IMPL_MK_ARRAY_EN_ENTRY_VALS(mIdx, mData, mArg)	SSVPP_STRINGIFY(SSVPP_TPL_ELEM(mArg, 0)) SSVPP_COMMA_IF(mIdx)
-	#define SSVU_FAT_ENUM_IMPL_MK_ARRAY_EN_ENTRY_DEF(mIdx, mData, mArg)		SSVPP_STRINGIFY(mArg) SSVPP_COMMA_IF(mIdx)
+	#define SSVU_FAT_ENUM_IMPL_MK_ARRAY_EN_ENTRY_VALS(mIdx, mData, mArg)	SSVPP_TOSTR(SSVPP_TPL_ELEM(mArg, 0)) SSVPP_COMMA_IF(mIdx)
+	#define SSVU_FAT_ENUM_IMPL_MK_ARRAY_EN_ENTRY_DEF(mIdx, mData, mArg)		SSVPP_TOSTR(mArg) SSVPP_COMMA_IF(mIdx)
 	#define SSVU_FAT_ENUM_IMPL_MK_ARRAY_EN_ENTRY(mDispatch)					SSVPP_CAT(SSVU_FAT_ENUM_IMPL_MK_ARRAY_EN_ENTRY_, mDispatch)
 
-	#define SSVU_FAT_ENUM_IMPL_MK_GETASSTRING(mMgr, mEnum, mX)				template<> inline const std::string& mMgr < mEnum > :: getAsStringImpl < mEnum :: mX >() noexcept { static std::string s{SSVPP_STRINGIFY(mX)}; return s; }
+	#define SSVU_FAT_ENUM_IMPL_MK_GETASSTRING(mMgr, mEnum, mX)				template<> inline const std::string& mMgr < mEnum > :: getAsStringImpl < mEnum :: mX >() noexcept { static std::string s{SSVPP_TOSTR(mX)}; return s; }
 	#define SSVU_FAT_ENUM_IMPL_MK_GETASSTRING_VALS(mIdx, mData, mArg)		SSVU_FAT_ENUM_IMPL_MK_GETASSTRING(SSVPP_TPL_ELEM(mData, 0), SSVPP_TPL_ELEM(mData, 1), SSVPP_TPL_ELEM(mArg, 0))
 	#define SSVU_FAT_ENUM_IMPL_MK_GETASSTRING_DEF(mIdx, mData, mArg)		SSVU_FAT_ENUM_IMPL_MK_GETASSTRING(SSVPP_TPL_ELEM(mData, 0), SSVPP_TPL_ELEM(mData, 1), mArg)
 	#define SSVU_FAT_ENUM_IMPL_MK_GETASSTRING_DISPATCH(mDispatch)			SSVPP_CAT(SSVU_FAT_ENUM_IMPL_MK_GETASSTRING_, mDispatch)
@@ -55,7 +55,7 @@ namespace ssvu
 		{ \
 			SSVPP_FOREACH(SSVU_FAT_ENUM_IMPL_MK_ELEM_DISPATCH(mDispatch), SSVPP_EMPTY(), __VA_ARGS__) \
 		}; \
-		template<> struct mMgr<mName> : public ssvu::Internal::FatEnumMgrImpl<SSVPP_VA_NUM_ARGS(__VA_ARGS__), mMgr<mName>> \
+		template<> struct mMgr<mName> : public ssvu::Internal::FatEnumMgrImpl<SSVPP_ARGCOUNT(__VA_ARGS__), mMgr<mName>> \
 		{ \
 			template<mName TVal> inline static const std::string& getAsStringImpl() noexcept; \
 			inline static const ssvu::Bimap<mName, std::string>& getBimap() \
@@ -66,17 +66,17 @@ namespace ssvu
 				}; \
 				return result; \
 			} \
-			inline static const std::array<mName, SSVPP_VA_NUM_ARGS(__VA_ARGS__)>& getValues() \
+			inline static const std::array<mName, SSVPP_ARGCOUNT(__VA_ARGS__)>& getValues() \
 			{ \
-				static std::array<mName, SSVPP_VA_NUM_ARGS(__VA_ARGS__)> result \
+				static std::array<mName, SSVPP_ARGCOUNT(__VA_ARGS__)> result \
 				{{ \
 					SSVPP_FOREACH(SSVU_FAT_ENUM_IMPL_MK_ARRAY_ENTRY(mDispatch), mName, __VA_ARGS__) \
 				}}; \
 				return result; \
 			} \
-			inline static const std::array<std::string, SSVPP_VA_NUM_ARGS(__VA_ARGS__)>& getElementNames() \
+			inline static const std::array<std::string, SSVPP_ARGCOUNT(__VA_ARGS__)>& getElementNames() \
 			{ \
-				static std::array<std::string, SSVPP_VA_NUM_ARGS(__VA_ARGS__)> result \
+				static std::array<std::string, SSVPP_ARGCOUNT(__VA_ARGS__)> result \
 				{{ \
 					SSVPP_FOREACH(SSVU_FAT_ENUM_IMPL_MK_ARRAY_EN_ENTRY(mDispatch), mName, __VA_ARGS__) \
 				}}; \

@@ -33,7 +33,7 @@ namespace ob
 
 	SSVU_FAT_ENUM_MGR(OBEnumMgr);
 
-	#define OB_ENUM_MKSTR(mIdx, mData, mArg) SSVPP_STRINGIFY(mArg) SSVPP_COMMA_IF(mIdx)
+	#define OB_ENUM_MKSTR(mIdx, mData, mArg) SSVPP_TOSTR(mArg) SSVPP_COMMA_IF(mIdx)
 
 	#define OB_ENUM_DEF(mName, ...) \
 		SSVU_FAT_ENUM_DEF(OBEnumMgr, mName, int, __VA_ARGS__); \

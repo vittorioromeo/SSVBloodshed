@@ -177,10 +177,10 @@ int main()
 {
 	SSVU_TEST_RUN_ALL();
 
-	printf("%d", SSVPP_VA_NUM_ARGS());
-	printf("%d", SSVPP_VA_NUM_ARGS(1));
-	printf("%d", SSVPP_VA_NUM_ARGS(2,2));
-	printf("%d", SSVPP_VA_NUM_ARGS(3,3,3));
+	printf("%d", SSVPP_ARGCOUNT());
+	printf("%d", SSVPP_ARGCOUNT(1));
+	printf("%d", SSVPP_ARGCOUNT(2,2));
+	printf("%d", SSVPP_ARGCOUNT(3,3,3));
 
 	//printf("%d", PP_NARG(12));
 	return 0;
@@ -193,7 +193,7 @@ int main()
 #include "SSVBloodshed/OBCommon.hpp"
 
 /*
-#define RECURSION_DISPATCHER_IMPL(mFunc, ...) SSVPP_TKNCAT_3(mFunc, _, SSVPP_EXPAND(SSVPP_BOOL(SSVPP_DECREMENT(SSVPP_VA_NUM_ARGS(__VA_ARGS__)))))
+#define RECURSION_DISPATCHER_IMPL(mFunc, ...) SSVPP_TKNCAT_3(mFunc, _, SSVPP_EXPAND(SSVPP_BOOL(SSVPP_DECREMENT(SSVPP_ARGCOUNT(__VA_ARGS__)))))
 #define RECURSION_DISPATCHER(mFunc, ...) RECURSION_DISPATCHER_IMPL(mFunc, __VA_ARGS__)
 
 #define CALL_RECURSION_DISPATCHED_FUNC(mFunc, ...) RECURSION_DISPATCHER(mFunc, __VA_ARGS__) ( __VA_ARGS__ )
@@ -208,22 +208,22 @@ int main()
 int main()
 {
 /*
-	std::cout << SSVPP_STRINGIFY(CALL_RECURSION_DISPATCHED_FUNC(EXAMPLE_IMPL, 1, 2, 3)) << std::endl;
-	std::cout << SSVPP_STRINGIFY(CALL_RECURSION_DISPATCHED_FUNC(EXAMPLE_IMPL, 1, 2)) << std::endl;
-	std::cout << SSVPP_STRINGIFY(CALL_RECURSION_DISPATCHED_FUNC(EXAMPLE_IMPL, 1)) << std::endl;
+	std::cout << SSVPP_TOSTR(CALL_RECURSION_DISPATCHED_FUNC(EXAMPLE_IMPL, 1, 2, 3)) << std::endl;
+	std::cout << SSVPP_TOSTR(CALL_RECURSION_DISPATCHED_FUNC(EXAMPLE_IMPL, 1, 2)) << std::endl;
+	std::cout << SSVPP_TOSTR(CALL_RECURSION_DISPATCHED_FUNC(EXAMPLE_IMPL, 1)) << std::endl;
 
-	std::cout << SSVPP_STRINGIFY(SSVPP_IMPL_HAS_ZERO_OR_ONE_ARGS(1, 1, 1)) << std::endl;
-	std::cout << SSVPP_STRINGIFY(SSVPP_IMPL_HAS_ZERO_OR_ONE_ARGS(1, 1)) << std::endl;
-	std::cout << SSVPP_STRINGIFY(SSVPP_IMPL_HAS_ZERO_OR_ONE_ARGS(1)) << std::endl;
-	std::cout << SSVPP_STRINGIFY(SSVPP_IMPL_HAS_ZERO_OR_ONE_ARGS()) << std::endl;
+	std::cout << SSVPP_TOSTR(SSVPP_IMPL_HAS_ZERO_OR_ONE_ARGS(1, 1, 1)) << std::endl;
+	std::cout << SSVPP_TOSTR(SSVPP_IMPL_HAS_ZERO_OR_ONE_ARGS(1, 1)) << std::endl;
+	std::cout << SSVPP_TOSTR(SSVPP_IMPL_HAS_ZERO_OR_ONE_ARGS(1)) << std::endl;
+	std::cout << SSVPP_TOSTR(SSVPP_IMPL_HAS_ZERO_OR_ONE_ARGS()) << std::endl;
 
-	std::cout << SSVPP_STRINGIFYWITHCOMMAS(SSVPP_VA_ARGS(1, 1, 1)) << std::endl;
-	std::cout << SSVPP_STRINGIFYWITHCOMMAS(SSVPP_VA_ARGS(1, 1)) << std::endl;
-	std::cout << SSVPP_STRINGIFYWITHCOMMAS(SSVPP_VA_ARGS(1)) << std::endl;
-	std::cout << SSVPP_STRINGIFY(SSVPP_VA_ARGS()) << std::endl;
+	std::cout << SSVPP_TOSTR_SEP(", ", SSVPP_VA_ARGS(1, 1, 1)) << std::endl;
+	std::cout << SSVPP_TOSTR_SEP(", ", SSVPP_VA_ARGS(1, 1)) << std::endl;
+	std::cout << SSVPP_TOSTR_SEP(", ", SSVPP_VA_ARGS(1)) << std::endl;
+	std::cout << SSVPP_TOSTR(SSVPP_VA_ARGS()) << std::endl;
 */
 
-	//std::cout << SSVPP_STRINGIFY(SSVPP_VA_NUM_ARGS()) << std::endl;
+	//std::cout << SSVPP_TOSTR(SSVPP_ARGCOUNT()) << std::endl;
 	return 0;
 }
 
