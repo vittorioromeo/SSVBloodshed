@@ -170,19 +170,23 @@ SSVU_TEST_RUN_ALL();
 
 #ifdef TESTING
 
-#include <stdio.h>
+#include <map>
+#include <unordered_map>
 #include <SSVUtils/SSVUtils.hpp>
 
 int main()
 {
 	SSVU_TEST_RUN_ALL();
 
-	printf("%d", SSVPP_ARGCOUNT());
-	printf("%d", SSVPP_ARGCOUNT(1));
-	printf("%d", SSVPP_ARGCOUNT(2,2));
-	printf("%d", SSVPP_ARGCOUNT(3,3,3));
+	std::map<int, std::string> m{{1, "aa"}, {2, "bb"}, {3, "cc"}};
+	std::unordered_map<int, std::string> um{{1, "aa"}, {2, "bb"}, {3, "cc"}};
+	ssvu::Bimap<int, std::string> bm{{1, "aa"}, {2, "bb"}, {3, "cc"}};
 
-	//printf("%d", PP_NARG(12));
+	ssvu::lo() << std::vector<int>{1, 2, 3} << std::endl;
+	ssvu::lo() << m << std::endl;
+	ssvu::lo() << um << std::endl;
+	ssvu::lo() << bm << std::endl;
+
 	return 0;
 }
 
