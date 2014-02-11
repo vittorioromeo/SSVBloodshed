@@ -1,4 +1,4 @@
-#define TESTING
+#define BLOODSHED
 
 #ifdef TESTINGMPL
 
