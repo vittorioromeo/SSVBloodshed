@@ -142,9 +142,6 @@ namespace ssvu
 
 		for(const auto& v : TestManager<Colors>::getValues()) ssvu::lo() << int(v) << std::endl;
 		for(const auto& v : TestManager<Colors>::getElementNames()) ssvu::lo() << v << std::endl;
-
-		// TODO: element count
-		// TODO: iteration and listing
 	}
 	SSVU_TEST_END();
 
