@@ -16,10 +16,10 @@ namespace ssvvm
 			template<typename T> inline static bool isValid(const Value& mA, const Value& mB) noexcept { return mA.getType() == getVMVal<T>() && mB.getType() == getVMVal<T>(); }
 
 		public:
-			template<typename T> inline static Value getAddition(const Value& mA, const Value& mB) noexcept			{ assert(isValid(mA, mB)); return {mA.get<T>() + mB.get<T>()}; }
-			template<typename T> inline static Value getSubtraction(const Value& mA, const Value& mB) noexcept		{ assert(isValid(mA, mB)); return {mA.get<T>() - mB.get<T>()}; }
-			template<typename T> inline static Value getMultiplication(const Value& mA, const Value& mB) noexcept	{ assert(isValid(mA, mB)); return {mA.get<T>() * mB.get<T>()}; }
-			template<typename T> inline static Value getDivision(const Value& mA, const Value& mB) noexcept			{ assert(isValid(mA, mB) && mB.get<T>() != T(0)); return {mA.get<T>() / mB.get<T>()}; }
+			template<typename T> inline static Value getAddition(const Value& mA, const Value& mB) noexcept			{ assert(isValid<T>(mA, mB)); return {mA.get<T>() + mB.get<T>()}; }
+			template<typename T> inline static Value getSubtraction(const Value& mA, const Value& mB) noexcept		{ assert(isValid<T>(mA, mB)); return {mA.get<T>() - mB.get<T>()}; }
+			template<typename T> inline static Value getMultiplication(const Value& mA, const Value& mB) noexcept	{ assert(isValid<T>(mA, mB)); return {mA.get<T>() * mB.get<T>()}; }
+			template<typename T> inline static Value getDivision(const Value& mA, const Value& mB) noexcept			{ assert(isValid<T>(mA, mB) && mB.get<T>() != T(0)); return {mA.get<T>() / mB.get<T>()}; }
 
 			inline static Value getIntComparison(const Value& mA, const Value& mB) noexcept	{ return getSubtraction<int>(mA, mB); }
 	};

@@ -13,8 +13,8 @@ namespace ssvu
 	#define SSVU_FAT_ENUM_IMPL_MK_ELEM_DEF(mIdx, mData, mArg)				mArg SSVPP_COMMA_IF(mIdx)
 	#define SSVU_FAT_ENUM_IMPL_MK_ELEM_DISPATCH(mDispatch)					SSVPP_CAT(SSVU_FAT_ENUM_IMPL_MK_ELEM_, mDispatch)
 
-	#define SSVU_FAT_ENUM_IMPL_MK_BIMAP_ENTRY_VALS(mIdx, mData, mArg)		{ mData :: SSVPP_TPL_ELEM(mArg, 0) , SSVPP_TOSTR(SSVPP_TPL_ELEM(mArg, 0)) } SSVPP_COMMA_IF(mIdx)
-	#define SSVU_FAT_ENUM_IMPL_MK_BIMAP_ENTRY_DEF(mIdx, mData, mArg)		{ mData :: mArg , SSVPP_TOSTR(mArg) } SSVPP_COMMA_IF(mIdx)
+	#define SSVU_FAT_ENUM_IMPL_MK_BIMAP_ENTRY_VALS(mIdx, mData, mArg)		{ SSVPP_TOSTR(SSVPP_TPL_ELEM(mArg, 0)) , mData :: SSVPP_TPL_ELEM(mArg, 0) } SSVPP_COMMA_IF(mIdx)
+	#define SSVU_FAT_ENUM_IMPL_MK_BIMAP_ENTRY_DEF(mIdx, mData, mArg)		{ SSVPP_TOSTR(mArg) , mData :: mArg } SSVPP_COMMA_IF(mIdx)
 	#define SSVU_FAT_ENUM_IMPL_MK_BIMAP_ENTRY(mDispatch)					SSVPP_CAT(SSVU_FAT_ENUM_IMPL_MK_BIMAP_ENTRY_, mDispatch)
 
 	#define SSVU_FAT_ENUM_IMPL_MK_ARRAY_ENTRY_VALS(mIdx, mData, mArg)		mData :: SSVPP_TPL_ELEM(mArg, 0) SSVPP_COMMA_IF(mIdx)
@@ -58,9 +58,9 @@ namespace ssvu
 		template<> struct mMgr<mName> : public ssvu::Internal::FatEnumMgrImpl<SSVPP_ARGCOUNT(__VA_ARGS__), mMgr<mName>> \
 		{ \
 			template<mName TVal> inline static const std::string& getAsStringImpl() noexcept; \
-			inline static const ssvu::Bimap<mName, std::string>& getBimap() \
+			inline static const ssvu::Bimap<std::string, mName>& getBimap() \
 			{ \
-				static ssvu::Bimap<mName, std::string> result \
+				static ssvu::Bimap<std::string, mName> result \
 				{ \
 					SSVPP_FOREACH(SSVU_FAT_ENUM_IMPL_MK_BIMAP_ENTRY(mDispatch), mName, __VA_ARGS__) \
 				}; \
