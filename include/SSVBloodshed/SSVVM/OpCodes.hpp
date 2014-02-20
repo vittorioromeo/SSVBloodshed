@@ -58,7 +58,7 @@ namespace ssvu
 		template<> struct mMgr<mName> : public ssvu::Internal::FatEnumMgrImpl<SSVPP_ARGCOUNT(__VA_ARGS__), mMgr<mName>> \
 		{ \
 			template<mName TVal> inline static const std::string& getAsStringImpl() noexcept; \
-			inline static const ssvu::Bimap<std::string, mName>& getBimap() \
+			inline static const ssvu::Bimap<std::string, mName>& getBimap() noexcept \
 			{ \
 				static ssvu::Bimap<std::string, mName> result \
 				{ \
@@ -66,7 +66,7 @@ namespace ssvu
 				}; \
 				return result; \
 			} \
-			inline static const std::array<mName, SSVPP_ARGCOUNT(__VA_ARGS__)>& getValues() \
+			inline static const std::array<mName, SSVPP_ARGCOUNT(__VA_ARGS__)>& getValues() noexcept \
 			{ \
 				static std::array<mName, SSVPP_ARGCOUNT(__VA_ARGS__)> result \
 				{{ \
@@ -74,7 +74,7 @@ namespace ssvu
 				}}; \
 				return result; \
 			} \
-			inline static const std::array<std::string, SSVPP_ARGCOUNT(__VA_ARGS__)>& getElementNames() \
+			inline static const std::array<std::string, SSVPP_ARGCOUNT(__VA_ARGS__)>& getElementNames() noexcept \
 			{ \
 				static std::array<std::string, SSVPP_ARGCOUNT(__VA_ARGS__)> result \
 				{{ \
