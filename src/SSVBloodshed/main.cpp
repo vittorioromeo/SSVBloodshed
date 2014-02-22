@@ -683,3 +683,4 @@ int main()
 
 // TODO: generic macro recursion dispatcher
 // TODO: static tokenizer macro generator with tokeninterface ctrp base class
+// TODO: check handle allocation answers on SO
