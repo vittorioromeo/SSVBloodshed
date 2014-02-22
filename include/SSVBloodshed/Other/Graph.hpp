@@ -67,7 +67,7 @@ namespace ssvut
 			template<typename... TArgs> inline NodePtr createNode(TArgs&&... mArgs)
 			{
 				static_assert(ssvu::isBaseOf<GraphNode<TGraph>, NodeDerived>(), "TNode must be derived from Graph::Node");
-				return ssvu::getEmplaceUptr<NodeDerived>(nodes, std::forward<TArgs>(mArgs)...);
+				return &ssvu::getEmplaceUptr<NodeDerived>(nodes, std::forward<TArgs>(mArgs)...);
 			}
 		};
 	}
