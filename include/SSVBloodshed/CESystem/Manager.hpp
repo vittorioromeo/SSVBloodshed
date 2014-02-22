@@ -24,7 +24,10 @@ namespace ssvces
 			std::vector<Uptr<Entity>> entities;
 			std::array<std::vector<Entity*>, maxGroups> grouped;
 
-			inline Entity* create(Manager& mManager, Internal::IdPool& mIdPool) { auto entity(new Entity{mManager, mIdPool.getAvailable()}); entities.emplace_back(entity); return entity; }
+			inline Entity* create(Manager& mManager, Internal::IdPool& mIdPool)
+			{
+				return &ssvu::getEmplaceUptr<Entity>(entities, mManager, mIdPool.getAvailable());
+			}
 
 			inline void addToGroup(Entity* mEntity, Group mGroup) { assert(mGroup <= maxGroups); grouped[mGroup].emplace_back(mEntity); }
 
