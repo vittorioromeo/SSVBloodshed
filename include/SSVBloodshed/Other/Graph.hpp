@@ -20,8 +20,8 @@ namespace ssvut
 				NodePtr node{TGraph::getNodeNull()};
 
 			public:
-				inline GraphLink(const NodePtr& mNode) noexcept : node{mNode} { assert(TGraph::isNodeValid(node)); }
-				inline const NodePtr& getNode() const noexcept { assert(TGraph::isNodeValid(node)); return node; }
+				inline GraphLink(const NodePtr& mNode) noexcept : node{mNode} { SSVU_ASSERT(TGraph::isNodeValid(node)); }
+				inline const NodePtr& getNode() const noexcept { SSVU_ASSERT(TGraph::isNodeValid(node)); return node; }
 		};
 
 		template<typename TGraph> class GraphNode : public TGraph::StorageNodeBase
@@ -37,7 +37,7 @@ namespace ssvut
 				}
 				template<typename... TArgs> inline void linkTo(const NodePtr& mNode, TArgs&&... mArgs)
 				{
-					assert(TGraph::isNodeValid(mNode));
+					SSVU_ASSERT(TGraph::isNodeValid(mNode));
 					TGraph::StorageNodeBase::emplaceLink(mNode, std::forward<TArgs>(mArgs)...);
 				}
 
@@ -66,7 +66,7 @@ namespace ssvut
 
 			template<typename... TArgs> inline NodePtr createNode(TArgs&&... mArgs)
 			{
-				static_assert(ssvu::isBaseOf<GraphNode<TGraph>, NodeDerived>(), "TNode must be derived from Graph::Node");
+				SSVU_ASSERT_STATIC(ssvu::isBaseOf<GraphNode<TGraph>, NodeDerived>(), "TNode must be derived from Graph::Node");
 				return &ssvu::getEmplaceUptr<NodeDerived>(nodes, std::forward<TArgs>(mArgs)...);
 			}
 		};
@@ -103,7 +103,7 @@ namespace ssvut
 			inline decltype(nodes)& getNodes() noexcept							{ return nodes; }
 			inline static const NodePtr& getNodeNull() noexcept					{ return Storage::getNodeNull(); }
 			inline static constexpr bool isNodeValid(NodePtr mNode) noexcept	{ return Storage::isNodeValid(mNode); }
-			inline const NodePtr& getLastAddedNode() noexcept					{ assert(!nodes.empty()); return nodes.back(); }
+			inline const NodePtr& getLastAddedNode() noexcept					{ SSVU_ASSERT(!nodes.empty()); return nodes.back(); }
 	};
 }
 

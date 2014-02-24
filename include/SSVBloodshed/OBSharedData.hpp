@@ -28,20 +28,20 @@ namespace ob
 			inline void setPath(const ssvufs::Path& mPath)
 			{
 				currentPath = mPath;
-				assert(!currentPath.isNull());
+				SSVU_ASSERT(!currentPath.isNull());
 			}
 
 		public:
 			inline void createEmptyPack()
 			{
-				assert(database != nullptr);
+				SSVU_ASSERT(database != nullptr);
 				pack = OBLEPack{};
 				currentSector = nullptr;
 				currentLevel = nullptr;
 			}
 			inline void loadPack(const ssvufs::Path& mPath)
 			{
-				assert(database != nullptr && mPath.exists());
+				SSVU_ASSERT(database != nullptr && mPath.exists());
 				setPath(mPath);
 
 				try { pack = ssvuj::getExtr<OBLEPack>(ssvuj::getFromFile(currentPath)); }
@@ -62,7 +62,7 @@ namespace ob
 			}
 			inline void setCurrentSector(int mIdx)
 			{
-				assert(database != nullptr);
+				SSVU_ASSERT(database != nullptr);
 				if(!isSectorValid(mIdx)) ssvu::lo("Warning") << "Sector of idx " << mIdx << " is not valid" << std::endl;
 
 				currentSectorIdx = mIdx;
@@ -78,8 +78,8 @@ namespace ob
 
 			inline OBLEDatabase& getDatabase() noexcept							{ return *database; }
 			inline OBLEPack& getPack() noexcept									{ return pack; }
-			inline OBLESector& getCurrentSector() const noexcept				{ assert(currentSector != nullptr); return *currentSector; }
-			inline OBLELevel& getCurrentLevel() const noexcept					{ assert(currentLevel != nullptr); return *currentLevel; }
+			inline OBLESector& getCurrentSector() const noexcept				{ SSVU_ASSERT(currentSector != nullptr); return *currentSector; }
+			inline OBLELevel& getCurrentLevel() const noexcept					{ SSVU_ASSERT(currentLevel != nullptr); return *currentLevel; }
 			inline decltype(currentLevel->getTiles()) getCurrentTiles() const	{ return getCurrentLevel().getTiles(); }
 			inline const ssvufs::Path& getCurrentPath() const noexcept			{ return currentPath; }
 
@@ -88,9 +88,9 @@ namespace ob
 			inline bool isLevelValid(int mX, int mY) const noexcept				{ return getCurrentSector().isValid(mX, mY); }
 			inline bool isTileValid(int mX, int mY, int mZ) const noexcept		{ return getCurrentLevel().isValid(mX, mY, mZ); }
 
-			inline int getCurrentSectorIdx() const noexcept		{ assert(currentSector != nullptr); return currentSectorIdx; }
-			inline int getCurrentLevelX() const noexcept		{ assert(currentLevel != nullptr); return currentLevelX; }
-			inline int getCurrentLevelY() const noexcept		{ assert(currentLevel != nullptr); return currentLevelY; }
+			inline int getCurrentSectorIdx() const noexcept		{ SSVU_ASSERT(currentSector != nullptr); return currentSectorIdx; }
+			inline int getCurrentLevelX() const noexcept		{ SSVU_ASSERT(currentLevel != nullptr); return currentLevelX; }
+			inline int getCurrentLevelY() const noexcept		{ SSVU_ASSERT(currentLevel != nullptr); return currentLevelY; }
 	};
 }
 

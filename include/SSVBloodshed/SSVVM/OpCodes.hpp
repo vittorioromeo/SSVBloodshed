@@ -45,8 +45,8 @@ namespace ssvu
 		{
 			inline static std::size_t getSize() noexcept									{ return TS; }
 			template<TEnum TVal> inline static const std::string& getAsString() noexcept	{ return T<TEnum>::template getAsStringImpl<TVal>(); }
-			inline static const std::string& getAsString(TEnum mValue) noexcept				{ assert(T<TEnum>::getBimap().has(mValue)); return T<TEnum>::getBimap().at(mValue); }
-			inline static TEnum getFromString(const std::string& mValue) noexcept			{ assert(T<TEnum>::getBimap().has(mValue)); return T<TEnum>::getBimap().at(mValue); }
+			inline static const std::string& getAsString(TEnum mValue) noexcept				{ SSVU_ASSERT(T<TEnum>::getBimap().has(mValue)); return T<TEnum>::getBimap().at(mValue); }
+			inline static TEnum getFromString(const std::string& mValue) noexcept			{ SSVU_ASSERT(T<TEnum>::getBimap().has(mValue)); return T<TEnum>::getBimap().at(mValue); }
 		};
 	}
 

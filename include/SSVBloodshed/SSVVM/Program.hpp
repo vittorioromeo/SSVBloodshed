@@ -17,7 +17,7 @@ namespace ssvvm
 
 		public:
 			inline Program& operator+=(Instruction mInstruction)					{ instructions.emplace_back(std::move(mInstruction)); return *this; }
-			inline const Instruction& operator[](std::size_t mIdx) const noexcept	{ assert(mIdx < instructions.size()); return instructions[mIdx]; }
+			inline const Instruction& operator[](std::size_t mIdx) const noexcept	{ SSVU_ASSERT(mIdx < instructions.size()); return instructions[mIdx]; }
 			inline std::size_t getSize() const noexcept								{ return instructions.size(); }
 	};
 }

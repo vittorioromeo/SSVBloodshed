@@ -55,8 +55,8 @@ namespace ob
 
 			inline void resizeFrom(const Vec2f& mOrigin, const Vec2f& mSize) noexcept
 			{
-				assert(mOrigin.x >= 0.f && mOrigin.x <= 1.f);
-				assert(mOrigin.y >= 0.f && mOrigin.y <= 1.f);
+				SSVU_ASSERT(mOrigin.x >= 0.f && mOrigin.x <= 1.f);
+				SSVU_ASSERT(mOrigin.y >= 0.f && mOrigin.y <= 1.f);
 
 				setX(getX() - mOrigin.x * ((mSize.x - getWidth()) / 2.f));
 				setY(getY() - mOrigin.y * ((mSize.y - getHeight()) / 2.f));

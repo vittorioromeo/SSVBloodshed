@@ -46,7 +46,7 @@ namespace ssvut
 		public:
 			inline LAFSM& createMatchFSM(TTType mVMToken)
 			{
-				assert(matches.count(mVMToken) == 0);
+				SSVU_ASSERT(matches.count(mVMToken) == 0);
 				matches.insert(std::make_pair(mVMToken, LAFSM{*this}));
 				return matches.at(mVMToken);
 			}

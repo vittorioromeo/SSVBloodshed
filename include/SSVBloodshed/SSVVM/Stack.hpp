@@ -21,14 +21,14 @@ namespace ssvvm
 			inline void popBaseOffset() noexcept	{ baseOffset = getPop().get<int>(); }
 
 			inline void push(Value mValue) noexcept	{ stack.emplace_back(mValue); ++baseOffset; }
-			inline Value getPop() noexcept			{ assert(!stack.empty()); auto result(stack.back()); stack.pop_back(); --baseOffset; return result; }
+			inline Value getPop() noexcept			{ SSVU_ASSERT(!stack.empty()); auto result(stack.back()); stack.pop_back(); --baseOffset; return result; }
 
 			inline const Value& getTop() const noexcept				{ return stack.back(); }
 			inline Value& getTop() noexcept							{ return stack.back(); }
 			inline const Value& getTop(int mOffset) const noexcept	{ return *(std::end(stack) - mOffset - 1); }
 			inline Value& getTop(int mOffset) noexcept				{ return *(std::end(stack) - mOffset - 1); }
 
-			inline void pop() noexcept	{ assert(!stack.empty()); stack.pop_back(); }
+			inline void pop() noexcept	{ SSVU_ASSERT(!stack.empty()); stack.pop_back(); }
 
 			inline Value getFromBase(int mOffset) noexcept	{ return *(std::end(stack) - baseOffset - mOffset - 1); }
 			inline int getBaseOffset() const				{ return baseOffset; }

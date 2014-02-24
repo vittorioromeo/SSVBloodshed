@@ -92,9 +92,9 @@ namespace ssvut
 				return *this;
 			}
 
-			inline void reset() noexcept							{ assert(startState != getNodeNull()); currentState = startState; }
+			inline void reset() noexcept							{ SSVU_ASSERT(startState != getNodeNull()); currentState = startState; }
 			inline void setCurrentState(NodePtr mState) noexcept	{ currentState = mState; }
-			inline NodePtr getCurrentState() const noexcept			{ assert(currentState != getNodeNull()); return currentState; }
+			inline NodePtr getCurrentState() const noexcept			{ SSVU_ASSERT(currentState != getNodeNull()); return currentState; }
 	};
 }
 

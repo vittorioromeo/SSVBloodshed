@@ -31,8 +31,8 @@ namespace ssvvm
 			inline Params() = default;
 			template<typename... TArgs> inline Params(const TArgs&... mArgs) noexcept { Internal::arrayFillHelper<0>(values, mArgs...); }
 
-			inline Value& operator[](std::size_t mIdx) noexcept				{ assert(mIdx < valueCount); return values[mIdx]; }
-			inline const Value& operator[](std::size_t mIdx) const noexcept	{ assert(mIdx < valueCount); return values[mIdx]; }
+			inline Value& operator[](std::size_t mIdx) noexcept				{ SSVU_ASSERT(mIdx < valueCount); return values[mIdx]; }
+			inline const Value& operator[](std::size_t mIdx) const noexcept	{ SSVU_ASSERT(mIdx < valueCount); return values[mIdx]; }
 			inline const decltype(values)& getValues() const noexcept		{ return values; } // TODO: remove
 	};
 }

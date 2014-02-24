@@ -9,8 +9,8 @@ namespace ssvces
 {
 	template<typename T, typename... TArgs> inline void Entity::createComponent(TArgs&&... mArgs)
 	{
-		static_assert(ssvu::isBaseOf<Component, T>(), "Type must derive from Component");
-		assert(!hasComponent<T>() && componentCount <= maxComponents);
+		SSVU_ASSERT_STATIC(ssvu::isBaseOf<Component, T>(), "Type must derive from Component");
+		SSVU_ASSERT(!hasComponent<T>() && componentCount <= maxComponents);
 
 		components[Internal::getTypeIdBitIdx<T>()] = std::make_unique<T>(std::forward<TArgs>(mArgs)...);
 		typeIds[Internal::getTypeIdBitIdx<T>()] = true;
@@ -20,8 +20,8 @@ namespace ssvces
 	}
 	template<typename T> inline void Entity::removeComponent()
 	{
-		static_assert(ssvu::isBaseOf<Component, T>(), "Type must derive from Component");
-		assert(hasComponent<T>() && componentCount > 0);
+		SSVU_ASSERT_STATIC(ssvu::isBaseOf<Component, T>(), "Type must derive from Component");
+		SSVU_ASSERT(hasComponent<T>() && componentCount > 0);
 
 		components[Internal::getTypeIdBitIdx<T>()].reset();
 		typeIds[Internal::getTypeIdBitIdx<T>()] = false;

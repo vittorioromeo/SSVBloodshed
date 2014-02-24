@@ -107,52 +107,52 @@ namespace ssvu
 		{
 			namespace Tests
 			{
-				static_assert(getMin<15, 10>() == 10, "");
-				static_assert(getMin<-15, 10>() == -15, "");
+				SSVU_ASSERT_STATIC(getMin<15, 10>() == 10, "");
+				SSVU_ASSERT_STATIC(getMin<-15, 10>() == -15, "");
 
-				static_assert(getMax<15, 10>() == 15, "");
-				static_assert(getMax<-15, 10>() == 10, "");
+				SSVU_ASSERT_STATIC(getMax<15, 10>() == 15, "");
+				SSVU_ASSERT_STATIC(getMax<-15, 10>() == 10, "");
 
-				static_assert(isSame<Internal::VAHead<int, float, char>, int>(), "");
-				static_assert(isSame<Internal::VATail<int, float, char>, char>(), "");
+				SSVU_ASSERT_STATIC(isSame<Internal::VAHead<int, float, char>, int>(), "");
+				SSVU_ASSERT_STATIC(isSame<Internal::VATail<int, float, char>, char>(), "");
 
-				static_assert(isSame<List<int, float, char>::Head, int>(), "");
-				static_assert(isSame<List<int, float, char>::Tail, char>(), "");
-				static_assert(isSame<List<>::Head, Null>(), "");
-				static_assert(isSame<List<>::Tail, Null>(), "");
+				SSVU_ASSERT_STATIC(isSame<List<int, float, char>::Head, int>(), "");
+				SSVU_ASSERT_STATIC(isSame<List<int, float, char>::Tail, char>(), "");
+				SSVU_ASSERT_STATIC(isSame<List<>::Head, Null>(), "");
+				SSVU_ASSERT_STATIC(isSame<List<>::Tail, Null>(), "");
 
-				static_assert(isSame<List<int, float, char>::Elem<0>, int>(), "");
-				static_assert(isSame<List<int, float, char>::Elem<1>, float>(), "");
-				static_assert(isSame<List<int, float, char>::Elem<2>, char>(), "");
+				SSVU_ASSERT_STATIC(isSame<List<int, float, char>::Elem<0>, int>(), "");
+				SSVU_ASSERT_STATIC(isSame<List<int, float, char>::Elem<1>, float>(), "");
+				SSVU_ASSERT_STATIC(isSame<List<int, float, char>::Elem<2>, char>(), "");
 
-				static_assert(isSame<List<int, float, char>::ElemReverse<0>, char>(), "");
-				static_assert(isSame<List<int, float, char>::ElemReverse<1>, float>(), "");
-				static_assert(isSame<List<int, float, char>::ElemReverse<2>, int>(), "");
+				SSVU_ASSERT_STATIC(isSame<List<int, float, char>::ElemReverse<0>, char>(), "");
+				SSVU_ASSERT_STATIC(isSame<List<int, float, char>::ElemReverse<1>, float>(), "");
+				SSVU_ASSERT_STATIC(isSame<List<int, float, char>::ElemReverse<2>, int>(), "");
 
-				static_assert(isSame<List<>::PushBack<int>, List<int>>(), "");
-				static_assert(isSame<List<int>::PushBack<float>, List<int, float>>(), "");
-				static_assert(isSame<List<int, float>::PushBack<char>, List<int, float, char>>(), "");
+				SSVU_ASSERT_STATIC(isSame<List<>::PushBack<int>, List<int>>(), "");
+				SSVU_ASSERT_STATIC(isSame<List<int>::PushBack<float>, List<int, float>>(), "");
+				SSVU_ASSERT_STATIC(isSame<List<int, float>::PushBack<char>, List<int, float, char>>(), "");
 
-				static_assert(isSame<List<>::PushFront<int>, List<int>>(), "");
-				static_assert(isSame<List<int>::PushFront<float>, List<float, int>>(), "");
-				static_assert(isSame<List<float, int>::PushFront<char>, List<char, float, int>>(), "");
+				SSVU_ASSERT_STATIC(isSame<List<>::PushFront<int>, List<int>>(), "");
+				SSVU_ASSERT_STATIC(isSame<List<int>::PushFront<float>, List<float, int>>(), "");
+				SSVU_ASSERT_STATIC(isSame<List<float, int>::PushFront<char>, List<char, float, int>>(), "");
 
-				static_assert(isSame<List<int, float, char>::PopBack, List<int, float>>(), "");
-				static_assert(isSame<List<int, float>::PopBack, List<int>>(), "");
-				static_assert(isSame<List<int>::PopBack, List<>>(), "");
-				static_assert(isSame<List<>::PopBack, List<>>(), "");
+				SSVU_ASSERT_STATIC(isSame<List<int, float, char>::PopBack, List<int, float>>(), "");
+				SSVU_ASSERT_STATIC(isSame<List<int, float>::PopBack, List<int>>(), "");
+				SSVU_ASSERT_STATIC(isSame<List<int>::PopBack, List<>>(), "");
+				SSVU_ASSERT_STATIC(isSame<List<>::PopBack, List<>>(), "");
 
-				static_assert(isSame<List<int, float, char>::PopFront, List<float, char>>(), "");
-				static_assert(isSame<List<float, char>::PopFront, List<char>>(), "");
-				static_assert(isSame<List<char>::PopFront, List<>>(), "");
-				static_assert(isSame<List<>::PopFront, List<>>(), "");
+				SSVU_ASSERT_STATIC(isSame<List<int, float, char>::PopFront, List<float, char>>(), "");
+				SSVU_ASSERT_STATIC(isSame<List<float, char>::PopFront, List<char>>(), "");
+				SSVU_ASSERT_STATIC(isSame<List<char>::PopFront, List<>>(), "");
+				SSVU_ASSERT_STATIC(isSame<List<>::PopFront, List<>>(), "");
 
 				//						  0    1      2     3      4
-				static_assert(isSame<List<int, float, char, float, int>::SubList<0, 0>, List<>>(), "");
-				static_assert(isSame<List<int, float, char, float, int>::SubList<0, 1>, List<int>>(), "");
-				static_assert(isSame<List<int, float, char, float, int>::SubList<0, 3>, List<int, float, char>>(), "");
-				static_assert(isSame<List<int, float, char, float, int>::SubList<2, 4>, List<char, float>>(), "");
-				static_assert(isSame<List<int, float, char, float, int>::SubList<0, 999>, List<int, float, char, float, int>>(), "");
+				SSVU_ASSERT_STATIC(isSame<List<int, float, char, float, int>::SubList<0, 0>, List<>>(), "");
+				SSVU_ASSERT_STATIC(isSame<List<int, float, char, float, int>::SubList<0, 1>, List<int>>(), "");
+				SSVU_ASSERT_STATIC(isSame<List<int, float, char, float, int>::SubList<0, 3>, List<int, float, char>>(), "");
+				SSVU_ASSERT_STATIC(isSame<List<int, float, char, float, int>::SubList<2, 4>, List<char, float>>(), "");
+				SSVU_ASSERT_STATIC(isSame<List<int, float, char, float, int>::SubList<0, 999>, List<int, float, char, float, int>>(), "");
 			}
 		}
 	}

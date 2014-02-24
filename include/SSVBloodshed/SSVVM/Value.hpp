@@ -28,11 +28,11 @@ namespace ssvvm
 			inline VMVal getType() const noexcept { return type; }
 	};
 
-	template<> inline void Value::set<int>(int mContents) noexcept		{ assert(type == VMVal::Int);	implInt = mContents; }
-	template<> inline void Value::set<float>(float mContents) noexcept	{ assert(type == VMVal::Float);	implFloat = mContents; }
+	template<> inline void Value::set<int>(int mContents) noexcept		{ SSVU_ASSERT(type == VMVal::Int);	implInt = mContents; }
+	template<> inline void Value::set<float>(float mContents) noexcept	{ SSVU_ASSERT(type == VMVal::Float);	implFloat = mContents; }
 
-	template<> inline int Value::get<int>() const noexcept				{ assert(type == VMVal::Int);	return implInt; }
-	template<> inline float Value::get<float>() const noexcept			{ assert(type == VMVal::Float);	return implFloat; }
+	template<> inline int Value::get<int>() const noexcept				{ SSVU_ASSERT(type == VMVal::Int);	return implInt; }
+	template<> inline float Value::get<float>() const noexcept			{ SSVU_ASSERT(type == VMVal::Float);	return implFloat; }
 }
 
 #endif

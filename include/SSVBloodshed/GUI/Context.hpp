@@ -62,7 +62,7 @@ namespace ob
 
 				template<typename T, typename... TArgs> inline T& allocateWidget(TArgs&&... mArgs)
 				{
-					static_assert(ssvu::isBaseOf<Widget, T>(), "T must be derived from Widget");
+					SSVU_ASSERT_STATIC(ssvu::isBaseOf<Widget, T>(), "T must be derived from Widget");
 					return widgets.create<T>(*this, std::forward<TArgs>(mArgs)...);
 				}
 

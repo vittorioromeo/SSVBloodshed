@@ -29,7 +29,7 @@ namespace ssvces
 				return &ssvu::getEmplaceUptr<Entity>(entities, mManager, mIdPool.getAvailable());
 			}
 
-			inline void addToGroup(Entity* mEntity, Group mGroup) { assert(mGroup <= maxGroups); grouped[mGroup].emplace_back(mEntity); }
+			inline void addToGroup(Entity* mEntity, Group mGroup) { SSVU_ASSERT(mGroup <= maxGroups); grouped[mGroup].emplace_back(mEntity); }
 
 		public:
 			inline void refresh()
@@ -59,14 +59,14 @@ namespace ssvces
 			inline EntityHandle createEntity() { return {*create(*this, entityIdPool)}; }
 			template<typename T> inline void registerSystem(T& mSystem)
 			{
-				static_assert(ssvu::isBaseOf<Internal::SystemBase, T>(), "Type must derive from SystemBase");
+				SSVU_ASSERT_STATIC(ssvu::isBaseOf<Internal::SystemBase, T>(), "Type must derive from SystemBase");
 				systems.emplace_back(&mSystem);
 			}
 
 			inline const decltype(entities)& getEntities() const noexcept				{ return entities; }
 			inline decltype(entities)& getEntities() noexcept							{ return entities; }
-			inline const std::vector<Entity*>& getEntities(Group mGroup) const noexcept	{ assert(mGroup <= maxGroups); return grouped[mGroup]; }
-			inline std::vector<Entity*>& getEntities(Group mGroup) noexcept				{ assert(mGroup <= maxGroups); return grouped[mGroup]; }
+			inline const std::vector<Entity*>& getEntities(Group mGroup) const noexcept	{ SSVU_ASSERT(mGroup <= maxGroups); return grouped[mGroup]; }
+			inline std::vector<Entity*>& getEntities(Group mGroup) noexcept				{ SSVU_ASSERT(mGroup <= maxGroups); return grouped[mGroup]; }
 			inline std::vector<EntityHandle> getEntityHandles(Group mGroup) noexcept
 			{
 				std::vector<EntityHandle> result;

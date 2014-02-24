@@ -228,7 +228,7 @@ namespace ob
 	// Timeline shortcuts
 	inline void repeat(ssvu::Timeline& mTimeline, const ssvu::Action& mAction, unsigned int mTimes, FT mWait)
 	{
-		assert(mTimes > 0);
+		SSVU_ASSERT(mTimes > 0);
 		auto& action(mTimeline.append<ssvu::Do>(mAction));
 		mTimeline.append<ssvu::Wait>(mWait);
 		mTimeline.append<ssvu::Goto>(action, mTimes - 1);

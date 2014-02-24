@@ -30,7 +30,7 @@ namespace ssvces
 				// Returns the first available IdCtrPair
 				inline EntityStat getAvailable() noexcept
 				{
-					assert(!available.empty());
+					SSVU_ASSERT(!available.empty());
 
 					EntityId id(available.back());
 					available.pop_back();
