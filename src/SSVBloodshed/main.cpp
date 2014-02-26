@@ -1,4 +1,21 @@
-#define BLOODSHED
+#define WAT
+
+#ifdef WAT
+
+#include <string>
+#include <SSVUtils/Core/Core.hpp>
+
+int main()
+{
+SSVU_ASSERT(true);
+SSVU_ASSERT(false);
+SSVU_ASSERT(false);
+SSVU_ASSERT(false);
+SSVU_ASSERT(false);
+	return 0;
+}
+
+#endif
 
 #ifdef TESTINGMPL
 
