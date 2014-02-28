@@ -4,9 +4,12 @@
 
 #include <string>
 #include <SSVUtils/Core/Core.hpp>
+#include <SSVUtils/Test/Test.hpp>
 
 int main()
 {
+	SSVUT_RUN();
+
 SSVU_ASSERT(true);
 SSVU_ASSERT(false);
 SSVU_ASSERT(false);
@@ -178,7 +181,7 @@ namespace ssvu
 
 int main()
 {
-SSVU_TEST_RUN_ALL();
+SSVUT_RUN();
 	return 0;
 
 }
@@ -193,7 +196,7 @@ SSVU_TEST_RUN_ALL();
 
 int main()
 {
-	SSVU_TEST_RUN_ALL();
+	SSVUT_RUN();
 
 	std::map<int, std::string> m{{1, "aa"}, {2, "bb"}, {3, "cc"}};
 	std::unordered_map<int, std::string> um{{1, "aa"}, {2, "bb"}, {3, "cc"}};
@@ -494,7 +497,7 @@ using namespace ssvms;
 
 int main()
 {
-	SSVU_TEST_RUN_ALL();
+	SSVUT_RUN();
 
 	OBConfig::setSoundEnabled(false);
 
@@ -683,7 +686,7 @@ std::string source{
 
 int main()
 {
-	SSVU_TEST_RUN_ALL();
+	SSVUT_RUN();
 
 	auto src(ssvvm::SourceVeeAsm::fromStringRaw(source));
 	ssvvm::preprocessSourceRaw<true>(src);
