@@ -75,8 +75,8 @@ namespace ob
 	using Trigger = ssvs::Input::Trigger;
 
 	// Pixel <-> coords utils
-	template<typename T> inline constexpr float toPixels(T mValue) noexcept		{ return mValue / 100; }
-	template<typename T> inline constexpr int toCoords(T mValue) noexcept		{ return mValue * 100; }
+	template<typename T> inline constexpr float toPixels(T mValue) noexcept		{ return static_cast<float>(mValue / 100); }
+	template<typename T> inline constexpr int toCoords(T mValue) noexcept		{ return static_cast<int>(mValue * 100); }
 	template<typename T> inline Vec2f toPixels(const Vec2<T>& mValue) noexcept	{ return {toPixels(mValue.x), toPixels(mValue.y)}; }
 	template<typename T> inline Vec2i toCoords(const Vec2<T>& mValue) noexcept	{ return {toCoords(mValue.x), toCoords(mValue.y)}; }
 

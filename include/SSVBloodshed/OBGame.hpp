@@ -301,6 +301,8 @@ namespace ob
 	};
 }
 
+// TODO: IMPORTANT: can shoot grenades between two tiles, maybe raycast and spwan projectile at the raycast position?
+
 // TODO: add final where it makes sense
 // ssvs::networking from testudpchat
 // autoupdater "download_only_if_unexistant":[] ...
