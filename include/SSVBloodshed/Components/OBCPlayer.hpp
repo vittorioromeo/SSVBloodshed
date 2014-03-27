@@ -40,6 +40,10 @@ namespace ob
 			OBCWpnController& cWpnController;
 			float walkSpeed{125.f};
 			OBCUsable* currentUsable{nullptr};
+			Vec2i validShootingPos;
+
+			// TODO: test
+			sf::RectangleShape testRay{ssvs::Vec2f(2.f, 2.f)};
 
 			struct WeaponData { OBWpnType wpn; sf::IntRect rect; std::string name; };
 			int currentWpn{0}, currentShards{0}, shards{0};
@@ -78,6 +82,26 @@ namespace ob
 				body.addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir, OBGroup::GFriendly, OBGroup::GKillable, OBGroup::GFriendlyKillable, OBGroup::GOrganic, OBGroup::GPlayer);
 				body.addGroupsToCheck(OBGroup::GSolidGround);
 				body.onResolution += [this](const ResolutionInfo& mRI){ if(mRI.body.hasGroup(OBGroup::GLevelBound)) checkTransitions(); };
+			}
+
+			inline void updateValidShootingPos()
+			{
+				auto gridQuery(getGame().getWorld().getQuery<ssvsc::QueryType::RayCast>(getCPhys().getPosI(), cDir8.getVec()));
+
+				Body* body;
+				while((body = gridQuery.next()) != nullptr)
+				{
+					if(body == &getCPhys().getBody()) continue;
+					if(body->hasGroup(OBGroup::GSolidGround)) break;
+				}
+
+				auto rayDirVec(gridQuery.getLastPos() - getCPhys().getPosF());
+				auto maxDist(toCoords(cWielder.getWieldDist()));
+				ssvs::mClampMax(rayDirVec, maxDist);
+
+				auto distDiff(maxDist - ssvs::getMag(rayDirVec) < 0.05f ? 0.f : 1.f);
+
+				validShootingPos = getCPhys().getPosI() + ssvs::Vec2i(rayDirVec) - ssvs::Vec2i(rayDirVec * distDiff);
 			}
 
 			inline void updateInput()
@@ -156,12 +180,23 @@ namespace ob
 
 			inline void update(FT) override
 			{
-				updateUsable(); updateInput(); updateHUD(); attractShards();
+				updateValidShootingPos(); updateUsable(); updateInput(); updateHUD(); attractShards();
 
 				if(game.isLevelClear()) { shards += currentShards; currentShards = 0; }
-				if(cWielder.isShooting()) cWpnController.shoot(cWielder.getShootingPos(), cDir8.getDeg(), cWielder.getShootingPosPx());
+				if(cWielder.isShooting()) cWpnController.shoot(validShootingPos, cDir8.getDeg(), cWielder.getShootingPosPx());
 			}
-			inline void draw() override { cDraw[0].setRotation(cDir8.getDeg()); }
+			inline void draw() override
+			{
+				cDraw[0].setRotation(cDir8.getDeg());
+
+				// TODO: remove
+				testRay.setFillColor(sf::Color::Red);
+				testRay.setOrigin(ssvs::Vec2f(1.f, 1.f));
+				testRay.setPosition(toPixels(validShootingPos));
+				// ____
+
+				getGame().render(testRay);
+			}
 
 			inline void bomb()
 			{

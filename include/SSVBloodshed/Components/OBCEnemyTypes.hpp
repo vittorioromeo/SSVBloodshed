@@ -29,7 +29,7 @@ namespace ob
 		Vec2f dir(mTarget.getPosI() - startPos);
 		//direction = Vec2f(getVecFromDir8(getDir8FromDeg(ssvs::getDeg(direction))));
 
-		auto gridQuery(mSeeker.getWorld().getQuery<ssvsc::QueryType::RayCast>(startPos, dir));
+		auto gridQuery(mSeeker.getWorld().getQuery<ssvsc::QueryType::RayCast>(startPos, ssvs::getNormalized(dir)));
 
 		Body* body;
 		while((body = gridQuery.next()) != nullptr)

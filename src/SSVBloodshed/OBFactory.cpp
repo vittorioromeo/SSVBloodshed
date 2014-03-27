@@ -352,7 +352,7 @@ namespace ob
 	{
 		auto tpl(createProjectileBase(mPos, {150, 150}, 260.f, mDeg, assets.pjPlasma));
 		gt<Entity>(tpl).createComponent<OBCParticleEmitter>(gt<OBCPhys>(tpl), &OBGame::createPPlasma);
-		gt<OBCProjectile>(tpl).setPierceOrganic(-1);
+		gt<OBCProjectile>(tpl).setPierceOrganic(4);
 		gt<OBCDraw>(tpl).setBlendMode(sf::BlendMode::BlendAdd);
 		return gt<Entity>(tpl);
 	}
@@ -428,7 +428,7 @@ namespace ob
 		auto str(ssvu::getClampedMin(mNum, 1));
 		auto tpl(createProjectileBase(mPos, {150, 150}, 560.f - (mNum * 70), mDeg, assets.pjShockwave));
 		gt<Entity>(tpl).createComponent<OBCParticleEmitter>(gt<OBCPhys>(tpl), &OBGame::createPShockwave, str);
-		gt<OBCProjectile>(tpl).setPierceOrganic(ssvu::getClampedMax(str / 2 + 1, 2));
+		gt<OBCProjectile>(tpl).setPierceOrganic(ssvu::getClampedMax(str / 2 + 1, 2) + 1);
 		gt<OBCProjectile>(tpl).setDamage(str / 2 + 1);
 		gt<OBCProjectile>(tpl).setLife(16 + str * 11);
 		if(mNum > 0)
