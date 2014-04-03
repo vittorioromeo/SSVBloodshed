@@ -23,14 +23,14 @@ namespace ssvces
 	static constexpr std::size_t maxComponents{32};
 	static constexpr std::size_t maxGroups{32};
 
-	using EntityId = std::size_t;
-	using EntityIdCtr = std::uint8_t;
+	using EntityId = int;
+	using EntityIdCtr = int;
 	struct EntityStat { EntityId id; EntityIdCtr ctr; };
 
 	using TypeIdIdx = std::size_t;
 	using TypeIdsBitset = std::bitset<maxComponents>;
 
-	using Group = unsigned int;
+	using Group = std::size_t;
 	using GroupBitset = std::bitset<maxGroups>;
 
 	template<typename T, typename TDeleter = std::default_delete<T>> using Uptr = ssvu::Uptr<T, TDeleter>;
