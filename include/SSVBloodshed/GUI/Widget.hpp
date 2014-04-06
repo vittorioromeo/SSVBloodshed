@@ -68,11 +68,6 @@ namespace ob
 
 				inline void setFocused(bool mValue)
 				{
-					if(focused != mValue)
-					{
-						onFocusChanged(mValue);
-						recurseParents([mValue](Widget& mW){ mW.onAnyChildFocusChanged(mValue); });
-					}
 					focused = mValue;
 				}
 
@@ -144,15 +139,14 @@ namespace ob
 			public:
 				using AABBShape::AABBShape;
 
-				ssvu::Delegate<void(bool)> onFocusChanged, onAnyChildFocusChanged;
 				ssvu::Delegate<void()> onPostUpdate, onPostDraw;
 				ssvu::Delegate<void()> onLeftClick, onLeftClickDown, onLeftRelease;
 				ssvu::Delegate<void()> onRightClick, onRightClickDown, onRightRelease;
 
-				Widget(Context& mContext) : context(mContext) { }
-				Widget(Context& mContext, const Vec2f& mHalfSize) : AABBShape(Vec2f{0.f, 0.f}, mHalfSize), context(mContext) { }
-				Widget(Context& mContext, const Vec2f& mPosition, const Vec2f& mHalfSize) : AABBShape(mPosition, mHalfSize), context(mContext) { }
-				virtual ~Widget() { }
+				inline Widget(Context& mContext) : context(mContext) { }
+				inline Widget(Context& mContext, const Vec2f& mHalfSize) : AABBShape(ssvs::zeroVec2f, mHalfSize), context(mContext) { }
+				inline Widget(Context& mContext, const Vec2f& mPosition, const Vec2f& mHalfSize) : AABBShape(mPosition, mHalfSize), context(mContext) { }
+				inline virtual ~Widget() { }
 
 				template<bool TIncludeCaller = true, typename T> inline void recurseChildren(const T& mFunc)
 				{

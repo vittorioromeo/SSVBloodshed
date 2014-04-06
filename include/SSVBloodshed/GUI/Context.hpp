@@ -66,6 +66,7 @@ namespace ob
 					return widgets.create<T>(*this, std::forward<TArgs>(mArgs)...);
 				}
 
+				Widget* found{nullptr};
 				inline void updateFocus()
 				{
 					// If the context is busy (dragging, resizing, editing...), do not change focus
@@ -74,17 +75,28 @@ namespace ob
 					// If mouse is pressed outside of the context or context is unfocused, unfocus everything
 					if((unfocusOnUnhover || mouseLDown || mouseRDown) && !hovered) { unFocusAll(); return; }
 
-					// Find the topmost pressed child, if any
-					Widget* found{nullptr};
-					for(auto& c : children) if(c->isAnyChildRecursive([](const Widget& mW){ return mW.isPressedAny(); })) { found = c; bringToFront(*c); break; }
+					// Check if anything was being pressed or hovered previously
+					bool foundAny{false};
+					if(found != nullptr)
+					{
+						found->recurseChildren<true>([this, &foundAny](Widget& mW){ if(mW.isHovered() || mW.isPressedAny()) foundAny = true; });
+					}
+
+					// If nothing was being pressed, find the topmost pressed object
+					if(!foundAny)
+					{
+						for(auto& c : children) if(c->isAnyChildRecursive([](const Widget& mW){ return mW.isPressedAny(); })) { found = c; bringToFront(*c); break; }
+					}
+
 					if(found == nullptr) return;
 
 					// Find the "deepest" pressed child in the hierarchy
-					found->recurseChildren([&found](Widget& mW){ if(mW.isPressedAny() && mW.depth > found->depth) found = &mW; });
+					found->recurseChildren([this](Widget& mW){ if(mW.isPressedAny() && mW.depth > found->depth) found = &mW; });
 
 					// Unfocus everything but the widgets as deep as the deepest child, and focus the context
-					for(auto& w : children) w->recurseChildrenIf<true>([found](Widget& mW){ return mW.isFocused() && &mW != found; }, [](Widget& mW){ mW.setFocused(false); });
-					found->recurseChildren([this, found](Widget& mW){ if(mW.depth == found->depth) { mW.setFocused(true); focused = true; } });
+					//for(auto& w : children) w->recurseChildrenIf<true>([found](Widget& mW){ return mW.isFocused() && &mW != found; }, [](Widget& mW){ mW.setFocused(false); });
+					unFocusAll();
+					found->recurseChildren([this](Widget& mW){ if(mW.depth == found->depth) { mW.setFocused(true); focused = true; } });
 				}
 
 				inline bool isKeyPressed(ssvs::KKey mKey) const noexcept { return gameWindow.getInputState().isKeyPressed(mKey); }
