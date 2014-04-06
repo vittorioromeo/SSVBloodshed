@@ -22,17 +22,16 @@ namespace ob
 				std::string editStr, str;
 				float green{0.f};
 				Internal::TextCursor cursor;
+				Internal::TextCursorShape cursorShape;
 
 				inline void update(FT mFT) override
 				{
-					cursor.update(mFT, editStr.size());
-
 					if(editing)
 					{
 						green += mFT * 0.08f;
 						auto effect(std::abs(std::sin(green)));
 
-						cursor.refreshShape(ssvs::getGlobalLeft(lblText.getText()), lblText.getY(), getCursorSpacing());
+						cursorShape.refreshShape(cursor, ssvs::getGlobalLeft(lblText.getText()), lblText.getY(), getCursorSpacing());
 
 						lblText.getText().setColor(sf::Color(255, effect * 255, 255, 255));
 						lblText.setString(editStr);
@@ -47,21 +46,27 @@ namespace ob
 					{
 						if(!editing) return;
 
+						auto modLShift(isKeyPressed(ssvs::KKey::LShift));
+						auto modLCtrl(isKeyPressed(ssvs::KKey::LControl));
+
 						if(e.type == sf::Event::TextEntered)
 						{
-							if(e.text.unicode == '\b' && !editStr.empty()) cursor.delStrBack(editStr);
-							else if(e.text.unicode > 31 && e.text.unicode < 127) cursor.insertStr(editStr, char(e.text.unicode));
+							if(e.text.unicode == '\b' && !editStr.empty()) cursor.delStrBack(modLCtrl);
+							else if(e.text.unicode > 31 && e.text.unicode < 127) cursor.insertStr(char(e.text.unicode));
 						}
 						else if(e.type == sf::Event::KeyPressed)
 						{
-							if(e.key.code == ssvs::KKey::Return) finishEditing();
-							else if(e.key.code == ssvs::KKey::Left) cursor.move(editStr, isKeyPressed(ssvs::KKey::LShift), isKeyPressed(ssvs::KKey::LControl), -1);
-							else if(e.key.code == ssvs::KKey::Right) cursor.move(editStr, isKeyPressed(ssvs::KKey::LShift), isKeyPressed(ssvs::KKey::LControl), 1);
-							else if(e.key.code == ssvs::KKey::Home) cursor.setBoth(0);
-							else if(e.key.code == ssvs::KKey::End) cursor.setBoth(editStr.size());
-							else if(e.key.code == ssvs::KKey::Delete) cursor.delStrFwd(editStr);
+							if(e.key.code == ssvs::KKey::Return)		finishEditing();
+							else if(e.key.code == ssvs::KKey::Escape)	finishEditing();
+							else if(e.key.code == ssvs::KKey::Left)		cursor.move(modLShift, modLCtrl, -1);
+							else if(e.key.code == ssvs::KKey::Right)	cursor.move(modLShift, modLCtrl, 1);
+							else if(e.key.code == ssvs::KKey::Home)		cursor.setBoth(0);
+							else if(e.key.code == ssvs::KKey::End)		cursor.setBoth(editStr.size());
+							else if(e.key.code == ssvs::KKey::Delete)	cursor.delStrFwd(modLCtrl);
 						}
 					}
+
+					if(editing && !isFocused()) finishEditing();
 				}
 
 				inline void finishEditing() { editing = false; str = editStr; onTextChanged(); }
@@ -73,11 +78,11 @@ namespace ob
 
 				TextBox(Context& mContext, const Vec2f& mSize) : Widget{mContext, mSize / 2.f},
 					tBox(create<Widget>()), lblText(tBox.create<Label>("")),
-					cursor{float(getStyle().getGlyphHeight())}
+					cursor(editStr), cursorShape{float(getStyle().getGlyphHeight())}
 				{
 					setFillColor(sf::Color::Transparent);
 
-					lblText.onPostDraw += [this]{ if(editing) render(cursor.getShape()); };
+					lblText.onPostDraw += [this]{ if(editing) render(cursorShape.getShape()); };
 
 					tBox.setOutlineColor(getStyle().colorOutline);
 					tBox.setOutlineThickness(getStyle().outlineThickness);
@@ -98,7 +103,6 @@ namespace ob
 						else cursor.setBoth(getCursorPos());
 					};
 					onLeftClickDown += [this]{ cursor.setEnd(getCursorPos()); };
-					onFocusChanged += [this](bool mFocus){ if(editing && !mFocus) finishEditing(); };
 				}
 
 				inline void setString(std::string mString) { str = std::move(mString); }
