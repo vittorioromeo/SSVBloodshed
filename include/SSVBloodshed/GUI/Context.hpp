@@ -172,6 +172,3 @@ namespace ob
 }
 
 #endif
-
-// TODO: BUG: you can gain focus of parent elements without losing focus of children elements (lists)
-// and click "hidden" elements

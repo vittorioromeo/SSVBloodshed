@@ -3,18 +3,31 @@
 #ifdef WAT
 
 #include <string>
+#include <future>
 #include <SSVUtils/Core/Core.hpp>
 #include <SSVUtils/Test/Test.hpp>
+#include <SSVUtils/Benchmark/Benchmark.hpp>
 
 int main()
 {
-	SSVUT_RUN();
+	ssvu::Benchmark::start("Outer");
+	{
+		std::this_thread::sleep_for(std::chrono::seconds(1));
 
-SSVU_ASSERT(true);
-SSVU_ASSERT(false);
-SSVU_ASSERT(false);
-SSVU_ASSERT(false);
-SSVU_ASSERT(false);
+		ssvu::Benchmark::start("Inner 1");
+		{
+			std::this_thread::sleep_for(std::chrono::seconds(1));
+		}
+		ssvu::Benchmark::endLo();
+
+		ssvu::Benchmark::start("Inner 2");
+		{
+			std::this_thread::sleep_for(std::chrono::seconds(1));
+		}
+		ssvu::Benchmark::endLo();
+	}
+	ssvu::Benchmark::endLo();
+
 	return 0;
 }
 
@@ -374,7 +387,7 @@ int main()
 	manager.registerSystem(sDraw);
 	manager.registerSystem(sColorInhibitor);
 
-	/*ssvu::startBenchmark();
+	ssvu::Benchmark::start("Test");
 	{
 		for(int k = 0; k < 5; ++k)
 		{
@@ -423,7 +436,8 @@ int main()
 			sMovement.update(5);
 			sDeath.update(5);
 		}
-	} ssvu::lo("benchmark") << ssvu::endBenchmark();*/
+	}
+	ssvu::Benchmark::endLo();
 
 	float counter{99};
 	ssvs::GameState gameState;
