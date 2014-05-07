@@ -25,8 +25,8 @@ namespace ssvut
 			inline LexicalFSM& once(const std::string& mStr, NodeType mType)	{ continueOnce([this, mStr]{ return la->match(mStr); }, mType); return *this; }
 			inline LexicalFSM& repeat(const std::string& mStr, NodeType mType)	{ continueRepeat([this, mStr]{ return la->match(mStr); }, mType); return *this; }
 
-			template<typename TF> inline LexicalFSM& matchOnce(const TF& mFunc, NodeType mType)		{ continueOnce([this, mFunc]{ return mFunc(la->getMatchChar()); }, mType); return *this; }
-			template<typename TF> inline LexicalFSM& matchRepeat(const TF& mFunc, NodeType mType)	{ continueRepeat([this, mFunc]{ return mFunc(la->getMatchChar()); }, mType); return *this; }
+			template<typename TF> inline LexicalFSM& matchOnce(TF mFunc, NodeType mType)	{ continueOnce([this, mFunc]{ return mFunc(la->getMatchChar()); }, mType); return *this; }
+			template<typename TF> inline LexicalFSM& matchRepeat(TF mFunc, NodeType mType)	{ continueRepeat([this, mFunc]{ return mFunc(la->getMatchChar()); }, mType); return *this; }
 
 			inline LexicalFSM& matchAnythingUntilOnce(NodeType mLoopType, const std::string& mEndStr, NodeType mEndType)
 			{
