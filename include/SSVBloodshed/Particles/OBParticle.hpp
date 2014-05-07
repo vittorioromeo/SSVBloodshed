@@ -15,7 +15,6 @@ namespace ob
 		float size, life, lifeMax, curveSpd, fuzziness, accel, alphaMult;
 		sf::Color color;
 
-		inline OBParticle() { }
 		inline OBParticle(const Vec2f& mPos, const Vec2f& mVel, float mSize, float mLife, float mCurveSpd, float mFuzziness, float mAccel, float mAlphaMult, sf::Color mColor) noexcept
 			: pos{mPos}, vel{mVel}, size{mSize}, life{mLife}, lifeMax{mLife}, curveSpd{ssvu::toRad(mCurveSpd)}, fuzziness{mFuzziness}, accel{mAccel}, alphaMult{mAlphaMult}, color{std::move(mColor)} { }
 
