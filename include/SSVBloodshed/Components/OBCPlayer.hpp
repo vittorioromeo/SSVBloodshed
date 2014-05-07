@@ -88,11 +88,11 @@ namespace ob
 			{
 				auto gridQuery(getGame().getWorld().getQuery<ssvsc::QueryType::RayCast>(getCPhys().getPosI(), cDir8.getVec()));
 
-				Body* body;
-				while((body = gridQuery.next()) != nullptr)
+				Body* b;
+				while((b = gridQuery.next()) != nullptr)
 				{
-					if(body == &getCPhys().getBody()) continue;
-					if(body->hasGroup(OBGroup::GSolidGround)) break;
+					if(b == &getCPhys().getBody()) continue;
+					if(b->hasGroup(OBGroup::GSolidGround)) break;
 				}
 
 				auto rayDirVec(gridQuery.getLastPos() - getCPhys().getPosF());
@@ -142,8 +142,8 @@ namespace ob
 				{
 					auto query(cPhys.getWorld().getQuery<ssvsc::QueryType::Distance>(cPhys.getPosI(), 3500));
 
-					Body* body;
-					while((body = query.next()) != nullptr) if(body->hasGroup(OBGroup::GShard)) body->applyAccel(Vec2f(cPhys.getPosI() - body->getPosition()) * 0.004f);
+					Body* b;
+					while((b = query.next()) != nullptr) if(b->hasGroup(OBGroup::GShard)) b->applyAccel(Vec2f(cPhys.getPosI() - b->getPosition()) * 0.004f);
 				}
 				else
 				{
