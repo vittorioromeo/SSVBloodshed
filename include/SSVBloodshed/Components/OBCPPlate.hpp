@@ -40,12 +40,12 @@ namespace ob
 				std::vector<OBCPPlate*> result;
 				auto query(cPhys.getWorld().getQuery<ssvsc::QueryType::Distance>(cPhys.getPosI(), 1000));
 
-				Body* body;
-				while((body = query.next()) != nullptr)
+				Body* b;
+				while((b = query.next()) != nullptr)
 				{
-					if(!body->hasGroup(OBGroup::GPPlate)) continue;
+					if(!b->hasGroup(OBGroup::GPPlate)) continue;
 
-					auto& cPPlate(getEntityFromBody(*body).getComponent<OBCPPlate>());
+					auto& cPPlate(getEntityFromBody(*b).getComponent<OBCPPlate>());
 					if(cPPlate.cPhys.getPosI().x == cPhys.getPosI().x || cPPlate.cPhys.getPosI().y == cPhys.getPosI().y)
 						if(cPPlate.id == id && cPPlate.type == type) result.emplace_back(&cPPlate);
 				}
