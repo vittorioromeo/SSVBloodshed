@@ -22,7 +22,7 @@ namespace ob
 		{
 			life -= mFT;
 			color.a = (ssvu::getClamped(life * (255.f / lifeMax) * alphaMult, 0.f, 255.f));
-			ssvs::rotateRadAroundCenter(vel, ssvs::zeroVec2f, curveSpd);
+			ssvs::rotateRadAround(vel, ssvs::zeroVec2f, curveSpd);
 			vel *= accel;
 			pos += vel * mFT;
 
