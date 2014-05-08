@@ -13,17 +13,17 @@ namespace ob
 	class OBCParticleSystem : public sses::Component
 	{
 		private:
+			OBParticleSystem particleSystem;
 			sf::RenderTexture& renderTexture;
 			sf::RenderTarget& renderTarget;
-			bool clearOnDraw;
-			unsigned char alpha;
-			OBParticleSystem particleSystem;
 			sf::Sprite sprite;
 			sf::BlendMode blendMode;
+			unsigned char alpha;
+			bool clearOnDraw;
 
 		public:
 			OBCParticleSystem(sf::RenderTexture& mRenderTexture, sf::RenderTarget& mRenderTarget, bool mClearOnDraw = false, unsigned char mAlpha = 255, sf::BlendMode mBlendMode = sf::BlendMode::BlendAlpha) noexcept
-				: renderTexture(mRenderTexture), renderTarget(mRenderTarget), clearOnDraw{mClearOnDraw}, alpha{mAlpha}, blendMode{mBlendMode} { }
+				: renderTexture(mRenderTexture), renderTarget(mRenderTarget), blendMode{mBlendMode}, alpha{mAlpha}, clearOnDraw{mClearOnDraw} { }
 
 			inline void init()
 			{

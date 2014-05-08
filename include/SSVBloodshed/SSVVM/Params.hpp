@@ -33,7 +33,6 @@ namespace ssvvm
 
 			inline Value& operator[](std::size_t mIdx) noexcept				{ SSVU_ASSERT(mIdx < valueCount); return values[mIdx]; }
 			inline const Value& operator[](std::size_t mIdx) const noexcept	{ SSVU_ASSERT(mIdx < valueCount); return values[mIdx]; }
-			inline const decltype(values)& getValues() const noexcept		{ return values; } // TODO: remove
 	};
 }
 

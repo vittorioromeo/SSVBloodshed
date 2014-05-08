@@ -14,6 +14,14 @@ namespace ob
 		SSVUJ_CONVERTER_FRIEND();
 
 		private:
+			// Input
+			Trigger tLeft, tRight, tUp, tDown;	// Movement triggers
+			Trigger tShoot, tSwitch, tBomb;	// Action triggers
+
+			// GFX
+			std::size_t particleMax{10000};
+			float particleMult{1.f};
+
 			// Gameplay
 			float dmgMultGlobal{1.f};	// Multiplier of damage dealt
 			float dmgMultPlayer{1.f};	// Multiplier of damage dealt by the player
@@ -21,14 +29,6 @@ namespace ob
 
 			// SFX
 			bool soundEnabled{true}, musicEnabled{true};
-
-			// GFX
-			float particleMult{1.f};
-			std::size_t particleMax{10000};
-
-			// Input
-			Trigger tLeft, tRight, tUp, tDown;	// Movement triggers
-			Trigger tShoot, tSwitch, tBomb;	// Action triggers
 
 			inline OBConfig()
 			{
@@ -49,6 +49,22 @@ namespace ob
 		public:
 			inline static OBConfig& get() noexcept { static OBConfig instance; return instance; }
 
+			// Input
+			inline static const Trigger& getTLeft() noexcept	{ return get().tLeft; }
+			inline static const Trigger& getTRight() noexcept	{ return get().tRight; }
+			inline static const Trigger& getTUp() noexcept		{ return get().tUp; }
+			inline static const Trigger& getTDown() noexcept	{ return get().tDown; }
+			inline static const Trigger& getTShoot() noexcept	{ return get().tShoot; }
+			inline static const Trigger& getTSwitch() noexcept	{ return get().tSwitch; }
+			inline static const Trigger& getTBomb() noexcept	{ return get().tBomb; }
+
+			// GFX
+			inline static void setParticleMult(float mValue) noexcept		{ get().particleMult = mValue; }
+			inline static void setParticleMax(std::size_t mValue) noexcept	{ get().particleMax = mValue; }
+
+			inline static std::size_t getParticleMax() noexcept				{ return get().particleMax; }
+			inline static float getParticleMult() noexcept					{ return get().particleMult; }
+
 			// Gameplay
 			inline static void setDmgMultGlobal(float mValue) noexcept		{ get().dmgMultGlobal = mValue; }
 			inline static void setDmgMultPlayer(float mValue) noexcept		{ get().dmgMultPlayer = mValue; }
@@ -58,33 +74,12 @@ namespace ob
 			inline static float getDmgMultPlayer() noexcept					{ return get().dmgMultPlayer * getDmgMultGlobal(); }
 			inline static float getDmgMultEnemy() noexcept					{ return get().dmgMultEnemy * getDmgMultGlobal(); }
 
-
 			// SFX
 			inline static void setSoundEnabled(bool mValue) noexcept		{ get().soundEnabled = mValue; }
 			inline static void setMusicEnabled(bool mValue) noexcept		{ get().musicEnabled = mValue; }
 
 			inline static bool isSoundEnabled() noexcept					{ return get().soundEnabled; }
 			inline static bool isMusicEnabled() noexcept					{ return get().musicEnabled; }
-
-
-
-			// GFX
-			inline static void setParticleMult(float mValue) noexcept		{ get().particleMult = mValue; }
-			inline static void setParticleMax(std::size_t mValue) noexcept	{ get().particleMax = mValue; }
-
-			inline static float getParticleMult() noexcept					{ return get().particleMult; }
-			inline static std::size_t getParticleMax() noexcept				{ return get().particleMax; }
-
-
-
-			// Input
-			inline static const Trigger& getTLeft() noexcept	{ return get().tLeft; }
-			inline static const Trigger& getTRight() noexcept	{ return get().tRight; }
-			inline static const Trigger& getTUp() noexcept		{ return get().tUp; }
-			inline static const Trigger& getTDown() noexcept	{ return get().tDown; }
-			inline static const Trigger& getTShoot() noexcept	{ return get().tShoot; }
-			inline static const Trigger& getTSwitch() noexcept	{ return get().tSwitch; }
-			inline static const Trigger& getTBomb() noexcept	{ return get().tBomb; }
 	};
 }
 

@@ -34,8 +34,8 @@ namespace ssvvm
 	class SourceVeeAsm
 	{
 		private:
-			bool preprocessed{false};
 			std::string contents;
+			bool preprocessed{false};
 
 		public:
 			inline static SourceVeeAsm fromStringRaw(std::string mSourceRaw)

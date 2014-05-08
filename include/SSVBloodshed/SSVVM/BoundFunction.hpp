@@ -13,7 +13,7 @@ namespace ssvvm
 {
 	namespace Internal
 	{
-		template<std::size_t TIdx, typename TArg, typename T> inline static void makeParamsTuple(T& mTpl, const Params& mParams) { std::get<TIdx>(mTpl) = mParams.getValues()[TIdx].template get<TArg>(); }
+		template<std::size_t TIdx, typename TArg, typename T> inline static void makeParamsTuple(T& mTpl, const Params& mParams) { std::get<TIdx>(mTpl) = mParams[TIdx].template get<TArg>(); }
 		template<std::size_t TIdx, typename TArg1, typename TArg2, typename... TArgs, typename T> inline static void makeParamsTuple(T& mTpl, const Params& mParams)
 		{
 			makeParamsTuple<TIdx, TArg1>(mTpl, mParams); makeParamsTuple<TIdx + 1, TArg2, TArgs...>(mTpl, mParams);

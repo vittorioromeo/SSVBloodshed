@@ -15,9 +15,9 @@ namespace ob
 	class OBCSpawner : public OBCActorBase
 	{
 		private:
+			ssvs::Ticker delayStart, delaySpawn;
 			OBCIdReceiver& cIdReceiver;
 			SpawnerItem type;
-			ssvs::Ticker delayStart, delaySpawn;
 			int spawnCount;
 			bool active{true};
 
@@ -45,7 +45,7 @@ namespace ob
 
 		public:
 			OBCSpawner(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCIdReceiver& mCIdReceiver, SpawnerItem mType, float mDelayStart, float mDelaySpawn, int mSpawnCount) noexcept :
-				OBCActorBase{mCPhys, mCDraw}, cIdReceiver(mCIdReceiver), type{mType}, delayStart{mDelayStart}, delaySpawn{mDelaySpawn}, spawnCount{mSpawnCount} { delayStart.setLoop(false); }
+				OBCActorBase{mCPhys, mCDraw}, delayStart{mDelayStart}, delaySpawn{mDelaySpawn}, cIdReceiver(mCIdReceiver), type{mType}, spawnCount{mSpawnCount} { delayStart.setLoop(false); }
 
 			inline void init()
 			{

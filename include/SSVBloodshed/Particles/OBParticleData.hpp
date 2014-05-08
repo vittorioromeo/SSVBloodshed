@@ -15,9 +15,9 @@ namespace ob
 		using RngF = std::pair<float, float>;
 		using ColorRng = std::tuple<RngI, RngI, RngI, RngI>;
 
+		std::vector<ColorRng> colorRngs;
 		RngF angleRng{0.f, 0.f}, velRng{0.f, 0.f}, sizeRng{0.f, 0.f}, lifeRng{0.f, 0.f}, curveSpdRng{0.f, 0.f}, fuzzinessRng{0.f, 0.f}, accelRng{0.f, 0.f}, distRng{0.f, 0.f};
 		float alphaMult;
-		std::vector<ColorRng> colorRngs;
 	};
 
 	inline int getRndRngI(const OBParticleData::RngI& mRng) noexcept	{ return ssvu::getRnd(std::get<0>(mRng), std::get<1>(mRng)); }
