@@ -59,6 +59,5 @@ int main()
 // TODO: generic macro recursion dispatcher
 // TODO: static tokenizer macro generator with tokeninterface ctrp base class
 
-// TODO: put stuff in Experimental repo
 // TODO: COMBOS!!!
 // TODO: rooms with scrolling
