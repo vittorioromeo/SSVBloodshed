@@ -18,7 +18,6 @@ using namespace ssvu::FileSystem;
 using namespace ssvs;
 using namespace ssvms;
 
-
 int main()
 {
 	SSVUT_RUN();
