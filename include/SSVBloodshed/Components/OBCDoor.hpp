@@ -12,7 +12,7 @@
 
 namespace ob
 {
-	class OBCDoorBase : public OBCActorBase
+	class OBCDoorBase : public OBCActor
 	{
 		protected:
 			bool openStatus{false};
@@ -31,7 +31,7 @@ namespace ob
 			}
 
 		public:
-			OBCDoorBase(OBCPhys& mCPhys, OBCDraw& mCDraw, bool mOpen = false) noexcept : OBCActorBase{mCPhys, mCDraw}, openStatus{mOpen} { }
+			OBCDoorBase(OBCPhys& mCPhys, OBCDraw& mCDraw, bool mOpen = false) noexcept : OBCActor{mCPhys, mCDraw}, openStatus{mOpen} { }
 			inline void init() { setOpen(openStatus); }
 
 			inline void toggle() noexcept	{ setOpen(!openStatus); }

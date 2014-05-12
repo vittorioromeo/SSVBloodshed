@@ -27,7 +27,7 @@ namespace ob
 		}
 	}
 
-	class OBCPPlate : public OBCActorBase, public OBWeightable
+	class OBCPPlate : public OBCActor, public OBWeightable
 	{
 		private:
 			int id;
@@ -69,7 +69,7 @@ namespace ob
 
 		public:
 			OBCPPlate(OBCPhys& mCPhys, OBCDraw& mCDraw, int mId, PPlateType mType, IdAction mIdAction, bool mPlayerOnly) noexcept
-				: OBCActorBase{mCPhys, mCDraw}, OBWeightable{mCPhys, mPlayerOnly}, id{mId}, type{mType}, idAction{mIdAction} { }
+				: OBCActor{mCPhys, mCDraw}, OBWeightable{mCPhys, mPlayerOnly}, id{mId}, type{mType}, idAction{mIdAction} { }
 
 			inline void init() { OBWeightable::init(); body.addGroups(OBGroup::GPPlate); }
 			inline void update(FT) override

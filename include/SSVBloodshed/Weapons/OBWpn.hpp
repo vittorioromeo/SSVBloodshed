@@ -23,9 +23,9 @@ namespace ob
 			inline OBWpn(OBGame& mGame, OBGroup mTargetGroup) noexcept : game(mGame), targetGroup{mTargetGroup} { }
 			inline OBWpn(OBGame& mGame, OBGroup mTargetGroup, OBWpnType mWpn) noexcept : game(mGame), targetGroup{mTargetGroup} { setWpn(std::move(mWpn)); }
 
-			inline void shoot(const Vec2i& mPos, float mDeg, const Vec2f& mMuzzlePxPos)
+			inline void shoot(OBCActorND* mShooter, const Vec2i& mPos, float mDeg, const Vec2f& mMuzzlePxPos)
 			{
-				wpnType.shoot(game, mPos, mDeg, mMuzzlePxPos);
+				wpnType.shoot(game, mShooter, mPos, mDeg, mMuzzlePxPos);
 			}
 			inline void playSound() { wpnType.playSound(game); }
 

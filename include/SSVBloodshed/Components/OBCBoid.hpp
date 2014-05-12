@@ -11,7 +11,7 @@
 
 namespace ob
 {
-	class OBCBoid : public OBCActorNoDrawBase
+	class OBCBoid : public OBCActorND
 	{
 		private:
 			float maxVel{150.f};
@@ -50,7 +50,7 @@ namespace ob
 			}
 
 		public:
-			inline OBCBoid(OBCPhys& mCPhys) : OBCActorNoDrawBase{mCPhys} { }
+			inline OBCBoid(OBCPhys& mCPhys) : OBCActorND{mCPhys} { }
 
 			inline void seek(const Vec2f& mTargetPos, float mForceMult = 0.02f, float mSlowRadius = 1500.f) noexcept
 			{

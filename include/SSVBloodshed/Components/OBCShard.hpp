@@ -11,10 +11,10 @@
 
 namespace ob
 {
-	class OBCShard : public OBCActorBase
+	class OBCShard : public OBCActor
 	{
 		public:
-			OBCShard(OBCPhys& mCPhys, OBCDraw& mCDraw) noexcept : OBCActorBase{mCPhys, mCDraw} { }
+			OBCShard(OBCPhys& mCPhys, OBCDraw& mCDraw) noexcept : OBCActor{mCPhys, mCDraw} { }
 
 			inline void init()
 			{

@@ -12,7 +12,7 @@
 
 namespace ob
 {
-	class OBCParticleEmitter : public OBCActorNoDrawBase
+	class OBCParticleEmitter : public OBCActorND
 	{
 		public:
 			using GameParticleMemFn = void(OBGame::*)(std::size_t mCount, const Vec2f& mPos);
@@ -23,7 +23,7 @@ namespace ob
 			std::size_t count;
 
 		public:
-			OBCParticleEmitter(OBCPhys& mCPhys, GameParticleMemFn mParticleMemFn, std::size_t mCount = 1) : OBCActorNoDrawBase{mCPhys}, particleMemFn{mParticleMemFn}, count{mCount} { }
+			OBCParticleEmitter(OBCPhys& mCPhys, GameParticleMemFn mParticleMemFn, std::size_t mCount = 1) : OBCActorND{mCPhys}, particleMemFn{mParticleMemFn}, count{mCount} { }
 
 			inline void update(FT) override { (game.*particleMemFn)(count, cPhys.getPosPx() + offset); }
 

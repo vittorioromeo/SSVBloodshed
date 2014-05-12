@@ -13,7 +13,7 @@ namespace ob
 {
 	class OBCPlayer;
 
-	class OBCUsable : public OBCActorNoDrawBase
+	class OBCUsable : public OBCActorND
 	{
 		private:
 			std::string msg;
@@ -21,7 +21,7 @@ namespace ob
 		public:
 			ssvu::Delegate<void(OBCPlayer&)> onUse;
 
-			OBCUsable(OBCPhys& mCPhys) : OBCActorNoDrawBase{mCPhys} { }
+			OBCUsable(OBCPhys& mCPhys) : OBCActorND{mCPhys} { }
 
 			inline void init() { getEntity().addGroups(OBGroup::GUsable); }
 

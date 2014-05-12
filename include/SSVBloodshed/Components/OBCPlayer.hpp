@@ -20,7 +20,7 @@ namespace ob
 {
 	class OBCVMachine;
 
-	class OBCPlayer : public OBCActorBase
+	class OBCPlayer : public OBCActor
 	{
 		public:
 			struct Data
@@ -41,6 +41,11 @@ namespace ob
 			float walkSpeed{125.f};
 			OBCUsable* currentUsable{nullptr};
 			Vec2i validShootingPos;
+
+			// TODO: refactor
+			float comboTime{0.f};
+			float comboTimeMax{100.f};
+			int comboCount{0};
 
 			// TODO: test
 			sf::RectangleShape testRay{ssvs::Vec2f(2.f, 2.f)};
@@ -68,7 +73,7 @@ namespace ob
 
 		public:
 			OBCPlayer(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCKillable& mCKillable, OBCWielder& mCWielder, OBCWpnController& mCWpnController) noexcept
-				: OBCActorBase{mCPhys, mCDraw}, cKillable(mCKillable), cWielder(mCWielder), cDir8(mCWielder.getCDir8()), cWpnController(mCWpnController) { }
+				: OBCActor{mCPhys, mCDraw}, cKillable(mCKillable), cWielder(mCWielder), cDir8(mCWielder.getCDir8()), cWpnController(mCWpnController) { }
 
 			inline void init()
 			{
@@ -160,6 +165,15 @@ namespace ob
 				}
 			}
 
+			// TODO: to ssvu?
+			template<typename T1, typename T2, typename T3, typename T4>
+			inline ssvu::Common<T1, T2, T3, T4> rangeToRange(const T1& mIMin, const T2& mIMax, const T3& mOMin, const T4& mOMax)
+			{
+				ssvu::Common<T1, T2, T3, T4> iRange = mIMax - mIMin, oRange = mOMax - mOMin;
+
+				return (input - mIMin) * oRange / iRange + mOMin;
+			}
+
 			inline void updateHUD()
 			{
 				// TODO:
@@ -168,6 +182,9 @@ namespace ob
 				game.testhp.setMaxValue(cHealth.getMaxHealth());
 				game.txtShards.setString(ssvu::toStr(shards + currentShards));
 				game.txtVM.setString(currentUsable == nullptr ? weapons[currentWpn].name : currentUsable->getMsg());
+
+				game.txtCombo.setString(comboCount > 0 ? "COMBO: " + ssvu::toStr(comboCount) : "");
+				auto percent(comboTime
 			}
 
 			inline void checkTransitions()
@@ -178,12 +195,12 @@ namespace ob
 				else if(cPhys.getBottom() + cPhys.getVel().y > levelHeightCoords)	game.changeLevel(*this, 0, 1);
 			}
 
-			inline void update(FT) override
+			inline void update(FT mFT) override
 			{
-				updateValidShootingPos(); updateUsable(); updateInput(); updateHUD(); attractShards();
+				updateValidShootingPos(); updateUsable(); updateInput(); updateHUD(); attractShards(); updateCombo(mFT);
 
 				if(game.isLevelClear()) { shards += currentShards; currentShards = 0; }
-				if(cWielder.isShooting()) cWpnController.shoot(validShootingPos, cDir8.getDeg(), cWielder.getShootingPosPx());
+				if(cWielder.isShooting()) cWpnController.shoot(this, validShootingPos, cDir8.getDeg(), cWielder.getShootingPosPx());
 			}
 			inline void draw() override
 			{
@@ -201,7 +218,7 @@ namespace ob
 			inline void bomb()
 			{
 				for(int k{0}; k < 5; ++k)
-					for(int i{0}; i < 360; i += 360 / 16) factory.createPJTestBomb(body.getPosition(), cDir8.getDeg() + (i * (360 / 16)), 2.f - k * 0.2f + i * 0.004f, 4.f + k * 0.3f - i * 0.004f);
+					for(int i{0}; i < 360; i += 360 / 16) factory.createPJTestBomb(this, body.getPosition(), cDir8.getDeg() + (i * (360 / 16)), 2.f - k * 0.2f + i * 0.004f, 4.f + k * 0.3f - i * 0.004f);
 			}
 
 			inline void shardGrabbed() noexcept { ++currentShards; }
@@ -226,8 +243,30 @@ namespace ob
 			}
 
 			inline void useVM(OBCVMachine& mVMachine);
+
+			inline void updateCombo(FT mFT)
+			{
+				if(comboTime <= 0)
+				{
+					comboCount = 0;
+				}
+				else
+				{
+					comboTime -= mFT;
+				}
+			}
+			inline void onKill(Entity& mEntity)
+			{
+				if(mEntity.hasGroup(OBGroup::GEnemy))
+				{
+					comboTime = comboTimeMax;
+					++comboCount;
+				}
+			}
 	};
 }
+
+#include "SSVBloodshed/Components/OBCHealth.inl"
 
 #endif
 

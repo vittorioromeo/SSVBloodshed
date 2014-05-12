@@ -17,23 +17,23 @@
 
 namespace ob
 {
-	class OBCWpnController : public OBCActorNoDrawBase
+	class OBCWpnController : public OBCActorND
 	{
 		private:
 			OBWpn wpn;
 			ssvs::Ticker tckShoot{0.f};
 
 		public:
-			OBCWpnController(OBCPhys& mCPhys, OBGroup mTargetGroup) noexcept : OBCActorNoDrawBase{mCPhys}, wpn{game, mTargetGroup} { }
+			OBCWpnController(OBCPhys& mCPhys, OBGroup mTargetGroup) noexcept : OBCActorND{mCPhys}, wpn{game, mTargetGroup} { }
 
 			inline void init()						{ tckShoot.setLoop(false); }
 			inline void update(FT mFT) override	{ tckShoot.update(mFT); }
 
-			inline bool shoot(const Vec2i& mPos, float mDeg, const Vec2f& mMuzzlePxPos)
+			inline bool shoot(OBCActorND* mShooter, const Vec2i& mPos, float mDeg, const Vec2f& mMuzzlePxPos)
 			{
 				if(tckShoot.isRunning()) return false;
 				tckShoot.restart(wpn.getDelay());
-				wpn.shoot(mPos, mDeg, mMuzzlePxPos); wpn.playSound();
+				wpn.shoot(mShooter, mPos, mDeg, mMuzzlePxPos); wpn.playSound();
 				return true;
 			}
 

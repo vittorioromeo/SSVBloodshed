@@ -89,6 +89,7 @@ namespace ob
 
 			OBBarCounter testhp{2, 6, 13};
 			ssvs::BitmapText txtShards{*assets.obStroked}, txtVM{*assets.obStroked}, txtInfo{*assets.obStroked};
+			ssvs::BitmapText txtCombo{*assets.obBigStroked, ""};
 
 			inline OBGame(ssvs::GameWindow& mGameWindow, OBAssets& mAssets) : gameWindow(mGameWindow), assets(mAssets)
 			{
@@ -120,6 +121,9 @@ namespace ob
 
 				pauseTxt.setPosition(overlayCamera.getCenter());
 				pauseTxt.setOrigin(ssvs::getGlobalHalfSize(pauseTxt));
+
+				txtCombo.setPosition(overlayCamera.getCenter());
+				txtCombo.setOrigin(ssvs::getGlobalHalfSize(txtCombo));
 
 				gameState.onAnyEvent += [this](const sf::Event& mEvent){ guiCtx.onAnyEvent(mEvent); };
 
@@ -246,7 +250,7 @@ namespace ob
 						render(pauseTxt);
 					}
 
-					render(hudSprite); render(testhp); render(testAmmoTxt); render(txtShards); render(txtVM); render(txtInfo);
+					render(hudSprite); render(testhp); render(testAmmoTxt); render(txtShards); render(txtVM); render(txtInfo); render(txtCombo);
 				}
 				overlayCamera.unapply();
 

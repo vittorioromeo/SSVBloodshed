@@ -11,7 +11,7 @@
 
 namespace ob
 {
-	class OBCTargeter : public OBCActorNoDrawBase
+	class OBCTargeter : public OBCActorND
 	{
 		private:
 			OBCPhys* target{nullptr};
@@ -20,7 +20,7 @@ namespace ob
 			float distance{0.f};
 
 		public:
-			OBCTargeter(OBCPhys& mCPhys, OBGroup mTargetGroup) noexcept : OBCActorNoDrawBase{mCPhys}, targetGroup(mTargetGroup) { }
+			OBCTargeter(OBCPhys& mCPhys, OBGroup mTargetGroup) noexcept : OBCActorND{mCPhys}, targetGroup(mTargetGroup) { }
 
 			inline void update(FT) override
 			{

@@ -12,7 +12,7 @@
 
 namespace ob
 {
-	class OBCTrapdoor : public OBCActorBase, public OBWeightable
+	class OBCTrapdoor : public OBCActor, public OBWeightable
 	{
 		private:
 			static constexpr float fallTimeMax{70.f};
@@ -20,7 +20,7 @@ namespace ob
 			bool falling{false};
 
 		public:
-			OBCTrapdoor(OBCPhys& mCPhys, OBCDraw& mCDraw, bool mPlayerOnly) noexcept : OBCActorBase{mCPhys, mCDraw}, OBWeightable{mCPhys, mPlayerOnly} { }
+			OBCTrapdoor(OBCPhys& mCPhys, OBCDraw& mCDraw, bool mPlayerOnly) noexcept : OBCActor{mCPhys, mCDraw}, OBWeightable{mCPhys, mPlayerOnly} { }
 
 			inline void init()
 			{

@@ -61,7 +61,7 @@ namespace ob
 		return false;
 	}
 
-	class OBCEBase : public OBCActorBase
+	class OBCEBase : public OBCActor
 	{
 		protected:
 			OBCEnemy& cEnemy;
@@ -71,7 +71,7 @@ namespace ob
 			OBCHealth& cHealth;
 
 		public:
-			OBCEBase(OBCEnemy& mCEnemy) : OBCActorBase{mCEnemy.getCPhys(), mCEnemy.getCDraw()}, cEnemy(mCEnemy), cKillable(cEnemy.getCKillable()), cBoid(cEnemy.getCBoid()),
+			OBCEBase(OBCEnemy& mCEnemy) : OBCActor{mCEnemy.getCPhys(), mCEnemy.getCDraw()}, cEnemy(mCEnemy), cKillable(cEnemy.getCKillable()), cBoid(cEnemy.getCBoid()),
 				cTargeter(cEnemy.getCTargeter()), cHealth(mCEnemy.getCKillable().getCHealth()) { }
 
 			inline bool isPlayerInSightRanged() const noexcept	{ return raycastToPlayer(cPhys, cTargeter.getTarget(), true, false); }
@@ -91,7 +91,7 @@ namespace ob
 			OBCEArmedBase(OBCEnemy& mCEnemy, OBCWielder& mCWielder, OBCWpnController& mCWpnController, bool mArmed, int mWpnHealth)
 				: OBCEBase{mCEnemy}, cWielder(mCWielder), cDir8(mCWielder.getCDir8()), cWpnController(mCWpnController), armed{mArmed}, wpnHealth(mWpnHealth)
 			{
-				cHealth.onDamage += [this]{ if(armed && wpnHealth-- <= 0) { armed = false; game.createPElectric(10, toPixels(cPhys.getPosF())); } };
+				cHealth.onDamage += [this](OBCActorND*){ if(armed && wpnHealth-- <= 0) { armed = false; game.createPElectric(10, toPixels(cPhys.getPosF())); } };
 			}
 
 			inline void pursuitOrAlign(float mDist, float mPursuitDist)
@@ -107,7 +107,7 @@ namespace ob
 
 			inline void shootGun()
 			{
-				cWpnController.shoot(cWielder.getShootingPos(), cDir8.getDeg(), cWielder.getShootingPosPx());
+				cWpnController.shoot(this, cWielder.getShootingPos(), cDir8.getDeg(), cWielder.getShootingPosPx());
 			}
 	};
 
@@ -268,7 +268,7 @@ namespace ob
 			inline void shootUnarmed(int mDeg)
 			{
 				assets.playSound("Sounds/spark.wav"); game.createPMuzzleBullet(20, cPhys.getPosPx());
-				wpn.shoot(cPhys.getPosI(), cEnemy.getCurrentDeg() + mDeg, cPhys.getPosPx());
+				wpn.shoot(this, cPhys.getPosI(), cEnemy.getCurrentDeg() + mDeg, cPhys.getPosPx());
 			}
 	};
 
@@ -374,7 +374,7 @@ namespace ob
 			{
 				assets.playSound("Sounds/spark.wav");
 				Vec2i shootPos{body.getPosition() + Vec2i(ssvs::getVecFromDeg<float>(cEnemy.getCurrentDeg()) * 100.f)};
-				wpn.shoot(shootPos, cEnemy.getCurrentDeg() + mDeg, toPixels(shootPos));
+				wpn.shoot(this, shootPos, cEnemy.getCurrentDeg() + mDeg, toPixels(shootPos));
 				game.createPMuzzleBullet(20, cPhys.getPosPx());
 			}
 			inline void shootCannon(int mDeg)
@@ -382,8 +382,8 @@ namespace ob
 				assets.playSound("Sounds/spark.wav");
 				Vec2i shootPos1{body.getPosition() + Vec2i(ssvs::getVecFromDeg<float>(cEnemy.getSnappedDeg() + 40) * 1400.f)};
 				Vec2i shootPos2{body.getPosition() + Vec2i(ssvs::getVecFromDeg<float>(cEnemy.getSnappedDeg() - 40) * 1400.f)};
-				wpnC.shoot(shootPos1, cEnemy.getCurrentDeg() + mDeg, toPixels(shootPos1));
-				wpnC.shoot(shootPos2, cEnemy.getCurrentDeg() + mDeg, toPixels(shootPos1));
+				wpnC.shoot(this, shootPos1, cEnemy.getCurrentDeg() + mDeg, toPixels(shootPos1));
+				wpnC.shoot(this, shootPos2, cEnemy.getCurrentDeg() + mDeg, toPixels(shootPos1));
 				game.createPMuzzleBullet(35, toPixels(shootPos1));
 				game.createPMuzzleBullet(35, toPixels(shootPos2));
 			}
@@ -420,7 +420,7 @@ namespace ob
 
 				assets.playSound("Sounds/spark.wav");
 				Vec2i shootPos{body.getPosition() + Vec2i(ssvs::getVecFromDeg<float>(cEnemy.getSnappedDeg() - 40) * 700.f)};
-				wpn.shoot(shootPos, cEnemy.getCurrentDeg() + mDeg, toPixels(shootPos));
+				wpn.shoot(this, shootPos, cEnemy.getCurrentDeg() + mDeg, toPixels(shootPos));
 				game.createPMuzzleBullet(35, toPixels(shootPos));
 			}
 	};

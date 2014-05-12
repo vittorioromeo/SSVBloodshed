@@ -12,7 +12,7 @@
 
 namespace ob
 {
-	class OBCForceField : public OBCActorBase
+	class OBCForceField : public OBCActor
 	{
 		private:
 			OBCIdReceiver& cIdReceiver;
@@ -23,7 +23,7 @@ namespace ob
 
 		public:
 			OBCForceField(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCIdReceiver& mCIdReceiver, Dir8 mDir, bool mBlockFriendly, bool mBlockEnemy, float mForceMult) noexcept
-				: OBCActorBase{mCPhys, mCDraw}, cIdReceiver(mCIdReceiver), blockFriendly{mBlockFriendly}, blockEnemy{mBlockEnemy}, rad{getRadFromDir8(mDir)},
+				: OBCActor{mCPhys, mCDraw}, cIdReceiver(mCIdReceiver), blockFriendly{mBlockFriendly}, blockEnemy{mBlockEnemy}, rad{getRadFromDir8(mDir)},
 				  forceMult{mForceMult}, animation{assets.aForceField} { }
 
 			inline void init()

@@ -11,21 +11,21 @@
 
 namespace ob
 {
-	class OBCDamageOnTouch : public OBCActorNoDrawBase
+	class OBCDamageOnTouch : public OBCActorND
 	{
 		private:
 			float dmg;
 			OBGroup targetGroup;
 
 		public:
-			OBCDamageOnTouch(OBCPhys& mCPhys, float mDamage, OBGroup mTargetGroup) noexcept : OBCActorNoDrawBase{mCPhys}, dmg{mDamage}, targetGroup{mTargetGroup} { }
+			OBCDamageOnTouch(OBCPhys& mCPhys, float mDamage, OBGroup mTargetGroup) noexcept : OBCActorND{mCPhys}, dmg{mDamage}, targetGroup{mTargetGroup} { }
 
 			inline void init()
 			{
 				body.addGroupsToCheck(targetGroup);
 				body.onDetection += [this](const DetectionInfo& mDI)
 				{
-					if(mDI.body.hasGroup(targetGroup) && !mDI.body.hasGroup(OBGroup::GEnvDestructible)) getComponentFromBody<OBCHealth>(mDI.body).damage(dmg);
+					if(mDI.body.hasGroup(targetGroup) && !mDI.body.hasGroup(OBGroup::GEnvDestructible)) getComponentFromBody<OBCHealth>(mDI.body).damage(this, dmg);
 				};
 			}
 

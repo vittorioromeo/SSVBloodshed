@@ -13,17 +13,15 @@
 
 namespace ob
 {
-	class OBCProjectile : public OBCActorBase
+	class OBCProjectile : public OBCActor
 	{
 		private:
 			ssvs::Ticker tckLife{150.f};
-			float curveSpeed{0.f}, dmg{1};
-			int pierceOrganic{0};
-			bool killDestructible{false};
+			OBCActorND* shooter{nullptr};
+			float acceleration{0.f}, minSpeed{0}, maxSpeed{1000}, dmgMult{1.f}, curveSpeed{0.f}, dmg{1};
 			OBGroup targetGroup{OBGroup::GEnemyKillable};
-			float acceleration{0.f}, minSpeed{0}, maxSpeed{1000};
-			bool bounce{false}, fallInPit{false};
-			float dmgMult{1.f};
+			int pierceOrganic{0};
+			bool bounce{false}, fallInPit{false}, killDestructible{false};
 
 			inline void refreshMult()
 			{
@@ -35,7 +33,8 @@ namespace ob
 		public:
 			ssvu::Delegate<void()> onDestroy;
 
-			OBCProjectile(OBCPhys& mCPhys, OBCDraw& mCDraw, float mSpeed, float mDeg) noexcept : OBCActorBase{mCPhys, mCDraw} { body.setVelocity(ssvs::getVecFromDeg(mDeg, mSpeed)); }
+			inline OBCProjectile(OBCActorND* mShooter, OBCPhys& mCPhys, OBCDraw& mCDraw, float mSpeed, float mDeg) noexcept
+				: OBCActor{mCPhys, mCDraw}, shooter{mShooter} { body.setVelocity(ssvs::getVecFromDeg(mDeg, mSpeed)); }
 
 			inline void init()
 			{
@@ -49,11 +48,11 @@ namespace ob
 
 					if(killDestructible && mDI.body.hasGroup(OBGroup::GEnvDestructible))
 					{
-						getComponentFromBody<OBCHealth>(mDI.body).damage(100000);
+						getComponentFromBody<OBCHealth>(mDI.body).damage(nullptr, 100000);
 						destroy();
 					}
 
-					if(mDI.body.hasGroup(targetGroup) && getComponentFromBody<OBCHealth>(mDI.body).damage(dmg * dmgMult) && pierceOrganic-- == 0)
+					if(mDI.body.hasGroup(targetGroup) && getComponentFromBody<OBCHealth>(mDI.body).damage(shooter, dmg * dmgMult) && pierceOrganic-- == 0)
 					{
 						destroy();
 					}

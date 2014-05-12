@@ -14,7 +14,7 @@
 
 namespace ob
 {
-	class OBCEnemy : public OBCActorBase
+	class OBCEnemy : public OBCActor
 	{
 		private:
 			OBCKillable& cKillable;
@@ -25,7 +25,7 @@ namespace ob
 
 		public:
 			OBCEnemy(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCKillable& mCKillable, OBCTargeter& mCTargeter, OBCBoid& mCBoid) noexcept
-				: OBCActorBase{mCPhys, mCDraw}, cKillable(mCKillable), cTargeter(mCTargeter), cBoid(mCBoid) { }
+				: OBCActor{mCPhys, mCDraw}, cKillable(mCKillable), cTargeter(mCTargeter), cBoid(mCBoid) { }
 
 			inline void init()
 			{

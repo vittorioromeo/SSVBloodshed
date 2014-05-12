@@ -13,7 +13,7 @@
 
 namespace ob
 {
-	class OBCVMachine : public OBCActorBase
+	class OBCVMachine : public OBCActor
 	{
 		private:
 			OBCUsable& cUsable;
@@ -21,7 +21,7 @@ namespace ob
 			int shardCost{10};
 
 		public:
-			OBCVMachine(OBCDraw& mCDraw, OBCUsable& mCUsable) noexcept : OBCActorBase{mCUsable.getCPhys(), mCDraw}, cUsable(mCUsable) { }
+			OBCVMachine(OBCDraw& mCDraw, OBCUsable& mCUsable) noexcept : OBCActor{mCUsable.getCPhys(), mCDraw}, cUsable(mCUsable) { }
 
 			inline void init()
 			{

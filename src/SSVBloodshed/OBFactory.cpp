@@ -66,11 +66,11 @@ namespace ob
 		gt<Entity>(tpl).createComponent<OBCDamageOnTouch>(gt<OBCPhys>(tpl), 1.f, OBGroup::GFriendlyKillable);
 		return std::forward_as_tuple(gt<Entity>(tpl), gt<OBCPhys>(tpl), gt<OBCDraw>(tpl), gt<OBCHealth>(tpl), gt<OBCKillable>(tpl), cEnemy);
 	}
-	std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCProjectile&> OBFactory::createProjectileBase(const Vec2i& mPos, const Vec2i& mSize, float mSpeed, float mDeg, const IntRect& mIntRect)
+	std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCProjectile&> OBFactory::createProjectileBase(OBCActorND* mShooter, const Vec2i& mPos, const Vec2i& mSize, float mSpeed, float mDeg, const IntRect& mIntRect)
 	{
 		auto tpl(createActorBase(mPos, mSize, OBLayer::LProjectile));
 		emplaceSpriteByTile(gt<OBCDraw>(tpl), assets.txSmall, mIntRect);
-		auto& cProjectile(gt<Entity>(tpl).createComponent<OBCProjectile>(gt<OBCPhys>(tpl), gt<OBCDraw>(tpl), mSpeed, mDeg));
+		auto& cProjectile(gt<Entity>(tpl).createComponent<OBCProjectile>(mShooter, gt<OBCPhys>(tpl), gt<OBCDraw>(tpl), mSpeed, mDeg));
 		return std::forward_as_tuple(gt<Entity>(tpl), gt<OBCPhys>(tpl), gt<OBCDraw>(tpl), cProjectile);
 	}
 	Entity& OBFactory::createETurretBase(const Vec2i& mPos, Dir8 mDir, const sf::IntRect& mIntRect, const OBWpnType& mWpn, float mShootDelay, float mPJDelay, int mShootCount)
@@ -186,7 +186,7 @@ namespace ob
 		cIdReceiver.onActivate += [tpl](IdAction){ gt<OBCKillable>(tpl).kill(); };
 		gt<OBCKillable>(tpl).onDeath += [this, tpl]
 		{
-			deathExplode(tpl, 16);
+			deathExplode(nullptr, tpl, 16);
 		};
 
 		return gt<Entity>(tpl);
@@ -336,108 +336,108 @@ namespace ob
 
 
 
-	Entity& OBFactory::createPJBullet(const Vec2i& mPos, float mDeg)
+	Entity& OBFactory::createPJBullet(OBCActorND* mShooter, const Vec2i& mPos, float mDeg)
 	{
-		auto tpl(createProjectileBase(mPos, {150, 150}, 420.f, mDeg, assets.pjBullet));
+		auto tpl(createProjectileBase(mShooter, mPos, {150, 150}, 420.f, mDeg, assets.pjBullet));
 		return gt<Entity>(tpl);
 	}
-	Entity& OBFactory::createPJBulletPlasma(const Vec2i& mPos, float mDeg)
+	Entity& OBFactory::createPJBulletPlasma(OBCActorND* mShooter, const Vec2i& mPos, float mDeg)
 	{
-		auto tpl(createProjectileBase(mPos, {150, 150}, 360.f, mDeg, assets.pjBulletPlasma));
+		auto tpl(createProjectileBase(mShooter, mPos, {150, 150}, 360.f, mDeg, assets.pjBulletPlasma));
 		gt<Entity>(tpl).createComponent<OBCParticleEmitter>(gt<OBCPhys>(tpl), &OBGame::createPPlasma);
 		gt<OBCDraw>(tpl).setBlendMode(sf::BlendMode::BlendAdd);
 		return gt<Entity>(tpl);
 	}
-	Entity& OBFactory::createPJBoltPlasma(const Vec2i& mPos, float mDeg)
+	Entity& OBFactory::createPJBoltPlasma(OBCActorND* mShooter, const Vec2i& mPos, float mDeg)
 	{
-		auto tpl(createProjectileBase(mPos, {150, 150}, 260.f, mDeg, assets.pjPlasma));
+		auto tpl(createProjectileBase(mShooter, mPos, {150, 150}, 260.f, mDeg, assets.pjPlasma));
 		gt<Entity>(tpl).createComponent<OBCParticleEmitter>(gt<OBCPhys>(tpl), &OBGame::createPPlasma);
 		gt<OBCProjectile>(tpl).setPierceOrganic(4);
 		gt<OBCDraw>(tpl).setBlendMode(sf::BlendMode::BlendAdd);
 		return gt<Entity>(tpl);
 	}
-	Entity& OBFactory::createPJStar(const Vec2i& mPos, float mDeg)
+	Entity& OBFactory::createPJStar(OBCActorND* mShooter, const Vec2i& mPos, float mDeg)
 	{
-		auto tpl(createProjectileBase(mPos, {150, 150}, 320.f, mDeg, assets.pjStar));
+		auto tpl(createProjectileBase(mShooter, mPos, {150, 150}, 320.f, mDeg, assets.pjStar));
 		return gt<Entity>(tpl);
 	}
-	Entity& OBFactory::createPJStarPlasma(const Vec2i& mPos, float mDeg)
+	Entity& OBFactory::createPJStarPlasma(OBCActorND* mShooter, const Vec2i& mPos, float mDeg)
 	{
-		auto tpl(createProjectileBase(mPos, {150, 150}, 270.f, mDeg, assets.pjStarPlasma));
+		auto tpl(createProjectileBase(mShooter, mPos, {150, 150}, 270.f, mDeg, assets.pjStarPlasma));
 		gt<Entity>(tpl).createComponent<OBCParticleEmitter>(gt<OBCPhys>(tpl), &OBGame::createPPlasma);
 		gt<OBCDraw>(tpl).setBlendMode(sf::BlendMode::BlendAdd);
 		return gt<Entity>(tpl);
 	}
-	Entity& OBFactory::createPJCannonPlasma(const Vec2i& mPos, float mDeg)
+	Entity& OBFactory::createPJCannonPlasma(OBCActorND* mShooter, const Vec2i& mPos, float mDeg)
 	{
-		auto tpl(createProjectileBase(mPos, {150, 150}, 120.f, mDeg, assets.pjCannonPlasma));
+		auto tpl(createProjectileBase(mShooter, mPos, {150, 150}, 120.f, mDeg, assets.pjCannonPlasma));
 		gt<Entity>(tpl).createComponent<OBCFloorSmasher>(gt<OBCPhys>(tpl)).setActive(true);
 		gt<Entity>(tpl).createComponent<OBCParticleEmitter>(gt<OBCPhys>(tpl), &OBGame::createPPlasma, 5);
 		gt<OBCProjectile>(tpl).setPierceOrganic(-1);
 		gt<OBCProjectile>(tpl).setDamage(5);
-		gt<OBCProjectile>(tpl).onDestroy += [this, tpl]
+		gt<OBCProjectile>(tpl).onDestroy += [this, tpl, mShooter]
 		{
 			for(int i{0}; i < 360; i += 360 / 8)
 			{
-				gt<OBCProjectile>(tpl).createChild(createPJBoltPlasma(gt<OBCPhys>(tpl).getPosI() + Vec2i(ssvs::getVecFromDeg<float>(i) * 300.f), i));
+				gt<OBCProjectile>(tpl).createChild(createPJBoltPlasma(mShooter, gt<OBCPhys>(tpl).getPosI() + Vec2i(ssvs::getVecFromDeg<float>(i) * 300.f), i));
 			}
 		};
 		gt<OBCDraw>(tpl).setBlendMode(sf::BlendMode::BlendAdd);
 		return gt<Entity>(tpl);
 	}
-	Entity& OBFactory::createPJRocket(const Vec2i& mPos, float mDeg)
+	Entity& OBFactory::createPJRocket(OBCActorND* mShooter, const Vec2i& mPos, float mDeg)
 	{
-		auto tpl(createProjectileBase(mPos, {150, 150}, 25.f, mDeg, assets.pjRocket));
+		auto tpl(createProjectileBase(mShooter, mPos, {150, 150}, 25.f, mDeg, assets.pjRocket));
 		gt<Entity>(tpl).createComponent<OBCParticleEmitter>(gt<OBCPhys>(tpl), &OBGame::createPSmoke, 4);
 		gt<OBCProjectile>(tpl).setPierceOrganic(0);
 		gt<OBCProjectile>(tpl).setDamage(0);
 		gt<OBCProjectile>(tpl).setMaxSpeed(175.f);
 		gt<OBCProjectile>(tpl).setAcceleration(3.5f);
-		gt<OBCProjectile>(tpl).onDestroy += [this, tpl]
+		gt<OBCProjectile>(tpl).onDestroy += [this, tpl, mShooter]
 		{
-			deathExplode(tpl, 16);
+			deathExplode(mShooter, tpl, 16);
 		};
 		return gt<Entity>(tpl);
 	}
-	Entity& OBFactory::createPJGrenade(const Vec2i& mPos, float mDeg)
+	Entity& OBFactory::createPJGrenade(OBCActorND* mShooter, const Vec2i& mPos, float mDeg)
 	{
-		auto tpl(createProjectileBase(mPos, {150, 150}, 180.f, mDeg, assets.pjGrenade));
+		auto tpl(createProjectileBase(mShooter, mPos, {150, 150}, 180.f, mDeg, assets.pjGrenade));
 		gt<Entity>(tpl).createComponent<OBCParticleEmitter>(gt<OBCPhys>(tpl), &OBGame::createPSmoke, 3);
 		gt<OBCProjectile>(tpl).setPierceOrganic(0);
 		gt<OBCProjectile>(tpl).setDamage(0);
 		gt<OBCProjectile>(tpl).setAcceleration(-1.f);
 		gt<OBCProjectile>(tpl).setBounce(true);
 		gt<OBCProjectile>(tpl).setFallInPit(true);
-		gt<OBCProjectile>(tpl).onDestroy += [this, tpl]
+		gt<OBCProjectile>(tpl).onDestroy += [this, tpl, mShooter]
 		{
-			deathExplode(tpl, 16, 0.5f);
+			deathExplode(mShooter, tpl, 16, 0.5f);
 		};
 		return gt<Entity>(tpl);
 	}
-	Entity& OBFactory::createPJExplosion(const Vec2i& mPos, float mDeg, float mSpeed)
+	Entity& OBFactory::createPJExplosion(OBCActorND* mShooter, const Vec2i& mPos, float mDeg, float mSpeed)
 	{
-		auto tpl(createProjectileBase(mPos, {500, 500}, mSpeed, mDeg, assets.null0));
+		auto tpl(createProjectileBase(mShooter, mPos, {500, 500}, mSpeed, mDeg, assets.null0));
 		gt<Entity>(tpl).createComponent<OBCFloorSmasher>(gt<OBCPhys>(tpl)).setActive(true);
 		gt<Entity>(tpl).createComponent<OBCParticleEmitter>(gt<OBCPhys>(tpl), &OBGame::createPExplosion, 2);
 		gt<OBCProjectile>(tpl).setPierceOrganic(-1);
 		gt<OBCProjectile>(tpl).setDamage(5);
 		return gt<Entity>(tpl);
 	}
-	Entity& OBFactory::createPJShockwave(const Vec2i& mPos, float mDeg, int mNum)
+	Entity& OBFactory::createPJShockwave(OBCActorND* mShooter, const Vec2i& mPos, float mDeg, int mNum)
 	{
 		auto str(ssvu::getClampedMin(mNum, 1));
-		auto tpl(createProjectileBase(mPos, {150, 150}, 560.f - (mNum * 70), mDeg, assets.pjShockwave));
+		auto tpl(createProjectileBase(mShooter, mPos, {150, 150}, 560.f - (mNum * 70), mDeg, assets.pjShockwave));
 		gt<Entity>(tpl).createComponent<OBCParticleEmitter>(gt<OBCPhys>(tpl), &OBGame::createPShockwave, str);
 		gt<OBCProjectile>(tpl).setPierceOrganic(ssvu::getClampedMax(str / 2 + 1, 2) + 1);
 		gt<OBCProjectile>(tpl).setDamage(str / 2 + 1);
 		gt<OBCProjectile>(tpl).setLife(16 + str * 11);
 		if(mNum > 0)
 		{
-			gt<OBCProjectile>(tpl).onDestroy += [this, tpl, mDeg, mNum]
+			gt<OBCProjectile>(tpl).onDestroy += [this, tpl, mDeg, mNum, mShooter]
 			{
 				auto offset(ssvs::getVecFromDeg(mDeg + 180, 360));
 				int num{2};
-				for(int i{0}; i < num; ++i) gt<OBCProjectile>(tpl).createChild(createPJShockwave(gt<OBCPhys>(tpl).getPosI() + Vec2i(offset) + Vec2i(ssvs::getVecFromDeg<float>(i) * 100.f), mDeg + 90 + ((360.f / num) * i), mNum - 1));
+				for(int i{0}; i < num; ++i) gt<OBCProjectile>(tpl).createChild(createPJShockwave(mShooter, gt<OBCPhys>(tpl).getPosI() + Vec2i(offset) + Vec2i(ssvs::getVecFromDeg<float>(i) * 100.f), mDeg + 90 + ((360.f / num) * i), mNum - 1));
 			};
 		}
 		gt<OBCDraw>(tpl).setBlendMode(sf::BlendMode::BlendAdd);
@@ -445,25 +445,25 @@ namespace ob
 	}
 
 
-	Entity& OBFactory::createPJTestBomb(const Vec2i& mPos, float mDeg, float mSpeedMult, float mCurveMult)
+	Entity& OBFactory::createPJTestBomb(OBCActorND* mShooter, const Vec2i& mPos, float mDeg, float mSpeedMult, float mCurveMult)
 	{
-		auto tpl(createProjectileBase(mPos, {150, 150}, 150.f * mSpeedMult, mDeg, assets.pjStar));
+		auto tpl(createProjectileBase(mShooter, mPos, {150, 150}, 150.f * mSpeedMult, mDeg, assets.pjStar));
 		gt<Entity>(tpl).createComponent<OBCFloorSmasher>(gt<OBCPhys>(tpl)).setActive(true);
 		gt<OBCProjectile>(tpl).setCurveSpeed(0.04f * mCurveMult);
 		gt<OBCProjectile>(tpl).setPierceOrganic(-1);
 		gt<OBCProjectile>(tpl).setDamage(10);
-		gt<OBCProjectile>(tpl).onDestroy += [this, tpl]
+		gt<OBCProjectile>(tpl).onDestroy += [this, tpl, mShooter]
 		{
 			for(int i{0}; i < 360; i += 360 / 8)
 			{
-				gt<OBCProjectile>(tpl).createChild(createPJBoltPlasma(gt<OBCPhys>(tpl).getPosI() + Vec2i(ssvs::getVecFromDeg<float>(i) * 300.f), i));
+				gt<OBCProjectile>(tpl).createChild(createPJBoltPlasma(mShooter, gt<OBCPhys>(tpl).getPosI() + Vec2i(ssvs::getVecFromDeg<float>(i) * 300.f), i));
 			}
 		};
 		return gt<Entity>(tpl);
 	}
-	Entity& OBFactory::createPJTestShell(const Vec2i& mPos, float mDeg)
+	Entity& OBFactory::createPJTestShell(OBCActorND* mShooter, const Vec2i& mPos, float mDeg)
 	{
-		auto tpl(createProjectileBase(mPos, {150, 150}, 320.f + getRnd(-5, 25), mDeg, assets.pjBullet));
+		auto tpl(createProjectileBase(mShooter, mPos, {150, 150}, 320.f + getRnd(-5, 25), mDeg, assets.pjBullet));
 		gt<OBCProjectile>(tpl).setLife(10.f + getRnd(-5, 15));
 		gt<OBCProjectile>(tpl).setPierceOrganic(3);
 		return gt<Entity>(tpl);

@@ -11,7 +11,7 @@
 
 namespace ob
 {
-	class OBCFloor : public OBCActorBase
+	class OBCFloor : public OBCActor
 	{
 		private:
 			bool smashed{false};
@@ -24,7 +24,7 @@ namespace ob
 			}
 
 		public:
-			OBCFloor(OBCPhys& mCPhys, OBCDraw& mCDraw, bool mGrate) noexcept : OBCActorBase{mCPhys, mCDraw}, smashed{mGrate} { }
+			OBCFloor(OBCPhys& mCPhys, OBCDraw& mCDraw, bool mGrate) noexcept : OBCActor{mCPhys, mCDraw}, smashed{mGrate} { }
 
 			inline void init()
 			{

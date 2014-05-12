@@ -11,6 +11,8 @@ namespace ob
 {
 	class OBAssets;
 	class OBGame;
+	class OBCActor;
+	class OBCActorND;
 	class OBCDraw;
 	class OBCPhys;
 	class OBCHealth;
@@ -36,7 +38,7 @@ namespace ob
 			std::tuple<Entity&, OBCPhys&, OBCDraw&> createActorBase(const Vec2i& mPos, const Vec2i& mSize, int mDrawPriority = 0, bool mStatic = false);
 			std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCHealth&, OBCKillable&> createKillableBase(const Vec2i& mPos, const Vec2i& mSize, int mDrawPriority, float mHealth);
 			std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCHealth&, OBCKillable&, OBCEnemy&> createEnemyBase(const Vec2i& mPos, const Vec2i& mSize, int mHealth);
-			std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCProjectile&> createProjectileBase(const Vec2i& mPos, const Vec2i& mSize, float mSpeed, float mDeg, const sf::IntRect& mIntRect);
+			std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCProjectile&> createProjectileBase(OBCActorND* mShooter, const Vec2i& mPos, const Vec2i& mSize, float mSpeed, float mDeg, const sf::IntRect& mIntRect);
 			Entity& createETurretBase(const Vec2i& mPos, Dir8 mDir, const sf::IntRect& mIntRect, const OBWpnType& mWpn, float mShootDelay, float mPJDelay, int mShootCount);
 
 		public:
@@ -75,32 +77,32 @@ namespace ob
 			Entity& createETurretRocket(const Vec2i& mPos, Dir8 mDir);
 
 			// Projectiles
-			Entity& createPJBullet(const Vec2i& mPos, float mDeg);
-			Entity& createPJBulletPlasma(const Vec2i& mPos, float mDeg);
-			Entity& createPJBoltPlasma(const Vec2i& mPos, float mDeg);
-			Entity& createPJStar(const Vec2i& mPos, float mDeg);
-			Entity& createPJStarPlasma(const Vec2i& mPos, float mDeg);
-			Entity& createPJCannonPlasma(const Vec2i& mPos, float mDeg);
-			Entity& createPJRocket(const Vec2i& mPos, float mDeg);
-			Entity& createPJGrenade(const Vec2i& mPos, float mDeg);
-			Entity& createPJExplosion(const Vec2i& mPos, float mDeg, float mSpeed = 300.f);
-			Entity& createPJShockwave(const Vec2i& mPos, float mDeg, int mNum);
+			Entity& createPJBullet(OBCActorND* mShooter, const Vec2i& mPos, float mDeg);
+			Entity& createPJBulletPlasma(OBCActorND* mShooter, const Vec2i& mPos, float mDeg);
+			Entity& createPJBoltPlasma(OBCActorND* mShooter, const Vec2i& mPos, float mDeg);
+			Entity& createPJStar(OBCActorND* mShooter, const Vec2i& mPos, float mDeg);
+			Entity& createPJStarPlasma(OBCActorND* mShooter, const Vec2i& mPos, float mDeg);
+			Entity& createPJCannonPlasma(OBCActorND* mShooter, const Vec2i& mPos, float mDeg);
+			Entity& createPJRocket(OBCActorND* mShooter, const Vec2i& mPos, float mDeg);
+			Entity& createPJGrenade(OBCActorND* mShooter, const Vec2i& mPos, float mDeg);
+			Entity& createPJExplosion(OBCActorND* mShooter, const Vec2i& mPos, float mDeg, float mSpeed = 300.f);
+			Entity& createPJShockwave(OBCActorND* mShooter, const Vec2i& mPos, float mDeg, int mNum);
 
 			// Vending machines
 			Entity& createVMHealth(const Vec2i& mPos);
 
-			Entity& createPJTestBomb(const Vec2i& mPos, float mDeg, float mSpeedMult = 1.f, float mCurveMult = 1.f);
-			Entity& createPJTestShell(const Vec2i& mPos, float mDeg);
+			Entity& createPJTestBomb(OBCActorND* mShooter, const Vec2i& mPos, float mDeg, float mSpeedMult = 1.f, float mCurveMult = 1.f);
+			Entity& createPJTestShell(OBCActorND* mShooter, const Vec2i& mPos, float mDeg);
 
-			template<typename T> inline void deathExplode(T& mTpl, std::size_t mCount, float mRangeMult = 1.f)
+			template<typename T> inline void deathExplode(OBCActorND* mShooter, T& mTpl, std::size_t mCount, float mRangeMult = 1.f)
 			{
-				auto& cp(createPJExplosion(gt<OBCPhys>(mTpl).getPosI(), 0, 0).template getComponent<OBCProjectile>());
+				auto& cp(createPJExplosion(mShooter, gt<OBCPhys>(mTpl).getPosI(), 0, 0).template getComponent<OBCProjectile>());
 				cp.setTargetGroup(OBGroup::GKillable); cp.setLife(16.f * mRangeMult); cp.setKillDestructible(true);
 
 				SSVU_ASSERT(mCount != 0);
 				for(int i{0}; i < 360; i += 360 / mCount)
 				{
-					auto& cpMv(createPJExplosion(gt<OBCPhys>(mTpl).getPosI() + Vec2i(ssvs::getVecFromDeg(i, 251.f)), i).template getComponent<OBCProjectile>());
+					auto& cpMv(createPJExplosion(mShooter, gt<OBCPhys>(mTpl).getPosI() + Vec2i(ssvs::getVecFromDeg(i, 251.f)), i).template getComponent<OBCProjectile>());
 					cpMv.setTargetGroup(OBGroup::GKillable); cpMv.setLife(16.f * mRangeMult); cpMv.setKillDestructible(true);
 				}
 			}

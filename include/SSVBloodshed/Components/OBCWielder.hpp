@@ -12,7 +12,7 @@
 
 namespace ob
 {
-	class OBCWielder : public OBCActorBase
+	class OBCWielder : public OBCActor
 	{
 		private:
 			OBCDir8& cDir8;
@@ -22,7 +22,7 @@ namespace ob
 
 		public:
 			OBCWielder(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCDir8& mCDir8, sf::IntRect mRectStand, sf::IntRect mRectShoot) noexcept
-				: OBCActorBase{mCPhys, mCDraw}, cDir8(mCDir8), rectStand{std::move(mRectStand)}, rectShoot{std::move(mRectShoot)} { }
+				: OBCActor{mCPhys, mCDraw}, cDir8(mCDir8), rectStand{std::move(mRectStand)}, rectShoot{std::move(mRectShoot)} { }
 
 			inline void setShooting(bool mValue) noexcept
 			{

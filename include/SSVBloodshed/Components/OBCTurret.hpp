@@ -16,7 +16,7 @@
 
 namespace ob
 {
-	class OBCTurret : public OBCActorBase
+	class OBCTurret : public OBCActor
 	{
 		private:
 			OBCKillable& cKillable;
@@ -30,7 +30,7 @@ namespace ob
 
 		public:
 			OBCTurret(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCKillable& mCKillable, Dir8 mDir, const OBWpnType& mWpn, float mShootDelay, float mPJDelay, int mShootCount) noexcept
-				: OBCActorBase{mCPhys, mCDraw}, cKillable(mCKillable), direction{mDir}, wpn{game, OBGroup::GFriendlyKillable, mWpn}, shootDelay{mShootDelay}, pjDelay{mPJDelay}, shootCount{mShootCount} { }
+				: OBCActor{mCPhys, mCDraw}, cKillable(mCKillable), direction{mDir}, wpn{game, OBGroup::GFriendlyKillable, mWpn}, shootDelay{mShootDelay}, pjDelay{mPJDelay}, shootCount{mShootCount} { }
 
 			inline void init()
 			{
@@ -56,7 +56,7 @@ namespace ob
 			{
 				assets.playSound("Sounds/spark.wav");
 				Vec2i shootPos{body.getPosition() + getVecFromDir8<int>(direction) * 600};
-				wpn.shoot(shootPos, getDegFromDir8(direction), toPixels(shootPos));
+				wpn.shoot(this, shootPos, getDegFromDir8(direction), toPixels(shootPos));
 			}
 
 			inline OBCKillable& getCKillable() const noexcept { return cKillable; }

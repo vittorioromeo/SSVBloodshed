@@ -11,7 +11,7 @@
 
 namespace ob
 {
-	class OBCKillable : public OBCActorNoDrawBase
+	class OBCKillable : public OBCActorND
 	{
 		public:
 			enum class Type{Organic, Robotic, Wall, ExplosiveCrate};
@@ -73,9 +73,9 @@ namespace ob
 		public:
 			ssvu::Delegate<void()> onDeath;
 
-			OBCKillable(OBCPhys& mCPhys, OBCHealth& mCHealth, Type mType) noexcept : OBCActorNoDrawBase{mCPhys}, cHealth(mCHealth), type{mType} { }
+			OBCKillable(OBCPhys& mCPhys, OBCHealth& mCHealth, Type mType) noexcept : OBCActorND{mCPhys}, cHealth(mCHealth), type{mType} { }
 
-			inline void init() { cHealth.onDamage += [this]{ effectHit(); if(cHealth.isDead()) kill(); }; }
+			inline void init() { cHealth.onDamage += [this](OBCActorND*){ effectHit(); if(cHealth.isDead()) kill(); }; }
 
 			inline void kill() { effectDeath(); onDeath(); getEntity().destroy(); }
 

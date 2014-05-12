@@ -12,7 +12,7 @@
 
 namespace ob
 {
-	class OBCBooster : public OBCActorBase
+	class OBCBooster : public OBCActor
 	{
 		private:
 			OBCIdReceiver& cIdReceiver;
@@ -22,7 +22,7 @@ namespace ob
 
 		public:
 			OBCBooster(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCIdReceiver& mCIdReceiver, Dir8 mDir, float mForceMult) noexcept
-				: OBCActorBase{mCPhys, mCDraw}, cIdReceiver(mCIdReceiver), rad{getRadFromDir8(mDir)}, forceMult{mForceMult}, animation{assets.aForceField} { }
+				: OBCActor{mCPhys, mCDraw}, cIdReceiver(mCIdReceiver), rad{getRadFromDir8(mDir)}, forceMult{mForceMult}, animation{assets.aForceField} { }
 
 			inline void init()
 			{
