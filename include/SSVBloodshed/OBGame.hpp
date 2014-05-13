@@ -273,6 +273,8 @@ namespace ob
 			inline sses::Manager& getManager() noexcept					{ return manager; }
 			inline const decltype(input)& getInput() const noexcept		{ return input; }
 
+			inline const decltype(overlayCamera)& getOverlayCamera() const noexcept { return overlayCamera; }
+
 			inline void createPBlood(std::size_t mCount, const Vec2f& mPos, float mMult = 1.f)
 			{
 				createParticles(particles.getPSPerm(), mCount, mPos, assets.pdBloodRed, 0.f, mMult, 1.f);

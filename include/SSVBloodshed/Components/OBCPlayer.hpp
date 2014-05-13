@@ -166,13 +166,13 @@ namespace ob
 			}
 
 			// TODO: to ssvu?
-			template<typename T1, typename T2, typename T3, typename T4>
-			inline ssvu::Common<T1, T2, T3, T4> rangeToRange(const T1& mIMin, const T2& mIMax, const T3& mOMin, const T4& mOMax)
+			template<typename T1, typename T2, typename T3, typename T4, typename T5>
+			inline ssvu::Common<T1, T2, T3, T4, T5> getMapped(const T1& mValue, const T2& mIMin, const T3& mIMax, const T4& mOMin, const T5& mOMax)
 			{
-				ssvu::Common<T1, T2, T3, T4> iRange = mIMax - mIMin, oRange = mOMax - mOMin;
-
-				return (input - mIMin) * oRange / iRange + mOMin;
+				return mOMin + (mValue - mIMin) * (mOMax - mOMin) / (mIMax - mIMin);
 			}
+
+			// TODO: lerp, blerp
 
 			inline void updateHUD()
 			{
@@ -183,8 +183,17 @@ namespace ob
 				game.txtShards.setString(ssvu::toStr(shards + currentShards));
 				game.txtVM.setString(currentUsable == nullptr ? weapons[currentWpn].name : currentUsable->getMsg());
 
-				game.txtCombo.setString(comboCount > 0 ? "COMBO: " + ssvu::toStr(comboCount) : "");
-				auto percent(comboTime
+				game.txtCombo.setString(comboCount > 0 ? "x" + ssvu::toStr(comboCount) : "");
+				game.txtCombo.setOrigin(ssvs::getGlobalHalfSize(game.txtCombo));
+				game.txtCombo.setPosition(game.getOverlayCamera().getCenter() + (ssvs::Vec2f(ssvu::getRndR<float>(-comboCount, comboCount), ssvu::getRndR<float>(-comboCount, comboCount)) / 10.f));
+
+				auto c(game.txtCombo.getColor());
+
+				auto v = getMapped(comboTime, 0.f, comboTimeMax, 0.f, 1.f);
+
+				c.a = 255 * sin(v) + 0;
+
+				game.txtCombo.setColor(c);
 			}
 
 			inline void checkTransitions()
@@ -252,7 +261,7 @@ namespace ob
 				}
 				else
 				{
-					comboTime -= mFT;
+					comboTime -= mFT * (1 + comboCount * 0.05f);
 				}
 			}
 			inline void onKill(Entity& mEntity)
