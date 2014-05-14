@@ -167,10 +167,12 @@ namespace ob
 
 			// TODO: to ssvu?
 			template<typename T1, typename T2, typename T3, typename T4, typename T5>
-			inline ssvu::Common<T1, T2, T3, T4, T5> getMapped(const T1& mValue, const T2& mIMin, const T3& mIMax, const T4& mOMin, const T5& mOMax)
+			inline ssvu::Common<T1, T2, T3, T4, T5> getMap(const T1& mI, const T2& mIMin, const T3& mIMax, const T4& mOMin, const T5& mOMax)
 			{
-				return mOMin + (mValue - mIMin) * (mOMax - mOMin) / (mIMax - mIMin);
+				return mOMin + (mI - mIMin) * (mOMax - mOMin) / (mIMax - mIMin);
 			}
+
+
 
 			// TODO: lerp, blerp
 
@@ -185,13 +187,17 @@ namespace ob
 
 				game.txtCombo.setString(comboCount > 0 ? "x" + ssvu::toStr(comboCount) : "");
 				game.txtCombo.setOrigin(ssvs::getGlobalHalfSize(game.txtCombo));
-				game.txtCombo.setPosition(game.getOverlayCamera().getCenter() + (ssvs::Vec2f(ssvu::getRndR<float>(-comboCount, comboCount), ssvu::getRndR<float>(-comboCount, comboCount)) / 10.f));
+				ssvs::Vec2f offset(ssvu::getRndR<float>(-comboCount, comboCount), ssvu::getRndR<float>(-comboCount, comboCount));
+				ssvs::cClamp(offset, -250.f, 250.f);
+				game.txtCombo.setPosition(game.getOverlayCamera().getCenter() + offset / 10.f);
 
 				auto c(game.txtCombo.getColor());
 
-				auto v = getMapped(comboTime, 0.f, comboTimeMax, 0.f, 1.f);
-
-				c.a = 255 * sin(v) + 0;
+				//auto v = getMap(comboTxtAnimationTimer, 0.f, comboTxtAnimationTimerMax, -1.f, 1.f);
+				auto k = ssvu::getMapEasedInOut<ssvu::Easing::Cubic>(comboTime, 0.f, comboTimeMax, 0.f, 180.f);
+				//c.a = 255 * sin(v) + 0;
+				//ssvu::lo() << "\tk: " << k <<std::endl;
+				c.a = ssvu::getClamped(k + ssvu::getRndR<float>(0.f, comboCount), 0.f, 255.f);
 
 				game.txtCombo.setColor(c);
 			}
@@ -261,8 +267,8 @@ namespace ob
 				}
 				else
 				{
-					comboTime -= mFT * (1 + comboCount * 0.05f);
-				}
+					comboTime -= mFT * ssvu::getClampedMax(1 + comboCount * 0.05f, 1.5f);
+				};
 			}
 			inline void onKill(Entity& mEntity)
 			{
