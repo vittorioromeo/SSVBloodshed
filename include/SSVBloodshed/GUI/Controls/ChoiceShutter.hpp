@@ -34,13 +34,13 @@ namespace ob
 				{
 					if(choices.empty()) { getLabel().setString("null"); return; }
 
-					const auto& lb(ssvu::getWrapIdx(idxOffset, choices.size()));
-					const auto& ub(ssvu::getWrapIdx(idxOffset + choiceBtnsMax, choices.size()));
+					const auto& lb(ssvu::getMod(idxOffset, choices.size()));
+					const auto& ub(ssvu::getMod(idxOffset + choiceBtnsMax, choices.size()));
 					lblCount.setString("(" + ssvu::toStr(lb) + ":" + ssvu::toStr(ub) + ")/" + ssvu::toStr(choices.size()));
 
 					for(auto i(0u); i < choiceBtnsMax; ++i)
 					{
-						const auto& choiceIdx(ssvu::getWrapIdx(i + idxOffset, choices.size()));
+						const auto& choiceIdx(ssvu::getMod(i + idxOffset, choices.size()));
 						btnsChoices[i]->getLabel().setString(choiceIdx == currentChoiceIdx ? ">" + ssvu::toUpper(choices[choiceIdx]) + "<" : choices[choiceIdx]);
 					}
 
@@ -67,7 +67,7 @@ namespace ob
 						btn.onLeftClick += [this, i]
 						{
 							if(choices.empty()) return;
-							setChoiceIdx(ssvu::getWrapIdx(i + idxOffset, choices.size())); onChoiceSelected();
+							setChoiceIdx(ssvu::getMod(i + idxOffset, choices.size())); onChoiceSelected();
 						};
 						btnsChoices.emplace_back(&btn);
 					}

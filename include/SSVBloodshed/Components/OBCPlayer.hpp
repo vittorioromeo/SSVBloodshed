@@ -66,7 +66,7 @@ namespace ob
 
 			inline void cycleWeapons(int mDir) noexcept
 			{
-				currentWpn = ssvu::getWrapIdx(currentWpn + mDir, weapons.size());
+				currentWpn = ssvu::getMod(currentWpn + mDir, weapons.size());
 				const auto& wpnData(weapons[currentWpn]);
 
 				cWpnController.setWpn(wpnData.wpn);

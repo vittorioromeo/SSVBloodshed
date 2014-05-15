@@ -180,8 +180,8 @@ namespace ob
 
 			inline void cycleRot(int mDeg)					{ currentRot = ssvu::wrapDeg(currentRot + mDeg); }
 			inline void cycleId(int mDir)					{ currentId += mDir; }
-			inline void cycleBrush(int mDir)				{ brush.setIdx(ssvu::getWrapIdx(brush.getIdx() + mDir, sharedData.getDatabase().getSize())); }
-			inline void cycleZ(int mDir)					{ currentZ = -ssvu::getWrapIdx(-currentZ + mDir, 3); }
+			inline void cycleBrush(int mDir)				{ brush.setIdx(ssvu::getMod(brush.getIdx() + mDir, sharedData.getDatabase().getSize())); }
+			inline void cycleZ(int mDir)					{ currentZ = -ssvu::getMod(-currentZ + mDir, 3); }
 			inline void cycleBrushSize(int mDir)			{ brush.setSize(ssvu::getClamped(brush.getSize() + mDir, 1, 20)); }
 			inline void cycleLevel(int mDirX, int mDirY)	{ loadLevel(sharedData.getCurrentLevelX() + mDirX, sharedData.getCurrentLevelY() + mDirY); }
 
@@ -228,7 +228,7 @@ namespace ob
 				{
 					for(int i{-1}; i < 25; ++i)
 					{
-						auto& e(sharedData.getDatabase().get(OBLETType(ssvu::getWrapIdx(brush.getIdx() + i - 2, sharedData.getDatabase().getSize()))));
+						auto& e(sharedData.getDatabase().get(OBLETType(ssvu::getMod(brush.getIdx() + i - 2, sharedData.getDatabase().getSize()))));
 						sf::Sprite s{*e.texture, e.intRect};
 						Vec2f origin{s.getTextureRect().width / 2.f, s.getTextureRect().height / 2.f};
 						s.setScale(10.f / s.getTextureRect().width, 10.f / s.getTextureRect().height);
