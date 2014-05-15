@@ -16,7 +16,7 @@ namespace ob
 	class OBLELevel
 	{
 		friend class OBLESector;
-		SSVUJ_CONVERTER_FRIEND();
+		SSVUJ_CNV_FRIEND();
 
 		private:
 			int cols{levelCols}, rows{levelRows}, depth{5};

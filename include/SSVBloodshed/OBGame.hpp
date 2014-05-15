@@ -25,10 +25,64 @@
 namespace ob
 {
 	class OBCVMachine;
+	class OBCPlayer;
 
 	struct OBGLevelStat
 	{
 		bool clear{false};
+	};
+
+	class OBGameHUD
+	{
+		private:
+			OBAssets& assets;
+			ssvs::Camera& overlayCamera;
+			ssvs::BitmapText txtHP{*assets.obStroked}, txtShards{*assets.obStroked}, txtVM{*assets.obStroked}, txtInfo{*assets.obStroked}, txtCombo{*assets.obBigStroked, ""};
+			sf::Sprite hudSprite{assets.get<sf::Texture>("tempHud.png")};
+			OBBarCounter testhp{2, 6, 13};
+
+		public:
+			inline OBGameHUD(OBAssets& mAssets, ssvs::Camera& mOverlayCamera) : assets(mAssets), overlayCamera(mOverlayCamera)
+			{
+				hudSprite.setPosition(0, 240 - ssvs::getGlobalHeight(hudSprite));
+
+				testhp.setColor(sf::Color{184, 37, 53, 255}); testhp.setTracking(1);
+				testhp.setPosition(13, (240 - ssvs::getGlobalHeight(hudSprite) / 2.f) - 1.f);
+
+				txtHP.setColor(sf::Color{136, 199, 234, 255}); txtHP.setTracking(-3);
+				txtHP.setPosition(86, (240 - ssvs::getGlobalHeight(hudSprite) / 2.f) - 3.f);
+
+				txtShards.setColor(sf::Color{195, 90, 10, 255}); txtShards.setTracking(-3);
+				txtShards.setPosition(235, (240 - ssvs::getGlobalHeight(hudSprite) / 2.f) - 3.f);
+
+				txtVM.setColor(sf::Color{225, 225, 225, 255}); txtVM.setTracking(-3);
+				txtVM.setPosition(120, (240 - ssvs::getGlobalHeight(hudSprite) / 2.f) - 3.f);
+
+				txtInfo.setColor(sf::Color{225, 225, 225, 255}); txtInfo.setTracking(-3);
+				txtInfo.setPosition(270, (240 - ssvs::getGlobalHeight(hudSprite) / 2.f) - 3.f);
+				txtInfo.setString("Sector 1");
+
+				txtCombo.setPosition(overlayCamera.getCenter());
+				txtCombo.setOrigin(ssvs::getGlobalHalfSize(txtCombo));
+			}
+
+			inline void update(FT)
+			{
+				txtHP.setString(ssvu::toStr(testhp.getValue()));
+			}
+
+			inline void draw(ssvs::GameWindow& mGameWindow)
+			{
+				mGameWindow.draw(hudSprite);
+				mGameWindow.draw(testhp);
+				mGameWindow.draw(txtHP);
+				mGameWindow.draw(txtShards);
+				mGameWindow.draw(txtVM);
+				mGameWindow.draw(txtInfo);
+				mGameWindow.draw(txtCombo);
+			}
+
+			void refresh(OBCPlayer& mP);
 	};
 
 	class OBGame
@@ -47,11 +101,8 @@ namespace ob
 
 			OBGInput<OBGame> input{*this};
 			OBGParticles particles;
-
 			OBGDebugText<OBGame> debugText{*this};
-			sf::Sprite hudSprite{assets.get<sf::Texture>("tempHud.png")};
-
-			ssvs::BitmapText testAmmoTxt{*assets.obStroked};
+			OBGameHUD hud{assets, overlayCamera};
 
 			OBLEEditor* editor{nullptr};
 			OBSharedData sharedData;
@@ -87,33 +138,10 @@ namespace ob
 		public:
 			ssvu::Delegate<void()> onPostUpdate;
 
-			OBBarCounter testhp{2, 6, 13};
-			ssvs::BitmapText txtShards{*assets.obStroked}, txtVM{*assets.obStroked}, txtInfo{*assets.obStroked};
-			ssvs::BitmapText txtCombo{*assets.obBigStroked, ""};
-
 			inline OBGame(ssvs::GameWindow& mGameWindow, OBAssets& mAssets) : gameWindow(mGameWindow), assets(mAssets)
 			{
 				gameState.onUpdate += [this](FT mFT){ update(mFT); };
 				gameState.onDraw += [this]{ draw(); };
-
-				// Testing hud
-				hudSprite.setPosition(0, 240 - ssvs::getGlobalHeight(hudSprite));
-
-				testhp.setColor(sf::Color{184, 37, 53, 255}); testhp.setTracking(1);
-				testhp.setPosition(13, (240 - ssvs::getGlobalHeight(hudSprite) / 2.f) - 1.f);
-
-				testAmmoTxt.setColor(sf::Color{136, 199, 234, 255}); testAmmoTxt.setTracking(-3);
-				testAmmoTxt.setPosition(86, (240 - ssvs::getGlobalHeight(hudSprite) / 2.f) - 3.f);
-
-				txtShards.setColor(sf::Color{195, 90, 10, 255}); txtShards.setTracking(-3);
-				txtShards.setPosition(235, (240 - ssvs::getGlobalHeight(hudSprite) / 2.f) - 3.f);
-
-				txtVM.setColor(sf::Color{225, 225, 225, 255}); txtVM.setTracking(-3);
-				txtVM.setPosition(120, (240 - ssvs::getGlobalHeight(hudSprite) / 2.f) - 3.f);
-
-				txtInfo.setColor(sf::Color{225, 225, 225, 255}); txtInfo.setTracking(-3);
-				txtInfo.setPosition(270, (240 - ssvs::getGlobalHeight(hudSprite) / 2.f) - 3.f);
-				txtInfo.setString("Sector 1");
 
 				pauseRect.setFillColor(sf::Color{0, 0, 0, 150});
 				pauseRect.setOrigin(0.f, 0.f);
@@ -121,9 +149,6 @@ namespace ob
 
 				pauseTxt.setPosition(overlayCamera.getCenter());
 				pauseTxt.setOrigin(ssvs::getGlobalHalfSize(pauseTxt));
-
-				txtCombo.setPosition(overlayCamera.getCenter());
-				txtCombo.setOrigin(ssvs::getGlobalHalfSize(txtCombo));
 
 				gameState.onAnyEvent += [this](const sf::Event& mEvent){ guiCtx.onAnyEvent(mEvent); };
 
@@ -139,6 +164,8 @@ namespace ob
 				};
 				formIO->getBtnSave().hide();
 			}
+
+			inline void refreshHUD(OBCPlayer& mPlayer) { hud.refresh(mPlayer); }
 
 			inline void newGame()
 			{
@@ -234,7 +261,7 @@ namespace ob
 					onPostUpdate.clear();
 				}
 
-				testAmmoTxt.setString(ssvu::toStr(testhp.getValue()));
+				hud.update(mFT);
 			}
 			inline void draw()
 			{
@@ -250,7 +277,7 @@ namespace ob
 						render(pauseTxt);
 					}
 
-					render(hudSprite); render(testhp); render(testAmmoTxt); render(txtShards); render(txtVM); render(txtInfo); render(txtCombo);
+					hud.draw(gameWindow);
 				}
 				overlayCamera.unapply();
 

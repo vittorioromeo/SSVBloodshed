@@ -11,7 +11,7 @@ namespace ob
 {
 	class OBConfig
 	{
-		SSVUJ_CONVERTER_FRIEND();
+		SSVUJ_CNV_FRIEND();
 
 		private:
 			// Input

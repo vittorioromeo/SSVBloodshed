@@ -13,7 +13,7 @@ namespace ob
 {
 	class OBLETile
 	{
-		SSVUJ_CONVERTER_FRIEND();
+		SSVUJ_CNV_FRIEND();
 
 		private:
 			int x{-1}, y{-1}, z{-1};

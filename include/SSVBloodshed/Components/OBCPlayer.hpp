@@ -22,6 +22,8 @@ namespace ob
 
 	class OBCPlayer : public OBCActor
 	{
+		friend class OBGameHUD;
+
 		public:
 			struct Data
 			{
@@ -81,7 +83,7 @@ namespace ob
 				cKillable.getCHealth().setCooldown(2.6f);
 				cycleWeapons(0);
 
-				cKillable.onDeath += [this]{ assets.playSound("Sounds/playerDeath.wav"); game.testhp.setValue(0.f); };
+// TODO				cKillable.onDeath += [this]{ assets.playSound("Sounds/playerDeath.wav"); game.testhp.setValue(0.f); };
 
 				getEntity().addGroups(OBGroup::GFriendly, OBGroup::GFriendlyKillable, OBGroup::GPlayer);
 				body.addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir, OBGroup::GFriendly, OBGroup::GKillable, OBGroup::GFriendlyKillable, OBGroup::GOrganic, OBGroup::GPlayer);
@@ -165,43 +167,6 @@ namespace ob
 				}
 			}
 
-			// TODO: to ssvu?
-			template<typename T1, typename T2, typename T3, typename T4, typename T5>
-			inline ssvu::Common<T1, T2, T3, T4, T5> getMap(const T1& mI, const T2& mIMin, const T3& mIMax, const T4& mOMin, const T5& mOMax)
-			{
-				return mOMin + (mI - mIMin) * (mOMax - mOMin) / (mIMax - mIMin);
-			}
-
-
-
-			// TODO: lerp, blerp
-
-			inline void updateHUD()
-			{
-				// TODO:
-				auto& cHealth(cKillable.getCHealth());
-				game.testhp.setValue(cHealth.getHealth());
-				game.testhp.setMaxValue(cHealth.getMaxHealth());
-				game.txtShards.setString(ssvu::toStr(shards + currentShards));
-				game.txtVM.setString(currentUsable == nullptr ? weapons[currentWpn].name : currentUsable->getMsg());
-
-				game.txtCombo.setString(comboCount > 0 ? "x" + ssvu::toStr(comboCount) : "");
-				game.txtCombo.setOrigin(ssvs::getGlobalHalfSize(game.txtCombo));
-				ssvs::Vec2f offset(ssvu::getRndR<float>(-comboCount, comboCount), ssvu::getRndR<float>(-comboCount, comboCount));
-				ssvs::cClamp(offset, -250.f, 250.f);
-				game.txtCombo.setPosition(game.getOverlayCamera().getCenter() + offset / 10.f);
-
-				auto c(game.txtCombo.getColor());
-
-				//auto v = getMap(comboTxtAnimationTimer, 0.f, comboTxtAnimationTimerMax, -1.f, 1.f);
-				auto k = ssvu::getMapEasedInOut<ssvu::Easing::Cubic>(comboTime, 0.f, comboTimeMax, 0.f, 180.f);
-				//c.a = 255 * sin(v) + 0;
-				//ssvu::lo() << "\tk: " << k <<std::endl;
-				c.a = ssvu::getClamped(k + ssvu::getRndR<float>(0.f, comboCount), 0.f, 255.f);
-
-				game.txtCombo.setColor(c);
-			}
-
 			inline void checkTransitions()
 			{
 				if(cPhys.getLeft() + cPhys.getVel().x < 0)							game.changeLevel(*this, -1, 0);
@@ -212,7 +177,8 @@ namespace ob
 
 			inline void update(FT mFT) override
 			{
-				updateValidShootingPos(); updateUsable(); updateInput(); updateHUD(); attractShards(); updateCombo(mFT);
+				updateValidShootingPos(); updateUsable(); updateInput(); attractShards(); updateCombo(mFT);
+				game.refreshHUD(*this);
 
 				if(game.isLevelClear()) { shards += currentShards; currentShards = 0; }
 				if(cWielder.isShooting()) cWpnController.shoot(this, validShootingPos, cDir8.getDeg(), cWielder.getShootingPosPx());
@@ -261,14 +227,8 @@ namespace ob
 
 			inline void updateCombo(FT mFT)
 			{
-				if(comboTime <= 0)
-				{
-					comboCount = 0;
-				}
-				else
-				{
-					comboTime -= mFT * ssvu::getClampedMax(1 + comboCount * 0.05f, 1.5f);
-				};
+				if(comboTime <= 0) comboCount = 0;
+				else comboTime -= mFT * ssvu::getClampedMax(1 + comboCount * 0.05f, 1.5f);
 			}
 			inline void onKill(Entity& mEntity)
 			{
@@ -278,10 +238,37 @@ namespace ob
 					++comboCount;
 				}
 			}
+
+			inline OBCKillable& getCKillable() noexcept { return cKillable; }
+			inline OBCHealth& getCHealth() noexcept { return cKillable.getCHealth(); }
 	};
 }
 
 #include "SSVBloodshed/Components/OBCHealth.inl"
+
+namespace ob
+{
+	inline void OBGameHUD::refresh(OBCPlayer& mP)
+	{
+		auto& cHealth(mP.getCHealth());
+		testhp.setValue(cHealth.getHealth());
+		testhp.setMaxValue(cHealth.getMaxHealth());
+		txtShards.setString(ssvu::toStr(mP.shards + mP.currentShards));
+		txtVM.setString(mP.currentUsable == nullptr ? mP.weapons[mP.currentWpn].name : mP.currentUsable->getMsg());
+
+		txtCombo.setString(mP.comboCount > 3 ? "x" + ssvu::toStr(mP.comboCount) : "");
+		txtCombo.setOrigin(ssvs::getGlobalHalfSize(txtCombo));
+		ssvs::Vec2f offset(ssvu::getRndR<float>(-mP.comboCount, mP.comboCount), ssvu::getRndR<float>(-mP.comboCount, mP.comboCount));
+		ssvs::cClamp(offset, -250.f, 250.f);
+		txtCombo.setPosition(overlayCamera.getCenter() + offset / 10.f);
+
+		auto c(txtCombo.getColor());
+		auto k = ssvu::getMapEasedInOut<ssvu::Easing::Cubic>(mP.comboTime, 0.f, mP.comboTimeMax, 0.f, 180.f);
+		c.a = ssvu::getClamped(k + ssvu::getRndR<float>(0.f, mP.comboCount), 0.f, 255.f);
+
+		txtCombo.setColor(c);
+	}
+}
 
 #endif
 

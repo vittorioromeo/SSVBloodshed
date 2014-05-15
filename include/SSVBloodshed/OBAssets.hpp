@@ -177,25 +177,26 @@ namespace ob
 				aBulletBooster = ssvs::getAnimationFromJson(*tsSmall, ssvuj::getObj(jABulletBooster, "on"));
 
 				// Particle data
-				pdBloodRed =		ssvuj::getExtr<OBParticleData>(ssvuj::getFromFile("Data/Particles/bloodRed.json"));
-				pdGibRed =			ssvuj::getExtr<OBParticleData>(ssvuj::getFromFile("Data/Particles/gibRed.json"));
-				pdExplosion =		ssvuj::getExtr<OBParticleData>(ssvuj::getFromFile("Data/Particles/explosion.json"));
-				pdDebris =			ssvuj::getExtr<OBParticleData>(ssvuj::getFromFile("Data/Particles/debris.json"));
-				pdDebrisFloor =		ssvuj::getExtr<OBParticleData>(ssvuj::getFromFile("Data/Particles/debrisFloor.json"));
-				pdMuzzleBullet =	ssvuj::getExtr<OBParticleData>(ssvuj::getFromFile("Data/Particles/muzzleBullet.json"));
-				pdMuzzlePlasma =	ssvuj::getExtr<OBParticleData>(ssvuj::getFromFile("Data/Particles/muzzlePlasma.json"));
-				pdMuzzleRocket =	ssvuj::getExtr<OBParticleData>(ssvuj::getFromFile("Data/Particles/muzzleRocket.json"));
-				pdPlasma =			ssvuj::getExtr<OBParticleData>(ssvuj::getFromFile("Data/Particles/plasma.json"));
-				pdElectric =		ssvuj::getExtr<OBParticleData>(ssvuj::getFromFile("Data/Particles/electric.json"));
-				pdSmoke =			ssvuj::getExtr<OBParticleData>(ssvuj::getFromFile("Data/Particles/smoke.json"));
-				pdShard =			ssvuj::getExtr<OBParticleData>(ssvuj::getFromFile("Data/Particles/shard.json"));
-				pdCharge =			ssvuj::getExtr<OBParticleData>(ssvuj::getFromFile("Data/Particles/charge.json"));
-				pdHeal =			ssvuj::getExtr<OBParticleData>(ssvuj::getFromFile("Data/Particles/heal.json"));
-				pdForceField =		ssvuj::getExtr<OBParticleData>(ssvuj::getFromFile("Data/Particles/forceField.json"));
-				pdCaseBullet =		ssvuj::getExtr<OBParticleData>(ssvuj::getFromFile("Data/Particles/caseBullet.json"));
-				pdCaseRocket =		ssvuj::getExtr<OBParticleData>(ssvuj::getFromFile("Data/Particles/caseRocket.json"));
-				pdShockwave =		ssvuj::getExtr<OBParticleData>(ssvuj::getFromFile("Data/Particles/shockwave.json"));
-				pdMuzzleShockwave =	ssvuj::getExtr<OBParticleData>(ssvuj::getFromFile("Data/Particles/muzzleShockwave.json"));
+				auto gpd([this](const std::string& mName){ return ssvuj::getExtr<OBParticleData>(ssvuj::getFromFile("Data/Particles/" + mName + ".json")); });
+				pdBloodRed =		gpd("bloodRed");
+				pdGibRed =			gpd("gibRed");
+				pdExplosion =		gpd("explosion");
+				pdDebris =			gpd("debris");
+				pdDebrisFloor =		gpd("debrisFloor");
+				pdMuzzleBullet =	gpd("muzzleBullet");
+				pdMuzzlePlasma =	gpd("muzzlePlasma");
+				pdMuzzleRocket =	gpd("muzzleRocket");
+				pdPlasma =			gpd("plasma");
+				pdElectric =		gpd("electric");
+				pdSmoke =			gpd("smoke");
+				pdShard =			gpd("shard");
+				pdCharge =			gpd("charge");
+				pdHeal =			gpd("heal");
+				pdForceField =		gpd("forceField");
+				pdCaseBullet =		gpd("caseBullet");
+				pdCaseRocket =		gpd("caseRocket");
+				pdShockwave =		gpd("shockwave");
+				pdMuzzleShockwave =	gpd("muzzleShockwave");
 
 				#undef T_TSSMALL
 				#undef T_TSMEDIUM
