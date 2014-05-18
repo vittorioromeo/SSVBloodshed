@@ -19,7 +19,7 @@ namespace ob
 
 		class Widget : public AABBShape, public ssvu::MemoryManageable
 		{
-			friend class Context;
+			friend Context;
 
 			protected:
 				Context& context;

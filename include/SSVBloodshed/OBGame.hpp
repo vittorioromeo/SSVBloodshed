@@ -26,6 +26,7 @@ namespace ob
 {
 	class OBCVMachine;
 	class OBCPlayer;
+	class OBGame;
 
 	struct OBGLevelStat
 	{
@@ -34,6 +35,8 @@ namespace ob
 
 	class OBGameHUD
 	{
+		friend OBGame;
+
 		private:
 			OBAssets& assets;
 			ssvs::Camera& overlayCamera;
@@ -166,6 +169,7 @@ namespace ob
 			}
 
 			inline void refreshHUD(OBCPlayer& mPlayer) { hud.refresh(mPlayer); }
+			inline void playerDeath(OBCPlayer&) { hud.testhp.setValue(0); }
 
 			inline void newGame()
 			{
@@ -334,23 +338,21 @@ namespace ob
 	};
 }
 
-// TODO: add final where it makes sense
+// TODO: physics-driven gibs
 // ssvs::networking from testudpchat
 // autoupdater "download_only_if_unexistant":[] ...
-// bullet sensor pressure plates, SSVSC refactoring/optimization
+// bullet sensor pressure plates
 // enemy orientation, organic group?, do not pierce breakable wall etc
 // tripwires, laserwires, powerups, classes, weapon sets, etc
 // bullet knockback? replicators? spawners?
 // major group/facotry refactoring!, fuses, ammunition
 // big enforcer variant that shoots a plasma cannon ball that splits in other plasma cannon balls
 // switches that can be pressed with X
-// multiple id actions (open 1, toggle 2...)
-// refactor everything, check code quality
+// multiple id actions (open 1, toggle 2...) !!
 // customize turret rates in editor! (and projectile speed mult)
 // add small red gun asset and implement red bouncing laser shots
 // lock room until clear? (remove green doors?)
 // cloning machines! (controlling multiple players can be really fun)
 // pack/saving loading, pack options
-// TODO: physics-driven gibs
 
 #endif

@@ -45,12 +45,8 @@ namespace ob
 			Vec2i validShootingPos;
 
 			// TODO: refactor
-			float comboTime{0.f};
-			float comboTimeMax{100.f};
+			float comboTime{0.f}, comboTimeMax{100.f};
 			int comboCount{0};
-
-			// TODO: test
-			sf::RectangleShape testRay{ssvs::Vec2f(2.f, 2.f)};
 
 			struct WeaponData { OBWpnType wpn; sf::IntRect rect; std::string name; };
 			int currentWpn{0}, currentShards{0}, shards{0};
@@ -83,7 +79,7 @@ namespace ob
 				cKillable.getCHealth().setCooldown(2.6f);
 				cycleWeapons(0);
 
-// TODO				cKillable.onDeath += [this]{ assets.playSound("Sounds/playerDeath.wav"); game.testhp.setValue(0.f); };
+				cKillable.onDeath += [this]{ assets.playSound("Sounds/playerDeath.wav"); game.playerDeath(*this); };
 
 				getEntity().addGroups(OBGroup::GFriendly, OBGroup::GFriendlyKillable, OBGroup::GPlayer);
 				body.addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir, OBGroup::GFriendly, OBGroup::GKillable, OBGroup::GFriendlyKillable, OBGroup::GOrganic, OBGroup::GPlayer);
@@ -186,14 +182,6 @@ namespace ob
 			inline void draw() override
 			{
 				cDraw[0].setRotation(cDir8.getDeg());
-
-				// TODO: remove
-				testRay.setFillColor(sf::Color::Red);
-				testRay.setOrigin(ssvs::Vec2f(1.f, 1.f));
-				testRay.setPosition(toPixels(validShootingPos));
-				// ____
-
-				getGame().render(testRay);
 			}
 
 			inline void bomb()

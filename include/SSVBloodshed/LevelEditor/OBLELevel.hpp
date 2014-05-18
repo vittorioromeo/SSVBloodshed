@@ -15,7 +15,7 @@ namespace ob
 
 	class OBLELevel
 	{
-		friend class OBLESector;
+		friend OBLESector;
 		SSVUJ_CNV_FRIEND();
 
 		private:

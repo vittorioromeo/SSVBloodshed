@@ -30,8 +30,8 @@ namespace ob
 
 	class OBLEEditor
 	{
-		friend class FormPack;
-		friend class FormParams;
+		friend FormPack;
+		friend FormParams;
 		template<typename> friend class OBLEGInput;
 		template<typename> friend class OBLEGDebugText;
 
