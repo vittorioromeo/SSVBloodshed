@@ -251,7 +251,7 @@ namespace ob
 		txtCombo.setPosition(overlayCamera.getCenter() + offset / 10.f);
 
 		auto c(txtCombo.getColor());
-		auto k = ssvu::getMapEasedInOut<ssvu::Easing::Cubic>(mP.comboTime, 0.f, mP.comboTimeMax, 0.f, 180.f);
+		auto k = ssvu::getMapEased<ssvu::Easing::Cubic, ssvu::Easing::InOut>(mP.comboTime, 0.f, mP.comboTimeMax, 0.f, 180.f);
 		c.a = ssvu::getClamped(k + ssvu::getRndR<float>(0.f, mP.comboCount), 0.f, 255.f);
 
 		txtCombo.setColor(c);
