@@ -16,6 +16,7 @@ namespace ob
 		if(tckCooldown.isRunning() || isDead()) return false;
 		health = ssvu::getClampedMin(health - mAmount, 0.f);
 
+		// TODO: BUG: may crash if the attacker dies before this callback is fired
 		if(isDead() && mAttacker != nullptr)
 		{
 			if(mAttacker->getEntity().hasComponent<OBCPlayer>())
