@@ -379,7 +379,9 @@ namespace ob
 		{
 			for(int i{0}; i < 360; i += 360 / 8)
 			{
-				gt<OBCProjectile>(tpl).createChild(createPJBoltPlasma(mShooter, gt<OBCPhys>(tpl).getPosI() + Vec2i(ssvs::getVecFromDeg<float>(i) * 300.f), i));
+				auto& b(gt<OBCProjectile>(tpl).getCPhys().getBody());
+				Vec2i spawnPoint(Vec2f(b.getOldPosition()) - b.getOldVelocity());
+				gt<OBCProjectile>(tpl).createChild(createPJBoltPlasma(mShooter, spawnPoint + Vec2i(ssvs::getVecFromDeg<float>(i) * 300.f), i));
 			}
 		};
 		gt<OBCDraw>(tpl).setBlendMode(sf::BlendMode::BlendAdd);
