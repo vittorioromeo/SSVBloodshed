@@ -44,14 +44,14 @@ namespace ob
 				Style style;
 				sf::RenderTexture renderTexture;
 				sf::Sprite sprite;
-				ssvu::MemoryManager<Widget> widgets;
+				ssvu::PolyManager<Widget> widgets;
 				std::vector<Widget*> children;
 				Widget* busyWith{nullptr};
 				bool hovered{false}, focused{false}, unfocusOnUnhover{true};
 				Vec2f mousePos; bool mouseLDown{false}, mouseRDown{false};
 				std::vector<sf::Event> eventsToPoll;
 
-				inline void del(Widget& mWidget) const noexcept { widgets.del(mWidget); }
+				inline void del(Widget& mWidget) noexcept { widgets.del(mWidget); }
 				inline void render(sf::View* mView, const sf::Drawable& mDrawable)
 				{
 					renderTexture.setView(mView != nullptr ? *mView : gameWindow.getRenderWindow().getView());
@@ -128,12 +128,13 @@ namespace ob
 					for(auto& w : children) w->recurseChildren([](Widget& mW)
 					{
 						mW.recalculated.x = mW.recalculated.y = false;
-						ssvu::eraseRemoveIf(mW.children, &ssvu::MemoryManager<Widget>::isDead<Widget*>);
+						// TODO: avoid lambda?
+						ssvu::eraseRemoveIf(mW.children, [](const Widget* mW){ return ssvu::PolyManager<Widget>::isDead(mW); });
 					});
-					ssvu::eraseRemoveIf(children, &ssvu::MemoryManager<Widget>::isDead<Widget*>);
+					ssvu::eraseRemoveIf(children, [](const Widget* mW){ return ssvu::PolyManager<Widget>::isDead(mW); });
 
 					// If mouse buttons are not down or the `busyWith` widget is dead, stop being busy
-					if((!mouseLDown && !mouseRDown) || (busyWith != nullptr && ssvu::MemoryManager<Widget>::isDead<Widget*>(busyWith)))
+					if((!mouseLDown && !mouseRDown) || (busyWith != nullptr && ssvu::PolyManager<Widget>::isDead(busyWith)))
 						busyWith = nullptr;
 
 					// Free dead widgets memory / initialize new widgets

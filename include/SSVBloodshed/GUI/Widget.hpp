@@ -17,7 +17,7 @@ namespace ob
 		class Context;
 		struct Style;
 
-		class Widget : public AABBShape, public ssvu::MemoryManageable
+		class Widget : public AABBShape
 		{
 			friend Context;
 
