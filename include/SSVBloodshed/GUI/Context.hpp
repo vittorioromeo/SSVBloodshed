@@ -128,10 +128,9 @@ namespace ob
 					for(auto& w : children) w->recurseChildren([](Widget& mW)
 					{
 						mW.recalculated.x = mW.recalculated.y = false;
-						// TODO: avoid lambda?
-						ssvu::eraseRemoveIf(mW.children, [](const Widget* mW){ return ssvu::PolyManager<Widget>::isDead(mW); });
+						ssvu::eraseRemoveIf(mW.children, &ssvu::PolyManager<Widget>::isDead);
 					});
-					ssvu::eraseRemoveIf(children, [](const Widget* mW){ return ssvu::PolyManager<Widget>::isDead(mW); });
+					ssvu::eraseRemoveIf(children, &ssvu::PolyManager<Widget>::isDead);
 
 					// If mouse buttons are not down or the `busyWith` widget is dead, stop being busy
 					if((!mouseLDown && !mouseRDown) || (busyWith != nullptr && ssvu::PolyManager<Widget>::isDead(busyWith)))
