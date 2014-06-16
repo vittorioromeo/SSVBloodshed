@@ -25,7 +25,8 @@ namespace ob
 				body.addGroupsToCheck(targetGroup);
 				body.onDetection += [this](const DetectionInfo& mDI)
 				{
-					if(mDI.body.hasGroup(targetGroup) && !mDI.body.hasGroup(OBGroup::GEnvDestructible)) getComponentFromBody<OBCHealth>(mDI.body).damage(this, dmg);
+					auto thisStat(getEntity().getStat());
+					if(mDI.body.hasGroup(targetGroup) && !mDI.body.hasGroup(OBGroup::GEnvDestructible)) getComponentFromBody<OBCHealth>(mDI.body).damage(thisStat, this, dmg);
 				};
 			}
 

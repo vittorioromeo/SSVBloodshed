@@ -48,11 +48,12 @@ namespace ob
 
 					if(killDestructible && mDI.body.hasGroup(OBGroup::GEnvDestructible))
 					{
-						getComponentFromBody<OBCHealth>(mDI.body).damage(nullptr, 100000);
+						getComponentFromBody<OBCHealth>(mDI.body).damage(sses::getNullEntityStat(), nullptr, 100000);
 						destroy();
 					}
 
-					if(mDI.body.hasGroup(targetGroup) && getComponentFromBody<OBCHealth>(mDI.body).damage(shooter, dmg * dmgMult) && pierceOrganic-- == 0)
+					auto shooterStat(shooter->getEntity().getStat());
+					if(mDI.body.hasGroup(targetGroup) && getComponentFromBody<OBCHealth>(mDI.body).damage(shooterStat, shooter, dmg * dmgMult) && pierceOrganic-- == 0)
 					{
 						destroy();
 					}

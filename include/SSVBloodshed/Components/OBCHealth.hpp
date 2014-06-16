@@ -30,7 +30,7 @@ namespace ob
 				health = ssvu::getClampedMax(health + mAmount, maxHealth);
 				onHeal(); return true;
 			}
-			bool damage(OBCActorND* mAttacker, float mAmount) noexcept;
+			bool damage(sses::EntityStat mAttackerStat, OBCActorND* mAttacker, float mAmount) noexcept;
 			inline void setHealth(float mHealth) noexcept	{ health = ssvu::getClamped(mHealth, 0.f, maxHealth); }
 			inline void setMaxHealth(float mValue) noexcept	{ maxHealth = mValue; }
 			inline void setCooldown(FT mValue) noexcept		{ tckCooldown.restart(mValue); }
