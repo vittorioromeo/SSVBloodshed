@@ -59,7 +59,7 @@ namespace ob
 					onLeftClick += [this]{ setState(!state); };
 				}
 
-				inline void setState(bool mValue) 		{ state = mValue; cbsbBox.setState(mValue); onStateChanged(); }
+				inline void setState(bool mValue)		{ state = mValue; cbsbBox.setState(mValue); onStateChanged(); }
 				inline bool getState() const noexcept	{ return state; }
 				inline Label& getLabel() noexcept		{ return lblLabel; }
 		};

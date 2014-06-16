@@ -41,7 +41,7 @@ namespace ob
 			sf::IntRect p2Stand,		p2Shoot,		p2Gun;								// Player class 2
 			sf::IntRect p3Stand,		p3Shoot,		p3Gun;								// Player class 3
 			sf::IntRect p4Stand,		p4Shoot,		p4Gun;								// Player class 4
-			sf::IntRect e1Stand, 		e1Shoot,		e1Gun;								// Runner alien
+			sf::IntRect e1Stand,		e1Shoot,		e1Gun;								// Runner alien
 			sf::IntRect floor,			floorAlt1,		floorAlt2;							// Floor
 			sf::IntRect floorGrate,		floorGrateAlt1,	floorGrateAlt2;						// Floor grate
 			sf::IntRect pit,			trapdoor,		trapdoorPOnly;						// Pit and trapdoor
@@ -126,17 +126,17 @@ namespace ob
 				obBigStroked = &assetManager.get<ssvs::BitmapFont>("fontObBigStroked");
 
 				// Textures
-				txSmall = 	&assetManager.get<sf::Texture>("tsSmall.png");
-				txMedium = 	&assetManager.get<sf::Texture>("tsMedium.png");
-				txBig = 	&assetManager.get<sf::Texture>("tsBig.png");
-				txGiant = 	&assetManager.get<sf::Texture>("tsGiant.png");
+				txSmall =	&assetManager.get<sf::Texture>("tsSmall.png");
+				txMedium =	&assetManager.get<sf::Texture>("tsMedium.png");
+				txBig =	&assetManager.get<sf::Texture>("tsBig.png");
+				txGiant =	&assetManager.get<sf::Texture>("tsGiant.png");
 
 				// Small tileset (10x10)
 				T_TSSMALL(p1Stand);			T_TSSMALL(p1Shoot);			T_TSSMALL(p1Gun);
 				T_TSSMALL(p2Stand);			T_TSSMALL(p2Shoot);			T_TSSMALL(p2Gun);
 				T_TSSMALL(p3Stand);			T_TSSMALL(p3Shoot);			T_TSSMALL(p3Gun);
 				T_TSSMALL(p4Stand);			T_TSSMALL(p4Shoot);			T_TSSMALL(p4Gun);
-				T_TSSMALL(e1Stand); 		T_TSSMALL(e1Shoot);			T_TSSMALL(e1Gun);
+				T_TSSMALL(e1Stand);		T_TSSMALL(e1Shoot);			T_TSSMALL(e1Gun);
 				T_TSSMALL(floor);			T_TSSMALL(floorAlt1);		T_TSSMALL(floorAlt2);
 				T_TSSMALL(floorGrate);		T_TSSMALL(floorGrateAlt1);	T_TSSMALL(floorGrateAlt2);
 				T_TSSMALL(pit);				T_TSSMALL(trapdoor);		T_TSSMALL(trapdoorPOnly);
@@ -160,7 +160,7 @@ namespace ob
 				WALLTS(wall); WALLTS(wallD); WALLTS(door); WALLTS(doorG); WALLTS(doorR);
 
 				// Medium tileset (20x20)
-				T_TSMEDIUM(e2Stand); 		T_TSMEDIUM(e2Shoot);		T_TSMEDIUM(e2Gun);			T_TSMEDIUM(e2GunGL);
+				T_TSMEDIUM(e2Stand);		T_TSMEDIUM(e2Shoot);		T_TSMEDIUM(e2Gun);			T_TSMEDIUM(e2GunGL);
 				T_TSMEDIUM(e5Stand);
 
 				// Big tileset (30x30)
