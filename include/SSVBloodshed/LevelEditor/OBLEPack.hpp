@@ -20,8 +20,6 @@ namespace ob
 			std::unordered_map<int, OBLESector> sectors;
 
 		public:
-			OBLEPack() = default;
-
 			inline void setName(std::string mName) { name = std::move(mName); }
 
 			inline const std::string& getName() const noexcept			{ return name; }

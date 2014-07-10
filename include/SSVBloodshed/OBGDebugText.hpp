@@ -36,7 +36,7 @@ namespace ob
 					<< "Bodies(dynamic): "	<< dynamicBodiesCount << "\n"
 					<< "Sensors: "			<< sensors.size() << "\n"
 					<< "Entities: "			<< entities.size() << "\n"
-					<< "Components: "		<< componentCount << std::endl;
+					<< "Components: "		<< componentCount << "\n";
 
 				debugText.setString(s.str());
 			}

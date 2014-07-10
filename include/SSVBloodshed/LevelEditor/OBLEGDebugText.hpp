@@ -32,7 +32,7 @@ namespace ob
 					<< "C/V: save/load" << "\t" << "Z/X: cycle Z" << "\n"
 					<< "A/S: cycle id" << "\t" << "Q/W: cycle param" << "\n"
 					<< "LShift: pick" << "\n" << "N/M: copy/paste params" << "\n\n"
-					<< copiedParamsStr << std::endl;
+					<< copiedParamsStr << "\n";
 
 				str = s.str();
 			}

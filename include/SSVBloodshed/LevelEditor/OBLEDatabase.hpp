@@ -22,8 +22,8 @@ namespace ob
 				std::map<std::string, std::string> enumParams;
 				ssvu::Func<void(TLevel&, TTile&, const Vec2i&)> spawn;
 
-				Entry() = default;
-				Entry(OBLETType mType, sf::Texture* mTexture, const sf::IntRect& mIntRect, const decltype(defaultParams)& mDefaultParams, decltype(spawn) mSpawn)
+				inline Entry() = default;
+				inline Entry(OBLETType mType, sf::Texture* mTexture, const sf::IntRect& mIntRect, const decltype(defaultParams)& mDefaultParams, decltype(spawn) mSpawn)
 					: type{mType}, texture{mTexture}, intRect{mIntRect}, defaultParams{mDefaultParams}, spawn{mSpawn} { }
 
 				inline bool isEnumParam(const std::string& mKey) const					{ return enumParams.count(mKey) > 0; }
