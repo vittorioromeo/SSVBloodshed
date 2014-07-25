@@ -35,6 +35,26 @@ namespace ob
 				// Ammo and other stuff
 			};
 
+			class ComboState
+			{
+				private:
+					float time{0.f}, timeMax{100.f};
+					int count{0};
+
+				public:
+					inline void update(float mFT) noexcept
+					{
+						if(time <= 0) count = 0;
+						else time -= mFT * ssvu::getClampedMax(1 + count * 0.05f, 1.5f);
+					}
+
+					inline void increment() noexcept { time = timeMax; ++count; }
+
+					inline float getTime() const noexcept		{ return time; }
+					inline float getTimeMax() const noexcept	{ return timeMax; }
+					inline int getCount() const noexcept		{ return count; }
+			};
+
 		private:
 			OBCKillable& cKillable;
 			OBCWielder& cWielder;
@@ -44,9 +64,9 @@ namespace ob
 			OBCUsable* currentUsable{nullptr};
 			Vec2i validShootingPos;
 
-			// TODO: refactor
-			float comboTime{0.f}, comboTimeMax{100.f};
-			int comboCount{0};
+
+
+			ComboState comboState;
 
 			struct WeaponData { OBWpnType wpn; sf::IntRect rect; std::string name; };
 			int currentWpn{0}, currentShards{0}, shards{0};
@@ -173,7 +193,8 @@ namespace ob
 
 			inline void update(FT mFT) override
 			{
-				updateValidShootingPos(); updateUsable(); updateInput(); attractShards(); updateCombo(mFT);
+				updateValidShootingPos(); updateUsable(); updateInput(); attractShards();
+				comboState.update(mFT);
 				game.refreshHUD(*this);
 
 				if(game.isLevelClear()) { shards += currentShards; currentShards = 0; }
@@ -213,22 +234,14 @@ namespace ob
 
 			inline void useVM(OBCVMachine& mVMachine);
 
-			inline void updateCombo(FT mFT)
-			{
-				if(comboTime <= 0) comboCount = 0;
-				else comboTime -= mFT * ssvu::getClampedMax(1 + comboCount * 0.05f, 1.5f);
-			}
 			inline void onKill(Entity& mEntity)
 			{
-				if(mEntity.hasGroup(OBGroup::GEnemy))
-				{
-					comboTime = comboTimeMax;
-					++comboCount;
-				}
+				if(mEntity.hasGroup(OBGroup::GEnemy)) comboState.increment();
 			}
 
 			inline OBCKillable& getCKillable() noexcept { return cKillable; }
 			inline OBCHealth& getCHealth() noexcept { return cKillable.getCHealth(); }
+			inline ComboState& getComboState() noexcept { return comboState; }
 	};
 }
 
@@ -239,20 +252,23 @@ namespace ob
 	inline void OBGameHUD::refresh(OBCPlayer& mP)
 	{
 		auto& cHealth(mP.getCHealth());
+		auto& cs(mP.getComboState());
+		const auto& csC(cs.getCount());
+
 		testhp.setValue(cHealth.getHealth());
 		testhp.setMaxValue(cHealth.getMaxHealth());
 		txtShards.setString(ssvu::toStr(mP.shards + mP.currentShards));
 		txtVM.setString(mP.currentUsable == nullptr ? mP.weapons[mP.currentWpn].name : mP.currentUsable->getMsg());
 
-		txtCombo.setString(mP.comboCount > 3 ? "x" + ssvu::toStr(mP.comboCount) : "");
+		txtCombo.setString(csC > 3 ? "x" + ssvu::toStr(csC) : "");
 		txtCombo.setOrigin(ssvs::getGlobalHalfSize(txtCombo));
-		ssvs::Vec2f offset(ssvu::getRndR<float>(-mP.comboCount, mP.comboCount), ssvu::getRndR<float>(-mP.comboCount, mP.comboCount));
+		ssvs::Vec2f offset(ssvu::getRndR<float>(-csC, csC), ssvu::getRndR<float>(-csC, csC));
 		ssvs::cClamp(offset, -250.f, 250.f);
 		txtCombo.setPosition(overlayCamera.getCenter() + offset / 10.f);
 
 		auto c(txtCombo.getColor());
-		auto k = ssvu::getMapEased<ssvu::Easing::Sine, ssvu::Easing::InOut>(mP.comboTime, 0.f, mP.comboTimeMax, 0.f, 230.f);
-		c.a = ssvu::getClamped(k + ssvu::getRndR<float>(0.f, mP.comboCount), 0.f, 255.f);
+		auto k = ssvu::getMapEased<ssvu::Easing::Sine, ssvu::Easing::InOut>(cs.getTime(), 0.f, cs.getTimeMax(), 0.f, 230.f);
+		c.a = ssvu::getClamped(k + ssvu::getRndR<float>(0.f, csC), 0.f, 255.f);
 
 		txtCombo.setColor(c);
 	}
