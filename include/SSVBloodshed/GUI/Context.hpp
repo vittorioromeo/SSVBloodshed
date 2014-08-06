@@ -99,7 +99,7 @@ namespace ob
 					found->recurseChildren([this](Widget& mW){ if(mW.depth == found->depth) { mW.setFocused(true); focused = true; } });
 				}
 
-				inline bool isKeyPressed(ssvs::KKey mKey) const noexcept { return gameWindow.getInputState().isKeyPressed(mKey); }
+				inline bool isKeyPressed(ssvs::KKey mKey) const noexcept { return gameWindow.getInputState()[mKey]; }
 
 			public:
 				Context(OBAssets& mAssets, ssvs::GameWindow& mGameWindow, Style mStyle) : assets(mAssets), gameWindow(mGameWindow),
@@ -120,8 +120,8 @@ namespace ob
 				inline void update(FT mFT)
 				{
 					// Set "old" mouse variable and get mouse position/status
-					mouseLDown = gameWindow.getInputState().isBtnPressed(ssvs::MBtn::Left);
-					mouseRDown = gameWindow.getInputState().isBtnPressed(ssvs::MBtn::Right);
+					mouseLDown = gameWindow.getInputState()[ssvs::MBtn::Left];
+					mouseRDown = gameWindow.getInputState()[ssvs::MBtn::Right];
 					mousePos = gameWindow.getMousePosition();
 
 					// Recursively remove all dead widgets from children and set "not recalculated"
