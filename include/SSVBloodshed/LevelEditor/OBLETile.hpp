@@ -21,7 +21,7 @@ namespace ob
 			std::map<std::string, ssvuj::Obj> params;
 
 			sf::Sprite sprite;
-			ssvu::Uptr<ssvs::BitmapText> idText{nullptr};
+			ssvu::UPtr<ssvs::BitmapText> idText{nullptr};
 
 		public:
 			inline OBLETile() = default;
