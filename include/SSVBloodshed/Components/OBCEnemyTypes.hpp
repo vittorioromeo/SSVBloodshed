@@ -145,7 +145,7 @@ namespace ob
 	{
 		private:
 			OBCFloorSmasher& cFloorSmasher;
-			ssvs::Ticker tckCharge{250.f};
+			Ticker tckCharge{250.f};
 			ssvu::Timeline tlCharge{false};
 			float lastDeg{0};
 			ChargerType type;
@@ -205,7 +205,7 @@ namespace ob
 	class OBCEJuggernaut : public OBCEArmedBase
 	{
 		private:
-			ssvs::Ticker tckShoot{150.f};
+			Ticker tckShoot{150.f};
 			ssvu::Timeline tlShoot{false};
 			float lastDeg{0};
 			OBWpn wpn{game, OBGroup::GFriendlyKillable, OBWpnTypes::createEPlasmaStarGun(0)};
@@ -324,7 +324,7 @@ namespace ob
 	class OBCEGiant : public OBCEBase
 	{
 		private:
-			ssvs::Ticker tckShoot{250.f};
+			Ticker tckShoot{250.f};
 			ssvu::Timeline tlShoot{false}, tlSummon{false}, tlCannon{true};
 			OBWpn wpn{game, OBGroup::GFriendlyKillable, OBWpnTypes::createEPlasmaStarGun()};
 			OBWpn wpnC{game, OBGroup::GFriendlyKillable, OBWpnTypes::createPlasmaCannon()};
@@ -392,7 +392,7 @@ namespace ob
 	class OBCEEnforcer : public OBCEBase
 	{
 		private:
-			ssvs::Ticker tckShoot{100.f};
+			Ticker tckShoot{100.f};
 			OBWpn wpn{game, OBGroup::GFriendlyKillable, OBWpnTypes::createPlasmaCannon()};
 
 		public:

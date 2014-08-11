@@ -16,7 +16,7 @@ namespace ob
 	class OBCProjectile : public OBCActor
 	{
 		private:
-			ssvs::Ticker tckLife{150.f};
+			Ticker tckLife{150.f};
 			OBCActorND* shooter{nullptr};
 			float acceleration{0.f}, minSpeed{0}, maxSpeed{1000}, dmgMult{1.f}, curveSpeed{0.f}, dmg{1};
 			OBGroup targetGroup{OBGroup::GEnemyKillable};

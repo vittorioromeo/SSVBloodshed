@@ -71,6 +71,7 @@ namespace ob
 	using ResolutionInfo = World::ResolutionInfoType;
 	using FT = ssvu::FT;
 	using Trigger = ssvs::Input::Trigger;
+	using Ticker = ssvs::Ticker;
 
 	// Pixel <-> coords utils
 	template<typename T> inline constexpr float toPixels(T mValue) noexcept		{ return static_cast<float>(mValue / 100); }

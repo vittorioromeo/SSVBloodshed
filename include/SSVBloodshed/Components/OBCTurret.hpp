@@ -21,7 +21,7 @@ namespace ob
 		private:
 			OBCKillable& cKillable;
 			Dir8 direction;
-			ssvs::Ticker tckShoot{0.f};
+			Ticker tckShoot{0.f};
 			ssvu::Timeline tlShoot{false};
 
 			OBWpn wpn;

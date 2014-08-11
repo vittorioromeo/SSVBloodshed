@@ -21,7 +21,7 @@ namespace ob
 	{
 		private:
 			OBWpn wpn;
-			ssvs::Ticker tckShoot{0.f};
+			Ticker tckShoot{0.f};
 
 		public:
 			OBCWpnController(OBCPhys& mCPhys, OBGroup mTargetGroup) noexcept : OBCActorND{mCPhys}, wpn{game, mTargetGroup} { }
@@ -40,8 +40,8 @@ namespace ob
 			inline void setWpn(OBWpnType mWpn) noexcept				{ wpn.setWpn(std::move(mWpn)); }
 
 			inline OBWpnType& getWpn() noexcept						{ return wpn.getWpnType(); }
-			inline const ssvs::Ticker& getTicker() const noexcept	{ return tckShoot; }
-			inline ssvs::Ticker& getTicker() noexcept				{ return tckShoot; }
+			inline const Ticker& getTicker() const noexcept	{ return tckShoot; }
+			inline Ticker& getTicker() noexcept				{ return tckShoot; }
 	};
 }
 

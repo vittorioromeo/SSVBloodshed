@@ -15,7 +15,7 @@ namespace ob
 	class OBCSpawner : public OBCActor
 	{
 		private:
-			ssvs::Ticker delayStart, delaySpawn;
+			Ticker delayStart, delaySpawn;
 			OBCIdReceiver& cIdReceiver;
 			SpawnerItem type;
 			int spawnCount;

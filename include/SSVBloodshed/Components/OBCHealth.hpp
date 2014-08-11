@@ -14,7 +14,7 @@ namespace ob
 	{
 		private:
 			float health, maxHealth;
-			ssvs::Ticker tckCooldown{1.f};
+			Ticker tckCooldown{1.f};
 
 		public:
 			ssvu::Delegate<void(OBCActorND*)> onDamage;
