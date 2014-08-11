@@ -34,7 +34,15 @@ namespace ob
 					else if(action == Action::Resize)
 					{
 						auto oldNW(getVertexNW());
-						setSize(getMousePos() - dragOrigin);
+						auto newWidth(getMousePos().x - dragOrigin.x);
+						auto newHeight(getMousePos().y - dragOrigin.y);
+
+						newWidth = std::max(20.f, newWidth);
+						newHeight = std::max(20.f, newHeight);
+
+						setWidth(newWidth);
+						setHeight(newHeight);
+
 						setPosition(oldNW + getHalfSize());
 					}
 				}
@@ -43,16 +51,19 @@ namespace ob
 				Form(Context& mContext, std::string mTitle, const Vec2f& mPosition, const Vec2f& mSize) : Widget{mContext, mPosition, mSize / 2.f},
 					fbBar(create<FormBar>(std::move(mTitle))), fbResizer(create<Widget>(Vec2f{4.f, 4.f}))
 				{
-					setOutlineThickness(getStyle().outlineThickness); setOutlineColor(getStyle().colorOutline);
+					setOutlineThickness(getStyle().outlineThickness);
+					setOutlineColor(getStyle().colorOutline);
 
 					fbBar.getBtnClose().onLeftClick += [this]{ hide(); };
 					fbBar.getBtnMinimize().onLeftClick += [this]{ /* TODO */ };
 					fbBar.getBtnCollapse().onLeftClick += [this]{ toggleCollapsed(); };
 					fbBar.setScalingX(Scaling::FitToNeighbor);
-					fbBar.setScalingY(Scaling::FitToChildren); fbBar.setPadding(getStyle().padding);
+					fbBar.setScalingY(Scaling::FitToChildren);
+					fbBar.setPadding(getStyle().padding);
 
 					fbResizer.setFillColor(sf::Color::Transparent);
-					fbResizer.setOutlineThickness(getStyle().outlineThickness); fbResizer.setOutlineColor(getStyle().colorOutline);
+					fbResizer.setOutlineThickness(getStyle().outlineThickness);
+					fbResizer.setOutlineColor(getStyle().colorOutline);
 
 					fbBar.attach(At::Bottom, *this, At::Top);
 					fbResizer.attach(At::SE, *this, At::SE);
