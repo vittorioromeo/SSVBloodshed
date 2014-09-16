@@ -14,7 +14,7 @@ namespace ob
 	{
 		template<typename T, typename... TArgs> inline T& Widget::create(TArgs&&... mArgs)
 		{
-			auto& result(context.allocateWidget<T>(std::forward<TArgs>(mArgs)...));
+			auto& result(context.allocateWidget<T>(ssvu::fwd<TArgs>(mArgs)...));
 			result.setParent(*this); return result;
 		}
 
