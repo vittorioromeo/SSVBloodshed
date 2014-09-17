@@ -159,7 +159,7 @@ namespace ob
 				formIO->onLoad += [this](const std::string& mFilename)
 				{
 					ssvufs::Path path{mFilename};
-					if(!path.exists()) return;
+					if(!path.exists<ssvufs::Type::File>()) return;
 
 					sharedData.loadPack(path);
 					formIO->getLblCurrentPath().setString("CURRENT: " + sharedData.getCurrentPath());

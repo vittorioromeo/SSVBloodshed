@@ -125,7 +125,7 @@ namespace ob
 				{
 					ssvufs::Path path{mFilename};
 
-					if(!path.exists()) return;
+					if(!path.exists<ssvufs::Type::File>()) return;
 					loadPackFromFile(path);
 					formIO->getLblCurrentPath().setString("CURRENT: " + sharedData.getCurrentPath());
 				};
