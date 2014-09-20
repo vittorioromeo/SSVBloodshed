@@ -67,11 +67,11 @@ namespace ob
 				mRenderTarget.draw(vertices, mRenderStates);
 			}
 
-			inline void setValue(float mValue)		{ if(value != mValue) { value = mValue; mustRefreshGeometry = true; } }
-			inline void setMinValue(float mValue)	{ if(minValue != mValue) { minValue = mValue; mustRefreshGeometry = true; } }
-			inline void setMaxValue(float mValue)	{ if(maxValue != mValue) { maxValue = mValue; mustRefreshGeometry = true; } }
-			inline void setColor(sf::Color mColor)	{ color = std::move(mColor); mustRefreshColor = true; }
-			inline void setTracking(int mTracking)	{ tracking = mTracking; mustRefreshGeometry = true; }
+			inline void setValue(float mValue)				{ if(value != mValue) { value = mValue; mustRefreshGeometry = true; } }
+			inline void setMinValue(float mValue)			{ if(minValue != mValue) { minValue = mValue; mustRefreshGeometry = true; } }
+			inline void setMaxValue(float mValue)			{ if(maxValue != mValue) { maxValue = mValue; mustRefreshGeometry = true; } }
+			inline void setColor(const sf::Color& mColor)	{ color = mColor; mustRefreshColor = true; }
+			inline void setTracking(int mTracking)			{ tracking = mTracking; mustRefreshGeometry = true; }
 
 			inline float getValue() const noexcept				{ return value; }
 			inline float getMaxValue() const noexcept			{ return maxValue; }

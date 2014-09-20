@@ -44,7 +44,7 @@ namespace ob
 				Style style;
 				sf::RenderTexture renderTexture;
 				sf::Sprite sprite;
-				ssvu::PolyManager<Widget> widgets;
+				ssvu::PolyFixedManager<Widget, 50> widgets;
 				std::vector<Widget*> children;
 				Widget* busyWith{nullptr};
 				bool hovered{false}, focused{false}, unfocusOnUnhover{true};
@@ -102,7 +102,7 @@ namespace ob
 				inline bool isKeyPressed(ssvs::KKey mKey) const noexcept { return gameWindow.getInputState()[mKey]; }
 
 			public:
-				Context(OBAssets& mAssets, ssvs::GameWindow& mGameWindow, Style mStyle) : assets(mAssets), gameWindow(mGameWindow),
+				inline Context(OBAssets& mAssets, ssvs::GameWindow& mGameWindow, Style mStyle) : assets(mAssets), gameWindow(mGameWindow),
 					style{std::move(mStyle)}
 				{
 					renderTexture.create(gameWindow.getWidth(), gameWindow.getHeight());
@@ -128,12 +128,12 @@ namespace ob
 					for(auto& w : children) w->recurseChildren([](Widget& mW)
 					{
 						mW.recalculated.x = mW.recalculated.y = false;
-						ssvu::eraseRemoveIf(mW.children, &ssvu::PolyManager<Widget>::isDead);
+						ssvu::eraseRemoveIf(mW.children, &decltype(widgets)::isDead);
 					});
-					ssvu::eraseRemoveIf(children, &ssvu::PolyManager<Widget>::isDead);
+					ssvu::eraseRemoveIf(children, &decltype(widgets)::isDead);
 
 					// If mouse buttons are not down or the `busyWith` widget is dead, stop being busy
-					if((!mouseLDown && !mouseRDown) || (busyWith != nullptr && ssvu::PolyManager<Widget>::isDead(busyWith)))
+					if((!mouseLDown && !mouseRDown) || (busyWith != nullptr && decltype(widgets)::isDead(busyWith)))
 						busyWith = nullptr;
 
 					// Free dead widgets memory / initialize new widgets

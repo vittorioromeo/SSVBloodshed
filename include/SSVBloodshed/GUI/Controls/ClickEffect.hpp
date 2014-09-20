@@ -22,7 +22,7 @@ namespace ob
 					float value{0.f};
 
 				public:
-					inline ClickEffect(sf::Color mColor, AABBShape& mTarget) noexcept : color{std::move(mColor)}, target(mTarget) { }
+					inline ClickEffect(const sf::Color& mColor, AABBShape& mTarget) noexcept : color{mColor}, target(mTarget) { }
 					inline void update(FT mFT) noexcept
 					{
 						auto colorNew(color); colorNew.g = value;

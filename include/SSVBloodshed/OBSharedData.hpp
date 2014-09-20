@@ -41,7 +41,7 @@ namespace ob
 			}
 			inline void loadPack(const ssvufs::Path& mPath)
 			{
-				SSVU_ASSERT(database != nullptr && mPath.exists());
+				SSVU_ASSERT(database != nullptr && mPath.exists<ssvufs::Type::File>());
 				setPath(mPath);
 
 				try { pack = ssvuj::getExtr<OBLEPack>(ssvuj::getFromFile(currentPath)); }

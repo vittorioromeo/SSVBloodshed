@@ -30,9 +30,9 @@ namespace ob
 
 			inline void clear(OBFactory& mFactory)
 			{
-				psPerm =	&mFactory.createParticleSystem(txPSPerm, false, 175, OBLayer::LPSPerm).getComponent<OBCParticleSystem>().getParticleSystem();
-				psTemp =	&mFactory.createParticleSystem(txPSTemp, true, 255, OBLayer::LPSTemp).getComponent<OBCParticleSystem>().getParticleSystem();
-				psTempAdd =	&mFactory.createParticleSystem(txPSTemp, true, 255, OBLayer::LPSTemp, sf::BlendMode::BlendAdd).getComponent<OBCParticleSystem>().getParticleSystem();
+				psPerm =	&mFactory.createParticleSystem(txPSPerm, false, 175, OBLayer::LPSPerm, sf::BlendAlpha).getComponent<OBCParticleSystem>().getParticleSystem();
+				psTemp =	&mFactory.createParticleSystem(txPSTemp, true, 255, OBLayer::LPSTemp, sf::BlendAlpha).getComponent<OBCParticleSystem>().getParticleSystem();
+				psTempAdd =	&mFactory.createParticleSystem(txPSTemp, true, 255, OBLayer::LPSTemp, sf::BlendAdd).getComponent<OBCParticleSystem>().getParticleSystem();
 			}
 
 			inline OBParticleSystem& getPSPerm() noexcept		{ return *psPerm; }

@@ -22,7 +22,7 @@ namespace ob
 			bool clearOnDraw;
 
 		public:
-			OBCParticleSystem(sf::RenderTexture& mRenderTexture, sf::RenderTarget& mRenderTarget, bool mClearOnDraw = false, unsigned char mAlpha = 255, sf::BlendMode mBlendMode = sf::BlendMode::BlendAlpha) noexcept
+			OBCParticleSystem(sf::RenderTexture& mRenderTexture, sf::RenderTarget& mRenderTarget, bool mClearOnDraw, unsigned char mAlpha, sf::BlendMode mBlendMode) noexcept
 				: renderTexture(mRenderTexture), renderTarget(mRenderTarget), blendMode{mBlendMode}, alpha{mAlpha}, clearOnDraw{mClearOnDraw} { }
 
 			inline void init()

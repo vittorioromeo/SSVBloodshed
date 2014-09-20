@@ -214,7 +214,7 @@ namespace ob
 		emplaceSpriteByTile(gt<OBCDraw>(tpl), assets.txSmall, assets.ff0);
 		auto& cIdReceiver(gt<Entity>(tpl).createComponent<OBCIdReceiver>(mId));
 		gt<Entity>(tpl).createComponent<OBCForceField>(gt<OBCPhys>(tpl), gt<OBCDraw>(tpl), cIdReceiver, mDir, mBlockFriendly, mBlockEnemy, mForceMult);
-		gt<OBCDraw>(tpl).setBlendMode(sf::BlendMode::BlendAdd);
+		gt<OBCDraw>(tpl).setBlendMode(sf::BlendAdd);
 		sf::Color color{225, 0, 0, 255};
 		color.g = 255 * static_cast<int>(mBlockFriendly);
 		color.b = 255 * static_cast<int>(mBlockEnemy);
@@ -235,7 +235,7 @@ namespace ob
 		emplaceSpriteByTile(gt<OBCDraw>(tpl), assets.txSmall, assets.forceArrowMark);
 		auto& cIdReceiver(gt<Entity>(tpl).createComponent<OBCIdReceiver>(mId));
 		gt<Entity>(tpl).createComponent<OBCBulletForceField>(gt<OBCPhys>(tpl), gt<OBCDraw>(tpl), cIdReceiver, mDir, mBlockFriendly, mBlockEnemy);
-		gt<OBCDraw>(tpl).setBlendMode(sf::BlendMode::BlendAdd);
+		gt<OBCDraw>(tpl).setBlendMode(sf::BlendAdd);
 
 		sf::Color color{255, 0, 0, 255};
 		color.g = 255 * static_cast<int>(mBlockFriendly);
@@ -251,7 +251,7 @@ namespace ob
 		emplaceSpriteByTile(gt<OBCDraw>(tpl), assets.txSmall, assets.ff0);
 		auto& cIdReceiver(gt<Entity>(tpl).createComponent<OBCIdReceiver>(mId));
 		gt<Entity>(tpl).createComponent<OBCBooster>(gt<OBCPhys>(tpl), gt<OBCDraw>(tpl), cIdReceiver, mDir, mForceMult);
-		gt<OBCDraw>(tpl).setBlendMode(sf::BlendMode::BlendAdd);
+		gt<OBCDraw>(tpl).setBlendMode(sf::BlendAdd);
 
 		gt<OBCDraw>(tpl)[0].setTextureRect(mForceMult > 0 ? assets.bulletBooster : assets.bulletChanger);
 		gt<OBCDraw>(tpl)[0].setColor(sf::Color{255, 255, 255, 245});
@@ -345,7 +345,7 @@ namespace ob
 	{
 		auto tpl(createProjectileBase(mShooter, mPos, {150, 150}, 360.f, mDeg, assets.pjBulletPlasma));
 		gt<Entity>(tpl).createComponent<OBCParticleEmitter>(gt<OBCPhys>(tpl), &OBGame::createPPlasma);
-		gt<OBCDraw>(tpl).setBlendMode(sf::BlendMode::BlendAdd);
+		gt<OBCDraw>(tpl).setBlendMode(sf::BlendAdd);
 		return gt<Entity>(tpl);
 	}
 	Entity& OBFactory::createPJBoltPlasma(OBCActorND* mShooter, const Vec2i& mPos, float mDeg)
@@ -353,7 +353,7 @@ namespace ob
 		auto tpl(createProjectileBase(mShooter, mPos, {150, 150}, 260.f, mDeg, assets.pjPlasma));
 		gt<Entity>(tpl).createComponent<OBCParticleEmitter>(gt<OBCPhys>(tpl), &OBGame::createPPlasma);
 		gt<OBCProjectile>(tpl).setPierceOrganic(4);
-		gt<OBCDraw>(tpl).setBlendMode(sf::BlendMode::BlendAdd);
+		gt<OBCDraw>(tpl).setBlendMode(sf::BlendAdd);
 		return gt<Entity>(tpl);
 	}
 	Entity& OBFactory::createPJStar(OBCActorND* mShooter, const Vec2i& mPos, float mDeg)
@@ -365,7 +365,7 @@ namespace ob
 	{
 		auto tpl(createProjectileBase(mShooter, mPos, {150, 150}, 270.f, mDeg, assets.pjStarPlasma));
 		gt<Entity>(tpl).createComponent<OBCParticleEmitter>(gt<OBCPhys>(tpl), &OBGame::createPPlasma);
-		gt<OBCDraw>(tpl).setBlendMode(sf::BlendMode::BlendAdd);
+		gt<OBCDraw>(tpl).setBlendMode(sf::BlendAdd);
 		return gt<Entity>(tpl);
 	}
 	Entity& OBFactory::createPJCannonPlasma(OBCActorND* mShooter, const Vec2i& mPos, float mDeg)
@@ -384,7 +384,7 @@ namespace ob
 				gt<OBCProjectile>(tpl).createChild(createPJBoltPlasma(mShooter, spawnPoint + Vec2i(ssvs::getVecFromDeg<float>(i) * 300.f), i));
 			}
 		};
-		gt<OBCDraw>(tpl).setBlendMode(sf::BlendMode::BlendAdd);
+		gt<OBCDraw>(tpl).setBlendMode(sf::BlendAdd);
 		return gt<Entity>(tpl);
 	}
 	Entity& OBFactory::createPJRocket(OBCActorND* mShooter, const Vec2i& mPos, float mDeg)
@@ -442,7 +442,7 @@ namespace ob
 				for(int i{0}; i < num; ++i) gt<OBCProjectile>(tpl).createChild(createPJShockwave(mShooter, gt<OBCPhys>(tpl).getPosI() + Vec2i(offset) + Vec2i(ssvs::getVecFromDeg<float>(i) * 100.f), mDeg + 90 + ((360.f / num) * i), mNum - 1));
 			};
 		}
-		gt<OBCDraw>(tpl).setBlendMode(sf::BlendMode::BlendAdd);
+		gt<OBCDraw>(tpl).setBlendMode(sf::BlendAdd);
 		return gt<Entity>(tpl);
 	}
 

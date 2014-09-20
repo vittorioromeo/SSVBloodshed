@@ -20,7 +20,7 @@ namespace ob
 			int flippedX{1}, flippedY{1};
 			bool scaleWithBody{false};
 			Vec2f globalOffset, globalScale{1.f, 1.f};
-			sf::BlendMode blendMode{sf::BlendMode::BlendAlpha};
+			sf::BlendMode blendMode{sf::BlendAlpha};
 
 		public:
 			inline OBCDraw(OBGame& mGame, Body& mBody) noexcept : game(mGame), body(mBody) { }

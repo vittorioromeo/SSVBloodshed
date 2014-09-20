@@ -44,7 +44,7 @@ namespace ob
 		public:
 			OBFactory(OBAssets& mAssets, OBGame& mGame, sses::Manager& mManager) : assets(mAssets), game(mGame), manager(mManager) { }
 
-			Entity& createParticleSystem(sf::RenderTexture& mRenderTexture, bool mClearOnDraw = false, unsigned char mOpacity = 255, int mDrawPriority = 1000, sf::BlendMode mBlendMode = sf::BlendMode::BlendAlpha);
+			Entity& createParticleSystem(sf::RenderTexture& mRenderTexture, bool mClearOnDraw, unsigned char mOpacity, int mDrawPriority, sf::BlendMode mBlendMode);
 			Entity& createTrail(const Vec2i& mA, const Vec2i& mB, const sf::Color& mColor);
 
 			Entity& createFloor(const Vec2i& mPos, bool mGrate = false);

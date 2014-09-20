@@ -20,7 +20,7 @@ namespace ob
 			ssvs::VertexVector<sf::PrimitiveType::Lines> vertices;
 
 		public:
-			OBCTrail(OBGame& mGame, const Vec2i& mA, const Vec2i& mB, sf::Color mColor) : game(mGame), a{toPixels(mA)}, b{toPixels(mB)}, color{std::move(mColor)}, vertices{2} { }
+			OBCTrail(OBGame& mGame, const Vec2i& mA, const Vec2i& mB, const sf::Color& mColor) : game(mGame), a{toPixels(mA)}, b{toPixels(mB)}, color{mColor}, vertices{2} { }
 
 			inline void update(FT mFT) override
 			{

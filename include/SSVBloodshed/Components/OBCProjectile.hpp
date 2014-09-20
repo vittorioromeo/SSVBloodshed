@@ -46,13 +46,16 @@ namespace ob
 				{
 					if(fallInPit && mDI.body.hasGroup(OBGroup::GPit)) getEntity().destroy();
 
+					SSVU_ASSERT(shooter != nullptr);
+					auto shooterStat(shooter->getEntity().getStat());
+
 					if(killDestructible && mDI.body.hasGroup(OBGroup::GEnvDestructible))
 					{
-						getComponentFromBody<OBCHealth>(mDI.body).damage(sses::getNullEntityStat(), nullptr, 100000);
+						// getComponentFromBody<OBCHealth>(mDI.body).damage(sses::getNullEntityStat(), nullptr, 100000); ???
+						getComponentFromBody<OBCHealth>(mDI.body).damage(shooterStat, shooter, 100000);
 						destroy();
 					}
 
-					auto shooterStat(shooter->getEntity().getStat());
 					if(mDI.body.hasGroup(targetGroup) && getComponentFromBody<OBCHealth>(mDI.body).damage(shooterStat, shooter, dmg * dmgMult) && pierceOrganic-- == 0)
 					{
 						destroy();
@@ -88,6 +91,7 @@ namespace ob
 			{
 				auto& pj(mEntity.getComponent<OBCProjectile>());
 				pj.setTargetGroup(targetGroup);
+				pj.shooter = shooter; // should be correct (?)
 				return pj;
 			}
 
