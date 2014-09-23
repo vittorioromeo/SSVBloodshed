@@ -21,8 +21,8 @@ namespace ob
 			sf::IntRect rectStand, rectShoot;
 
 		public:
-			OBCWielder(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCDir8& mCDir8, sf::IntRect mRectStand, sf::IntRect mRectShoot) noexcept
-				: OBCActor{mCPhys, mCDraw}, cDir8(mCDir8), rectStand{std::move(mRectStand)}, rectShoot{std::move(mRectShoot)} { }
+			OBCWielder(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCDir8& mCDir8, const sf::IntRect& mRectStand, const sf::IntRect& mRectShoot) noexcept
+				: OBCActor{mCPhys, mCDraw}, cDir8(mCDir8), rectStand{mRectStand}, rectShoot{mRectShoot} { }
 
 			inline void setShooting(bool mValue) noexcept
 			{
@@ -40,10 +40,10 @@ namespace ob
 					cDraw.getOffsets()[1] = cDir8.getVec(holdDist);
 				}
 			}
-			inline void setHoldDist(float mValue) noexcept			{ holdDist = mValue; }
-			inline void setWieldDist(float mValue) noexcept			{ wieldDist = mValue; }
-			inline void setRectStand(sf::IntRect mRect) noexcept	{ rectStand = std::move(mRect); }
-			inline void setRectShoot(sf::IntRect mRect) noexcept	{ rectShoot = std::move(mRect); }
+			inline void setHoldDist(float mValue) noexcept				{ holdDist = mValue; }
+			inline void setWieldDist(float mValue) noexcept				{ wieldDist = mValue; }
+			inline void setRectStand(const sf::IntRect& mRect) noexcept	{ rectStand = mRect; }
+			inline void setRectShoot(const sf::IntRect& mRect) noexcept	{ rectShoot = mRect; }
 
 			inline OBCDir8& getCDir8() const noexcept		{ return cDir8; }
 			inline bool isShooting() const noexcept			{ return shooting; }

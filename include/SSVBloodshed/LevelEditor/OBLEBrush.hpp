@@ -34,7 +34,7 @@ namespace ob
 			}
 
 		public:
-			inline OBLEBrush(sf::IntRect mBounds) : bounds(std::move(mBounds)), single{Vec2f(tileSize, tileSize)},
+			inline OBLEBrush(const sf::IntRect& mBounds) : bounds(mBounds), single{Vec2f(tileSize, tileSize)},
 				full{Vec2f(tileSize, tileSize)}
 			{
 				single.setOrigin(tileSize / 2.f, tileSize / 2.f);

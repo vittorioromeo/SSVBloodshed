@@ -102,8 +102,8 @@ namespace ob
 				inline bool isKeyPressed(ssvs::KKey mKey) const noexcept { return gameWindow.getInputState()[mKey]; }
 
 			public:
-				inline Context(OBAssets& mAssets, ssvs::GameWindow& mGameWindow, Style mStyle) : assets(mAssets), gameWindow(mGameWindow),
-					style{std::move(mStyle)}
+				inline Context(OBAssets& mAssets, ssvs::GameWindow& mGameWindow, const Style& mStyle) : assets(mAssets), gameWindow(mGameWindow),
+					style{mStyle}
 				{
 					renderTexture.create(gameWindow.getWidth(), gameWindow.getHeight());
 					sprite.setTexture(renderTexture.getTexture());
