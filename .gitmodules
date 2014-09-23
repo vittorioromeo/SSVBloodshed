@@ -16,3 +16,6 @@
 [submodule "extlibs/SSVMenuSystem"]
 	path = extlibs/SSVMenuSystem
 	url = https://github.com/SuperV1234/SSVMenuSystem.git
+[submodule "extlibs/SSVCMake"]
+	path = extlibs/SSVCMake
+	url = https://github.com/SuperV1234/SSVCMake.git
