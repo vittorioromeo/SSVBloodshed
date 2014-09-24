@@ -105,7 +105,7 @@ namespace ob
 					onLeftClickDown += [this]{ cursor.setEnd(getCursorPos()); };
 				}
 
-				inline void setString(std::string mString) { str = std::move(mString); }
+				inline void setString(std::string mStr) { str = std::move(mStr); }
 				inline const std::string& getString() const noexcept { return str; }
 		};
 	}
