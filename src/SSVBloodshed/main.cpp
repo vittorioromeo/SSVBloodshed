@@ -59,3 +59,4 @@ int main()
 // static tokenizer macro generator with tokeninterface ctrp base class
 // rooms with scrolling
 // TODO: aspect ratio resizing tests
+// TODO: make explosions pierce destructible walls
