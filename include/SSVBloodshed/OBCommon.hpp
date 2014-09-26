@@ -224,9 +224,9 @@ namespace ob
 	inline void repeat(ssvu::Timeline& mTimeline, const ssvu::Action& mAction, unsigned int mTimes, FT mWait)
 	{
 		SSVU_ASSERT(mTimes > 0);
-		auto& action(mTimeline.append<ssvu::Do>(mAction));
+		auto idx(mTimeline.append<ssvu::Do>(mAction));
 		mTimeline.append<ssvu::Wait>(mWait);
-		mTimeline.append<ssvu::Goto>(action, mTimes - 1);
+		mTimeline.append<ssvu::Go>(idx, mTimes - 1);
 	}
 
 	// Other utils
