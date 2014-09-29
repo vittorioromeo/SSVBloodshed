@@ -48,7 +48,7 @@ namespace ob
 
 				ssvu::sortStable(toDraw, [](const std::pair<int, sf::Sprite>& mA, const std::pair<int, sf::Sprite>& mB){ return mA.first > mB.first; });
 				for(auto& td : toDraw) mRenderTarget.draw(td.second);
-				if(mShowId) for(auto& t : tiles) if(t.second.getIdText() != nullptr) mRenderTarget.draw(*t.second.getIdText());
+				if(mShowId) for(auto& t : tiles) if(t.second.hasParam("id")) mRenderTarget.draw(t.second.getIdText());
 			}
 
 			inline int getColumns() const noexcept						{ return cols; }

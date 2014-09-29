@@ -51,7 +51,7 @@ namespace ob
 			OBGame* game{nullptr};
 			std::pair<OBLETType, std::map<std::string, ssvuj::Obj>> copiedParams{OBLETType::LETFloor, {}};
 
-			OBLETile copiedTile;
+			OBLETileData copiedTile;
 
 			GUI::Context guiCtx;
 
@@ -175,8 +175,8 @@ namespace ob
 			inline void pick()			{ const auto& type(int(getPickTile().getType())); if(type != -1) brush.setIdx(type); }
 			inline void openParams()	{ createFormParams(getPickTile()); }
 
-			inline void copyTiles()		{ auto& t(getPickTile()); copiedTile = t; }
-			inline void pasteTiles()	{ for(auto& t : currentTiles) { t->initFromEntry(sharedData.getDatabase().get(copiedTile.getType())); t->setParams(copiedTile.getParams()); t->refreshIdText(assets); } }
+			inline void copyTiles()		{ auto& t(getPickTile()); copiedTile = t.getData(); }
+			inline void pasteTiles()	{ for(auto& t : currentTiles) { t->initFromEntry(sharedData.getDatabase().get(copiedTile.type)); t->setParams(copiedTile.params); t->refreshIdText(assets); } }
 
 			inline void cycleRot(int mDeg)					{ currentRot = ssvu::wrapDeg(currentRot + mDeg); }
 			inline void cycleId(int mDir)					{ currentId += mDir; }
@@ -194,7 +194,6 @@ namespace ob
 					for(auto& p : sharedData.getCurrentTiles())
 					{
 						auto& tile(p.second);
-						tile.refreshIdText(assets);
 
 						if(tile.getType() != OBLETType::LETNull)
 							tile.initGfxFromEntry(sharedData.getDatabase().get(OBLETType(tile.getType())));

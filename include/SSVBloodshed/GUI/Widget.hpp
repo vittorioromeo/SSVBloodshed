@@ -131,7 +131,10 @@ namespace ob
 					recalculateView();
 					onPostUpdate();
 
-					recurseChildrenBF<true, true>([this](Widget& mW){ mW.updateInput(); });
+					updateInput();
+
+					// not needed?
+					// recurseChildrenBF<true, true>([this](Widget& mW){ mW.updateInput(); });
 				}
 				void recalculateView();
 				void updateInput();

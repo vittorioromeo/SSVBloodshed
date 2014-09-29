@@ -133,11 +133,11 @@ namespace ob
 	SSVU_FATENUM_VALS(OBEnumMgr, IdAction, int, (Toggle, 0), (Open, 1), (Close, 2))
 
 	OB_ENUM_DEFS(PPlateType,		Single, Multi, OnOff)
-	OB_ENUM_DEFS(SpawnerItem,	RunnerUA, RunnerPB, ChargerUA, ChargerPB, ChargerGL, JuggerUA, JuggerPB, JuggerRL, Giant, Enforcer, BallN, BallF)
+	OB_ENUM_DEFS(SpawnerItem,		RunnerUA, RunnerPB, ChargerUA, ChargerPB, ChargerGL, JuggerUA, JuggerPB, JuggerRL, Giant, Enforcer, BallN, BallF)
 	OB_ENUM_DEFS(RunnerType,		Unarmed, PlasmaBolter)
-	OB_ENUM_DEFS(ChargerType,	Unarmed, PlasmaBolter, GrenadeLauncher)
+	OB_ENUM_DEFS(ChargerType,		Unarmed, PlasmaBolter, GrenadeLauncher)
 	OB_ENUM_DEFS(JuggernautType,	Unarmed, PlasmaBolter, RocketLauncher)
-	OB_ENUM_DEFS(BallType,		Normal, Flying)
+	OB_ENUM_DEFS(BallType,			Normal, Flying)
 
 	// Level editor enums
 	enum class OBLETType : int
