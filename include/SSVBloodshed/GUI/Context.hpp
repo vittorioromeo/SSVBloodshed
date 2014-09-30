@@ -153,7 +153,7 @@ namespace ob
 				inline void draw()
 				{
 					renderTexture.clear(sf::Color::Transparent);
-					for(auto& c : ssvu::makeRangeReverse(children)) c->drawHierarchy();
+					for(auto& c : ssvu::asRangeReverse(children)) c->drawHierarchy();
 					renderTexture.display();
 
 					sprite.setColor(sf::Color(255, 255, 255, isInUse() ? 255 : 175));
