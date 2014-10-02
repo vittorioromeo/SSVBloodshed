@@ -151,7 +151,7 @@ namespace ob
 			{
 				sharedData.setCurrentSector(mIdx);
 				loadLevel(0, 0);
-				reinterpret_cast<TFormPack*>(formPack)->syncFromPack();
+				ssvu::castUp<TFormPack>(formPack)->syncFromPack();
 			}
 			inline void loadLevel(int mX, int mY)	{ sharedData.setCurrentLevel(mX, mY); }
 			inline void clearCurrentSector()		{ sharedData.getCurrentSector().clear(); loadLevel(0, 0); }
