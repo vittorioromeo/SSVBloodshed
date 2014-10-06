@@ -52,7 +52,8 @@ namespace ob
 			{
 				setPath(mPath);
 
-				try	{ ssvj::Val{pack}.writeToFile<ssvj::WMode::Minified>(currentPath); }
+				// TODO: better syntax
+				try	{ ssvj::Val{pack}.writeToFile<ssvj::WriterSettings<ssvj::WMode::Minified>>(currentPath); }
 				catch(...) { ssvu::lo("Fatal error") << "Failed to save pack" << std::endl; }
 			}
 
