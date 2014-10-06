@@ -49,7 +49,7 @@ namespace ob
 			OBLEBrush brush{{0, 0, levelCols, levelRows}};
 			int currentZ{0}, currentRot{0}, currentId{-1};
 			OBGame* game{nullptr};
-			std::pair<OBLETType, std::map<std::string, ssvuj::Obj>> copiedParams{OBLETType::LETFloor, {}};
+			std::pair<OBLETType, std::map<std::string, ssvj::Val>> copiedParams{OBLETType::LETFloor, {}};
 
 			OBLETileData copiedTile;
 
@@ -153,7 +153,7 @@ namespace ob
 				loadLevel(0, 0);
 				ssvu::castUp<TFormPack>(formPack)->syncFromPack();
 			}
-			inline void loadLevel(int mX, int mY)	{ sharedData.setCurrentLevel(mX, mY); }
+			inline void loadLevel(int mX, int mY)	{ sharedData.setCurrentLevel(mX, mY); for(auto& t : sharedData.getCurrentTiles()) if(t.second.hasParam("id")) t.second.refreshIdText(assets); }
 			inline void clearCurrentSector()		{ sharedData.getCurrentSector().clear(); loadLevel(0, 0); }
 			inline void clearCurrentLevel()			{ sharedData.getCurrentLevel().clear(sharedData.getDatabase().get(OBLETType::LETFloor)); }
 
@@ -342,7 +342,19 @@ namespace ob
 					for(auto& p : textBoxes)
 					{
 						if(p.second->isFocused()) continue;
-						p.second->setString(tile->getParam<std::string>(p.first));
+
+						if(tile->getParams()[p.first].is<std::string>())
+						{
+							p.second->setString(tile->getParam<std::string>(p.first));
+						}
+						else if(tile->getParams()[p.first].is<int>())
+						{
+							p.second->setString(ssvu::toStr(tile->getParam<int>(p.first)));
+						}
+						else if(tile->getParams()[p.first].is<float>())
+						{
+							p.second->setString(ssvu::toStr(tile->getParam<float>(p.first)));
+						}
 					}
 					for(auto& p : enumChoiceShutters)
 					{
@@ -384,9 +396,9 @@ namespace ob
 					else
 					{
 						// Generic parameters (bool, textbox)
-						if(ssvuj::isObjType<bool>(p.second))
+						if(p.second.is<bool>())
 						{
-							auto& checkBox(strip.create<GUI::CheckBox>("on", ssvuj::getExtr<bool>(p.second)));
+							auto& checkBox(strip.create<GUI::CheckBox>("on", p.second.as<bool>()));
 							checkBox.onStateChanged += [key, tile, &checkBox]{ tile->setParam(key, checkBox.getState() ? "true" : "false"); };
 							checkBoxes[key] = &checkBox;
 						}
@@ -402,7 +414,11 @@ namespace ob
 							}
 
 							textBox.setString(str);
-							textBox.onTextChanged += [key, tile, &textBox]{ tile->setParam(key, textBox.getString()); };
+							textBox.onTextChanged += [this, key, tile, &textBox]
+							{
+								tile->setParam(key, textBox.getString());
+								tile->refreshIdText(editor.getAssets());
+							};
 							textBoxes[key] = &textBox;
 						}
 					}

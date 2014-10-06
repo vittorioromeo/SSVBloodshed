@@ -11,7 +11,7 @@ namespace ob
 {
 	class OBConfig
 	{
-		SSVUJ_CNV_FRIEND();
+		SSVJ_CNV_FRIEND();
 
 		private:
 			// Input
@@ -83,38 +83,45 @@ namespace ob
 	};
 }
 
-namespace ssvuj
+// TODO: plox
+namespace ssvu
 {
-	template<> SSVUJ_CNV_SIMPLE(ob::OBConfig, mObj, mValue)
+	namespace Json
 	{
-		auto& gameplay(ssvuj::getObj(mObj, "gameplay"));
-		auto& gfx(ssvuj::getObj(mObj, "gfx"));
-		auto& sfx(ssvuj::getObj(mObj, "sfx"));
-		auto& input(ssvuj::getObj(mObj, "input"));
+		namespace Internal
+		{
+			template<> SSVJ_CNV_SIMPLE(ob::OBConfig, mObj, mValue)
+			{
+				auto& gameplay(mObj["gameplay"]);
+				auto& gfx(mObj["gfx"]);
+				auto& sfx(mObj["sfx"]);
+				auto& input(mObj["input"]);
 
-		ssvuj::convertObj(gameplay,
-				SSVUJ_CNV_OBJ_AUTO(mValue, dmgMultGlobal),
-				SSVUJ_CNV_OBJ_AUTO(mValue, dmgMultPlayer),
-				SSVUJ_CNV_OBJ_AUTO(mValue, dmgMultEnemy));
+				ssvj::convertObj(gameplay,
+						SSVJ_CNV_OBJ_AUTO(mValue, dmgMultGlobal),
+						SSVJ_CNV_OBJ_AUTO(mValue, dmgMultPlayer),
+						SSVJ_CNV_OBJ_AUTO(mValue, dmgMultEnemy));
 
-		ssvuj::convertObj(gfx,
-				SSVUJ_CNV_OBJ_AUTO(mValue, particleMult),
-				SSVUJ_CNV_OBJ_AUTO(mValue, particleMax));
+				ssvj::convertObj(gfx,
+						SSVJ_CNV_OBJ_AUTO(mValue, particleMult),
+						SSVJ_CNV_OBJ_AUTO(mValue, particleMax));
 
-		ssvuj::convertObj(sfx,
-				SSVUJ_CNV_OBJ_AUTO(mValue, soundEnabled),
-				SSVUJ_CNV_OBJ_AUTO(mValue, musicEnabled));
+				ssvj::convertObj(sfx,
+						SSVJ_CNV_OBJ_AUTO(mValue, soundEnabled),
+						SSVJ_CNV_OBJ_AUTO(mValue, musicEnabled));
 
-		ssvuj::convertObj(input,
-				SSVUJ_CNV_OBJ_AUTO(mValue, tLeft),
-				SSVUJ_CNV_OBJ_AUTO(mValue, tRight),
-				SSVUJ_CNV_OBJ_AUTO(mValue, tUp),
-				SSVUJ_CNV_OBJ_AUTO(mValue, tDown),
-				SSVUJ_CNV_OBJ_AUTO(mValue, tShoot),
-				SSVUJ_CNV_OBJ_AUTO(mValue, tSwitch),
-				SSVUJ_CNV_OBJ_AUTO(mValue, tBomb));
+				ssvj::convertObj(input,
+						SSVJ_CNV_OBJ_AUTO(mValue, tLeft),
+						SSVJ_CNV_OBJ_AUTO(mValue, tRight),
+						SSVJ_CNV_OBJ_AUTO(mValue, tUp),
+						SSVJ_CNV_OBJ_AUTO(mValue, tDown),
+						SSVJ_CNV_OBJ_AUTO(mValue, tShoot),
+						SSVJ_CNV_OBJ_AUTO(mValue, tSwitch),
+						SSVJ_CNV_OBJ_AUTO(mValue, tBomb));
+			}
+			SSVJ_CNV_END();
+		}
 	}
-	SSVUJ_CNV_SIMPLE_END();
 }
 
 #endif

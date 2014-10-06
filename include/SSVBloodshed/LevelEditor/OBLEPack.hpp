@@ -13,7 +13,7 @@ namespace ob
 {
 	class OBLEPack
 	{
-		SSVUJ_CNV_FRIEND();
+		SSVJ_CNV_FRIEND();
 
 		private:
 			std::string name{"unnamed pack"};

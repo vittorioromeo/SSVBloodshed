@@ -12,7 +12,7 @@ namespace ob
 {
 	class OBLESector
 	{
-		SSVUJ_CNV_FRIEND();
+		SSVJ_CNV_FRIEND();
 
 		private:
 			int cols, rows;

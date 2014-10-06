@@ -54,6 +54,27 @@ namespace ob
 			} t ## mName; \
 		}
 
+	#define OB_ENUM_VALS(mName, ...) \
+		SSVU_FATENUM_VALS(OBEnumMgr, mName, int, __VA_ARGS__) \
+		namespace Internal \
+		{ \
+			template<> inline std::vector<std::string>& getEnumStrVec<mName>() noexcept \
+			{ \
+				static std::vector<std::string> strings \
+				{ \
+					SSVPP_FOREACH(OB_ENUM_MKSTR, SSVPP_EMPTY(), __VA_ARGS__) \
+				}; \
+				return strings; \
+			} \
+			volatile static struct __initStruct ## mName \
+			{ \
+				inline __initStruct ## mName() \
+				{ \
+					Internal::getEnumsMap()[#mName] = &getEnumStrVec<mName>(); \
+				} \
+			} t ## mName; \
+		}
+
 	inline std::vector<std::string>& getEnumStrVecByName(const std::string& mName) { return *Internal::getEnumsMap()[mName]; }
 
 	// Typedefs
@@ -130,7 +151,7 @@ namespace ob
 		LBackground
 	};
 
-	SSVU_FATENUM_VALS(OBEnumMgr, IdAction, int, (Toggle, 0), (Open, 1), (Close, 2))
+	OB_ENUM_VALS(IdAction,			(Toggle, 0), (Open, 1), (Close, 2))
 
 	OB_ENUM_DEFS(PPlateType,		Single, Multi, OnOff)
 	OB_ENUM_DEFS(SpawnerItem,		RunnerUA, RunnerPB, ChargerUA, ChargerPB, ChargerGL, JuggerUA, JuggerPB, JuggerRL, Giant, Enforcer, BallN, BallF)

@@ -16,7 +16,7 @@ namespace ob
 	class OBLELevel
 	{
 		friend OBLESector;
-		SSVUJ_CNV_FRIEND();
+		SSVJ_CNV_FRIEND();
 
 		private:
 			int cols{levelCols}, rows{levelRows}, depth{5};
@@ -46,7 +46,7 @@ namespace ob
 					toDraw.emplace_back(t.second.getZ(), s);
 				}
 
-				ssvu::sortStable(toDraw, [](const std::pair<int, sf::Sprite>& mA, const std::pair<int, sf::Sprite>& mB){ return mA.first > mB.first; });
+				ssvu::sortStable(toDraw, [](const auto& mA, const auto& mB){ return mA.first > mB.first; });
 				for(auto& td : toDraw) mRenderTarget.draw(td.second);
 				if(mShowId) for(auto& t : tiles) if(t.second.hasParam("id")) mRenderTarget.draw(t.second.getIdText());
 			}

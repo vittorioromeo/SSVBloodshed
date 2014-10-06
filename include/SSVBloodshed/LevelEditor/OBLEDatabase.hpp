@@ -18,7 +18,7 @@ namespace ob
 				OBLETType type;
 				sf::Texture* texture;
 				sf::IntRect intRect;
-				std::map<std::string, ssvuj::Obj> defaultParams;
+				std::map<std::string, ssvj::Val> defaultParams;
 				std::map<std::string, std::string> enumParams;
 				ssvu::Func<void(TLevel&, TTile&, const Vec2i&)> spawn;
 
@@ -166,7 +166,7 @@ namespace ob
 				});
 			}
 
-			template<typename T> inline void add(OBLETType mType, sf::Texture* mTexture, const sf::IntRect& mIntRect, const std::map<std::string, ssvuj::Obj>& mDefaultParams, const T& mSpawn,
+			template<typename T> inline void add(OBLETType mType, sf::Texture* mTexture, const sf::IntRect& mIntRect, const std::map<std::string, ssvj::Val>& mDefaultParams, const T& mSpawn,
 												 const std::initializer_list<std::pair<std::string, std::string>>& mEnumParams = {})
 			{
 				entries[mType] = Entry{mType, mTexture, mIntRect, mDefaultParams, mSpawn};

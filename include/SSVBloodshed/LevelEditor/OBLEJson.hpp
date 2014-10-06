@@ -11,14 +11,20 @@
 #include "SSVBloodshed/LevelEditor/OBLELevel.hpp"
 #include "SSVBloodshed/LevelEditor/OBLETile.hpp"
 
-namespace ssvuj
+// TODO: plox
+namespace ssvu
 {
-	template<> SSVUJ_CNV_SIMPLE(ob::OBLETileData, mObj, mV)	{ ssvuj::convertArray(mObj, mV.x, mV.y, mV.z, mV.type, mV.params); }				SSVUJ_CNV_SIMPLE_END();
-	template<> SSVUJ_CNV_SIMPLE(ob::OBLETile, mObj, mV)		{ ssvuj::convert(mObj, mV.data); }													SSVUJ_CNV_SIMPLE_END();
-	template<> SSVUJ_CNV_SIMPLE(ob::OBLELevel, mObj, mV)	{ ssvuj::convertArray(mObj, mV.x, mV.y, mV.cols, mV.rows, mV.depth, mV.tiles); }	SSVUJ_CNV_SIMPLE_END();
-	template<> SSVUJ_CNV_SIMPLE(ob::OBLESector, mObj, mV)	{ ssvuj::convert(mObj, mV.levels); }												SSVUJ_CNV_SIMPLE_END();
-	template<> SSVUJ_CNV_SIMPLE(ob::OBLEPack, mObj, mV)		{ ssvuj::convertArray(mObj, mV.name, mV.sectors); }									SSVUJ_CNV_SIMPLE_END();
-
+	namespace Json
+	{
+		namespace Internal
+		{
+			template<> SSVJ_CNV_SIMPLE(ob::OBLETileData, mObj, mV)	{ ssvj::convertArr(mObj, mV.x, mV.y, mV.z, mV.type, mV.params); }				SSVJ_CNV_END();
+			template<> SSVJ_CNV_SIMPLE(ob::OBLETile, mObj, mV)		{ ssvj::convert(mObj, mV.data); }												SSVJ_CNV_END();
+			template<> SSVJ_CNV_SIMPLE(ob::OBLELevel, mObj, mV)		{ ssvj::convertArr(mObj, mV.x, mV.y, mV.cols, mV.rows, mV.depth, mV.tiles); }	SSVJ_CNV_END();
+			template<> SSVJ_CNV_SIMPLE(ob::OBLESector, mObj, mV)	{ ssvj::convert(mObj, mV.levels); }												SSVJ_CNV_END();
+			template<> SSVJ_CNV_SIMPLE(ob::OBLEPack, mObj, mV)		{ ssvj::convertArr(mObj, mV.name, mV.sectors); }								SSVJ_CNV_END();
+		}
+	}
 }
 
 #endif

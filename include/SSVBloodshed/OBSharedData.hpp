@@ -8,6 +8,7 @@
 #include "SSVBloodshed/OBCommon.hpp"
 #include "SSVBloodshed/OBAssets.hpp"
 #include "SSVBloodshed/OBConfig.hpp"
+#include "SSVBloodshed/LevelEditor/OBLEJson.hpp"
 #include "SSVBloodshed/LevelEditor/OBLEDatabase.hpp"
 #include "SSVBloodshed/LevelEditor/OBLEPack.hpp"
 #include "SSVBloodshed/LevelEditor/OBLESector.hpp"
@@ -44,14 +45,14 @@ namespace ob
 				SSVU_ASSERT(database != nullptr && mPath.exists<ssvufs::Type::File>());
 				setPath(mPath);
 
-				try { pack = ssvuj::getExtr<OBLEPack>(ssvuj::getFromFile(currentPath)); }
+				try { pack = ssvj::Val::fromFile(currentPath).as<OBLEPack>(); }
 				catch(...) { ssvu::lo("Fatal error") << "Failed to load pack" << std::endl; }
 			}
 			inline void savePack(const ssvufs::Path& mPath)
 			{
 				setPath(mPath);
 
-				try { ssvuj::writeToFile(ssvuj::getArch(pack), currentPath); }
+				try	{ ssvj::Val{pack}.writeToFile(currentPath); }
 				catch(...) { ssvu::lo("Fatal error") << "Failed to save pack" << std::endl; }
 			}
 

@@ -13,16 +13,16 @@ namespace ob
 {
 	struct OBLETileData
 	{
-		SSVUJ_CNV_FRIEND();
+		SSVJ_CNV_FRIEND();
 
-		std::map<std::string, ssvuj::Obj> params;
+		std::map<std::string, ssvj::Val> params;
 		OBLETType type{OBLETType::LETNull};
 		int x{-1}, y{-1}, z{-1};
 	};
 
 	class OBLETile
 	{
-		SSVUJ_CNV_FRIEND();
+		SSVJ_CNV_FRIEND();
 
 		private:
 			OBLETileData data;
@@ -45,11 +45,11 @@ namespace ob
 				idText.setString(id == 0 ? "" : ssvu::toStr(id));
 			}
 
-			inline void setRot(int mDeg) noexcept { if(hasParam("rot")) ssvuj::arch(data.params["rot"], mDeg); }
+			inline void setRot(int mDeg) noexcept { if(hasParam("rot")) data.params["rot"] = mDeg; }
 			inline void setId(OBAssets& mAssets, int mId) noexcept
 			{
 				if(!hasParam("id")) return;
-				ssvuj::arch(data.params["id"], mId);
+				data.params["id"] = mId;
 				refreshIdText(mAssets);
 			}
 
@@ -58,9 +58,10 @@ namespace ob
 				auto& p(data.params[mKey]);
 				try
 				{
-					if(ssvuj::isObjType<int>(p)) p = std::stoi(mValue);
-					else if(ssvuj::isObjType<float>(p)) p = std::stof(mValue);
-					else if(ssvuj::isObjType<bool>(p)) p = mValue == "true" ? true : false;
+					// TODO: is<int>?
+					if(p.is<int>()) p = std::stoi(mValue);
+					else if(p.is<float>()) p = std::stof(mValue);
+					else if(p.is<bool>()) p = mValue == "true" ? true : false;
 				}
 				catch(const std::exception& mError)
 				{
@@ -72,7 +73,7 @@ namespace ob
 			inline void update()
 			{
 				sprite.setOrigin(sprite.getTextureRect().width / 2.f, sprite.getTextureRect().height / 2.f);
-				sprite.setRotation(data.params.count("rot") > 0 ? ssvuj::getExtr<int>(data.params["rot"]) : 0);
+				sprite.setRotation(data.params.count("rot") > 0 ? data.params["rot"].as<int>() : 0);
 				sprite.setPosition(data.x * 10.f, data.y * 10.f);
 			}
 
@@ -93,7 +94,7 @@ namespace ob
 			inline void setZ(int mZ) noexcept								{ data.z = mZ; }
 			inline void setType(OBLETType mType) noexcept					{ data.type = mType; }
 			inline void setParams(decltype(data.params) mParams)			{ data.params = std::move(mParams); }
-			template<typename T> inline T getParam(const std::string& mKey)	{ return ssvuj::getExtr<T>(data.params[mKey]); }
+			template<typename T> inline T getParam(const std::string& mKey)	{ return data.params[mKey].as<T>(); }
 			inline bool hasParam(const std::string& mKey) const noexcept	{ return data.params.count(mKey) > 0; }
 
 			inline auto getType() const noexcept			{ return data.type; }
