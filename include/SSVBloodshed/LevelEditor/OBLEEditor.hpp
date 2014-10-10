@@ -347,11 +347,11 @@ namespace ob
 						{
 							p.second->setString(tile->getParam<std::string>(p.first));
 						}
-						else if(tile->getParams()[p.first].is<int>())
+						else if(tile->getParams()[p.first].isNum<ssvj::IntS>())
 						{
 							p.second->setString(ssvu::toStr(tile->getParam<int>(p.first)));
 						}
-						else if(tile->getParams()[p.first].is<float>())
+						else if(tile->getParams()[p.first].isNum<ssvj::Real>())
 						{
 							p.second->setString(ssvu::toStr(tile->getParam<float>(p.first)));
 						}

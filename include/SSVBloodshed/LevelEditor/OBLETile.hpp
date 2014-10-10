@@ -58,9 +58,8 @@ namespace ob
 				auto& p(data.params[mKey]);
 				try
 				{
-					// TODO: is<int>?
-					if(p.is<int>()) p = std::stoi(mValue);
-					else if(p.is<float>()) p = std::stof(mValue);
+					if(p.isNum<ssvj::IntS>()) p = std::stoi(mValue);
+					else if(p.isNum<ssvj::Real>()) p = std::stof(mValue);
 					else if(p.is<bool>()) p = mValue == "true" ? true : false;
 				}
 				catch(const std::exception& mError)
