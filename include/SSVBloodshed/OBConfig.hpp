@@ -83,45 +83,39 @@ namespace ob
 	};
 }
 
-// TODO: plox
-namespace ssvu
+SSVJ_CNV_NAMESPACE()
 {
-	namespace Json
+	template<> SSVJ_CNV_SIMPLE(ob::OBConfig, mObj, mValue)
 	{
-		namespace Internal
-		{
-			template<> SSVJ_CNV_SIMPLE(ob::OBConfig, mObj, mValue)
-			{
-				auto& gameplay(mObj["gameplay"]);
-				auto& gfx(mObj["gfx"]);
-				auto& sfx(mObj["sfx"]);
-				auto& input(mObj["input"]);
+		auto& gameplay(mObj["gameplay"]);
+		auto& gfx(mObj["gfx"]);
+		auto& sfx(mObj["sfx"]);
+		auto& input(mObj["input"]);
 
-				ssvj::convertObj(gameplay,
-						SSVJ_CNV_OBJ_AUTO(mValue, dmgMultGlobal),
-						SSVJ_CNV_OBJ_AUTO(mValue, dmgMultPlayer),
-						SSVJ_CNV_OBJ_AUTO(mValue, dmgMultEnemy));
+		ssvj::convertObj(gameplay,
+				SSVJ_CNV_OBJ_AUTO(mValue, dmgMultGlobal),
+				SSVJ_CNV_OBJ_AUTO(mValue, dmgMultPlayer),
+				SSVJ_CNV_OBJ_AUTO(mValue, dmgMultEnemy));
 
-				ssvj::convertObj(gfx,
-						SSVJ_CNV_OBJ_AUTO(mValue, particleMult),
-						SSVJ_CNV_OBJ_AUTO(mValue, particleMax));
+		ssvj::convertObj(gfx,
+				SSVJ_CNV_OBJ_AUTO(mValue, particleMult),
+				SSVJ_CNV_OBJ_AUTO(mValue, particleMax));
 
-				ssvj::convertObj(sfx,
-						SSVJ_CNV_OBJ_AUTO(mValue, soundEnabled),
-						SSVJ_CNV_OBJ_AUTO(mValue, musicEnabled));
+		ssvj::convertObj(sfx,
+				SSVJ_CNV_OBJ_AUTO(mValue, soundEnabled),
+				SSVJ_CNV_OBJ_AUTO(mValue, musicEnabled));
 
-				ssvj::convertObj(input,
-						SSVJ_CNV_OBJ_AUTO(mValue, tLeft),
-						SSVJ_CNV_OBJ_AUTO(mValue, tRight),
-						SSVJ_CNV_OBJ_AUTO(mValue, tUp),
-						SSVJ_CNV_OBJ_AUTO(mValue, tDown),
-						SSVJ_CNV_OBJ_AUTO(mValue, tShoot),
-						SSVJ_CNV_OBJ_AUTO(mValue, tSwitch),
-						SSVJ_CNV_OBJ_AUTO(mValue, tBomb));
-			}
-			SSVJ_CNV_END();
-		}
+		ssvj::convertObj(input,
+				SSVJ_CNV_OBJ_AUTO(mValue, tLeft),
+				SSVJ_CNV_OBJ_AUTO(mValue, tRight),
+				SSVJ_CNV_OBJ_AUTO(mValue, tUp),
+				SSVJ_CNV_OBJ_AUTO(mValue, tDown),
+				SSVJ_CNV_OBJ_AUTO(mValue, tShoot),
+				SSVJ_CNV_OBJ_AUTO(mValue, tSwitch),
+				SSVJ_CNV_OBJ_AUTO(mValue, tBomb));
 	}
+	SSVJ_CNV_END()
 }
+SSVJ_CNV_NAMESPACE_END()
 
 #endif

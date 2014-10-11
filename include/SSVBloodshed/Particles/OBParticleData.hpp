@@ -28,15 +28,10 @@ namespace ob
 	}
 }
 
-namespace ssvu
+SSVJ_CNV_NAMESPACE()
 {
-	namespace Json
-	{
-		namespace Internal
-		{
-			template<> SSVJ_CNV_SIMPLE(ob::OBParticleData, mObj, mV) { ssvj::convertArr(mObj, mV.angleRng, mV.velRng, mV.sizeRng, mV.lifeRng, mV.curveSpdRng, mV.fuzzinessRng, mV.accelRng, mV.distRng, mV.alphaMult, mV.colorRngs); } SSVJ_CNV_END();
-		}
-	}
+	template<> SSVJ_CNV_SIMPLE(ob::OBParticleData, mObj, mV) { ssvj::convertArr(mObj, mV.angleRng, mV.velRng, mV.sizeRng, mV.lifeRng, mV.curveSpdRng, mV.fuzzinessRng, mV.accelRng, mV.distRng, mV.alphaMult, mV.colorRngs); } SSVJ_CNV_END()
 }
+SSVJ_CNV_NAMESPACE_END()
 
 #endif
