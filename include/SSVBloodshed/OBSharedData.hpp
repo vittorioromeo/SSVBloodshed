@@ -52,7 +52,6 @@ namespace ob
 			{
 				setPath(mPath);
 
-				// TODO: better syntax
 				try	{ ssvj::Val{pack}.writeToFile<ssvj::WSMinified>(currentPath); }
 				catch(...) { ssvu::lo("Fatal error") << "Failed to save pack" << std::endl; }
 			}
@@ -65,14 +64,14 @@ namespace ob
 			inline void setCurrentSector(int mIdx)
 			{
 				SSVU_ASSERT(database != nullptr);
-				if(!isSectorValid(mIdx)) ssvu::lo("Warning") << "Sector of idx " << mIdx << " is not valid" << std::endl;
+				if(!isSectorValid(mIdx)) ssvu::lo("Warning") << "Sector of idx " << mIdx << " is not valid\n";
 
 				currentSectorIdx = mIdx;
 				currentSector = &pack.getSector(mIdx);
 			}
 			inline void setCurrentLevel(int mX, int mY)
 			{
-				if(!isLevelValid(mX, mY)) ssvu::lo("Warning") << "Level (" << mX << ";" << mY << ") is not valid" << std::endl;
+				if(!isLevelValid(mX, mY)) ssvu::lo("Warning") << "Level (" << mX << ";" << mY << ") is not valid\n";
 
 				currentLevelX = mX; currentLevelY = mY;
 				currentLevel = &getCurrentSector().getLevel(mX, mY);
