@@ -30,8 +30,8 @@ namespace ob
 			inline float getGlyphHeight() const noexcept						{ return font.getCellHeight(); }
 			inline Vec2f getBtnSquareSize() const noexcept						{ return Vec2f{getGlyphHeight() - 2.f, getGlyphHeight() - 2.f}; }
 			inline Vec2f getBtnSize(float mWidth) const noexcept				{ return Vec2f{mWidth, getGlyphHeight() - 2.f}; }
-			inline float getWidthPerChar(std::size_t mCount) const noexcept		{ return getGlyphWidth() * mCount; }
-			inline Vec2f getBtnSizePerChar(std::size_t mCount) const noexcept	{ return Vec2f{getWidthPerChar(mCount), getGlyphHeight() - 2.f}; }
+			inline float getWidthPerChar(SizeT mCount) const noexcept		{ return getGlyphWidth() * mCount; }
+			inline Vec2f getBtnSizePerChar(SizeT mCount) const noexcept	{ return Vec2f{getWidthPerChar(mCount), getGlyphHeight() - 2.f}; }
 		};
 
 		class Context

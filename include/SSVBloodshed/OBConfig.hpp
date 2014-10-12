@@ -19,7 +19,7 @@ namespace ob
 			Trigger tShoot, tSwitch, tBomb;	// Action triggers
 
 			// GFX
-			std::size_t particleMax{10000};
+			SizeT particleMax{10000};
 			float particleMult{1.f};
 
 			// Gameplay
@@ -60,9 +60,9 @@ namespace ob
 
 			// GFX
 			inline static void setParticleMult(float mX) noexcept		{ get().particleMult = mX; }
-			inline static void setParticleMax(std::size_t mX) noexcept	{ get().particleMax = mX; }
+			inline static void setParticleMax(SizeT mX) noexcept	{ get().particleMax = mX; }
 
-			inline static std::size_t getParticleMax() noexcept				{ return get().particleMax; }
+			inline static SizeT getParticleMax() noexcept				{ return get().particleMax; }
 			inline static float getParticleMult() noexcept					{ return get().particleMult; }
 
 			// Gameplay

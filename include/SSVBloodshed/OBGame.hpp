@@ -117,7 +117,7 @@ namespace ob
 			GUI::Context guiCtx{assets, gameWindow, GUI::Style{*assets.obBigStroked}};
 			FormIO* formIO{nullptr};
 
-			inline void createParticles(OBParticleSystem& mPS, std::size_t mCount, const Vec2f& mPos, OBParticleData& mData, float mRad = 0.f, float mMult = 1.f, float mDistMult = 1.f)
+			inline void createParticles(OBParticleSystem& mPS, SizeT mCount, const Vec2f& mPos, OBParticleData& mData, float mRad = 0.f, float mMult = 1.f, float mDistMult = 1.f)
 			{
 				auto total(mCount * OBConfig::getParticleMult());
 				for(auto i(0u); i < total; ++i)
@@ -306,35 +306,35 @@ namespace ob
 
 			inline const decltype(overlayCamera)& getOverlayCamera() const noexcept { return overlayCamera; }
 
-			inline void createPBlood(std::size_t mCount, const Vec2f& mPos, float mMult = 1.f)
+			inline void createPBlood(SizeT mCount, const Vec2f& mPos, float mMult = 1.f)
 			{
 				createParticles(particles.getPSPerm(), mCount, mPos, assets.pdBloodRed, 0.f, mMult, 1.f);
 				createParticles(particles.getPSTemp(), mCount / 2, mPos, assets.pdGibRed, 0.f, mMult, 1.f);
 			}
-			inline void createPExplosion(std::size_t mCount, const Vec2f& mPos)
+			inline void createPExplosion(SizeT mCount, const Vec2f& mPos)
 			{
 				createParticles(particles.getPSTempAdd(), mCount, mPos, assets.pdExplosion);
 				createParticles(particles.getPSTemp(), mCount / 2, mPos, assets.pdExplosion);
 			}
-			inline void createPGib(std::size_t mCount, const Vec2f& mPos)						{ createParticles(particles.getPSTemp(),	mCount, mPos, assets.pdGibRed); }
-			inline void createPDebris(std::size_t mCount, const Vec2f& mPos)					{ createParticles(particles.getPSTemp(),	mCount, mPos, assets.pdDebris); }
-			inline void createPDebrisFloor(std::size_t mCount, const Vec2f& mPos)				{ createParticles(particles.getPSTemp(),	mCount, mPos, assets.pdDebrisFloor); }
-			inline void createPMuzzleBullet(std::size_t mCount, const Vec2f& mPos)				{ createParticles(particles.getPSTempAdd(),	mCount, mPos, assets.pdMuzzleBullet); }
-			inline void createPMuzzlePlasma(std::size_t mCount, const Vec2f& mPos)				{ createParticles(particles.getPSTempAdd(),	mCount, mPos, assets.pdMuzzlePlasma); }
-			inline void createPMuzzleRocket(std::size_t mCount, const Vec2f& mPos)				{ createParticles(particles.getPSTempAdd(),	mCount, mPos, assets.pdMuzzleRocket); }
-			inline void createPPlasma(std::size_t mCount, const Vec2f& mPos)					{ createParticles(particles.getPSTempAdd(),	mCount, mPos, assets.pdPlasma); }
-			inline void createPSmoke(std::size_t mCount, const Vec2f& mPos)						{ createParticles(particles.getPSTemp(),	mCount, mPos, assets.pdSmoke); }
-			inline void createPElectric(std::size_t mCount, const Vec2f& mPos)					{ createParticles(particles.getPSTempAdd(),	mCount, mPos, assets.pdElectric); }
-			inline void createPCharge(std::size_t mCount, const Vec2f& mPos, float mDistMult)	{ createParticles(particles.getPSTempAdd(),	mCount, mPos, assets.pdCharge, 0.f, 1.f, mDistMult); }
-			inline void createPShard(std::size_t mCount, const Vec2f& mPos)						{ createParticles(particles.getPSTempAdd(),	mCount, mPos, assets.pdShard); }
-			inline void createPHeal(std::size_t mCount, const Vec2f& mPos)						{ createParticles(particles.getPSTempAdd(),	mCount, mPos, assets.pdHeal); }
-			inline void createPCaseBullet(std::size_t mCount, const Vec2f& mPos, float mDeg)	{ createParticles(particles.getPSTemp(),	mCount, mPos, assets.pdCaseBullet, ssvu::toRad(mDeg + 90), 1.f, 1.f); }
-			inline void createPCaseRocket(std::size_t mCount, const Vec2f& mPos, float mDeg)	{ createParticles(particles.getPSTemp(),	mCount, mPos, assets.pdCaseRocket, ssvu::toRad(mDeg + 90), 1.f, 1.f); }
-			inline void createPForceField(std::size_t mCount, const Vec2f& mPos)				{ createParticles(particles.getPSTempAdd(),	mCount, mPos, assets.pdForceField); }
-			inline void createPMuzzleShockwave(std::size_t mCount, const Vec2f& mPos)			{ createParticles(particles.getPSTempAdd(),	mCount, mPos, assets.pdMuzzleShockwave); }
-			inline void createPShockwave(std::size_t mCount, const Vec2f& mPos)					{ createParticles(particles.getPSTempAdd(),	mCount, mPos, assets.pdShockwave); }
+			inline void createPGib(SizeT mCount, const Vec2f& mPos)						{ createParticles(particles.getPSTemp(),	mCount, mPos, assets.pdGibRed); }
+			inline void createPDebris(SizeT mCount, const Vec2f& mPos)					{ createParticles(particles.getPSTemp(),	mCount, mPos, assets.pdDebris); }
+			inline void createPDebrisFloor(SizeT mCount, const Vec2f& mPos)				{ createParticles(particles.getPSTemp(),	mCount, mPos, assets.pdDebrisFloor); }
+			inline void createPMuzzleBullet(SizeT mCount, const Vec2f& mPos)				{ createParticles(particles.getPSTempAdd(),	mCount, mPos, assets.pdMuzzleBullet); }
+			inline void createPMuzzlePlasma(SizeT mCount, const Vec2f& mPos)				{ createParticles(particles.getPSTempAdd(),	mCount, mPos, assets.pdMuzzlePlasma); }
+			inline void createPMuzzleRocket(SizeT mCount, const Vec2f& mPos)				{ createParticles(particles.getPSTempAdd(),	mCount, mPos, assets.pdMuzzleRocket); }
+			inline void createPPlasma(SizeT mCount, const Vec2f& mPos)					{ createParticles(particles.getPSTempAdd(),	mCount, mPos, assets.pdPlasma); }
+			inline void createPSmoke(SizeT mCount, const Vec2f& mPos)						{ createParticles(particles.getPSTemp(),	mCount, mPos, assets.pdSmoke); }
+			inline void createPElectric(SizeT mCount, const Vec2f& mPos)					{ createParticles(particles.getPSTempAdd(),	mCount, mPos, assets.pdElectric); }
+			inline void createPCharge(SizeT mCount, const Vec2f& mPos, float mDistMult)	{ createParticles(particles.getPSTempAdd(),	mCount, mPos, assets.pdCharge, 0.f, 1.f, mDistMult); }
+			inline void createPShard(SizeT mCount, const Vec2f& mPos)						{ createParticles(particles.getPSTempAdd(),	mCount, mPos, assets.pdShard); }
+			inline void createPHeal(SizeT mCount, const Vec2f& mPos)						{ createParticles(particles.getPSTempAdd(),	mCount, mPos, assets.pdHeal); }
+			inline void createPCaseBullet(SizeT mCount, const Vec2f& mPos, float mDeg)	{ createParticles(particles.getPSTemp(),	mCount, mPos, assets.pdCaseBullet, ssvu::toRad(mDeg + 90), 1.f, 1.f); }
+			inline void createPCaseRocket(SizeT mCount, const Vec2f& mPos, float mDeg)	{ createParticles(particles.getPSTemp(),	mCount, mPos, assets.pdCaseRocket, ssvu::toRad(mDeg + 90), 1.f, 1.f); }
+			inline void createPForceField(SizeT mCount, const Vec2f& mPos)				{ createParticles(particles.getPSTempAdd(),	mCount, mPos, assets.pdForceField); }
+			inline void createPMuzzleShockwave(SizeT mCount, const Vec2f& mPos)			{ createParticles(particles.getPSTempAdd(),	mCount, mPos, assets.pdMuzzleShockwave); }
+			inline void createPShockwave(SizeT mCount, const Vec2f& mPos)					{ createParticles(particles.getPSTempAdd(),	mCount, mPos, assets.pdShockwave); }
 
-			inline void createEShard(std::size_t mCount, const Vec2i& mPos) { for(auto i(0u); i < mCount; ++i) factory.createShard(mPos); }
+			inline void createEShard(SizeT mCount, const Vec2i& mPos) { for(auto i(0u); i < mCount; ++i) factory.createShard(mPos); }
 	};
 }
 

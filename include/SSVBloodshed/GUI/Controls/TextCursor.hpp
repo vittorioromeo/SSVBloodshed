@@ -28,7 +28,7 @@ namespace ob
 					inline void setIdxStart(int mIdx) noexcept	{ idxStart = ssvu::getClamped(mIdx, 0, getStrSize()); }
 					inline void setIdxEnd(int mIdx) noexcept	{ idxEnd = ssvu::getClamped(mIdx, 0, getStrSize()); }
 
-					inline std::size_t getStrSize() const noexcept	{ return str.size(); }
+					inline SizeT getStrSize() const noexcept	{ return str.size(); }
 					inline std::string& getStr() noexcept			{ return str; }
 
 					inline void delSelection()

@@ -16,7 +16,7 @@ namespace ob
 		private:
 			ssvs::VertexVector<sf::PrimitiveType::Quads> vertices;
 			std::vector<OBParticle> particles;
-			std::size_t currentCount{0};
+			SizeT currentCount{0};
 
 		public:
 			inline OBParticleSystem() { vertices.resize(OBConfig::getParticleMax() * 4); particles.reserve(OBConfig::getParticleMax()); }

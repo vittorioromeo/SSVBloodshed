@@ -94,7 +94,7 @@ namespace ob
 			Entity& createPJTestBomb(OBCActorND* mShooter, const Vec2i& mPos, float mDeg, float mSpeedMult = 1.f, float mCurveMult = 1.f);
 			Entity& createPJTestShell(OBCActorND* mShooter, const Vec2i& mPos, float mDeg);
 
-			template<typename T> inline void deathExplode(OBCActorND* mShooter, T& mTpl, std::size_t mCount, float mRangeMult = 1.f)
+			template<typename T> inline void deathExplode(OBCActorND* mShooter, T& mTpl, SizeT mCount, float mRangeMult = 1.f)
 			{
 				auto& cp(createPJExplosion(mShooter, gt<OBCPhys>(mTpl).getPosI(), 0, 0).template getComponent<OBCProjectile>());
 				cp.setTargetGroup(OBGroup::GKillable); cp.setLife(16.f * mRangeMult); cp.setKillDestructible(true);

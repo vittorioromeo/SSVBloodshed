@@ -22,7 +22,7 @@ namespace ob
 				std::vector<std::string> choices;
 				int idxOffset{0};
 
-				std::size_t currentChoiceIdx{0}, choiceBtnsMax{5};
+				SizeT currentChoiceIdx{0}, choiceBtnsMax{5};
 				Strip& wsChoices;
 				Strip& wsScroll;
 				Button& btnUp;
@@ -77,9 +77,9 @@ namespace ob
 
 				inline void addChoice(std::string mStr)	{ choices.emplace_back(std::move(mStr)); refreshChoices(); }
 				inline void clearChoices()				{ choices.clear(); refreshChoices(); }
-				inline std::size_t getChoiceCount()		{ return choices.size(); }
+				inline SizeT getChoiceCount()		{ return choices.size(); }
 
-				inline void setChoiceIdx(std::size_t mIdx)				{ currentChoiceIdx = mIdx; refreshChoices(); }
+				inline void setChoiceIdx(SizeT mIdx)				{ currentChoiceIdx = mIdx; refreshChoices(); }
 				inline int getChoiceIdx() const noexcept				{ return currentChoiceIdx; }
 				inline const std::string& getChoice() const noexcept	{ return choices[currentChoiceIdx]; }
 		};
