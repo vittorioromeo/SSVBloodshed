@@ -13,11 +13,11 @@
 
 SSVJ_CNV_NAMESPACE()
 {
-	template<> SSVJ_CNV_SIMPLE(ob::OBLETileData, mObj, mV)	{ ssvj::convertArr(mObj, mV.x, mV.y, mV.z, mV.type, mV.params); }				SSVJ_CNV_END()
-	template<> SSVJ_CNV_SIMPLE(ob::OBLETile, mObj, mV)		{ ssvj::convert(mObj, mV.data); }												SSVJ_CNV_END()
-	template<> SSVJ_CNV_SIMPLE(ob::OBLELevel, mObj, mV)		{ ssvj::convertArr(mObj, mV.x, mV.y, mV.cols, mV.rows, mV.depth, mV.tiles); }	SSVJ_CNV_END()
-	template<> SSVJ_CNV_SIMPLE(ob::OBLESector, mObj, mV)	{ ssvj::convert(mObj, mV.levels); }												SSVJ_CNV_END()
-	template<> SSVJ_CNV_SIMPLE(ob::OBLEPack, mObj, mV)		{ ssvj::convertArr(mObj, mV.name, mV.sectors); }								SSVJ_CNV_END()
+	template<> SSVJ_CNV(ob::OBLETileData, mV, mX)	{ ssvj::cnvArr(mV, mX.x, mX.y, mX.z, mX.type, mX.params); }				SSVJ_CNV_END()
+	template<> SSVJ_CNV(ob::OBLETile, mV, mX)		{ ssvj::cnv(mV, mX.data); }												SSVJ_CNV_END()
+	template<> SSVJ_CNV(ob::OBLELevel, mV, mX)		{ ssvj::cnvArr(mV, mX.x, mX.y, mX.cols, mX.rows, mX.depth, mX.tiles); }	SSVJ_CNV_END()
+	template<> SSVJ_CNV(ob::OBLESector, mV, mX)		{ ssvj::cnv(mV, mX.levels); }											SSVJ_CNV_END()
+	template<> SSVJ_CNV(ob::OBLEPack, mV, mX)		{ ssvj::cnvArr(mV, mX.name, mX.sectors); }								SSVJ_CNV_END()
 }
 SSVJ_CNV_NAMESPACE_END()
 

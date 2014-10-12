@@ -59,24 +59,24 @@ namespace ob
 			inline static const Trigger& getTBomb() noexcept	{ return get().tBomb; }
 
 			// GFX
-			inline static void setParticleMult(float mValue) noexcept		{ get().particleMult = mValue; }
-			inline static void setParticleMax(std::size_t mValue) noexcept	{ get().particleMax = mValue; }
+			inline static void setParticleMult(float mX) noexcept		{ get().particleMult = mX; }
+			inline static void setParticleMax(std::size_t mX) noexcept	{ get().particleMax = mX; }
 
 			inline static std::size_t getParticleMax() noexcept				{ return get().particleMax; }
 			inline static float getParticleMult() noexcept					{ return get().particleMult; }
 
 			// Gameplay
-			inline static void setDmgMultGlobal(float mValue) noexcept		{ get().dmgMultGlobal = mValue; }
-			inline static void setDmgMultPlayer(float mValue) noexcept		{ get().dmgMultPlayer = mValue; }
-			inline static void setDmgMultEnemy(float mValue) noexcept		{ get().dmgMultEnemy = mValue; }
+			inline static void setDmgMultGlobal(float mX) noexcept		{ get().dmgMultGlobal = mX; }
+			inline static void setDmgMultPlayer(float mX) noexcept		{ get().dmgMultPlayer = mX; }
+			inline static void setDmgMultEnemy(float mX) noexcept		{ get().dmgMultEnemy = mX; }
 
 			inline static float getDmgMultGlobal() noexcept					{ return get().dmgMultGlobal; }
 			inline static float getDmgMultPlayer() noexcept					{ return get().dmgMultPlayer * getDmgMultGlobal(); }
 			inline static float getDmgMultEnemy() noexcept					{ return get().dmgMultEnemy * getDmgMultGlobal(); }
 
 			// SFX
-			inline static void setSoundEnabled(bool mValue) noexcept		{ get().soundEnabled = mValue; }
-			inline static void setMusicEnabled(bool mValue) noexcept		{ get().musicEnabled = mValue; }
+			inline static void setSoundEnabled(bool mX) noexcept		{ get().soundEnabled = mX; }
+			inline static void setMusicEnabled(bool mX) noexcept		{ get().musicEnabled = mX; }
 
 			inline static bool isSoundEnabled() noexcept					{ return get().soundEnabled; }
 			inline static bool isMusicEnabled() noexcept					{ return get().musicEnabled; }
@@ -85,34 +85,34 @@ namespace ob
 
 SSVJ_CNV_NAMESPACE()
 {
-	template<> SSVJ_CNV_SIMPLE(ob::OBConfig, mObj, mValue)
+	template<> SSVJ_CNV(ob::OBConfig, mV, mX)
 	{
-		auto& gameplay(mObj["gameplay"]);
-		auto& gfx(mObj["gfx"]);
-		auto& sfx(mObj["sfx"]);
-		auto& input(mObj["input"]);
+		auto& gameplay(mV["gameplay"]);
+		auto& gfx(mV["gfx"]);
+		auto& sfx(mV["sfx"]);
+		auto& input(mV["input"]);
 
-		ssvj::convertObj(gameplay,
-				SSVJ_CNV_OBJ_AUTO(mValue, dmgMultGlobal),
-				SSVJ_CNV_OBJ_AUTO(mValue, dmgMultPlayer),
-				SSVJ_CNV_OBJ_AUTO(mValue, dmgMultEnemy));
+		ssvj::cnvObj(gameplay,
+				SSVJ_CNV_OBJ_AUTO(mX, dmgMultGlobal),
+				SSVJ_CNV_OBJ_AUTO(mX, dmgMultPlayer),
+				SSVJ_CNV_OBJ_AUTO(mX, dmgMultEnemy));
 
-		ssvj::convertObj(gfx,
-				SSVJ_CNV_OBJ_AUTO(mValue, particleMult),
-				SSVJ_CNV_OBJ_AUTO(mValue, particleMax));
+		ssvj::cnvObj(gfx,
+				SSVJ_CNV_OBJ_AUTO(mX, particleMult),
+				SSVJ_CNV_OBJ_AUTO(mX, particleMax));
 
-		ssvj::convertObj(sfx,
-				SSVJ_CNV_OBJ_AUTO(mValue, soundEnabled),
-				SSVJ_CNV_OBJ_AUTO(mValue, musicEnabled));
+		ssvj::cnvObj(sfx,
+				SSVJ_CNV_OBJ_AUTO(mX, soundEnabled),
+				SSVJ_CNV_OBJ_AUTO(mX, musicEnabled));
 
-		ssvj::convertObj(input,
-				SSVJ_CNV_OBJ_AUTO(mValue, tLeft),
-				SSVJ_CNV_OBJ_AUTO(mValue, tRight),
-				SSVJ_CNV_OBJ_AUTO(mValue, tUp),
-				SSVJ_CNV_OBJ_AUTO(mValue, tDown),
-				SSVJ_CNV_OBJ_AUTO(mValue, tShoot),
-				SSVJ_CNV_OBJ_AUTO(mValue, tSwitch),
-				SSVJ_CNV_OBJ_AUTO(mValue, tBomb));
+		ssvj::cnvObj(input,
+				SSVJ_CNV_OBJ_AUTO(mX, tLeft),
+				SSVJ_CNV_OBJ_AUTO(mX, tRight),
+				SSVJ_CNV_OBJ_AUTO(mX, tUp),
+				SSVJ_CNV_OBJ_AUTO(mX, tDown),
+				SSVJ_CNV_OBJ_AUTO(mX, tShoot),
+				SSVJ_CNV_OBJ_AUTO(mX, tSwitch),
+				SSVJ_CNV_OBJ_AUTO(mX, tBomb));
 	}
 	SSVJ_CNV_END()
 }
