@@ -221,7 +221,7 @@ namespace ob
 		else if(mX > 0 && mY < 0)	return Dir8::NE;
 		return Dir8::SE;
 	}
-	template<typename T = int> inline std::array<T, 2> getXYFromDir8(Dir8 mDir) noexcept
+	template<typename T = int> inline auto getXYFromDir8(Dir8 mDir) noexcept
 	{
 		static std::array<std::array<T, 2>, 8> xys
 		{{
