@@ -23,7 +23,7 @@ namespace ob
 	// Enum helpers
 	namespace Internal
 	{
-		inline std::map<std::string, std::vector<std::string>*>& getEnumsMap() noexcept { static std::map<std::string, std::vector<std::string>*> map; return map; }
+		inline auto& getEnumsMap() noexcept { static std::map<std::string, std::vector<std::string>*> map; return map; }
 		template<typename T> inline std::vector<std::string>& getEnumStrVec() noexcept;
 		template<typename T> inline std::string getEnumStr(T mValue) noexcept { return getEnumStrVec<T>()[int(mValue)]; }
 	}
