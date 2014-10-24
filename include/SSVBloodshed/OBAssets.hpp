@@ -136,7 +136,7 @@ namespace ob
 				T_TSSMALL(p2Stand);			T_TSSMALL(p2Shoot);			T_TSSMALL(p2Gun);
 				T_TSSMALL(p3Stand);			T_TSSMALL(p3Shoot);			T_TSSMALL(p3Gun);
 				T_TSSMALL(p4Stand);			T_TSSMALL(p4Shoot);			T_TSSMALL(p4Gun);
-				T_TSSMALL(e1Stand);		T_TSSMALL(e1Shoot);			T_TSSMALL(e1Gun);
+				T_TSSMALL(e1Stand);			T_TSSMALL(e1Shoot);			T_TSSMALL(e1Gun);
 				T_TSSMALL(floor);			T_TSSMALL(floorAlt1);		T_TSSMALL(floorAlt2);
 				T_TSSMALL(floorGrate);		T_TSSMALL(floorGrateAlt1);	T_TSSMALL(floorGrateAlt2);
 				T_TSSMALL(pit);				T_TSSMALL(trapdoor);		T_TSSMALL(trapdoorPOnly);
