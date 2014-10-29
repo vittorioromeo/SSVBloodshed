@@ -26,7 +26,7 @@ namespace ob
 		public:
 			OBCWpnController(OBCPhys& mCPhys, OBGroup mTargetGroup) noexcept : OBCActorND{mCPhys}, wpn{game, mTargetGroup} { }
 
-			inline void init()						{ tckShoot.setLoop(false); }
+			inline void init()					{ tckShoot.setLoop(false); }
 			inline void update(FT mFT) override	{ tckShoot.update(mFT); }
 
 			inline bool shoot(OBCActorND* mShooter, const Vec2i& mPos, float mDeg, const Vec2f& mMuzzlePxPos)
