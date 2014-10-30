@@ -29,10 +29,9 @@ namespace ob
 			int shootCount;
 
 		public:
-			OBCTurret(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCKillable& mCKillable, Dir8 mDir, const OBWpnType& mWpn, float mShootDelay, float mPJDelay, int mShootCount) noexcept
-				: OBCActor{mCPhys, mCDraw}, cKillable(mCKillable), direction{mDir}, wpn{game, OBGroup::GFriendlyKillable, mWpn}, shootDelay{mShootDelay}, pjDelay{mPJDelay}, shootCount{mShootCount} { }
-
-			inline void init()
+			OBCTurret(Entity& mE, OBCPhys& mCPhys, OBCDraw& mCDraw, OBCKillable& mCKillable, Dir8 mDir, const OBWpnType& mWpn, float mShootDelay, float mPJDelay, int mShootCount) noexcept
+				: OBCActor{mE, mCPhys, mCDraw}, cKillable(mCKillable), direction{mDir}, wpn{game, OBGroup::GFriendlyKillable, mWpn},
+				  shootDelay{mShootDelay}, pjDelay{mPJDelay}, shootCount{mShootCount}
 			{
 				cDraw.setRotation(getDegFromDir8(direction));
 

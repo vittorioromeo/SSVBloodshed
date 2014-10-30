@@ -21,9 +21,7 @@ namespace ob
 			int shardCost{10};
 
 		public:
-			OBCVMachine(OBCDraw& mCDraw, OBCUsable& mCUsable) noexcept : OBCActor{mCUsable.getCPhys(), mCDraw}, cUsable(mCUsable) { }
-
-			inline void init()
+			OBCVMachine(Entity& mE, OBCDraw& mCDraw, OBCUsable& mCUsable) noexcept : OBCActor{mE, mCUsable.getCPhys(), mCDraw}, cUsable(mCUsable)
 			{
 				body.setResolve(false);
 				cUsable.setMsg("[" + ssvu::toStr(shardCost) + "] Heal <" + ssvu::toStr(healAmount) + "> hp");

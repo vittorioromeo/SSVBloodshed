@@ -18,9 +18,7 @@ namespace ob
 			bool wasWeighted{false}, weighted{false}, playerOnly;
 
 		public:
-			OBWeightable(OBCPhys& mCPhys, bool mPlayerOnly) noexcept : bodyWeightable(mCPhys.getBody()), playerOnly{mPlayerOnly} { }
-
-			inline void init()
+			OBWeightable(OBCPhys& mCPhys, bool mPlayerOnly) noexcept : bodyWeightable(mCPhys.getBody()), playerOnly{mPlayerOnly}
 			{
 				bodyWeightable.setResolve(false);
 				bodyWeightable.addGroupsToCheck(OBGroup::GFriendly, OBGroup::GEnemy);

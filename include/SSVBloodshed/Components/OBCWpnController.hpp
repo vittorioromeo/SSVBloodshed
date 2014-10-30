@@ -24,9 +24,7 @@ namespace ob
 			Ticker tckShoot{0.f};
 
 		public:
-			OBCWpnController(OBCPhys& mCPhys, OBGroup mTargetGroup) noexcept : OBCActorND{mCPhys}, wpn{game, mTargetGroup} { }
-
-			inline void init()					{ tckShoot.setLoop(false); }
+			OBCWpnController(Entity& mE, OBCPhys& mCPhys, OBGroup mTargetGroup) noexcept : OBCActorND{mE, mCPhys}, wpn{game, mTargetGroup} { tckShoot.setLoop(false); }
 			inline void update(FT mFT) override	{ tckShoot.update(mFT); }
 
 			inline bool shoot(OBCActorND* mShooter, const Vec2i& mPos, float mDeg, const Vec2f& mMuzzlePxPos)

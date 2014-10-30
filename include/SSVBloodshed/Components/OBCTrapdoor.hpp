@@ -20,13 +20,10 @@ namespace ob
 			bool falling{false};
 
 		public:
-			OBCTrapdoor(OBCPhys& mCPhys, OBCDraw& mCDraw, bool mPlayerOnly) noexcept : OBCActor{mCPhys, mCDraw}, OBWeightable{mCPhys, mPlayerOnly} { }
-
-			inline void init()
+			OBCTrapdoor(Entity& mE, OBCPhys& mCPhys, OBCDraw& mCDraw, bool mPlayerOnly) noexcept : OBCActor{mE, mCPhys, mCDraw}, OBWeightable{mCPhys, mPlayerOnly}
 			{
 				getEntity().addGroups(OBGroup::GTrapdoor);
 				body.addGroups(OBGroup::GTrapdoor);
-				OBWeightable::init();
 			}
 			inline void update(FT mFT) override
 			{

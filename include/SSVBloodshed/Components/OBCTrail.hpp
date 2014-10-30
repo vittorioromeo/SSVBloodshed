@@ -10,7 +10,7 @@
 
 namespace ob
 {
-	class OBCTrail : public sses::Component
+	class OBCTrail : public Component
 	{
 		private:
 			OBGame& game;
@@ -20,7 +20,8 @@ namespace ob
 			ssvs::VertexVector<sf::PrimitiveType::Lines> vertices;
 
 		public:
-			OBCTrail(OBGame& mGame, const Vec2i& mA, const Vec2i& mB, const sf::Color& mColor) : game(mGame), a{toPixels(mA)}, b{toPixels(mB)}, color{mColor}, vertices{2} { }
+			OBCTrail(Entity& mE, OBGame& mGame, const Vec2i& mA, const Vec2i& mB, const sf::Color& mColor)
+				: Component{mE}, game(mGame), a{toPixels(mA)}, b{toPixels(mB)}, color{mColor}, vertices{2} { }
 
 			inline void update(FT mFT) override
 			{

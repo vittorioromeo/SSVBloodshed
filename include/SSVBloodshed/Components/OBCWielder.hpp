@@ -21,8 +21,8 @@ namespace ob
 			sf::IntRect rectStand, rectShoot;
 
 		public:
-			OBCWielder(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCDir8& mCDir8, const sf::IntRect& mRectStand, const sf::IntRect& mRectShoot) noexcept
-				: OBCActor{mCPhys, mCDraw}, cDir8(mCDir8), rectStand{mRectStand}, rectShoot{mRectShoot} { }
+			OBCWielder(Entity& mE, OBCPhys& mCPhys, OBCDraw& mCDraw, OBCDir8& mCDir8, const sf::IntRect& mRectStand, const sf::IntRect& mRectShoot) noexcept
+				: OBCActor{mE, mCPhys, mCDraw}, cDir8(mCDir8), rectStand{mRectStand}, rectShoot{mRectShoot} { }
 
 			inline void setShooting(bool mValue) noexcept
 			{

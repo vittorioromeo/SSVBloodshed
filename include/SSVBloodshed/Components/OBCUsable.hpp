@@ -21,9 +21,7 @@ namespace ob
 		public:
 			ssvu::Delegate<void(OBCPlayer&)> onUse;
 
-			OBCUsable(OBCPhys& mCPhys) : OBCActorND{mCPhys} { }
-
-			inline void init() { getEntity().addGroups(OBGroup::GUsable); }
+			OBCUsable(Entity& mE, OBCPhys& mCPhys) : OBCActorND{mE, mCPhys} { getEntity().addGroups(OBGroup::GUsable); }
 
 			inline void setMsg(std::string mMsg) { msg = std::move(mMsg); }
 			inline const std::string& getMsg() const noexcept { return msg; }

@@ -84,6 +84,7 @@ namespace ob
 	using Vec2f = ssvs::Vec2f;
 	using Vec2u = ssvs::Vec2u;
 	using Entity = sses::Entity;
+	using Component = sses::Component;
 	using World = ssvsc::World<ssvsc::HashGrid, ssvsc::Impulse>;
 	using Body = World::BodyType;
 	using Sensor = World::SensorType;

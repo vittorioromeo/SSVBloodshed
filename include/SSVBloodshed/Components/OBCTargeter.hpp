@@ -20,7 +20,7 @@ namespace ob
 			float distance{0.f};
 
 		public:
-			OBCTargeter(OBCPhys& mCPhys, OBGroup mTargetGroup) noexcept : OBCActorND{mCPhys}, targetGroup(mTargetGroup) { }
+			OBCTargeter(Entity& mE, OBCPhys& mCPhys, OBGroup mTargetGroup) noexcept : OBCActorND{mE, mCPhys}, targetGroup(mTargetGroup) { }
 
 			inline void update(FT) override
 			{
