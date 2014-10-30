@@ -10,7 +10,7 @@
 
 namespace ob
 {
-	class OBCParticleSystem : public sses::Component
+	class OBCParticleSystem : public Component
 	{
 		private:
 			OBParticleSystem particleSystem;
@@ -22,10 +22,8 @@ namespace ob
 			bool clearOnDraw;
 
 		public:
-			OBCParticleSystem(sf::RenderTexture& mRenderTexture, sf::RenderTarget& mRenderTarget, bool mClearOnDraw, unsigned char mAlpha, sf::BlendMode mBlendMode) noexcept
-				: renderTexture(mRenderTexture), renderTarget(mRenderTarget), blendMode{mBlendMode}, alpha{mAlpha}, clearOnDraw{mClearOnDraw} { }
-
-			inline void init()
+			OBCParticleSystem(Entity& mE, sf::RenderTexture& mRenderTexture, sf::RenderTarget& mRenderTarget, bool mClearOnDraw, unsigned char mAlpha, sf::BlendMode mBlendMode) noexcept
+				: Component{mE}, renderTexture(mRenderTexture), renderTarget(mRenderTarget), blendMode{mBlendMode}, alpha{mAlpha}, clearOnDraw{mClearOnDraw}
 			{
 				renderTexture.clear(sf::Color::Transparent);
 				sprite.setTexture(renderTexture.getTexture());

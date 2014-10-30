@@ -14,9 +14,7 @@ namespace ob
 	class OBCShard : public OBCActor
 	{
 		public:
-			OBCShard(OBCPhys& mCPhys, OBCDraw& mCDraw) noexcept : OBCActor{mCPhys, mCDraw} { }
-
-			inline void init()
+			OBCShard(Entity& mE, OBCPhys& mCPhys, OBCDraw& mCDraw) noexcept : OBCActor{mE, mCPhys, mCDraw}
 			{
 				getEntity().addGroups(OBGroup::GShard);
 				body.addGroups(OBGroup::GShard);

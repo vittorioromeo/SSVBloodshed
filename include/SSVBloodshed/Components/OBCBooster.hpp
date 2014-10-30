@@ -21,10 +21,8 @@ namespace ob
 			ssvs::Animation animation;
 
 		public:
-			OBCBooster(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCIdReceiver& mCIdReceiver, Dir8 mDir, float mForceMult) noexcept
-				: OBCActor{mCPhys, mCDraw}, cIdReceiver(mCIdReceiver), rad{getRadFromDir8(mDir)}, forceMult{mForceMult}, animation{assets.aForceField} { }
-
-			inline void init()
+			OBCBooster(Entity& mE, OBCPhys& mCPhys, OBCDraw& mCDraw, OBCIdReceiver& mCIdReceiver, Dir8 mDir, float mForceMult) noexcept
+				: OBCActor{mE, mCPhys, mCDraw}, cIdReceiver(mCIdReceiver), rad{getRadFromDir8(mDir)}, forceMult{mForceMult}, animation{assets.aForceField}
 			{
 				animation = assets.aBulletBooster;
 

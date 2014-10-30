@@ -22,11 +22,9 @@ namespace ob
 			ssvs::Animation animation;
 
 		public:
-			OBCForceField(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCIdReceiver& mCIdReceiver, Dir8 mDir, bool mBlockFriendly, bool mBlockEnemy, float mForceMult) noexcept
-				: OBCActor{mCPhys, mCDraw}, cIdReceiver(mCIdReceiver), blockFriendly{mBlockFriendly}, blockEnemy{mBlockEnemy}, rad{getRadFromDir8(mDir)},
-				  forceMult{mForceMult}, animation{assets.aForceField} { }
-
-			inline void init()
+			OBCForceField(Entity& mE, OBCPhys& mCPhys, OBCDraw& mCDraw, OBCIdReceiver& mCIdReceiver, Dir8 mDir, bool mBlockFriendly, bool mBlockEnemy, float mForceMult) noexcept
+				: OBCActor{mE, mCPhys, mCDraw}, cIdReceiver(mCIdReceiver), blockFriendly{mBlockFriendly}, blockEnemy{mBlockEnemy}, rad{getRadFromDir8(mDir)},
+				  forceMult{mForceMult}, animation{assets.aForceField}
 			{
 				controlBoolByIdAction(cIdReceiver, active);
 

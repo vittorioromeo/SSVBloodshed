@@ -23,7 +23,7 @@ namespace ob
 			SizeT count;
 
 		public:
-			OBCParticleEmitter(OBCPhys& mCPhys, GameParticleMemFn mParticleMemFn, SizeT mCount = 1) : OBCActorND{mCPhys}, particleMemFn{mParticleMemFn}, count{mCount} { }
+			OBCParticleEmitter(Entity& mE, OBCPhys& mCPhys, GameParticleMemFn mParticleMemFn, SizeT mCount = 1) : OBCActorND{mE, mCPhys}, particleMemFn{mParticleMemFn}, count{mCount} { }
 
 			inline void update(FT) override { (game.*particleMemFn)(count, cPhys.getPosPx() + offset); }
 

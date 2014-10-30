@@ -10,7 +10,7 @@
 
 namespace ob
 {
-	class OBCDraw : public sses::Component
+	class OBCDraw : public Component
 	{
 		private:
 			OBGame& game;
@@ -23,7 +23,7 @@ namespace ob
 			sf::BlendMode blendMode{sf::BlendAlpha};
 
 		public:
-			inline OBCDraw(OBGame& mGame, Body& mBody) noexcept : game(mGame), body(mBody) { }
+			inline OBCDraw(Entity& mE, OBGame& mGame, Body& mBody) noexcept : Component{mE}, game(mGame), body(mBody) { }
 
 			inline void update(FT) override
 			{

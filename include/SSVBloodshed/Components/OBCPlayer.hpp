@@ -90,10 +90,8 @@ namespace ob
 			}
 
 		public:
-			OBCPlayer(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCKillable& mCKillable, OBCWielder& mCWielder, OBCWpnController& mCWpnController) noexcept
-				: OBCActor{mCPhys, mCDraw}, cKillable(mCKillable), cWielder(mCWielder), cDir8(mCWielder.getCDir8()), cWpnController(mCWpnController) { }
-
-			inline void init()
+			OBCPlayer(Entity& mE, OBCPhys& mCPhys, OBCDraw& mCDraw, OBCKillable& mCKillable, OBCWielder& mCWielder, OBCWpnController& mCWpnController) noexcept
+				: OBCActor{mE, mCPhys, mCDraw}, cKillable(mCKillable), cWielder(mCWielder), cDir8(mCWielder.getCDir8()), cWpnController(mCWpnController)
 			{
 				cWielder.setWieldDist(7.f);
 				cKillable.getCHealth().setCooldown(2.6f);

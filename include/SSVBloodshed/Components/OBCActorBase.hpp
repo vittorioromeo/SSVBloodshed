@@ -12,7 +12,7 @@
 
 namespace ob
 {
-	class OBCActorND : public sses::Component
+	class OBCActorND : public Component
 	{
 		protected:
 			OBGame& game;
@@ -23,7 +23,7 @@ namespace ob
 			Body& body;
 
 		public:
-			inline OBCActorND(OBCPhys& mCPhys) noexcept : game(mCPhys.getGame()), cPhys(mCPhys), assets(game.getAssets()),
+			inline OBCActorND(Entity& mE, OBCPhys& mCPhys) noexcept : Component{mE}, game(mCPhys.getGame()), cPhys(mCPhys), assets(game.getAssets()),
 				factory(game.getFactory()), manager(game.getManager()), body(cPhys.getBody()) { }
 
 			inline OBGame& getGame() const noexcept		{ return game; }
@@ -36,7 +36,7 @@ namespace ob
 			OBCDraw& cDraw;
 
 		public:
-			inline OBCActor(OBCPhys& mCPhys, OBCDraw& mCDraw) noexcept : OBCActorND{mCPhys}, cDraw(mCDraw) { }
+			inline OBCActor(Entity& mE, OBCPhys& mCPhys, OBCDraw& mCDraw) noexcept : OBCActorND{mE, mCPhys}, cDraw(mCDraw) { }
 			inline OBCDraw& getCDraw() const noexcept { return cDraw; }
 	};
 }

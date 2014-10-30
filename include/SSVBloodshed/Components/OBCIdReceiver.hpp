@@ -10,7 +10,7 @@
 
 namespace ob
 {
-	class OBCIdReceiver : public sses::Component
+	class OBCIdReceiver : public Component
 	{
 		private:
 			int id;
@@ -18,8 +18,7 @@ namespace ob
 		public:
 			ssvu::Delegate<void(IdAction)> onActivate;
 
-			inline OBCIdReceiver(int mId) : id{mId} { }
-			inline void init() { getEntity().addGroups(OBGroup::GIdReceiver); }
+			inline OBCIdReceiver(Entity& mE, int mId) : Component{mE}, id{mId} { getEntity().addGroups(OBGroup::GIdReceiver); }
 
 			inline void activate(IdAction mAction) { if(id != -1) onActivate(mAction); }
 

@@ -71,7 +71,7 @@ namespace ob
 			OBCHealth& cHealth;
 
 		public:
-			OBCEBase(OBCEnemy& mCEnemy) : OBCActor{mCEnemy.getCPhys(), mCEnemy.getCDraw()}, cEnemy(mCEnemy), cKillable(cEnemy.getCKillable()), cBoid(cEnemy.getCBoid()),
+			OBCEBase(Entity& mE, OBCEnemy& mCEnemy) : OBCActor{mE, mCEnemy.getCPhys(), mCEnemy.getCDraw()}, cEnemy(mCEnemy), cKillable(cEnemy.getCKillable()), cBoid(cEnemy.getCBoid()),
 				cTargeter(cEnemy.getCTargeter()), cHealth(mCEnemy.getCKillable().getCHealth()) { }
 
 			inline bool isPlayerInSightRanged() const noexcept	{ return raycastToPlayer(cPhys, cTargeter.getTarget(), true, false); }
@@ -88,8 +88,8 @@ namespace ob
 			int wpnHealth;
 
 		public:
-			OBCEArmedBase(OBCEnemy& mCEnemy, OBCWielder& mCWielder, OBCWpnController& mCWpnController, bool mArmed, int mWpnHealth)
-				: OBCEBase{mCEnemy}, cWielder(mCWielder), cDir8(mCWielder.getCDir8()), cWpnController(mCWpnController), armed{mArmed}, wpnHealth(mWpnHealth)
+			OBCEArmedBase(Entity& mE, OBCEnemy& mCEnemy, OBCWielder& mCWielder, OBCWpnController& mCWpnController, bool mArmed, int mWpnHealth)
+				: OBCEBase{mE, mCEnemy}, cWielder(mCWielder), cDir8(mCWielder.getCDir8()), cWpnController(mCWpnController), armed{mArmed}, wpnHealth(mWpnHealth)
 			{
 				cHealth.onDamage += [this](OBCActorND*){ if(armed && wpnHealth-- <= 0) { armed = false; game.createPElectric(10, toPixels(cPhys.getPosF())); } };
 			}
@@ -117,10 +117,8 @@ namespace ob
 			RunnerType type;
 
 		public:
-			OBCERunner(OBCEnemy& mCEnemy, OBCWielder& mCWielder, OBCWpnController& mCWpnController, RunnerType mType)
-				: OBCEArmedBase{mCEnemy, mCWielder, mCWpnController, mType != RunnerType::Unarmed, 1}, type{mType} { }
-
-			inline void init()
+			OBCERunner(Entity& mE, OBCEnemy& mCEnemy, OBCWielder& mCWielder, OBCWpnController& mCWpnController, RunnerType mType)
+				: OBCEArmedBase{mE, mCEnemy, mCWielder, mCWpnController, mType != RunnerType::Unarmed, 1}, type{mType}
 			{
 				cPhys.setMass(1.f);
 				cWpnController.setWpn(OBWpnTypes::createEPlasmaBulletGun());
@@ -151,10 +149,8 @@ namespace ob
 			ChargerType type;
 
 		public:
-			OBCECharger(OBCEnemy& mCEnemy, OBCFloorSmasher& mCFloorSmasher, OBCWielder& mCWielder, OBCWpnController& mCWpnController, ChargerType mType)
-				: OBCEArmedBase{mCEnemy, mCWielder, mCWpnController, mType != ChargerType::Unarmed, 7}, cFloorSmasher(mCFloorSmasher), type{mType} { }
-
-			inline void init()
+			OBCECharger(Entity& mE, OBCEnemy& mCEnemy, OBCFloorSmasher& mCFloorSmasher, OBCWielder& mCWielder, OBCWpnController& mCWpnController, ChargerType mType)
+				: OBCEArmedBase{mE, mCEnemy, mCWielder, mCWpnController, mType != ChargerType::Unarmed, 7}, cFloorSmasher(mCFloorSmasher), type{mType}
 			{
 				cPhys.setMass(100.f);
 
@@ -212,10 +208,8 @@ namespace ob
 			JuggernautType type;
 
 		public:
-			OBCEJuggernaut(OBCEnemy& mCEnemy, OBCWielder& mCWielder, OBCWpnController& mCWpnController, JuggernautType mType)
-				: OBCEArmedBase{mCEnemy, mCWielder, mCWpnController, mType != JuggernautType::Unarmed, 18}, type{mType} { }
-
-			inline void init()
+			OBCEJuggernaut(Entity& mE, OBCEnemy& mCEnemy, OBCWielder& mCWielder, OBCWpnController& mCWpnController, JuggernautType mType)
+				: OBCEArmedBase{mE, mCEnemy, mCWielder, mCWpnController, mType != JuggernautType::Unarmed, 18}, type{mType}
 			{
 				cPhys.setMass(10000.f);
 
@@ -279,9 +273,7 @@ namespace ob
 			bool small{false};
 
 		public:
-			OBCEBall(OBCEnemy& mCEnemy, BallType mType, bool mSmall) : OBCEBase{mCEnemy}, type{mType}, small{mSmall} { }
-
-			inline void init()
+			OBCEBall(Entity& mE, OBCEnemy& mCEnemy, BallType mType, bool mSmall) : OBCEBase{mE, mCEnemy}, type{mType}, small{mSmall}
 			{
 				cPhys.setMass(100.f);
 				if(!small)
@@ -331,9 +323,7 @@ namespace ob
 			float lastDeg{0};
 
 		public:
-			OBCEGiant(OBCEnemy& mCEnemy) : OBCEBase{mCEnemy} { }
-
-			inline void init()
+			OBCEGiant(Entity& mE, OBCEnemy& mCEnemy) : OBCEBase{mE, mCEnemy}
 			{
 				cKillable.setParticleMult(8);
 				cKillable.onDeath += [this]{ assets.playSound("Sounds/alienDeath.wav"); };
@@ -396,9 +386,7 @@ namespace ob
 			OBWpn wpn{game, OBGroup::GFriendlyKillable, OBWpnTypes::createPlasmaCannon()};
 
 		public:
-			OBCEEnforcer(OBCEnemy& mCEnemy) : OBCEBase{mCEnemy} { }
-
-			inline void init()
+			OBCEEnforcer(Entity& mE, OBCEnemy& mCEnemy) : OBCEBase{mE, mCEnemy}
 			{
 				cPhys.setMass(400.f);
 				cKillable.setParticleMult(3);

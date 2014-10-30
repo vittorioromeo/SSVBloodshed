@@ -18,9 +18,7 @@ namespace ob
 			OBGroup targetGroup;
 
 		public:
-			OBCDamageOnTouch(OBCPhys& mCPhys, float mDamage, OBGroup mTargetGroup) noexcept : OBCActorND{mCPhys}, dmg{mDamage}, targetGroup{mTargetGroup} { }
-
-			inline void init()
+			OBCDamageOnTouch(Entity& mE, OBCPhys& mCPhys, float mDamage, OBGroup mTargetGroup) noexcept : OBCActorND{mE, mCPhys}, dmg{mDamage}, targetGroup{mTargetGroup}
 			{
 				body.addGroupsToCheck(targetGroup);
 				body.onDetection += [this](const DetectionInfo& mDI)

@@ -24,10 +24,8 @@ namespace ob
 			bool faceDirection{true}, bounced{false};
 
 		public:
-			OBCEnemy(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCKillable& mCKillable, OBCTargeter& mCTargeter, OBCBoid& mCBoid) noexcept
-				: OBCActor{mCPhys, mCDraw}, cKillable(mCKillable), cTargeter(mCTargeter), cBoid(mCBoid) { }
-
-			inline void init()
+			OBCEnemy(Entity& mE, OBCPhys& mCPhys, OBCDraw& mCDraw, OBCKillable& mCKillable, OBCTargeter& mCTargeter, OBCBoid& mCBoid) noexcept
+				: OBCActor{mE, mCPhys, mCDraw}, cKillable(mCKillable), cTargeter(mCTargeter), cBoid(mCBoid)
 			{
 				getEntity().addGroups(OBGroup::GEnemy, OBGroup::GEnemyKillable);
 

@@ -20,10 +20,8 @@ namespace ob
 			float rad, distortion{0}, alpha{0};
 
 		public:
-			OBCBulletForceField(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCIdReceiver& mCIdReceiver, Dir8 mDir, bool mBlockFriendly, bool mBlockEnemy) noexcept
-				: OBCActor{mCPhys, mCDraw}, cIdReceiver(mCIdReceiver), blockFriendly{mBlockFriendly}, blockEnemy{mBlockEnemy}, rad{getRadFromDir8(mDir)} { }
-
-			inline void init()
+			OBCBulletForceField(Entity& mE, OBCPhys& mCPhys, OBCDraw& mCDraw, OBCIdReceiver& mCIdReceiver, Dir8 mDir, bool mBlockFriendly, bool mBlockEnemy) noexcept
+				: OBCActor{mE, mCPhys, mCDraw}, cIdReceiver(mCIdReceiver), blockFriendly{mBlockFriendly}, blockEnemy{mBlockEnemy}, rad{getRadFromDir8(mDir)}
 			{
 				controlBoolByIdAction(cIdReceiver, active);
 

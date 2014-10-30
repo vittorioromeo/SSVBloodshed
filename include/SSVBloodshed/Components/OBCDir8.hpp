@@ -10,12 +10,14 @@
 
 namespace ob
 {
-	class OBCDir8 : public sses::Component
+	class OBCDir8 : public Component
 	{
 		private:
 			Dir8 dir{Dir8::E};
 
 		public:
+			inline OBCDir8(Entity& mE) noexcept : Component{mE} { }
+
 			inline OBCDir8& operator=(Dir8 mValue) noexcept	{ setDir(mValue); return *this; }
 			inline void setDir(Dir8 mValue) noexcept		{ dir = mValue; }
 

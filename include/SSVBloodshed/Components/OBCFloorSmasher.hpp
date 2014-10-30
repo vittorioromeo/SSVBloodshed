@@ -11,7 +11,7 @@
 
 namespace ob
 {
-	class OBCFloorSmasher : public sses::Component
+	class OBCFloorSmasher : public Component
 	{
 		private:
 			OBCPhys& cPhys;
@@ -19,9 +19,7 @@ namespace ob
 			bool active{false};
 
 		public:
-			OBCFloorSmasher(OBCPhys& mCPhys, bool mActive = false) noexcept : cPhys(mCPhys), body(cPhys.getBody()), active{mActive} { }
-
-			inline void init()
+			OBCFloorSmasher(Entity& mE, OBCPhys& mCPhys, bool mActive = false) noexcept : Component{mE}, cPhys(mCPhys), body(cPhys.getBody()), active{mActive}
 			{
 				setActive(active);
 				body.addGroupsNoResolve(OBGroup::GFloor);

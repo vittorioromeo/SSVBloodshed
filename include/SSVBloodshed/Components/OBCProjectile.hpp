@@ -33,11 +33,10 @@ namespace ob
 		public:
 			ssvu::Delegate<void()> onDestroy;
 
-			inline OBCProjectile(OBCActorND* mShooter, OBCPhys& mCPhys, OBCDraw& mCDraw, float mSpeed, float mDeg) noexcept
-				: OBCActor{mCPhys, mCDraw}, shooter{mShooter} { body.setVelocity(ssvs::getVecFromDeg(mDeg, mSpeed)); }
-
-			inline void init()
+			inline OBCProjectile(Entity& mE, OBCActorND* mShooter, OBCPhys& mCPhys, OBCDraw& mCDraw, float mSpeed, float mDeg) noexcept
+				: OBCActor{mE, mCPhys, mCDraw}, shooter{mShooter}
 			{
+				body.setVelocity(ssvs::getVecFromDeg(mDeg, mSpeed));
 				body.addGroups(OBGroup::GProjectile);
 				body.addGroupsToCheck(OBGroup::GSolidGround, OBGroup::GSolidAir);
 				body.addGroupsNoResolve(OBGroup::GFriendly, OBGroup::GEnemy, OBGroup::GProjectile);

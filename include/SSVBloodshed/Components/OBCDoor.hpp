@@ -31,8 +31,7 @@ namespace ob
 			}
 
 		public:
-			OBCDoorBase(OBCPhys& mCPhys, OBCDraw& mCDraw, bool mOpen = false) noexcept : OBCActor{mCPhys, mCDraw}, openStatus{mOpen} { }
-			inline void init() { setOpen(openStatus); }
+			OBCDoorBase(Entity& mE, OBCPhys& mCPhys, OBCDraw& mCDraw, bool mOpen = false) noexcept : OBCActor{mE, mCPhys, mCDraw}, openStatus{mOpen} { setOpen(openStatus); }
 
 			inline void toggle() noexcept	{ setOpen(!openStatus); }
 			inline void open() noexcept		{ setOpen(true); }
@@ -45,7 +44,7 @@ namespace ob
 			OBCIdReceiver& cIdReceiver;
 
 		public:
-			OBCDoor(OBCPhys& mCPhys, OBCDraw& mCDraw, OBCIdReceiver& mCIdReceiver, bool mOpen = false) noexcept : OBCDoorBase{mCPhys, mCDraw, mOpen}, cIdReceiver(mCIdReceiver)
+			OBCDoor(Entity& mE, OBCPhys& mCPhys, OBCDraw& mCDraw, OBCIdReceiver& mCIdReceiver, bool mOpen = false) noexcept : OBCDoorBase{mE, mCPhys, mCDraw, mOpen}, cIdReceiver(mCIdReceiver)
 			{
 				cIdReceiver.onActivate += [this](IdAction mIdAction)
 				{
@@ -62,7 +61,7 @@ namespace ob
 			bool triggered{false};
 
 		public:
-			OBCDoorG(OBCPhys& mCPhys, OBCDraw& mCDraw, bool mOpen = false) noexcept : OBCDoorBase{mCPhys, mCDraw, mOpen} { }
+			OBCDoorG(Entity& mE, OBCPhys& mCPhys, OBCDraw& mCDraw, bool mOpen = false) noexcept : OBCDoorBase{mE, mCPhys, mCDraw, mOpen} { }
 			inline void update(FT) override { if(!triggered && game.isLevelClear()) { toggle(); triggered = true; } }
 	};
 
@@ -72,7 +71,7 @@ namespace ob
 			bool triggered{false};
 
 		public:
-			OBCDoorR(OBCPhys& mCPhys, OBCDraw& mCDraw, bool mOpen = false) noexcept : OBCDoorBase{mCPhys, mCDraw, mOpen} { }
+			OBCDoorR(Entity& mE, OBCPhys& mCPhys, OBCDraw& mCDraw, bool mOpen = false) noexcept : OBCDoorBase{mE, mCPhys, mCDraw, mOpen} { }
 			inline void update(FT) override { if(!triggered && manager.getEntityCount(OBGroup::GTrapdoor) <= 0) { toggle(); triggered = true; } }
 	};
 }

@@ -10,7 +10,7 @@
 
 namespace ob
 {
-	class OBCHealth : public sses::Component
+	class OBCHealth : public Component
 	{
 		private:
 			float health, maxHealth;
@@ -20,7 +20,7 @@ namespace ob
 			ssvu::Delegate<void(OBCActorND*)> onDamage;
 			ssvu::Delegate<void()> onHeal;
 
-			OBCHealth(float mHealth) noexcept : health{mHealth}, maxHealth{mHealth} { tckCooldown.setLoop(false); }
+			OBCHealth(Entity& mE, float mHealth) noexcept : Component{mE}, health{mHealth}, maxHealth{mHealth} { tckCooldown.setLoop(false); }
 
 			inline void update(FT mFT) override { tckCooldown.update(mFT); }
 

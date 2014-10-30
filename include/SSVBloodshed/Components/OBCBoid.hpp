@@ -50,7 +50,7 @@ namespace ob
 			}
 
 		public:
-			inline OBCBoid(OBCPhys& mCPhys) : OBCActorND{mCPhys} { }
+			inline OBCBoid(Entity& mE, OBCPhys& mCPhys) : OBCActorND{mE, mCPhys} { }
 
 			inline void seek(const Vec2f& mTargetPos, float mForceMult = 0.02f, float mSlowRadius = 1500.f) noexcept
 			{

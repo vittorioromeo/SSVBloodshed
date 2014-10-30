@@ -73,9 +73,10 @@ namespace ob
 		public:
 			ssvu::Delegate<void()> onDeath;
 
-			OBCKillable(OBCPhys& mCPhys, OBCHealth& mCHealth, Type mType) noexcept : OBCActorND{mCPhys}, cHealth(mCHealth), type{mType} { }
-
-			inline void init() { cHealth.onDamage += [this](OBCActorND*){ effectHit(); if(cHealth.isDead()) kill(); }; }
+			OBCKillable(Entity& mE, OBCPhys& mCPhys, OBCHealth& mCHealth, Type mType) noexcept : OBCActorND{mE, mCPhys}, cHealth(mCHealth), type{mType}
+			{
+				cHealth.onDamage += [this](OBCActorND*){ effectHit(); if(cHealth.isDead()) kill(); };
+			}
 
 			inline void kill() { effectDeath(); onDeath(); getEntity().destroy(); }
 

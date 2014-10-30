@@ -68,10 +68,12 @@ namespace ob
 			inline void unTrigger()	{ if(triggered) { triggered = false; triggerNeighbors(false); cDraw[0].setColor(sf::Color::White); } }
 
 		public:
-			OBCPPlate(OBCPhys& mCPhys, OBCDraw& mCDraw, int mId, PPlateType mType, IdAction mIdAction, bool mPlayerOnly) noexcept
-				: OBCActor{mCPhys, mCDraw}, OBWeightable{mCPhys, mPlayerOnly}, id{mId}, type{mType}, idAction{mIdAction} { }
+			OBCPPlate(Entity& mE, OBCPhys& mCPhys, OBCDraw& mCDraw, int mId, PPlateType mType, IdAction mIdAction, bool mPlayerOnly) noexcept
+				: OBCActor{mE, mCPhys, mCDraw}, OBWeightable{mCPhys, mPlayerOnly}, id{mId}, type{mType}, idAction{mIdAction}
+			{
+				body.addGroups(OBGroup::GPPlate);
+			}
 
-			inline void init() { OBWeightable::init(); body.addGroups(OBGroup::GPPlate); }
 			inline void update(FT) override
 			{
 				if(hasBeenWeighted() && !triggered)

@@ -10,7 +10,7 @@
 
 namespace ob
 {
-	class OBCPhys : public sses::Component
+	class OBCPhys : public Component
 	{
 		private:
 			static constexpr int crushedMax{3}, crushedTolerance{1};
@@ -21,10 +21,8 @@ namespace ob
 			int crushedLeft{0}, crushedRight{0}, crushedTop{0}, crushedBottom{0};
 
 		public:
-			OBCPhys(OBGame& mGame, bool mIsStatic, const Vec2i& mPosition, const Vec2i& mSize) : game(mGame), world(mGame.getWorld()), body(world.create(mPosition, mSize, mIsStatic)) { }
-			inline ~OBCPhys() override { body.destroy(); }
-
-			inline void init()
+			OBCPhys(Entity& mE, OBGame& mGame, bool mIsStatic, const Vec2i& mPosition, const Vec2i& mSize)
+				: Component{mE}, game(mGame), world(mGame.getWorld()), body(world.create(mPosition, mSize, mIsStatic))
 			{
 				body.setUserData(&getEntity());
 				body.onResolution += [this](const ResolutionInfo& mRI)
@@ -42,6 +40,7 @@ namespace ob
 					if(crushedBottom > 0) --crushedBottom;
 				};
 			}
+			inline ~OBCPhys() override { body.destroy(); }
 
 			inline void setPos(const Vec2i& mPos) noexcept			{ body.setPosition(mPos); }
 			inline void setVel(const Vec2f& mVel) noexcept			{ body.setVelocity(mVel); }

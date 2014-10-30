@@ -24,9 +24,7 @@ namespace ob
 			}
 
 		public:
-			OBCFloor(OBCPhys& mCPhys, OBCDraw& mCDraw, bool mGrate) noexcept : OBCActor{mCPhys, mCDraw}, smashed{mGrate} { }
-
-			inline void init()
+			OBCFloor(Entity& mE, OBCPhys& mCPhys, OBCDraw& mCDraw, bool mGrate) noexcept : OBCActor{mE, mCPhys, mCDraw}, smashed{mGrate}
 			{
 				body.addGroups(OBGroup::GFloor);
 				body.setResolve(false);
