@@ -11,6 +11,7 @@
 
 namespace ob
 {
+	// TODO: replace with multi-handlevector and benchmark
 	class OBParticleSystem : public sf::Drawable
 	{
 		private:
