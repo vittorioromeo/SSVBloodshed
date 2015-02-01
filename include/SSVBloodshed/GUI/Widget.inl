@@ -14,7 +14,7 @@ namespace ob
 	{
 		template<typename T, typename... TArgs> inline T& Widget::create(TArgs&&... mArgs)
 		{
-			auto& result(context.allocateWidget<T>(ssvu::fwd<TArgs>(mArgs)...));
+			auto& result(context.allocateWidget<T>(SSVU_FWD(mArgs)...));
 			result.setParent(*this); return result;
 		}
 

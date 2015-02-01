@@ -21,7 +21,7 @@ namespace ob
 
 		public:
 			inline OBParticleSystem() { vertices.resize(OBConfig::getParticleMax() * 4); particles.reserve(OBConfig::getParticleMax()); }
-			template<typename... TArgs> inline void emplace(TArgs&&... mArgs) { particles.emplace_back(ssvu::fwd<TArgs>(mArgs)...); }
+			template<typename... TArgs> inline void emplace(TArgs&&... mArgs) { particles.emplace_back(SSVU_FWD(mArgs)...); }
 			inline void update(FT mFT)
 			{
 				// Remove excess particles
