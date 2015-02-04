@@ -18,7 +18,7 @@ namespace ob
 		{
 			private:
 				Label& lblLabel;
-				Internal::ClickEffect clickEffect{getStyle().colorBtnUnpressed, *this};
+				Impl::ClickEffect clickEffect{getStyle().colorBtnUnpressed, *this};
 
 				inline void update(FT mFT) override { clickEffect.update(mFT); }
 

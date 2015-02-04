@@ -21,8 +21,8 @@ namespace ob
 				bool editing{false};
 				std::string editStr, str;
 				float green{0.f};
-				Internal::TextCursor cursor;
-				Internal::TextCursorShape cursorShape;
+				Impl::TextCursor cursor;
+				Impl::TextCursorShape cursorShape;
 
 				inline void update(FT mFT) override
 				{

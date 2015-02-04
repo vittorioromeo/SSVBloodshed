@@ -21,7 +21,7 @@
 namespace ob
 {
 	// Enum helpers
-	namespace Internal
+	namespace Impl
 	{
 		inline auto& getEnumsMap() noexcept { static std::map<std::string, std::vector<std::string>*> map; return map; }
 		template<typename T> inline std::vector<std::string>& getEnumStrVec() noexcept;
@@ -34,7 +34,7 @@ namespace ob
 
 	#define OB_ENUM_DEFS(mName, ...) \
 		SSVU_FATENUM_DEFS(OBEnumMgr, mName, int, __VA_ARGS__) \
-		namespace Internal \
+		namespace Impl \
 		{ \
 			template<> inline std::vector<std::string>& getEnumStrVec<mName>() noexcept \
 			{ \
@@ -48,14 +48,14 @@ namespace ob
 			{ \
 				inline __initStruct ## mName() \
 				{ \
-					Internal::getEnumsMap()[#mName] = &getEnumStrVec<mName>(); \
+					Impl::getEnumsMap()[#mName] = &getEnumStrVec<mName>(); \
 				} \
 			} t ## mName; \
 		}
 
 	#define OB_ENUM_VALS(mName, ...) \
 		SSVU_FATENUM_VALS(OBEnumMgr, mName, int, __VA_ARGS__) \
-		namespace Internal \
+		namespace Impl \
 		{ \
 			template<> inline std::vector<std::string>& getEnumStrVec<mName>() noexcept \
 			{ \
@@ -69,12 +69,12 @@ namespace ob
 			{ \
 				inline __initStruct ## mName() \
 				{ \
-					Internal::getEnumsMap()[#mName] = &getEnumStrVec<mName>(); \
+					Impl::getEnumsMap()[#mName] = &getEnumStrVec<mName>(); \
 				} \
 			} t ## mName; \
 		}
 
-	inline std::vector<std::string>& getEnumStrVecByName(const std::string& mName) { return *Internal::getEnumsMap()[mName]; }
+	inline std::vector<std::string>& getEnumStrVecByName(const std::string& mName) { return *Impl::getEnumsMap()[mName]; }
 
 	// Typedefs
 	using SizeT = ssvu::SizeT;

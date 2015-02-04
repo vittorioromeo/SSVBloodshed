@@ -14,13 +14,13 @@ namespace ob
 {
 	namespace GUI
 	{
-		namespace Internal
+		namespace Impl
 		{
 			class CheckBoxStateBox : public Widget
 			{
 				private:
 					Label& lblState;
-					Internal::ClickEffect clickEffect{getStyle().colorBtnUnpressed, *this};
+					Impl::ClickEffect clickEffect{getStyle().colorBtnUnpressed, *this};
 
 					inline void update(FT mFT) override { clickEffect.update(mFT); }
 
@@ -40,7 +40,7 @@ namespace ob
 		class CheckBox : public Widget
 		{
 			private:
-				Internal::CheckBoxStateBox& cbsbBox;
+				Impl::CheckBoxStateBox& cbsbBox;
 				Label& lblLabel;
 				bool state{false};
 
@@ -48,7 +48,7 @@ namespace ob
 				ssvu::Delegate<void()> onStateChanged;
 
 				CheckBox(Context& mContext, std::string mLabel, bool mState = false) : Widget{mContext},
-					cbsbBox(create<Internal::CheckBoxStateBox>()), lblLabel(create<Label>(std::move(mLabel)))
+					cbsbBox(create<Impl::CheckBoxStateBox>()), lblLabel(create<Label>(std::move(mLabel)))
 				{
 					setScaling(Scaling::FitToChildren);
 					setFillColor(sf::Color::Transparent); setState(mState);

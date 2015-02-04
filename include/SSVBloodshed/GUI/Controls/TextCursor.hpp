@@ -12,7 +12,7 @@ namespace ob
 {
 	namespace GUI
 	{
-		namespace Internal
+		namespace Impl
 		{
 			class TextCursor
 			{
