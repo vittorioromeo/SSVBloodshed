@@ -246,7 +246,7 @@ namespace ob
 				guiCtx.draw();
 			}
 
-			template<typename... TArgs> inline void render(const sf::Drawable& mDrawable, TArgs&&... mArgs)	{ gameWindow.draw(mDrawable, SSVU_FWD(mArgs)...); }
+			template<typename... TArgs> inline void render(const sf::Drawable& mDrawable, TArgs&&... mArgs)	{ gameWindow.draw(mDrawable, FWD(mArgs)...); }
 
 			inline void setGame(OBGame& mGame) noexcept					{ game = &mGame; }
 			inline void setDatabase(OBLEDatabase& mDatabase) noexcept	{ sharedData.setDatabase(mDatabase); }

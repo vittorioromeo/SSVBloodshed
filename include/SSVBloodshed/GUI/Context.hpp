@@ -63,7 +63,7 @@ namespace ob
 				template<typename T, typename... TArgs> inline T& allocateWidget(TArgs&&... mArgs)
 				{
 					SSVU_ASSERT_STATIC(ssvu::isBaseOf<Widget, T>(), "T must be derived from Widget");
-					return widgets.create<T>(*this, SSVU_FWD(mArgs)...);
+					return widgets.create<T>(*this, FWD(mArgs)...);
 				}
 
 				Widget* found{nullptr};
@@ -111,7 +111,7 @@ namespace ob
 
 				template<typename T, typename... TArgs> inline T& create(TArgs&&... mArgs)
 				{
-					auto& result(allocateWidget<T>(SSVU_FWD(mArgs)...));
+					auto& result(allocateWidget<T>(FWD(mArgs)...));
 					children.insert(std::begin(children), &result); return result;
 				}
 

@@ -43,35 +43,35 @@ namespace ob
 
 
 
-	std::tuple<Entity&, OBCPhys&, OBCDraw&> OBFactory::createActorBase(const Vec2i& mPos, const Vec2i& mSize, int mDrawPriority, bool mStatic)
+	auto OBFactory::createActorBase(const Vec2i& mPos, const Vec2i& mSize, int mDrawPriority, bool mStatic)
 	{
 		auto& result(createEntity(mDrawPriority));
 		auto& cPhys(result.createComponent<OBCPhys>(game, mStatic, mPos, mSize));
 		auto& cDraw(result.createComponent<OBCDraw>(game, cPhys.getBody()));
-		return std::forward_as_tuple(result, cPhys, cDraw);
+		return ssvu::fwdAsTpl(result, cPhys, cDraw);
 	}
-	std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCHealth&, OBCKillable&> OBFactory::createKillableBase(const Vec2i& mPos, const Vec2i& mSize, int mDrawPriority, float mHealth)
+	auto OBFactory::createKillableBase(const Vec2i& mPos, const Vec2i& mSize, int mDrawPriority, float mHealth)
 	{
 		auto tpl(createActorBase(mPos, mSize, mDrawPriority));
 		auto& cHealth(gt<Entity>(tpl).createComponent<OBCHealth>(mHealth));
 		auto& cKillable(gt<Entity>(tpl).createComponent<OBCKillable>(gt<OBCPhys>(tpl), cHealth, OBCKillable::Type::Organic));
-		return std::forward_as_tuple(gt<Entity>(tpl), gt<OBCPhys>(tpl), gt<OBCDraw>(tpl), cHealth, cKillable);
+		return ssvu::fwdAsTpl(gt<Entity>(tpl), gt<OBCPhys>(tpl), gt<OBCDraw>(tpl), cHealth, cKillable);
 	}
-	std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCHealth&, OBCKillable&, OBCEnemy&> OBFactory::createEnemyBase(const Vec2i& mPos, const Vec2i& mSize, int mHealth)
+	auto OBFactory::createEnemyBase(const Vec2i& mPos, const Vec2i& mSize, int mHealth)
 	{
 		auto tpl(createKillableBase(mPos, mSize, OBLayer::LEnemy, mHealth));
 		auto& cTargeter(gt<Entity>(tpl).createComponent<OBCTargeter>(gt<OBCPhys>(tpl), OBGroup::GFriendly));
 		auto& cBoid(gt<Entity>(tpl).createComponent<OBCBoid>(gt<OBCPhys>(tpl)));
 		auto& cEnemy(gt<Entity>(tpl).createComponent<OBCEnemy>(gt<OBCPhys>(tpl), gt<OBCDraw>(tpl), gt<OBCKillable>(tpl), cTargeter, cBoid));
 		gt<Entity>(tpl).createComponent<OBCDamageOnTouch>(gt<OBCPhys>(tpl), 1.f, OBGroup::GFriendlyKillable);
-		return std::forward_as_tuple(gt<Entity>(tpl), gt<OBCPhys>(tpl), gt<OBCDraw>(tpl), gt<OBCHealth>(tpl), gt<OBCKillable>(tpl), cEnemy);
+		return ssvu::fwdAsTpl(gt<Entity>(tpl), gt<OBCPhys>(tpl), gt<OBCDraw>(tpl), gt<OBCHealth>(tpl), gt<OBCKillable>(tpl), cEnemy);
 	}
-	std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCProjectile&> OBFactory::createProjectileBase(OBCActorND* mShooter, const Vec2i& mPos, const Vec2i& mSize, float mSpeed, float mDeg, const IntRect& mIntRect)
+	auto OBFactory::createProjectileBase(OBCActorND* mShooter, const Vec2i& mPos, const Vec2i& mSize, float mSpeed, float mDeg, const IntRect& mIntRect)
 	{
 		auto tpl(createActorBase(mPos, mSize, OBLayer::LProjectile));
 		emplaceSpriteByTile(gt<OBCDraw>(tpl), assets.txSmall, mIntRect);
 		auto& cProjectile(gt<Entity>(tpl).createComponent<OBCProjectile>(mShooter, gt<OBCPhys>(tpl), gt<OBCDraw>(tpl), mSpeed, mDeg));
-		return std::forward_as_tuple(gt<Entity>(tpl), gt<OBCPhys>(tpl), gt<OBCDraw>(tpl), cProjectile);
+		return ssvu::fwdAsTpl(gt<Entity>(tpl), gt<OBCPhys>(tpl), gt<OBCDraw>(tpl), cProjectile);
 	}
 	Entity& OBFactory::createETurretBase(const Vec2i& mPos, Dir8 mDir, const sf::IntRect& mIntRect, const OBWpnType& mWpn, float mShootDelay, float mPJDelay, int mShootCount)
 	{

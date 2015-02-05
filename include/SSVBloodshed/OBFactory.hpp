@@ -35,10 +35,10 @@ namespace ob
 			void emplaceSpriteByTile(OBCDraw& mCDraw, sf::Texture* mTexture, const sf::IntRect& mRect) const;
 
 			inline Entity& createEntity(int mDrawPriority = 0) { auto& result(manager.createEntity()); result.setDrawPriority(mDrawPriority); return result; }
-			std::tuple<Entity&, OBCPhys&, OBCDraw&> createActorBase(const Vec2i& mPos, const Vec2i& mSize, int mDrawPriority = 0, bool mStatic = false);
-			std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCHealth&, OBCKillable&> createKillableBase(const Vec2i& mPos, const Vec2i& mSize, int mDrawPriority, float mHealth);
-			std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCHealth&, OBCKillable&, OBCEnemy&> createEnemyBase(const Vec2i& mPos, const Vec2i& mSize, int mHealth);
-			std::tuple<Entity&, OBCPhys&, OBCDraw&, OBCProjectile&> createProjectileBase(OBCActorND* mShooter, const Vec2i& mPos, const Vec2i& mSize, float mSpeed, float mDeg, const sf::IntRect& mIntRect);
+			auto createActorBase(const Vec2i& mPos, const Vec2i& mSize, int mDrawPriority = 0, bool mStatic = false);
+			auto createKillableBase(const Vec2i& mPos, const Vec2i& mSize, int mDrawPriority, float mHealth);
+			auto createEnemyBase(const Vec2i& mPos, const Vec2i& mSize, int mHealth);
+			auto createProjectileBase(OBCActorND* mShooter, const Vec2i& mPos, const Vec2i& mSize, float mSpeed, float mDeg, const sf::IntRect& mIntRect);
 			Entity& createETurretBase(const Vec2i& mPos, Dir8 mDir, const sf::IntRect& mIntRect, const OBWpnType& mWpn, float mShootDelay, float mPJDelay, int mShootCount);
 
 		public:

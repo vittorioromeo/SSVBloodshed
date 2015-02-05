@@ -290,7 +290,7 @@ namespace ob
 				debugText.draw();
 			}
 
-			template<typename... TArgs> inline void render(const sf::Drawable& mDrawable, TArgs&&... mArgs)	{ gameWindow.draw(mDrawable, SSVU_FWD(mArgs)...); }
+			template<typename... TArgs> inline void render(const sf::Drawable& mDrawable, TArgs&&... mArgs)	{ gameWindow.draw(mDrawable, FWD(mArgs)...); }
 
 			inline void setEditor(OBLEEditor& mEditor) noexcept { editor = &mEditor; }
 			inline void setDatabase(OBLEDatabase& mDatabase) noexcept { sharedData.setDatabase(mDatabase, this); }
