@@ -83,6 +83,7 @@ namespace ob
 	};
 }
 
+// TODO: even more abstract macro?
 SSVJ_CNV_NAMESPACE()
 {
 	template<> SSVJ_CNV(ob::OBConfig, mV, mX)
@@ -92,27 +93,17 @@ SSVJ_CNV_NAMESPACE()
 		auto& sfx(mV["sfx"]);
 		auto& input(mV["input"]);
 
-		ssvj::cnvObj(gameplay,
-				SSVJ_CNV_OBJ_AUTO(mX, dmgMultGlobal),
-				SSVJ_CNV_OBJ_AUTO(mX, dmgMultPlayer),
-				SSVJ_CNV_OBJ_AUTO(mX, dmgMultEnemy));
+		SSVJ_SERIALIZE_TO_OBJ_AUTO(gameplay, mX,
+			dmgMultGlobal, dmgMultPlayer, dmgMultEnemy);
 
-		ssvj::cnvObj(gfx,
-				SSVJ_CNV_OBJ_AUTO(mX, particleMult),
-				SSVJ_CNV_OBJ_AUTO(mX, particleMax));
+		SSVJ_SERIALIZE_TO_OBJ_AUTO(gfx, mX,
+			particleMult, particleMax);
 
-		ssvj::cnvObj(sfx,
-				SSVJ_CNV_OBJ_AUTO(mX, soundEnabled),
-				SSVJ_CNV_OBJ_AUTO(mX, musicEnabled));
+		SSVJ_SERIALIZE_TO_OBJ_AUTO(sfx, mX,
+			soundEnabled, musicEnabled);
 
-		ssvj::cnvObj(input,
-				SSVJ_CNV_OBJ_AUTO(mX, tLeft),
-				SSVJ_CNV_OBJ_AUTO(mX, tRight),
-				SSVJ_CNV_OBJ_AUTO(mX, tUp),
-				SSVJ_CNV_OBJ_AUTO(mX, tDown),
-				SSVJ_CNV_OBJ_AUTO(mX, tShoot),
-				SSVJ_CNV_OBJ_AUTO(mX, tSwitch),
-				SSVJ_CNV_OBJ_AUTO(mX, tBomb));
+		SSVJ_SERIALIZE_TO_OBJ_AUTO(input, mX,
+			tLeft, tRight, tUp, tDown, tShoot, tSwitch, tBomb);
 	}
 	SSVJ_CNV_END()
 }

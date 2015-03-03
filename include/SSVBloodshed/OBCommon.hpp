@@ -223,24 +223,26 @@ namespace ob
 	}
 	template<typename T = int> inline auto getXYFromDir8(Dir8 mDir) noexcept
 	{
-		static std::array<std::array<T, 2>, 8> xys
-		{{
-			{{1, 0}},
-			{{1, 1}},
-			{{0, 1}},
-			{{-1, 1}},
-			{{-1, 0}},
-			{{-1, -1}},
-			{{0, -1}},
-			{{1, -1}}
-		}};
+		using Vec2Type = Vec2<T>;
+
+		static auto xys(ssvu::mkArray
+		(
+			Vec2Type{1, 0},
+			Vec2Type{1, 1},
+			Vec2Type{0, 1},
+			Vec2Type{-1, 1},
+			Vec2Type{-1, 0},
+			Vec2Type{-1, -1},
+			Vec2Type{0, -1},
+			Vec2Type{1, -1}
+		));
 
 		return xys[int(mDir)];
 	}
-	template<typename T> inline Dir8 getDir8FromVec(const Vec2<T>& mVec) noexcept		{ return getDir8FromXY(mVec.x, mVec.y); }
-	template<typename T = int> inline Vec2<T> getVecFromDir8(Dir8 mDir) noexcept		{ const auto& xy(getXYFromDir8<T>(mDir)); return {xy[0], xy[1]}; }
-	template<typename T> inline T getSnappedDeg(const T& mDeg) noexcept					{ return getDegFromDir8(getDir8FromDeg(mDeg)); }
-	template<typename T> inline Vec2<T> getSnappedVec(const Vec2<T>& mVec) noexcept		{ return Vec2<T>(getVecFromDir8(getDir8FromRad(ssvs::getRad(mVec)))); }
+	template<typename T> inline Dir8 getDir8FromVec(const Vec2<T>& mVec) noexcept	{ return getDir8FromXY(mVec.x, mVec.y); }
+	template<typename T = int> inline auto getVecFromDir8(Dir8 mDir) noexcept		{ return getXYFromDir8<T>(mDir); }
+	template<typename T> inline T getSnappedDeg(const T& mDeg) noexcept				{ return getDegFromDir8(getDir8FromDeg(mDeg)); }
+	template<typename T> inline Vec2<T> getSnappedVec(const Vec2<T>& mVec) noexcept	{ return Vec2<T>(getVecFromDir8(getDir8FromRad(ssvs::getRad(mVec)))); }
 
 	// Timeline shortcuts
 	inline void repeat(ssvu::Timeline& mTimeline, const ssvu::Action& mAction, unsigned int mTimes, FT mWait)

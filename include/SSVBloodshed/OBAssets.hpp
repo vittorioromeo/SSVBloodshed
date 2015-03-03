@@ -95,7 +95,7 @@ namespace ob
 				soundPlayer.setVolume(5);
 				musicPlayer.setVolume(30);
 
-				ssvs::loadAssetsFromJson(assetManager, "Data/", ssvj::Val::fromFile("Data/assets.json"));
+				ssvs::loadAssetsFromJson(assetManager, "Data/", ssvj::fromFile("Data/assets.json"));
 
 				// Tilesets
 				tsSmall = &assetManager.get<ssvs::Tileset>("tsSmall");
@@ -170,14 +170,14 @@ namespace ob
 				T_TSGIANT(e4Stand);
 
 				// Animations
-				ssvj::Val jAForceField{ssvj::Val::fromFile("Data/Animations/forceField.json")};
+				ssvj::Val jAForceField{ssvj::fromFile("Data/Animations/forceField.json")};
 				aForceField = ssvs::getAnimationFromJson(*tsSmall, jAForceField["on"]);
 
-				ssvj::Val jABulletBooster{ssvj::Val::fromFile("Data/Animations/bulletBooster.json")};
+				ssvj::Val jABulletBooster{ssvj::fromFile("Data/Animations/bulletBooster.json")};
 				aBulletBooster = ssvs::getAnimationFromJson(*tsSmall, jABulletBooster["on"]);
 
 				// Particle data
-				auto gpd([this](const std::string& mName){ return ssvj::Val::fromFile("Data/Particles/" + mName + ".json").as<OBParticleData>(); });
+				auto gpd([this](const std::string& mName){ return ssvj::fromFile("Data/Particles/" + mName + ".json").as<OBParticleData>(); });
 				pdBloodRed =		gpd("bloodRed");
 				pdGibRed =			gpd("gibRed");
 				pdExplosion =		gpd("explosion");

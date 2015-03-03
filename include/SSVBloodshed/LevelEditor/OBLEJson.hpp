@@ -11,14 +11,11 @@
 #include "SSVBloodshed/LevelEditor/OBLELevel.hpp"
 #include "SSVBloodshed/LevelEditor/OBLETile.hpp"
 
-SSVJ_CNV_NAMESPACE()
-{
-	template<> SSVJ_CNV(ob::OBLETileData, mV, mX)	{ ssvj::cnvArr(mV, mX.x, mX.y, mX.z, mX.type, mX.params); }				SSVJ_CNV_END()
-	template<> SSVJ_CNV(ob::OBLETile, mV, mX)		{ ssvj::cnv(mV, mX.data); }												SSVJ_CNV_END()
-	template<> SSVJ_CNV(ob::OBLELevel, mV, mX)		{ ssvj::cnvArr(mV, mX.x, mX.y, mX.cols, mX.rows, mX.depth, mX.tiles); }	SSVJ_CNV_END()
-	template<> SSVJ_CNV(ob::OBLESector, mV, mX)		{ ssvj::cnv(mV, mX.levels); }											SSVJ_CNV_END()
-	template<> SSVJ_CNV(ob::OBLEPack, mV, mX)		{ ssvj::cnvArr(mV, mX.name, mX.sectors); }								SSVJ_CNV_END()
-}
-SSVJ_CNV_NAMESPACE_END()
+SSVJ_CNV_TO_VAL(ob::OBLETile, data)
+SSVJ_CNV_TO_VAL(ob::OBLESector, levels)
+
+SSVJ_CNV_TO_ARR(ob::OBLETileData, x, y, z, type, params)
+SSVJ_CNV_TO_ARR(ob::OBLELevel, x, y, cols, rows, depth, tiles)
+SSVJ_CNV_TO_ARR(ob::OBLEPack, name, sectors)
 
 #endif

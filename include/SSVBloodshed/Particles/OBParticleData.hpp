@@ -28,10 +28,6 @@ namespace ob
 	}
 }
 
-SSVJ_CNV_NAMESPACE()
-{
-	template<> SSVJ_CNV(ob::OBParticleData, mV, mX) { ssvj::cnvArr(mV, mX.angleRng, mX.velRng, mX.sizeRng, mX.lifeRng, mX.curveSpdRng, mX.fuzzinessRng, mX.accelRng, mX.distRng, mX.alphaMult, mX.colorRngs); } SSVJ_CNV_END()
-}
-SSVJ_CNV_NAMESPACE_END()
+SSVJ_CNV_TO_ARR(ob::OBParticleData, angleRng, velRng, sizeRng, lifeRng, curveSpdRng, fuzzinessRng, accelRng, distRng, alphaMult, colorRngs);
 
 #endif

@@ -45,7 +45,7 @@ namespace ob
 				SSVU_ASSERT(database != nullptr && mPath.exists<ssvufs::Type::File>());
 				setPath(mPath);
 
-				try { pack = ssvj::Val::fromFile(currentPath).as<OBLEPack>(); }
+				try { pack = ssvj::fromFile(currentPath).as<OBLEPack>(); }
 				catch(...) { ssvu::lo("Fatal error") << "Failed to load pack" << std::endl; }
 			}
 			inline void savePack(const ssvufs::Path& mPath)
