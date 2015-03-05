@@ -11,11 +11,11 @@
 #include "SSVBloodshed/LevelEditor/OBLELevel.hpp"
 #include "SSVBloodshed/LevelEditor/OBLETile.hpp"
 
-SSVJ_CNV_TO_VAL(ob::OBLETile, data)
-SSVJ_CNV_TO_VAL(ob::OBLESector, levels)
+SSVJ_CNV_VAL(ob::OBLETile, data)
+SSVJ_CNV_VAL(ob::OBLESector, levels)
 
-SSVJ_CNV_TO_ARR(ob::OBLETileData, x, y, z, type, params)
-SSVJ_CNV_TO_ARR(ob::OBLELevel, x, y, cols, rows, depth, tiles)
-SSVJ_CNV_TO_ARR(ob::OBLEPack, name, sectors)
+SSVJ_CNV_ARR(ob::OBLETileData, x, y, z, type, params)
+SSVJ_CNV_ARR(ob::OBLELevel, x, y, cols, rows, depth, tiles)
+SSVJ_CNV_ARR(ob::OBLEPack, name, sectors)
 
 #endif

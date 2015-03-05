@@ -28,6 +28,6 @@ namespace ob
 	}
 }
 
-SSVJ_CNV_TO_ARR(ob::OBParticleData, angleRng, velRng, sizeRng, lifeRng, curveSpdRng, fuzzinessRng, accelRng, distRng, alphaMult, colorRngs);
+SSVJ_CNV_ARR(ob::OBParticleData, angleRng, velRng, sizeRng, lifeRng, curveSpdRng, fuzzinessRng, accelRng, distRng, alphaMult, colorRngs)
 
 #endif
