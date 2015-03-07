@@ -93,16 +93,16 @@ SSVJ_CNV_NAMESPACE()
 		auto& sfx(mV["sfx"]);
 		auto& input(mV["input"]);
 
-		SSVJ_SERIALIZE_TO_OBJ_AUTO(gameplay, mX,
+		SSVJ_SRLZ_OBJ_AUTO(gameplay, mX,
 			dmgMultGlobal, dmgMultPlayer, dmgMultEnemy);
 
-		SSVJ_SERIALIZE_TO_OBJ_AUTO(gfx, mX,
+		SSVJ_SRLZ_OBJ_AUTO(gfx, mX,
 			particleMult, particleMax);
 
-		SSVJ_SERIALIZE_TO_OBJ_AUTO(sfx, mX,
+		SSVJ_SRLZ_OBJ_AUTO(sfx, mX,
 			soundEnabled, musicEnabled);
 
-		SSVJ_SERIALIZE_TO_OBJ_AUTO(input, mX,
+		SSVJ_SRLZ_OBJ_AUTO(input, mX,
 			tLeft, tRight, tUp, tDown, tShoot, tSwitch, tBomb);
 	}
 	SSVJ_CNV_END()
