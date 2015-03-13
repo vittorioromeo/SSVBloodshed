@@ -178,7 +178,7 @@ namespace ob
 			inline void copyTiles()		{ auto& t(getPickTile()); copiedTile = t.getData(); }
 			inline void pasteTiles()	{ for(auto& t : currentTiles) { t->initFromEntry(sharedData.getDatabase().get(copiedTile.type)); t->setParams(copiedTile.params); t->refreshIdText(assets); } }
 
-			inline void cycleRot(int mDeg)					{ currentRot = ssvu::wrapDeg(currentRot + mDeg); }
+			inline void cycleRot(int mDeg)					{ currentRot = ssvu::getWrapDeg(currentRot + mDeg); }
 			inline void cycleId(int mDir)					{ currentId += mDir; }
 			inline void cycleBrush(int mDir)				{ brush.setIdx(ssvu::getMod(brush.getIdx() + mDir, sharedData.getDatabase().getSize())); }
 			inline void cycleZ(int mDir)					{ currentZ = -ssvu::getMod(-currentZ + mDir, 3); }

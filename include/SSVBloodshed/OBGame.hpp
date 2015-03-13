@@ -133,7 +133,7 @@ namespace ob
 						getRndRngF(mData.fuzzinessRng),												// Fuzziness
 						getRndRngF(mData.accelRng),													// Acceleration
 						mData.alphaMult,															// Alpha multiplier
-						getColorFromRng(mData.colorRngs[ssvu::getRnd(0ul, mData.colorRngs.size())])	// Color
+						getColorFromRng(mData.colorRngs[ssvu::getRndI(0ul, mData.colorRngs.size())])	// Color
 					);
 				}
 			}

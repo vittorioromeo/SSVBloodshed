@@ -34,7 +34,7 @@ namespace ob
 				body.setVelocity(ssvs::getVecFromRad(ssvu::getRndR<float>(0.f, ssvu::tau), ssvu::getRndR<float>(100.f, 370.f)));
 				cDraw.setBlendMode(sf::BlendAdd);
 				cDraw.setGlobalScale(0.65f);
-				cDraw.setRotation(ssvu::getRnd(0, 360));
+				cDraw.setRotation(ssvu::getRndI(0, 360));
 			}
 
 			inline void update(FT) override { cDraw[0].rotate(ssvs::getMag(body.getVelocity()) * 0.01f); }

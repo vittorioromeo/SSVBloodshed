@@ -221,8 +221,8 @@ namespace ob
 				musicPlayer.setLoop(true);
 			}
 
-			inline const sf::IntRect& getFloorVariant() const noexcept		{ return ssvu::getRnd(0, 10) < 9 ? floor : (ssvu::getRnd(0, 2) < 1 ? floorAlt1 : floorAlt2); }
-			inline const sf::IntRect& getFloorGrateVariant() const noexcept	{ return ssvu::getRnd(0, 10) < 9 ? floorGrate : (ssvu::getRnd(0, 2) < 1 ? floorGrateAlt1 : floorGrateAlt2); }
+			inline const sf::IntRect& getFloorVariant() const noexcept		{ return ssvu::getRndI(0, 10) < 9 ? floor : (ssvu::getRndI(0, 2) < 1 ? floorAlt1 : floorAlt2); }
+			inline const sf::IntRect& getFloorGrateVariant() const noexcept	{ return ssvu::getRndI(0, 10) < 9 ? floorGrate : (ssvu::getRndI(0, 2) < 1 ? floorGrateAlt1 : floorGrateAlt2); }
 	};
 }
 

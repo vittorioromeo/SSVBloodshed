@@ -20,7 +20,7 @@ namespace ob
 		float alphaMult;
 	};
 
-	inline int getRndRngI(const OBParticleData::RngI& mRng) noexcept	{ return ssvu::getRnd(std::get<0>(mRng), std::get<1>(mRng)); }
+	inline int getRndRngI(const OBParticleData::RngI& mRng) noexcept	{ return ssvu::getRndI(std::get<0>(mRng), std::get<1>(mRng)); }
 	inline float getRndRngF(const OBParticleData::RngF& mRng) noexcept	{ return ssvu::getRndR(std::get<0>(mRng), std::get<1>(mRng)); }
 	inline sf::Color getColorFromRng(const OBParticleData::ColorRng& mRng) noexcept
 	{

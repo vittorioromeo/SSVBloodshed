@@ -465,8 +465,8 @@ namespace ob
 	}
 	Entity& OBFactory::createPJTestShell(OBCActorND* mShooter, const Vec2i& mPos, float mDeg)
 	{
-		auto tpl(createProjectileBase(mShooter, mPos, {150, 150}, 320.f + getRnd(-5, 25), mDeg, assets.pjBullet));
-		gt<OBCProjectile>(tpl).setLife(10.f + getRnd(-5, 15));
+		auto tpl(createProjectileBase(mShooter, mPos, {150, 150}, 320.f + getRndI(-5, 25), mDeg, assets.pjBullet));
+		gt<OBCProjectile>(tpl).setLife(10.f + getRndI(-5, 15));
 		gt<OBCProjectile>(tpl).setPierceOrganic(3);
 		return gt<Entity>(tpl);
 	}

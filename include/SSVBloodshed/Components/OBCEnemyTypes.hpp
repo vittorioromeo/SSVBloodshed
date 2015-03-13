@@ -228,7 +228,7 @@ namespace ob
 				cWielder.setWieldDist(22.f);
 				cWielder.setHoldDist(6.f);
 
-				repeat(tlShoot, [this]{ shootUnarmed(ssvu::getRnd(-10, 10)); }, 8, 1.1f);
+				repeat(tlShoot, [this]{ shootUnarmed(ssvu::getRndI(-10, 10)); }, 8, 1.1f);
 				repeat(tlShoot, [this]{ game.createPCharge(4, cPhys.getPosPx(), 55); }, 15, 1.f);
 				tlShoot.append<ssvu::Do>([this]{ lastDeg = cEnemy.getCurrentDeg(); });
 				repeat(tlShoot, [this]{ shootUnarmed(lastDeg); lastDeg += 265; }, 45, 0.3f);
@@ -307,7 +307,7 @@ namespace ob
 			}
 			inline void update(FT mFT) override
 			{
-				if(type == BallType::Flying && !small && ssvu::getRnd(0, 9) > 7) game.createPElectric(1, cPhys.getPosPx());
+				if(type == BallType::Flying && !small && ssvu::getRndI(0, 9) > 7) game.createPElectric(1, cPhys.getPosPx());
 				if(cTargeter.hasTarget()) cBoid.pursuit(cTargeter.getTarget());
 				cDraw.rotate(15.f * mFT);
 			}
@@ -332,7 +332,7 @@ namespace ob
 
 				repeat(tlCannon, [this]{ shootCannon(0); }, -1, 100.f);
 
-				repeat(tlShoot, [this]{ shoot(ssvu::getRnd(-15, 15)); }, 20, 0.4f);
+				repeat(tlShoot, [this]{ shoot(ssvu::getRndI(-15, 15)); }, 20, 0.4f);
 				repeat(tlShoot, [this]{ game.createPCharge(5, cPhys.getPosPx(), 65); }, 19, 1.f);
 				tlShoot.append<ssvu::Do>([this]{ lastDeg = cEnemy.getCurrentDeg(); });
 				repeat(tlShoot, [this]{ shoot(lastDeg); lastDeg += 235; }, 150, 0.1f);
@@ -356,7 +356,7 @@ namespace ob
 				tlCannon.update(mFT); tlShoot.update(mFT); tlSummon.update(mFT);
 				if(tckShoot.update(mFT))
 				{
-					if(ssvu::getRnd(0, 2) > 0) { tlShoot.reset(); tlShoot.start(); }
+					if(ssvu::getRndI(0, 2) > 0) { tlShoot.reset(); tlShoot.start(); }
 					else { tlSummon.reset(); tlSummon.start(); }
 				}
 			}

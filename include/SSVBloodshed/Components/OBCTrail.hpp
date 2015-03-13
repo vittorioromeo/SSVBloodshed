@@ -29,8 +29,8 @@ namespace ob
 				if(life <= 0) getEntity().destroy();
 				color.a = life * (255 / 100);
 				vertices[0].color = vertices[1].color = color;
-				vertices[0].position = a + Vec2f(ssvu::getRnd(-1, 1), ssvu::getRnd(-1, 1));
-				vertices[1].position = b + Vec2f(ssvu::getRnd(-1, 1), ssvu::getRnd(-1, 1));
+				vertices[0].position = a + Vec2f(ssvu::getRndI(-1, 1), ssvu::getRndI(-1, 1));
+				vertices[1].position = b + Vec2f(ssvu::getRndI(-1, 1), ssvu::getRndI(-1, 1));
 			}
 			inline void draw() override { game.render(vertices); }
 	};

@@ -25,7 +25,7 @@ namespace ob
 				body.addGroupsNoResolve(OBGroup::GFloor);
 				body.onDetection += [this](const DetectionInfo& mDI)
 				{
-					if(active && mDI.body.hasGroup(OBGroup::GFloor) && ssvu::getRnd(0, 10) > 8) getComponentFromBody<OBCFloor>(mDI.body).smash();
+					if(active && mDI.body.hasGroup(OBGroup::GFloor) && ssvu::getRndI(0, 10) > 8) getComponentFromBody<OBCFloor>(mDI.body).smash();
 				};
 			}
 
