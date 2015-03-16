@@ -118,7 +118,7 @@ namespace ob
 				inline void updateRecursive(FT mFT)
 				{
 					// Recalculate depth
-					depth = parent == nullptr ? 0 : parent->depth + static_cast<int>(container);
+					depth = parent == nullptr ? 0 : parent->depth + ssvu::toInt(container);
 
 					update(mFT);
 

@@ -216,8 +216,8 @@ namespace ob
 		gt<Entity>(tpl).createComponent<OBCForceField>(gt<OBCPhys>(tpl), gt<OBCDraw>(tpl), cIdReceiver, mDir, mBlockFriendly, mBlockEnemy, mForceMult);
 		gt<OBCDraw>(tpl).setBlendMode(sf::BlendAdd);
 		sf::Color color{225, 0, 0, 255};
-		color.g = 255 * static_cast<int>(mBlockFriendly);
-		color.b = 255 * static_cast<int>(mBlockEnemy);
+		color.g = 255 * ssvu::toInt(mBlockFriendly);
+		color.b = 255 * ssvu::toInt(mBlockEnemy);
 
 		if(!mBlockFriendly && !mBlockEnemy)
 		{
@@ -238,8 +238,8 @@ namespace ob
 		gt<OBCDraw>(tpl).setBlendMode(sf::BlendAdd);
 
 		sf::Color color{255, 0, 0, 255};
-		color.g = 255 * static_cast<int>(mBlockFriendly);
-		color.b = 255 * static_cast<int>(mBlockEnemy);
+		color.g = 255 * ssvu::toInt(mBlockFriendly);
+		color.b = 255 * ssvu::toInt(mBlockEnemy);
 
 		gt<OBCDraw>(tpl)[0].setColor(color);
 		gt<OBCDraw>(tpl).setRotation(getDegFromDir8(mDir));

@@ -77,26 +77,27 @@ namespace ob
 	inline std::vector<std::string>& getEnumStrVecByName(const std::string& mName) { return *Impl::getEnumsMap()[mName]; }
 
 	// Typedefs
-	using SizeT = ssvu::SizeT;
-	template<typename T> using Vec2 = ssvs::Vec2<T>;
-	template<typename T, typename TD = ssvu::DefDel<T>> using UPtr = ssvs::UPtr<T, TD>;
-	using Vec2i = ssvs::Vec2i;
-	using Vec2f = ssvs::Vec2f;
-	using Vec2u = ssvs::Vec2u;
-	using Entity = sses::Entity;
-	using Component = sses::Component;
+	using ssvu::SizeT;
+	using ssvu::FT;
+	using ssvu::Ticker;
+	using ssvs::Vec2;
+	using ssvs::UPtr;
+	using ssvs::Vec2i;
+	using ssvs::Vec2f;
+	using ssvs::Vec2u;
+	using ssvs::Input::Trigger;
+	using sses::Entity;
+	using sses::Component;
+
 	using World = ssvsc::World<ssvsc::HashGrid, ssvsc::Impulse>;
 	using Body = World::BodyType;
 	using Sensor = World::SensorType;
 	using DetectionInfo = World::DetectionInfoType;
 	using ResolutionInfo = World::ResolutionInfoType;
-	using FT = ssvu::FT;
-	using Trigger = ssvs::Input::Trigger;
-	using Ticker = ssvu::Ticker;
 
 	// Pixel <-> coords utils
-	template<typename T> inline constexpr float toPixels(T mValue) noexcept		{ return static_cast<float>(mValue / 100); }
-	template<typename T> inline constexpr int toCoords(T mValue) noexcept		{ return static_cast<int>(mValue * 100); }
+	template<typename T> inline constexpr auto toPixels(T mValue) noexcept		{ return ssvu::toFloat(mValue / 100); }
+	template<typename T> inline constexpr auto toCoords(T mValue) noexcept		{ return ssvu::toInt(mValue * 100); }
 	template<typename T> inline Vec2f toPixels(const Vec2<T>& mValue) noexcept	{ return {toPixels(mValue.x), toPixels(mValue.y)}; }
 	template<typename T> inline Vec2i toCoords(const Vec2<T>& mValue) noexcept	{ return {toCoords(mValue.x), toCoords(mValue.y)}; }
 
@@ -254,7 +255,7 @@ namespace ob
 	}
 
 	// Other utils
-	inline Entity& getEntityFromBody(Body& mBody) { return *reinterpret_cast<Entity*>(mBody.getUserData()); }
+	inline Entity& getEntityFromBody(Body& mBody) { return *mBody.getUserData<Entity*>(); }
 	template<typename T> inline T& getComponentFromBody(Body& mBody){ return getEntityFromBody(mBody).getComponent<T>(); }
 }
 
