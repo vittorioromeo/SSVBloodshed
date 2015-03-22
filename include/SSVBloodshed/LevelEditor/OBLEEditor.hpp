@@ -282,7 +282,7 @@ namespace ob
 				mainStrip.setPadding(2.f);
 
 				tboxName.onTextChanged += [this]{ editor.sharedData.getPack().setName(tboxName.getString()); };
-				shtrSectors.onChoiceSelected += [this]{ editor.loadSector(std::stoi(shtrSectors.getChoice())); };
+				shtrSectors.onChoiceSelected += [this]{ editor.loadSector(ssvu::sToInt(shtrSectors.getChoice())); };
 				btnAddSector.onLeftClick += [this]
 				{
 					if(tboxSectorIdx.getString().empty()) return;
