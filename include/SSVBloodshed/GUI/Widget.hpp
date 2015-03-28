@@ -175,7 +175,13 @@ namespace ob
 				template<bool TIncludeCaller = true, typename T> inline void recurseParents(const T& mFunc)
 				{
 					if(TIncludeCaller) mFunc(*this);
-					if(parent != nullptr) parent->recurseParents<true, T>(mFunc);
+
+					auto p(parent);
+					while(p != nullptr)
+					{
+						mFunc(*p);
+						p = p->parent;
+					}
 				}
 				template<bool TIncludeCaller = true, typename T> inline bool isAnyChildRecursive(const T& mFunc) const
 				{
