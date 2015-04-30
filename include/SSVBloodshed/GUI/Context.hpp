@@ -44,7 +44,7 @@ namespace ob
 				Style style;
 				sf::RenderTexture renderTexture;
 				sf::Sprite sprite;
-				ssvu::PolyFixedManager<Widget, 50> widgets;
+				ssvu::PolyManager<Widget> widgets;
 				std::vector<Widget*> children;
 				Widget* busyWith{nullptr};
 				bool hovered{false}, focused{false}, unfocusOnUnhover{true};
