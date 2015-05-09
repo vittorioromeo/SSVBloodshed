@@ -23,8 +23,8 @@ namespace ob
 			ssvu::Delegate<void(OBCProjectile&)> onShotProjectile;
 
 			inline OBWpnType() = default;
-			inline OBWpnType(float mDelay, float mDamage, float mPjSpeed, std::string mSoundId) noexcept : delay{mDelay}, pjDamage{mDamage}, pjSpeed{mPjSpeed}, soundId{std::move(mSoundId)} { }
-			template<typename T> inline OBWpnType(float mDelay, float mDamage, float mPjSpeed, std::string mSoundId, T mOnShoot) noexcept : delay{mDelay}, pjDamage{mDamage}, pjSpeed{mPjSpeed}, soundId{std::move(mSoundId)}
+			inline OBWpnType(float mDelay, float mDamage, float mPjSpeed, std::string mSoundId) noexcept : delay{mDelay}, pjDamage{mDamage}, pjSpeed{mPjSpeed}, soundId{ssvu::mv(mSoundId)} { }
+			template<typename T> inline OBWpnType(float mDelay, float mDamage, float mPjSpeed, std::string mSoundId, T mOnShoot) noexcept : delay{mDelay}, pjDamage{mDamage}, pjSpeed{mPjSpeed}, soundId{ssvu::mv(mSoundId)}
 			{
 				onShoot += mOnShoot;
 			}

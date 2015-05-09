@@ -25,13 +25,13 @@ namespace ob
 				{
 					text.setColor(getStyle().colorText); text.setTracking(-3);
 					setFillColor(getStyle().colorLabelBG);
-					setString(std::move(mText));
+					setString(ssvu::mv(mText));
 				}
 
 				inline void setScaleWithText(bool mValue) noexcept { scaleWithText = mValue; }
 				inline void setString(std::string mLabel)
 				{
-					text.setString(std::move(mLabel));
+					text.setString(ssvu::mv(mLabel));
 					text.setOrigin(ssvs::getGlobalHalfSize(text));
 					if(scaleWithText) setSize(ssvs::getGlobalSize(text));
 				}

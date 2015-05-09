@@ -23,7 +23,7 @@ namespace ob
 
 			OBCUsable(Entity& mE, OBCPhys& mCPhys) : OBCActorND{mE, mCPhys} { getEntity().addGroups(OBGroup::GUsable); }
 
-			inline void setMsg(std::string mMsg) { msg = std::move(mMsg); }
+			inline void setMsg(std::string mMsg) { msg = ssvu::mv(mMsg); }
 			inline const std::string& getMsg() const noexcept { return msg; }
 	};
 }

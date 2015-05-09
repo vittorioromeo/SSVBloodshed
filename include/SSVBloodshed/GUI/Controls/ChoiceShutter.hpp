@@ -75,7 +75,7 @@ namespace ob
 					refreshChoices();
 				}
 
-				inline void addChoice(std::string mStr)	{ choices.emplace_back(std::move(mStr)); refreshChoices(); }
+				inline void addChoice(std::string mStr)	{ choices.emplace_back(ssvu::mv(mStr)); refreshChoices(); }
 				inline void clearChoices()				{ choices.clear(); refreshChoices(); }
 				inline SizeT getChoiceCount()		{ return choices.size(); }
 

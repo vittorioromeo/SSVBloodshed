@@ -49,7 +49,7 @@ namespace ob
 
 			public:
 				Form(Context& mContext, std::string mTitle, const Vec2f& mPosition, const Vec2f& mSize) : Widget{mContext, mPosition, mSize / 2.f},
-					fbBar(create<FormBar>(std::move(mTitle))), fbResizer(create<Widget>(Vec2f{4.f, 4.f}))
+					fbBar(create<FormBar>(ssvu::mv(mTitle))), fbResizer(create<Widget>(Vec2f{4.f, 4.f}))
 				{
 					setOutlineThickness(getStyle().outlineThickness);
 					setOutlineColor(getStyle().colorOutline);
@@ -105,7 +105,7 @@ namespace ob
 					fbBar.getBtnMinimize().setExcludedRecursive(!mValue);
 					fbResizer.setExcludedRecursive(!mValue);
 				}
-				inline void setTitle(std::string mTitle)		{ fbBar.getTitle().setString(std::move(mTitle)); }
+				inline void setTitle(std::string mTitle)		{ fbBar.getTitle().setString(ssvu::mv(mTitle)); }
 				inline const std::string& getTitle() noexcept	{ return fbBar.getTitle().getString(); }
 				inline bool isCollapsed() const noexcept		{ return collapsed; }
 		};

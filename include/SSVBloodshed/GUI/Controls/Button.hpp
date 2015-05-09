@@ -24,7 +24,7 @@ namespace ob
 
 			public:
 				Button(Context& mContext, std::string mLabel, const Vec2f& mSize) : Widget{mContext, mSize / 2.f},
-					lblLabel(create<Label>(std::move(mLabel)))
+					lblLabel(create<Label>(ssvu::mv(mLabel)))
 				{
 					setOutlineThickness(getStyle().outlineThickness); setOutlineColor(getStyle().colorOutline);
 					lblLabel.attach(At::Center, *this, At::Center);

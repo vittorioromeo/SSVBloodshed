@@ -35,7 +35,7 @@ namespace ob
 					wsBar(create<Strip>(At::Right, At::Left, At::Left)),
 					wsShutter(create<Strip>(At::Top, At::Bottom, At::Bottom)),
 					btnOpen(wsBar.create<Button>("v", getStyle().getBtnSquareSize())),
-					lblLabel(wsBar.create<Label>(std::move(mLabel)))
+					lblLabel(wsBar.create<Label>(ssvu::mv(mLabel)))
 				{
 					setFillColor(sf::Color::Transparent);
 

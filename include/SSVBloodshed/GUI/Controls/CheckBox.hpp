@@ -48,7 +48,7 @@ namespace ob
 				ssvu::Delegate<void()> onStateChanged;
 
 				CheckBox(Context& mContext, std::string mLabel, bool mState = false) : Widget{mContext},
-					cbsbBox(create<Impl::CheckBoxStateBox>()), lblLabel(create<Label>(std::move(mLabel)))
+					cbsbBox(create<Impl::CheckBoxStateBox>()), lblLabel(create<Label>(ssvu::mv(mLabel)))
 				{
 					setScaling(Scaling::FitToChildren);
 					setFillColor(sf::Color::Transparent); setState(mState);

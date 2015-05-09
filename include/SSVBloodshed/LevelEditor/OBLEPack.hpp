@@ -20,7 +20,7 @@ namespace ob
 			std::unordered_map<int, OBLESector> sectors;
 
 		public:
-			inline void setName(std::string mName) { name = std::move(mName); }
+			inline void setName(std::string mName) { name = ssvu::mv(mName); }
 
 			inline const std::string& getName() const noexcept			{ return name; }
 			inline const decltype(sectors)& getSectors() const noexcept	{ return sectors; }

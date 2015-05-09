@@ -92,7 +92,7 @@ namespace ob
 			inline void setY(int mY) noexcept								{ data.y = mY; }
 			inline void setZ(int mZ) noexcept								{ data.z = mZ; }
 			inline void setType(OBLETType mType) noexcept					{ data.type = mType; }
-			inline void setParams(decltype(data.params) mParams)			{ data.params = std::move(mParams); }
+			inline void setParams(decltype(data.params) mParams)			{ data.params = ssvu::mv(mParams); }
 			template<typename T> inline T getParam(const std::string& mKey)	{ return data.params[mKey].as<T>(); }
 			inline bool hasParam(const std::string& mKey) const noexcept	{ return data.params.count(mKey) > 0; }
 

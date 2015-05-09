@@ -30,7 +30,7 @@ namespace ob
 					btnClose(wsBtns.create<Button>("x", getStyle().getBtnSquareSize())),
 					btnMinimize(wsBtns.create<Button>("_", getStyle().getBtnSquareSize())),
 					btnCollapse(wsBtns.create<Button>("^", getStyle().getBtnSquareSize())),
-					lblTitle(create<Label>(std::move(mTitle)))
+					lblTitle(create<Label>(ssvu::mv(mTitle)))
 				{
 					external = true;
 					setFillColor(sf::Color::Black);
