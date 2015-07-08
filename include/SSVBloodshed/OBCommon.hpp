@@ -40,7 +40,7 @@ namespace ob
 			{ \
 				static std::vector<std::string> strings \
 				{ \
-					SSVPP_FOREACH(OB_ENUM_MKSTR, SSVPP_EMPTY(), __VA_ARGS__) \
+					SSVPP_FOREACH_REVERSE(OB_ENUM_MKSTR, SSVPP_EMPTY(), __VA_ARGS__) \
 				}; \
 				return strings; \
 			} \
@@ -61,7 +61,7 @@ namespace ob
 			{ \
 				static std::vector<std::string> strings \
 				{ \
-					SSVPP_FOREACH(OB_ENUM_MKSTR, SSVPP_EMPTY(), __VA_ARGS__) \
+					SSVPP_FOREACH_REVERSE(OB_ENUM_MKSTR, SSVPP_EMPTY(), __VA_ARGS__) \
 				}; \
 				return strings; \
 			} \
