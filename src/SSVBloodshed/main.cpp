@@ -27,7 +27,6 @@ int main()
 	unsigned int width{VideoMode::getDesktopMode().width}, height{VideoMode::getDesktopMode().height};
 	width = 640; height = 480;
 
-	OBAssets assets;
 
 	GameWindow gameWindow;
 	gameWindow.setTitle("operation bloodshed");
@@ -38,18 +37,20 @@ int main()
 	gameWindow.setMaxFPS(200);
 	gameWindow.setPixelMult(1);
 
-	OBGame game{gameWindow, assets};
-	OBLEEditor editor{gameWindow, assets};
-	OBLEDatabase database{assets};
 
-	game.setEditor(editor);
-	game.setDatabase(database);
-	editor.setGame(game);
-	editor.setDatabase(database);
+	auto assets(mkUPtr<OBAssets>());
+	auto game(mkUPtr<OBGame>(gameWindow, *assets));
+	auto editor(mkUPtr<OBLEEditor>(gameWindow, *assets));
+	auto database(mkUPtr<OBLEDatabase>(*assets));
 
-	editor.newPack();
+	game->setEditor(*editor);
+	game->setDatabase(*database);
+	editor->setGame(*game);
+	editor->setDatabase(*database);
 
-	gameWindow.setGameState(editor.getGameState());
+	editor->newPack();
+
+	gameWindow.setGameState(editor->getGameState());
 	gameWindow.run();
 
 	return 0;
