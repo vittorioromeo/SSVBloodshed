@@ -30,7 +30,7 @@ namespace ob
 
 	SSVU_FATENUM_MGR(OBEnumMgr);
 
-	#define OB_ENUM_MKSTR(mIdx, mData, mArg) SSVPP_TOSTR(mArg) SSVPP_COMMA_IF(mIdx)
+	#define OB_ENUM_MKSTR(mIdx, mData, mArg) VRM_PP_TOSTR(mArg) VRM_PP_COMMA_IF(mIdx)
 
 	#define OB_ENUM_DEFS(mName, ...) \
 		SSVU_FATENUM_DEFS(OBEnumMgr, mName, int, __VA_ARGS__) \
@@ -40,7 +40,7 @@ namespace ob
 			{ \
 				static std::vector<std::string> strings \
 				{ \
-					SSVPP_FOREACH_REVERSE(OB_ENUM_MKSTR, SSVPP_EMPTY(), __VA_ARGS__) \
+					VRM_PP_FOREACH_REVERSE(OB_ENUM_MKSTR, VRM_PP_EMPTY(), __VA_ARGS__) \
 				}; \
 				return strings; \
 			} \
@@ -61,7 +61,7 @@ namespace ob
 			{ \
 				static std::vector<std::string> strings \
 				{ \
-					SSVPP_FOREACH_REVERSE(OB_ENUM_MKSTR, SSVPP_EMPTY(), __VA_ARGS__) \
+					VRM_PP_FOREACH_REVERSE(OB_ENUM_MKSTR, VRM_PP_EMPTY(), __VA_ARGS__) \
 				}; \
 				return strings; \
 			} \
