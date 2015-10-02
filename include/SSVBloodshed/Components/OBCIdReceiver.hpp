@@ -10,35 +10,41 @@
 
 namespace ob
 {
-	class OBCIdReceiver : public Component
-	{
-		private:
-			int id;
+class OBCIdReceiver : public Component
+{
+private:
+    int id;
 
-		public:
-			ssvu::Delegate<void(IdAction)> onActivate;
+public:
+    ssvu::Delegate<void(IdAction)> onActivate;
 
-			inline OBCIdReceiver(Entity& mE, int mId) : Component{mE}, id{mId} { getEntity().addGroups(OBGroup::GIdReceiver); }
+    inline OBCIdReceiver(Entity& mE, int mId) : Component{mE}, id{mId}
+    {
+        getEntity().addGroups(OBGroup::GIdReceiver);
+    }
 
-			inline void activate(IdAction mAction) { if(id != -1) onActivate(mAction); }
+    inline void activate(IdAction mAction)
+    {
+        if(id != -1) onActivate(mAction);
+    }
 
-			inline void setId(int mId) noexcept	{ id = mId; }
-			inline int getId() const noexcept	{ return id; }
-	};
+    inline void setId(int mId) noexcept { id = mId; }
+    inline int getId() const noexcept { return id; }
+};
 
-	inline void controlBoolByIdAction(OBCIdReceiver& mIdReceiver, bool& mValue) noexcept
-	{
-		mIdReceiver.onActivate += [&mValue](IdAction mIdAction)
-		{
-			switch(mIdAction)
-			{
-				case IdAction::Toggle:	mValue = !mValue;	return;
-				case IdAction::Open:	mValue = true;		return;
-				case IdAction::Close:	mValue = false;		return;
-			}
-		};
-	}
+inline void controlBoolByIdAction(
+OBCIdReceiver& mIdReceiver, bool& mValue) noexcept
+{
+    mIdReceiver.onActivate += [&mValue](IdAction mIdAction)
+    {
+        switch(mIdAction)
+        {
+            case IdAction::Toggle: mValue = !mValue; return;
+            case IdAction::Open: mValue = true; return;
+            case IdAction::Close: mValue = false; return;
+        }
+    };
+}
 }
 
 #endif
-

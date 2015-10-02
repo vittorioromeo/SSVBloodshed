@@ -11,23 +11,29 @@
 
 namespace ob
 {
-	class OBLEPack
-	{
-		SSVJ_CNV_FRIEND();
+class OBLEPack
+{
+    SSVJ_CNV_FRIEND();
 
-		private:
-			std::string name{"unnamed pack"};
-			std::unordered_map<int, OBLESector> sectors;
+private:
+    std::string name{"unnamed pack"};
+    std::unordered_map<int, OBLESector> sectors;
 
-		public:
-			inline void setName(std::string mName) { name = ssvu::mv(mName); }
+public:
+    inline void setName(std::string mName) { name = ssvu::mv(mName); }
 
-			inline const std::string& getName() const noexcept			{ return name; }
-			inline const decltype(sectors)& getSectors() const noexcept	{ return sectors; }
-			inline decltype(sectors)& getSectors() noexcept				{ return sectors; }
-			inline OBLESector& getSector(int mIdx) noexcept				{ return sectors[mIdx]; }
-			inline bool isValid(int mIdx) const noexcept				{ return sectors.count(mIdx) > 0; }
-	};
+    inline const std::string& getName() const noexcept { return name; }
+    inline const decltype(sectors)& getSectors() const noexcept
+    {
+        return sectors;
+    }
+    inline decltype(sectors)& getSectors() noexcept { return sectors; }
+    inline OBLESector& getSector(int mIdx) noexcept { return sectors[mIdx]; }
+    inline bool isValid(int mIdx) const noexcept
+    {
+        return sectors.count(mIdx) > 0;
+    }
+};
 }
 
 #endif

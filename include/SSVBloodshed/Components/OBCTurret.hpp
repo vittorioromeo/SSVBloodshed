@@ -16,51 +16,73 @@
 
 namespace ob
 {
-	class OBCTurret : public OBCActor
-	{
-		private:
-			OBCKillable& cKillable;
-			Dir8 direction;
-			Ticker tckShoot{0.f};
-			ssvu::Timeline tlShoot{false};
+class OBCTurret : public OBCActor
+{
+private:
+    OBCKillable& cKillable;
+    Dir8 direction;
+    Ticker tckShoot{0.f};
+    ssvu::Timeline tlShoot{false};
 
-			OBWpn wpn;
-			float shootDelay, pjDelay;
-			int shootCount;
+    OBWpn wpn;
+    float shootDelay, pjDelay;
+    int shootCount;
 
-		public:
-			OBCTurret(Entity& mE, OBCPhys& mCPhys, OBCDraw& mCDraw, OBCKillable& mCKillable, Dir8 mDir, const OBWpnType& mWpn, float mShootDelay, float mPJDelay, int mShootCount) noexcept
-				: OBCActor{mE, mCPhys, mCDraw}, cKillable(mCKillable), direction{mDir}, wpn{game, OBGroup::GFriendlyKillable, mWpn},
-				  shootDelay{mShootDelay}, pjDelay{mPJDelay}, shootCount{mShootCount}
-			{
-				cDraw.setRotation(getDegFromDir8(direction));
+public:
+    OBCTurret(Entity& mE, OBCPhys& mCPhys, OBCDraw& mCDraw,
+    OBCKillable& mCKillable, Dir8 mDir, const OBWpnType& mWpn,
+    float mShootDelay, float mPJDelay, int mShootCount) noexcept
+    : OBCActor{mE, mCPhys, mCDraw},
+      cKillable(mCKillable),
+      direction{mDir},
+      wpn{game, OBGroup::GFriendlyKillable, mWpn},
+      shootDelay{mShootDelay},
+      pjDelay{mPJDelay},
+      shootCount{mShootCount}
+    {
+        cDraw.setRotation(getDegFromDir8(direction));
 
-				getEntity().addGroups(OBGroup::GEnemy, OBGroup::GEnemyKillable);
-				body.setResolve(false);
-				body.addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir, OBGroup::GEnemy, OBGroup::GKillable, OBGroup::GEnemyKillable);
+        getEntity().addGroups(OBGroup::GEnemy, OBGroup::GEnemyKillable);
+        body.setResolve(false);
+        body.addGroups(OBGroup::GSolidGround, OBGroup::GSolidAir,
+        OBGroup::GEnemy, OBGroup::GKillable, OBGroup::GEnemyKillable);
 
-				tckShoot.restart(shootDelay);
-				repeat(tlShoot, [this]{ shoot(); }, shootCount, pjDelay);
+        tckShoot.restart(shootDelay);
+        repeat(tlShoot,
+        [this]
+        {
+            shoot();
+        },
+        shootCount, pjDelay);
 
-				cKillable.onDeath += [this]{ game.createEShard(5, cPhys.getPosI()); };
-			}
-			inline void update(FT mFT) override
-			{
-				tlShoot.update(mFT);
-				if(tckShoot.getCurrent() > shootDelay / 1.5f && tckShoot.getCurrent() < shootDelay) game.createPCharge(1, cPhys.getPosPx(), 20);
-				if(tckShoot.update(mFT)) { tlShoot.reset(); tlShoot.start(); }
-			}
+        cKillable.onDeath += [this]
+        {
+            game.createEShard(5, cPhys.getPosI());
+        };
+    }
+    inline void update(FT mFT) override
+    {
+        tlShoot.update(mFT);
+        if(tckShoot.getCurrent() > shootDelay / 1.5f &&
+           tckShoot.getCurrent() < shootDelay)
+            game.createPCharge(1, cPhys.getPosPx(), 20);
+        if(tckShoot.update(mFT)) {
+            tlShoot.reset();
+            tlShoot.start();
+        }
+    }
 
-			inline void shoot()
-			{
-				assets.playSound("Sounds/spark.wav");
-				Vec2i shootPos{body.getPosition() + getVecFromDir8<int>(direction) * 600};
-				wpn.shoot(this, shootPos, getDegFromDir8(direction), toPixels(shootPos));
-			}
+    inline void shoot()
+    {
+        assets.playSound("Sounds/spark.wav");
+        Vec2i shootPos{
+        body.getPosition() + getVecFromDir8<int>(direction) * 600};
+        wpn.shoot(
+        this, shootPos, getDegFromDir8(direction), toPixels(shootPos));
+    }
 
-			inline OBCKillable& getCKillable() const noexcept { return cKillable; }
-	};
+    inline OBCKillable& getCKillable() const noexcept { return cKillable; }
+};
 }
 
 #endif
-

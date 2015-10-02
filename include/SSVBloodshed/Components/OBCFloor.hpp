@@ -11,35 +11,37 @@
 
 namespace ob
 {
-	class OBCFloor : public OBCActor
-	{
-		private:
-			bool smashed{false};
+class OBCFloor : public OBCActor
+{
+private:
+    bool smashed{false};
 
-			inline void becomeGrate() noexcept
-			{
-				smashed = true;
-				cDraw[0].setTextureRect(assets.getFloorGrateVariant());
-				getEntity().setDrawPriority(OBLayer::LFloorGrate);
-			}
+    inline void becomeGrate() noexcept
+    {
+        smashed = true;
+        cDraw[0].setTextureRect(assets.getFloorGrateVariant());
+        getEntity().setDrawPriority(OBLayer::LFloorGrate);
+    }
 
-		public:
-			OBCFloor(Entity& mE, OBCPhys& mCPhys, OBCDraw& mCDraw, bool mGrate) noexcept : OBCActor{mE, mCPhys, mCDraw}, smashed{mGrate}
-			{
-				body.addGroups(OBGroup::GFloor);
-				body.setResolve(false);
-				if(smashed) becomeGrate();
-			}
-			inline void smash() noexcept
-			{
-				if(smashed) return;
-				smashed = true;
-				game.createPDebris(20, cPhys.getPosPx());
-				game.createPDebrisFloor(4, cPhys.getPosPx());
-				becomeGrate();
-			}
-			inline bool isSmashed() const noexcept { return smashed; }
-	};
+public:
+    OBCFloor(Entity& mE, OBCPhys& mCPhys, OBCDraw& mCDraw, bool mGrate) noexcept
+    : OBCActor{mE, mCPhys, mCDraw},
+      smashed{mGrate}
+    {
+        body.addGroups(OBGroup::GFloor);
+        body.setResolve(false);
+        if(smashed) becomeGrate();
+    }
+    inline void smash() noexcept
+    {
+        if(smashed) return;
+        smashed = true;
+        game.createPDebris(20, cPhys.getPosPx());
+        game.createPDebrisFloor(4, cPhys.getPosPx());
+        becomeGrate();
+    }
+    inline bool isSmashed() const noexcept { return smashed; }
+};
 }
 
 #endif

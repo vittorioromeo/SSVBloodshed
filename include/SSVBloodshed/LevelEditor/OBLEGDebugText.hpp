@@ -10,34 +10,47 @@
 
 namespace ob
 {
-	template<typename TGame> class OBLEGDebugText
-	{
-		private:
-			TGame& editor;
-			std::string str;
+template <typename TGame>
+class OBLEGDebugText
+{
+private:
+    TGame& editor;
+    std::string str;
 
-		public:
-			OBLEGDebugText(TGame& mGame) noexcept : editor(mGame) { }
+public:
+    OBLEGDebugText(TGame& mGame) noexcept : editor(mGame) {}
 
-			inline void update(FT)
-			{
-				std::string copiedParamsStr;
-				for(const auto& p : editor.copiedParams.second) copiedParamsStr += p.first + "(" + ssvu::getReplacedAll(ssvu::toStr(p.second), "\n", "") + ")" + "\n";
+    inline void update(FT)
+    {
+        std::string copiedParamsStr;
+        for(const auto& p : editor.copiedParams.second)
+            copiedParamsStr +=
+            p.first + "(" +
+            ssvu::getReplacedAll(ssvu::toStr(p.second), "\n", "") + ")" + "\n";
 
-				std::ostringstream s;
-				s	<< "PACK NAME: " << editor.sharedData.getPack().getName() << "\n"
-					<< "Sector IDX: " << editor.sharedData.getCurrentSectorIdx() << "\n"
-					<< "Level XY: "	<< editor.sharedData.getCurrentLevelX() << ";" << editor.sharedData.getCurrentLevelY() << "\n"
-					<< "Z: " << editor.currentZ << "\n"
-					<< "C/V: save/load" << "\t" << "Z/X: cycle Z" << "\n"
-					<< "A/S: cycle id" << "\t" << "Q/W: cycle param" << "\n"
-					<< "LShift: pick" << "\n" << "N/M: copy/paste params" << "\n\n"
-					<< copiedParamsStr << "\n";
+        std::ostringstream s;
+        s << "PACK NAME: " << editor.sharedData.getPack().getName() << "\n"
+          << "Sector IDX: " << editor.sharedData.getCurrentSectorIdx() << "\n"
+          << "Level XY: " << editor.sharedData.getCurrentLevelX() << ";"
+          << editor.sharedData.getCurrentLevelY() << "\n"
+          << "Z: " << editor.currentZ << "\n"
+          << "C/V: save/load"
+          << "\t"
+          << "Z/X: cycle Z"
+          << "\n"
+          << "A/S: cycle id"
+          << "\t"
+          << "Q/W: cycle param"
+          << "\n"
+          << "LShift: pick"
+          << "\n"
+          << "N/M: copy/paste params"
+          << "\n\n" << copiedParamsStr << "\n";
 
-				str = s.str();
-			}
-			inline const std::string& getStr() { return str; }
-	};
+        str = s.str();
+    }
+    inline const std::string& getStr() { return str; }
+};
 }
 
 #endif

@@ -10,35 +10,47 @@
 
 namespace ob
 {
-	namespace GUI
-	{
-		class Label : public Widget
-		{
-			private:
-				ssvs::BitmapText text;
-				bool scaleWithText{true};
+namespace GUI
+{
+    class Label : public Widget
+    {
+    private:
+        ssvs::BitmapText text;
+        bool scaleWithText{true};
 
-				inline void drawWidget() override { text.setPosition(getX(), getY() - 1.f); render(text); }
+        inline void drawWidget() override
+        {
+            text.setPosition(getX(), getY() - 1.f);
+            render(text);
+        }
 
-			public:
-				Label(Context& mContext, std::string mText = "") : Widget{mContext}, text{getStyle().font}
-				{
-					text.setColor(getStyle().colorText); text.setTracking(-3);
-					setFillColor(getStyle().colorLabelBG);
-					setString(ssvu::mv(mText));
-				}
+    public:
+        Label(Context& mContext, std::string mText = "")
+            : Widget{mContext}, text{getStyle().font}
+        {
+            text.setColor(getStyle().colorText);
+            text.setTracking(-3);
+            setFillColor(getStyle().colorLabelBG);
+            setString(ssvu::mv(mText));
+        }
 
-				inline void setScaleWithText(bool mValue) noexcept { scaleWithText = mValue; }
-				inline void setString(std::string mLabel)
-				{
-					text.setString(ssvu::mv(mLabel));
-					text.setOrigin(ssvs::getGlobalHalfSize(text));
-					if(scaleWithText) setSize(ssvs::getGlobalSize(text));
-				}
-				inline const std::string& getString() const noexcept { return text.getString(); }
-				inline decltype(text)& getText() noexcept { return text; }
-		};
-	}
+        inline void setScaleWithText(bool mValue) noexcept
+        {
+            scaleWithText = mValue;
+        }
+        inline void setString(std::string mLabel)
+        {
+            text.setString(ssvu::mv(mLabel));
+            text.setOrigin(ssvs::getGlobalHalfSize(text));
+            if(scaleWithText) setSize(ssvs::getGlobalSize(text));
+        }
+        inline const std::string& getString() const noexcept
+        {
+            return text.getString();
+        }
+        inline decltype(text)& getText() noexcept { return text; }
+    };
+}
 }
 
 #endif

@@ -11,34 +11,43 @@
 
 namespace ob
 {
-	class OBGParticles
-	{
-		private:
-			static constexpr unsigned int txWidth{levelWidthPx};
-			static constexpr unsigned int txHeight{levelHeightPx};
-			sf::RenderTexture txPSPerm, txPSTemp;
-			OBParticleSystem* psPerm{nullptr};
-			OBParticleSystem* psTemp{nullptr};
-			OBParticleSystem* psTempAdd{nullptr};
+class OBGParticles
+{
+private:
+    static constexpr unsigned int txWidth{levelWidthPx};
+    static constexpr unsigned int txHeight{levelHeightPx};
+    sf::RenderTexture txPSPerm, txPSTemp;
+    OBParticleSystem* psPerm{nullptr};
+    OBParticleSystem* psTemp{nullptr};
+    OBParticleSystem* psTempAdd{nullptr};
 
-		public:
-			inline OBGParticles()
-			{
-				txPSPerm.create(txWidth, txHeight);
-				txPSTemp.create(txWidth, txHeight);
-			}
+public:
+    inline OBGParticles()
+    {
+        txPSPerm.create(txWidth, txHeight);
+        txPSTemp.create(txWidth, txHeight);
+    }
 
-			inline void clear(OBFactory& mFactory)
-			{
-				psPerm =	&mFactory.createParticleSystem(txPSPerm, false, 175, OBLayer::LPSPerm, sf::BlendAlpha).getComponent<OBCParticleSystem>().getParticleSystem();
-				psTemp =	&mFactory.createParticleSystem(txPSTemp, true, 255, OBLayer::LPSTemp, sf::BlendAlpha).getComponent<OBCParticleSystem>().getParticleSystem();
-				psTempAdd =	&mFactory.createParticleSystem(txPSTemp, true, 255, OBLayer::LPSTemp, sf::BlendAdd).getComponent<OBCParticleSystem>().getParticleSystem();
-			}
+    inline void clear(OBFactory& mFactory)
+    {
+        psPerm = &mFactory.createParticleSystem(txPSPerm, false, 175,
+                          OBLayer::LPSPerm, sf::BlendAlpha)
+                  .getComponent<OBCParticleSystem>()
+                  .getParticleSystem();
+        psTemp = &mFactory.createParticleSystem(
+                          txPSTemp, true, 255, OBLayer::LPSTemp, sf::BlendAlpha)
+                  .getComponent<OBCParticleSystem>()
+                  .getParticleSystem();
+        psTempAdd = &mFactory.createParticleSystem(txPSTemp, true, 255,
+                             OBLayer::LPSTemp, sf::BlendAdd)
+                     .getComponent<OBCParticleSystem>()
+                     .getParticleSystem();
+    }
 
-			inline OBParticleSystem& getPSPerm() noexcept		{ return *psPerm; }
-			inline OBParticleSystem& getPSTemp() noexcept		{ return *psTemp; }
-			inline OBParticleSystem& getPSTempAdd() noexcept	{ return *psTempAdd; }
-	};
+    inline OBParticleSystem& getPSPerm() noexcept { return *psPerm; }
+    inline OBParticleSystem& getPSTemp() noexcept { return *psTemp; }
+    inline OBParticleSystem& getPSTempAdd() noexcept { return *psTempAdd; }
+};
 }
 
 #endif

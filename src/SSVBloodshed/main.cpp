@@ -20,40 +20,42 @@ using namespace ssvms;
 
 int main()
 {
-	SSVUT_RUN();
+    SSVUT_RUN();
 
-	OBConfig::setSoundEnabled(false);
+    OBConfig::setSoundEnabled(false);
 
-	unsigned int width{VideoMode::getDesktopMode().width}, height{VideoMode::getDesktopMode().height};
-	width = 640; height = 480;
-
-
-	GameWindow gameWindow;
-	gameWindow.setTitle("operation bloodshed");
-	gameWindow.setTimer<TimerStatic>(0.5f, 0.5f);
-	gameWindow.setSize(width, height);
-	gameWindow.setFullscreen(false);
-	gameWindow.setFPSLimited(true);
-	gameWindow.setMaxFPS(200);
-	gameWindow.setPixelMult(1);
+    unsigned int width{VideoMode::getDesktopMode().width},
+    height{VideoMode::getDesktopMode().height};
+    width = 640;
+    height = 480;
 
 
-	auto assets(mkUPtr<OBAssets>());
-	auto game(mkUPtr<OBGame>(gameWindow, *assets));
-	auto editor(mkUPtr<OBLEEditor>(gameWindow, *assets));
-	auto database(mkUPtr<OBLEDatabase>(*assets));
+    GameWindow gameWindow;
+    gameWindow.setTitle("operation bloodshed");
+    gameWindow.setTimer<TimerStatic>(0.5f, 0.5f);
+    gameWindow.setSize(width, height);
+    gameWindow.setFullscreen(false);
+    gameWindow.setFPSLimited(true);
+    gameWindow.setMaxFPS(200);
+    gameWindow.setPixelMult(1);
 
-	game->setEditor(*editor);
-	game->setDatabase(*database);
-	editor->setGame(*game);
-	editor->setDatabase(*database);
 
-	editor->newPack();
+    auto assets(mkUPtr<OBAssets>());
+    auto game(mkUPtr<OBGame>(gameWindow, *assets));
+    auto editor(mkUPtr<OBLEEditor>(gameWindow, *assets));
+    auto database(mkUPtr<OBLEDatabase>(*assets));
 
-	gameWindow.setGameState(editor->getGameState());
-	gameWindow.run();
+    game->setEditor(*editor);
+    game->setDatabase(*database);
+    editor->setGame(*game);
+    editor->setDatabase(*database);
 
-	return 0;
+    editor->newPack();
+
+    gameWindow.setGameState(editor->getGameState());
+    gameWindow.run();
+
+    return 0;
 }
 
 // TODO: generic macro recursion dispatcher
