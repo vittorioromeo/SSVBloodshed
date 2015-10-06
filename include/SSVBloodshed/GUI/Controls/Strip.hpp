@@ -10,74 +10,77 @@
 
 namespace ob
 {
-namespace GUI
-{
-    class Strip : public Widget
+    namespace GUI
     {
-    private:
-        At alignFrom{At::Left}, alignTo{At::Right}, alignDir{At::Right};
-        bool tabbed{false};
-        float widgetOffset{6.f}, tabSize;
-
-        inline void update(FT) override
+        class Strip : public Widget
         {
-            if(children.empty()) return;
+        private:
+            At alignFrom{At::Left}, alignTo{At::Right}, alignDir{At::Right};
+            bool tabbed{false};
+            float widgetOffset{6.f}, tabSize;
 
-            Widget* prev{nullptr};
-            for(auto i(0u); i < children.size(); ++i) {
-                auto& w(*children[i]);
-                if(!w.isVisible()) continue;
+            inline void update(FT) override
+            {
+                if(children.empty()) return;
 
-                if(prev == nullptr) {
-                    prev = &w;
-                    prev->attach(alignFrom, *this, alignFrom,
-                    getAtVec(alignDir, getPadding()));
-                    continue;
-                }
-
-                if(tabbed)
-                    w.attach(alignFrom, *prev, alignFrom,
-                    getAtVec(alignDir, i++ * tabSize));
-                else
+                Widget* prev{nullptr};
+                for(auto i(0u); i < children.size(); ++i)
                 {
-                    w.attach(alignFrom, *prev, alignTo,
-                    getAtVec(alignDir, widgetOffset));
-                    prev = &w;
+                    auto& w(*children[i]);
+                    if(!w.isVisible()) continue;
+
+                    if(prev == nullptr)
+                    {
+                        prev = &w;
+                        prev->attach(alignFrom, *this, alignFrom,
+                            getAtVec(alignDir, getPadding()));
+                        continue;
+                    }
+
+                    if(tabbed)
+                        w.attach(alignFrom, *prev, alignFrom,
+                            getAtVec(alignDir, i++ * tabSize));
+                    else
+                    {
+                        w.attach(alignFrom, *prev, alignTo,
+                            getAtVec(alignDir, widgetOffset));
+                        prev = &w;
+                    }
                 }
             }
-        }
 
-    public:
-        Strip(Context& mContext, At mAlignFrom, At mAlignTo, At mAlignDir)
-            : Widget{mContext}, alignFrom{mAlignFrom}, alignTo{mAlignTo},
-              alignDir{mAlignDir}
-        {
-            setFillColor(sf::Color::Transparent);
-            setScaling(Scaling::FitToChildren);
-        }
+        public:
+            Strip(Context& mContext, At mAlignFrom, At mAlignTo, At mAlignDir)
+                : Widget{mContext}, alignFrom{mAlignFrom}, alignTo{mAlignTo},
+                  alignDir{mAlignDir}
+            {
+                setFillColor(sf::Color::Transparent);
+                setScaling(Scaling::FitToChildren);
+            }
 
-        inline Strip& operator+=(Widget& mWidget)
-        {
-            mWidget.setParent(*this);
-            return *this;
-        }
-        inline Strip& operator+=(const std::initializer_list<Widget*> mWidgets)
-        {
-            for(const auto& w : mWidgets) *this += *w;
-            return *this;
-        }
+            inline Strip& operator+=(Widget& mWidget)
+            {
+                mWidget.setParent(*this);
+                return *this;
+            }
+            inline Strip& operator+=(
+                const std::initializer_list<Widget*> mWidgets)
+            {
+                for(const auto& w : mWidgets) *this += *w;
+                return *this;
+            }
 
-        inline void setWidgetOffset(float mValue) noexcept
-        {
-            widgetOffset = mValue;
-        }
-        inline void setTabSize(float mValue) noexcept
-        {
-            tabSize = mValue;
-            tabbed = true;
-        }
-    };
-}
+            inline void setWidgetOffset(float mValue) noexcept
+            {
+                widgetOffset = mValue;
+            }
+            inline void setTabSize(float mValue) noexcept
+            {
+                tabSize = mValue;
+                tabbed = true;
+            }
+        };
+    }
 }
 
 #endif

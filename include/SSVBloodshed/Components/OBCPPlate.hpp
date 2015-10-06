@@ -13,119 +13,125 @@
 
 namespace ob
 {
-inline void activateIdReceivers(
-OBCPhys& mCaller, int mId, IdAction mIdAction, sses::Manager& mManager)
-{
-    static sf::Color actionColors[]{
-    sf::Color::Yellow, sf::Color::Green, sf::Color::Red};
-
-    for(auto& e : mManager.getEntities(OBGroup::GIdReceiver)) {
-        auto& cIdReceiver(e->getComponent<OBCIdReceiver>());
-        if(cIdReceiver.getId() != mId) continue;
-
-        cIdReceiver.activate(mIdAction);
-        mCaller.getFactory().createTrail(mCaller.getPosI(),
-        e->getComponent<OBCPhys>().getPosI(), actionColors[int(mIdAction)]);
-    }
-}
-
-class OBCPPlate : public OBCActor, public OBWeightable
-{
-private:
-    int id;
-    PPlateType type;
-    IdAction idAction;
-    bool triggered{false};
-
-    inline std::vector<OBCPPlate*> getNeighbors()
+    inline void activateIdReceivers(
+        OBCPhys& mCaller, int mId, IdAction mIdAction, sses::Manager& mManager)
     {
-        std::vector<OBCPPlate*> result;
-        auto query(cPhys.getWorld().getQuery<ssvsc::QueryType::Distance>(
-        cPhys.getPosI(), 1000));
+        static sf::Color actionColors[]{
+            sf::Color::Yellow, sf::Color::Green, sf::Color::Red};
 
-        Body* b;
-        while((b = query.next()) != nullptr) {
-            if(!b->hasGroup(OBGroup::GPPlate)) continue;
-
-            auto& cPPlate(getEntityFromBody(*b).getComponent<OBCPPlate>());
-            if(cPPlate.cPhys.getPosI().x == cPhys.getPosI().x ||
-               cPPlate.cPhys.getPosI().y == cPhys.getPosI().y)
-                if(cPPlate.id == id && cPPlate.type == type)
-                    result.emplace_back(&cPPlate);
-        }
-
-        return result;
-    }
-
-    inline void triggerNeighbors(bool mTrigger)
-    {
-        for(const auto& n : getNeighbors())
-            if(mTrigger)
-                n->trigger();
-            else
-                n->unTrigger();
-    }
-
-    inline bool isAnyNeighborWeighted()
-    {
-        for(const auto& n : getNeighbors())
-            if(n->isWeighted()) return true;
-        return false;
-    }
-
-    inline void trigger()
-    {
-        if(!triggered) {
-            triggered = true;
-            triggerNeighbors(true);
-            cDraw[0].setColor(sf::Color(100, 100, 100, 255));
-        }
-    }
-    inline void unTrigger()
-    {
-        if(triggered) {
-            triggered = false;
-            triggerNeighbors(false);
-            cDraw[0].setColor(sf::Color::White);
-        }
-    }
-
-public:
-    OBCPPlate(Entity& mE, OBCPhys& mCPhys, OBCDraw& mCDraw, int mId,
-    PPlateType mType, IdAction mIdAction, bool mPlayerOnly) noexcept
-    : OBCActor{mE, mCPhys, mCDraw},
-      OBWeightable{mCPhys, mPlayerOnly},
-      id{mId},
-      type{mType},
-      idAction{mIdAction}
-    {
-        body.addGroups(OBGroup::GPPlate);
-    }
-
-    inline void update(FT) override
-    {
-        if(hasBeenWeighted() && !triggered) {
-            trigger();
-            activateIdReceivers(cPhys, id, idAction, manager);
-        }
-        else if(hasBeenUnweighted() && !isAnyNeighborWeighted())
+        for(auto& e : mManager.getEntities(OBGroup::GIdReceiver))
         {
-            if(type == PPlateType::Multi)
-                unTrigger();
-            else if(type == PPlateType::OnOff)
+            auto& cIdReceiver(e->getComponent<OBCIdReceiver>());
+            if(cIdReceiver.getId() != mId) continue;
+
+            cIdReceiver.activate(mIdAction);
+            mCaller.getFactory().createTrail(mCaller.getPosI(),
+                e->getComponent<OBCPhys>().getPosI(),
+                actionColors[int(mIdAction)]);
+        }
+    }
+
+    class OBCPPlate : public OBCActor, public OBWeightable
+    {
+    private:
+        int id;
+        PPlateType type;
+        IdAction idAction;
+        bool triggered{false};
+
+        inline std::vector<OBCPPlate*> getNeighbors()
+        {
+            std::vector<OBCPPlate*> result;
+            auto query(cPhys.getWorld().getQuery<ssvsc::QueryType::Distance>(
+                cPhys.getPosI(), 1000));
+
+            Body* b;
+            while((b = query.next()) != nullptr)
             {
-                unTrigger();
-                activateIdReceivers(cPhys, id, idAction, manager);
+                if(!b->hasGroup(OBGroup::GPPlate)) continue;
+
+                auto& cPPlate(getEntityFromBody(*b).getComponent<OBCPPlate>());
+                if(cPPlate.cPhys.getPosI().x == cPhys.getPosI().x ||
+                    cPPlate.cPhys.getPosI().y == cPhys.getPosI().y)
+                    if(cPPlate.id == id && cPPlate.type == type)
+                        result.emplace_back(&cPPlate);
+            }
+
+            return result;
+        }
+
+        inline void triggerNeighbors(bool mTrigger)
+        {
+            for(const auto& n : getNeighbors())
+                if(mTrigger)
+                    n->trigger();
+                else
+                    n->unTrigger();
+        }
+
+        inline bool isAnyNeighborWeighted()
+        {
+            for(const auto& n : getNeighbors())
+                if(n->isWeighted()) return true;
+            return false;
+        }
+
+        inline void trigger()
+        {
+            if(!triggered)
+            {
+                triggered = true;
+                triggerNeighbors(true);
+                cDraw[0].setColor(sf::Color(100, 100, 100, 255));
+            }
+        }
+        inline void unTrigger()
+        {
+            if(triggered)
+            {
+                triggered = false;
+                triggerNeighbors(false);
+                cDraw[0].setColor(sf::Color::White);
             }
         }
 
-        OBWeightable::refresh();
-    }
-    inline void draw() override {}
+    public:
+        OBCPPlate(Entity& mE, OBCPhys& mCPhys, OBCDraw& mCDraw, int mId,
+            PPlateType mType, IdAction mIdAction, bool mPlayerOnly) noexcept
+            : OBCActor{mE, mCPhys, mCDraw},
+              OBWeightable{mCPhys, mPlayerOnly},
+              id{mId},
+              type{mType},
+              idAction{mIdAction}
+        {
+            body.addGroups(OBGroup::GPPlate);
+        }
 
-    inline void setId(int mId) noexcept { id = mId; }
-    inline int getId() const noexcept { return id; }
-};
+        inline void update(FT) override
+        {
+            if(hasBeenWeighted() && !triggered)
+            {
+                trigger();
+                activateIdReceivers(cPhys, id, idAction, manager);
+            }
+            else if(hasBeenUnweighted() && !isAnyNeighborWeighted())
+            {
+                if(type == PPlateType::Multi)
+                    unTrigger();
+                else if(type == PPlateType::OnOff)
+                {
+                    unTrigger();
+                    activateIdReceivers(cPhys, id, idAction, manager);
+                }
+            }
+
+            OBWeightable::refresh();
+        }
+        inline void draw() override {}
+
+        inline void setId(int mId) noexcept { id = mId; }
+        inline int getId() const noexcept { return id; }
+    };
 }
 
 #endif

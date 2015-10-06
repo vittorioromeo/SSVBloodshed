@@ -13,160 +13,164 @@
 
 namespace ob
 {
-class OBCProjectile : public OBCActor
-{
-private:
-    Ticker tckLife{150.f};
-    OBCActorND* shooter{nullptr};
-    float acceleration{0.f}, minSpeed{0}, maxSpeed{1000}, dmgMult{1.f},
-    curveSpeed{0.f}, dmg{1};
-    OBGroup targetGroup{OBGroup::GEnemyKillable};
-    int pierceOrganic{0};
-    bool bounce{false}, fallInPit{false}, killDestructible{false};
-
-    inline void refreshMult()
+    class OBCProjectile : public OBCActor
     {
-        if(targetGroup == OBGroup::GEnemyKillable)
-            dmgMult = OBConfig::getDmgMultPlayer();
-        else if(targetGroup == OBGroup::GFriendlyKillable)
-            dmgMult = OBConfig::getDmgMultEnemy();
-        else
-            dmgMult = OBConfig::getDmgMultGlobal();
-    }
+    private:
+        Ticker tckLife{150.f};
+        OBCActorND* shooter{nullptr};
+        float acceleration{0.f}, minSpeed{0}, maxSpeed{1000}, dmgMult{1.f},
+            curveSpeed{0.f}, dmg{1};
+        OBGroup targetGroup{OBGroup::GEnemyKillable};
+        int pierceOrganic{0};
+        bool bounce{false}, fallInPit{false}, killDestructible{false};
 
-public:
-    ssvu::Delegate<void()> onDestroy;
-
-    inline OBCProjectile(Entity& mE, OBCActorND* mShooter, OBCPhys& mCPhys,
-    OBCDraw& mCDraw, float mSpeed, float mDeg) noexcept
-    : OBCActor{mE, mCPhys, mCDraw},
-      shooter{mShooter}
-    {
-        body.setVelocity(ssvs::getVecFromDeg(mDeg, mSpeed));
-        body.addGroups(OBGroup::GProjectile);
-        body.addGroupsToCheck(OBGroup::GSolidGround, OBGroup::GSolidAir);
-        body.addGroupsNoResolve(
-        OBGroup::GFriendly, OBGroup::GEnemy, OBGroup::GProjectile);
-        body.setResolve(false);
-        body.onDetection += [this](const DetectionInfo& mDI)
+        inline void refreshMult()
         {
-            if(fallInPit && mDI.body.hasGroup(OBGroup::GPit))
-                getEntity().destroy();
+            if(targetGroup == OBGroup::GEnemyKillable)
+                dmgMult = OBConfig::getDmgMultPlayer();
+            else if(targetGroup == OBGroup::GFriendlyKillable)
+                dmgMult = OBConfig::getDmgMultEnemy();
+            else
+                dmgMult = OBConfig::getDmgMultGlobal();
+        }
 
-            SSVU_ASSERT(shooter != nullptr);
-            auto shooterStat(shooter->getEntity().getStat());
+    public:
+        ssvu::Delegate<void()> onDestroy;
 
-            if(killDestructible && mDI.body.hasGroup(OBGroup::GEnvDestructible))
+        inline OBCProjectile(Entity& mE, OBCActorND* mShooter, OBCPhys& mCPhys,
+            OBCDraw& mCDraw, float mSpeed, float mDeg) noexcept
+            : OBCActor{mE, mCPhys, mCDraw},
+              shooter{mShooter}
+        {
+            body.setVelocity(ssvs::getVecFromDeg(mDeg, mSpeed));
+            body.addGroups(OBGroup::GProjectile);
+            body.addGroupsToCheck(OBGroup::GSolidGround, OBGroup::GSolidAir);
+            body.addGroupsNoResolve(
+                OBGroup::GFriendly, OBGroup::GEnemy, OBGroup::GProjectile);
+            body.setResolve(false);
+            body.onDetection += [this](const DetectionInfo& mDI)
             {
-                // getComponentFromBody<OBCHealth>(mDI.body).damage(sses::getNullEntityStat(),
-                // nullptr, 100000); ???
-                getComponentFromBody<OBCHealth>(mDI.body).damage(
-                shooterStat, shooter, 100000);
-                destroy();
-            }
+                if(fallInPit && mDI.body.hasGroup(OBGroup::GPit))
+                    getEntity().destroy();
 
-            if(mDI.body.hasGroup(targetGroup) &&
-               getComponentFromBody<OBCHealth>(mDI.body).damage(
-               shooterStat, shooter, dmg * dmgMult) &&
-               pierceOrganic-- == 0)
-            {
-                destroy();
-            }
-            else if(!mDI.body.hasGroup(OBGroup::GOrganic) &&
-                    mDI.body.hasGroup(OBGroup::GSolidAir))
-            {
-                if(bounce) return;
-                game.createPDebris(6, cPhys.getPosPx());
-                assets.playSound("Sounds/bulletHitWall.wav");
-                destroy();
-            }
-        };
-        body.setRestitutionX(1.f);
-        body.setRestitutionY(1.f);
+                SSVU_ASSERT(shooter != nullptr);
+                auto shooterStat(shooter->getEntity().getStat());
 
-        refreshMult();
-    }
-    inline void destroy()
-    {
-        getEntity().destroy();
-        onDestroy();
-    }
+                if(killDestructible &&
+                    mDI.body.hasGroup(OBGroup::GEnvDestructible))
+                {
+                    // getComponentFromBody<OBCHealth>(mDI.body).damage(sses::getNullEntityStat(),
+                    // nullptr, 100000); ???
+                    getComponentFromBody<OBCHealth>(mDI.body).damage(
+                        shooterStat, shooter, 100000);
+                    destroy();
+                }
 
-    inline void update(FT mFT) override
-    {
-        auto newVel(body.getVelocity());
-        ssvs::resize(newVel, ssvs::getMag(newVel) + acceleration * mFT);
-        ssvs::mClamp(newVel, minSpeed, maxSpeed);
+                if(mDI.body.hasGroup(targetGroup) &&
+                    getComponentFromBody<OBCHealth>(mDI.body).damage(
+                        shooterStat, shooter, dmg * dmgMult) &&
+                    pierceOrganic-- == 0)
+                {
+                    destroy();
+                }
+                else if(!mDI.body.hasGroup(OBGroup::GOrganic) &&
+                        mDI.body.hasGroup(OBGroup::GSolidAir))
+                {
+                    if(bounce) return;
+                    game.createPDebris(6, cPhys.getPosPx());
+                    assets.playSound("Sounds/bulletHitWall.wav");
+                    destroy();
+                }
+            };
+            body.setRestitutionX(1.f);
+            body.setRestitutionY(1.f);
 
-        body.setVelocity(ssvs::getVecFromRad(
-        ssvs::getRad(newVel) + curveSpeed * mFT, ssvs::getMag(newVel)));
+            refreshMult();
+        }
+        inline void destroy()
+        {
+            getEntity().destroy();
+            onDestroy();
+        }
 
-        if(tckLife.update(mFT)) destroy();
-    }
-    inline void draw() override
-    {
-        cDraw.setRotation(ssvs::getDeg(body.getVelocity()));
-    }
+        inline void update(FT mFT) override
+        {
+            auto newVel(body.getVelocity());
+            ssvs::resize(newVel, ssvs::getMag(newVel) + acceleration * mFT);
+            ssvs::mClamp(newVel, minSpeed, maxSpeed);
 
-    inline OBCProjectile& createChild(Entity& mEntity)
-    {
-        auto& pj(mEntity.getComponent<OBCProjectile>());
-        pj.setTargetGroup(targetGroup);
-        pj.shooter = shooter; // should be correct (?)
-        return pj;
-    }
+            body.setVelocity(ssvs::getVecFromRad(
+                ssvs::getRad(newVel) + curveSpeed * mFT, ssvs::getMag(newVel)));
 
-    inline void setLife(float mValue) noexcept { tckLife.restart(mValue); }
-    inline void setCurveSpeed(float mValue) noexcept { curveSpeed = mValue; }
-    inline void setDamage(float mValue) noexcept { dmg = mValue; }
-    inline void setPierceOrganic(int mValue) noexcept
-    {
-        pierceOrganic = mValue;
-    }
-    inline void setTargetGroup(OBGroup mValue) noexcept
-    {
-        targetGroup = mValue;
-        refreshMult();
-    }
-    inline void setKillDestructible(bool mValue) noexcept
-    {
-        killDestructible = mValue;
-    }
-    inline void setAcceleration(float mValue) noexcept
-    {
-        acceleration = mValue;
-    }
-    inline void setMinSpeed(float mValue) noexcept { minSpeed = mValue; }
-    inline void setMaxSpeed(float mValue) noexcept { maxSpeed = mValue; }
-    inline void setBounce(bool mValue) noexcept
-    {
-        bounce = mValue;
-        body.setResolve(bounce);
-    }
-    inline void setSpeed(float mValue) noexcept
-    {
-        body.setVelocity(ssvs::getResized(body.getVelocity(), mValue));
-    }
-    inline void setFallInPit(bool mValue) noexcept { fallInPit = mValue; }
+            if(tckLife.update(mFT)) destroy();
+        }
+        inline void draw() override
+        {
+            cDraw.setRotation(ssvs::getDeg(body.getVelocity()));
+        }
 
-    inline float getLife() const noexcept { return tckLife.getCurrent(); }
-    inline float getCurveSpeed() const noexcept { return curveSpeed; }
-    inline float getDamage() const noexcept { return dmg; }
-    inline float getSpeed() const noexcept
-    {
-        return ssvs::getMag(body.getVelocity());
-    }
-    inline int getPierceOrganic() const noexcept { return pierceOrganic; }
-    inline OBGroup getTargetGroup() const noexcept { return targetGroup; }
-    inline float getRad() const noexcept
-    {
-        return ssvs::getRad(body.getVelocity());
-    }
-    inline float getDeg() const noexcept
-    {
-        return ssvs::getDeg(body.getVelocity());
-    }
-};
+        inline OBCProjectile& createChild(Entity& mEntity)
+        {
+            auto& pj(mEntity.getComponent<OBCProjectile>());
+            pj.setTargetGroup(targetGroup);
+            pj.shooter = shooter; // should be correct (?)
+            return pj;
+        }
+
+        inline void setLife(float mValue) noexcept { tckLife.restart(mValue); }
+        inline void setCurveSpeed(float mValue) noexcept
+        {
+            curveSpeed = mValue;
+        }
+        inline void setDamage(float mValue) noexcept { dmg = mValue; }
+        inline void setPierceOrganic(int mValue) noexcept
+        {
+            pierceOrganic = mValue;
+        }
+        inline void setTargetGroup(OBGroup mValue) noexcept
+        {
+            targetGroup = mValue;
+            refreshMult();
+        }
+        inline void setKillDestructible(bool mValue) noexcept
+        {
+            killDestructible = mValue;
+        }
+        inline void setAcceleration(float mValue) noexcept
+        {
+            acceleration = mValue;
+        }
+        inline void setMinSpeed(float mValue) noexcept { minSpeed = mValue; }
+        inline void setMaxSpeed(float mValue) noexcept { maxSpeed = mValue; }
+        inline void setBounce(bool mValue) noexcept
+        {
+            bounce = mValue;
+            body.setResolve(bounce);
+        }
+        inline void setSpeed(float mValue) noexcept
+        {
+            body.setVelocity(ssvs::getResized(body.getVelocity(), mValue));
+        }
+        inline void setFallInPit(bool mValue) noexcept { fallInPit = mValue; }
+
+        inline float getLife() const noexcept { return tckLife.getCurrent(); }
+        inline float getCurveSpeed() const noexcept { return curveSpeed; }
+        inline float getDamage() const noexcept { return dmg; }
+        inline float getSpeed() const noexcept
+        {
+            return ssvs::getMag(body.getVelocity());
+        }
+        inline int getPierceOrganic() const noexcept { return pierceOrganic; }
+        inline OBGroup getTargetGroup() const noexcept { return targetGroup; }
+        inline float getRad() const noexcept
+        {
+            return ssvs::getRad(body.getVelocity());
+        }
+        inline float getDeg() const noexcept
+        {
+            return ssvs::getDeg(body.getVelocity());
+        }
+    };
 }
 
 #endif

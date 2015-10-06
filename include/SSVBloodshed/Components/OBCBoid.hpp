@@ -11,73 +11,77 @@
 
 namespace ob
 {
-class OBCBoid : public OBCActorND
-{
-private:
-    float maxVel{150.f};
-
-    inline Vec2f getSeekForce(Vec2f mTarget, float mSlowRadius) const noexcept
+    class OBCBoid : public OBCActorND
     {
-        SSVU_ASSERT(mSlowRadius != 0);
+    private:
+        float maxVel{150.f};
 
-        mTarget -= cPhys.getPosF();
-        float distance{ssvs::getMag(mTarget)};
-        ssvs::resize(mTarget,
-        distance <= mSlowRadius ? maxVel * distance / mSlowRadius : maxVel);
-        return mTarget - cPhys.getVel();
-    }
-    inline Vec2f getFleeForce(Vec2f mTarget) const noexcept
-    {
-        mTarget = cPhys.getPosF() - mTarget;
-        ssvs::resize(mTarget, maxVel);
-        return mTarget - cPhys.getVel();
-    }
+        inline Vec2f getSeekForce(Vec2f mTarget, float mSlowRadius) const
+            noexcept
+        {
+            SSVU_ASSERT(mSlowRadius != 0);
 
-    inline Vec2f getPursuitForce(const Vec2f& mTargetPos,
-    const Vec2f& mTargetVel, float mPredictionMult, float mSlowRadius) const
-    noexcept
-    {
-        SSVU_ASSERT(maxVel != 0);
+            mTarget -= cPhys.getPosF();
+            float distance{ssvs::getMag(mTarget)};
+            ssvs::resize(mTarget, distance <= mSlowRadius
+                                      ? maxVel * distance / mSlowRadius
+                                      : maxVel);
+            return mTarget - cPhys.getVel();
+        }
+        inline Vec2f getFleeForce(Vec2f mTarget) const noexcept
+        {
+            mTarget = cPhys.getPosF() - mTarget;
+            ssvs::resize(mTarget, maxVel);
+            return mTarget - cPhys.getVel();
+        }
 
-        Vec2f distance{mTargetPos - cPhys.getPosF()};
-        float prediction{ssvs::getMag(distance) / maxVel};
-        return getSeekForce(
-        mTargetPos + mTargetVel * (prediction * mPredictionMult), mSlowRadius);
-    }
-    inline Vec2f getEvadeForce(
-    const Vec2f& mTargetPos, const Vec2f& mTargetVel) const noexcept
-    {
-        SSVU_ASSERT(maxVel != 0);
+        inline Vec2f getPursuitForce(const Vec2f& mTargetPos,
+            const Vec2f& mTargetVel, float mPredictionMult,
+            float mSlowRadius) const noexcept
+        {
+            SSVU_ASSERT(maxVel != 0);
 
-        Vec2f distance{mTargetPos - cPhys.getPosF()};
-        float prediction{ssvs::getMag(distance) / maxVel};
-        return getFleeForce(mTargetPos + mTargetVel * prediction);
-    }
+            Vec2f distance{mTargetPos - cPhys.getPosF()};
+            float prediction{ssvs::getMag(distance) / maxVel};
+            return getSeekForce(
+                mTargetPos + mTargetVel * (prediction * mPredictionMult),
+                mSlowRadius);
+        }
+        inline Vec2f getEvadeForce(
+            const Vec2f& mTargetPos, const Vec2f& mTargetVel) const noexcept
+        {
+            SSVU_ASSERT(maxVel != 0);
 
-public:
-    inline OBCBoid(Entity& mE, OBCPhys& mCPhys) : OBCActorND{mE, mCPhys} {}
+            Vec2f distance{mTargetPos - cPhys.getPosF()};
+            float prediction{ssvs::getMag(distance) / maxVel};
+            return getFleeForce(mTargetPos + mTargetVel * prediction);
+        }
 
-    inline void seek(const Vec2f& mTargetPos, float mForceMult = 0.02f,
-    float mSlowRadius = 1500.f) noexcept
-    {
-        body.applyAccel(getSeekForce(mTargetPos, mSlowRadius) * mForceMult);
-    }
-    inline void pursuit(const OBCPhys& mTarget, float mForceMult = 0.02f,
-    float mPredictionMult = 1.f, float mSlowRadius = 1500.f) noexcept
-    {
-        body.applyAccel(getPursuitForce(mTarget.getPosF(), mTarget.getVel(),
-                        mPredictionMult, mSlowRadius) *
-                        mForceMult);
-    }
-    inline void evade(const OBCPhys& mTarget, float mForceMult = 0.02f) noexcept
-    {
-        body.applyAccel(
-        getEvadeForce(mTarget.getPosF(), mTarget.getVel()) * mForceMult);
-    }
+    public:
+        inline OBCBoid(Entity& mE, OBCPhys& mCPhys) : OBCActorND{mE, mCPhys} {}
 
-    inline void setMaxVel(float mValue) noexcept { maxVel = mValue; }
-    inline float getMaxVel() const noexcept { return maxVel; }
-};
+        inline void seek(const Vec2f& mTargetPos, float mForceMult = 0.02f,
+            float mSlowRadius = 1500.f) noexcept
+        {
+            body.applyAccel(getSeekForce(mTargetPos, mSlowRadius) * mForceMult);
+        }
+        inline void pursuit(const OBCPhys& mTarget, float mForceMult = 0.02f,
+            float mPredictionMult = 1.f, float mSlowRadius = 1500.f) noexcept
+        {
+            body.applyAccel(getPursuitForce(mTarget.getPosF(), mTarget.getVel(),
+                                mPredictionMult, mSlowRadius) *
+                            mForceMult);
+        }
+        inline void evade(
+            const OBCPhys& mTarget, float mForceMult = 0.02f) noexcept
+        {
+            body.applyAccel(getEvadeForce(mTarget.getPosF(), mTarget.getVel()) *
+                            mForceMult);
+        }
+
+        inline void setMaxVel(float mValue) noexcept { maxVel = mValue; }
+        inline float getMaxVel() const noexcept { return maxVel; }
+    };
 }
 
 #endif

@@ -10,29 +10,29 @@
 
 namespace ob
 {
-class OBCDir8 : public Component
-{
-private:
-    Dir8 dir{Dir8::E};
-
-public:
-    inline OBCDir8(Entity& mE) noexcept : Component{mE} {}
-
-    inline OBCDir8& operator=(Dir8 mValue) noexcept
+    class OBCDir8 : public Component
     {
-        setDir(mValue);
-        return *this;
-    }
-    inline void setDir(Dir8 mValue) noexcept { dir = mValue; }
+    private:
+        Dir8 dir{Dir8::E};
 
-    inline operator Dir8() const noexcept { return dir; }
-    inline int getInt() const noexcept { return int(dir); }
-    inline float getDeg() const noexcept { return getDegFromDir8(dir); }
-    inline Vec2f getVec(float mMag = 1.f) const noexcept
-    {
-        return ssvs::getVecFromDeg(getDeg(), mMag);
-    }
-};
+    public:
+        inline OBCDir8(Entity& mE) noexcept : Component{mE} {}
+
+        inline OBCDir8& operator=(Dir8 mValue) noexcept
+        {
+            setDir(mValue);
+            return *this;
+        }
+        inline void setDir(Dir8 mValue) noexcept { dir = mValue; }
+
+        inline operator Dir8() const noexcept { return dir; }
+        inline int getInt() const noexcept { return int(dir); }
+        inline float getDeg() const noexcept { return getDegFromDir8(dir); }
+        inline Vec2f getVec(float mMag = 1.f) const noexcept
+        {
+            return ssvs::getVecFromDeg(getDeg(), mMag);
+        }
+    };
 }
 
 #endif

@@ -12,31 +12,36 @@
 
 namespace ob
 {
-class OBCParticleEmitter : public OBCActorND
-{
-public:
-    using GameParticleMemFn = void (OBGame::*)(SizeT mCount, const Vec2f& mPos);
-
-private:
-    Vec2f offset;
-    GameParticleMemFn particleMemFn;
-    SizeT count;
-
-public:
-    OBCParticleEmitter(Entity& mE, OBCPhys& mCPhys,
-    GameParticleMemFn mParticleMemFn, SizeT mCount = 1)
-        : OBCActorND{mE, mCPhys}, particleMemFn{mParticleMemFn}, count{mCount}
+    class OBCParticleEmitter : public OBCActorND
     {
-    }
+    public:
+        using GameParticleMemFn = void (OBGame::*)(
+            SizeT mCount, const Vec2f& mPos);
 
-    inline void update(FT) override
-    {
-        (game.*particleMemFn)(count, cPhys.getPosPx() + offset);
-    }
+    private:
+        Vec2f offset;
+        GameParticleMemFn particleMemFn;
+        SizeT count;
 
-    inline void setOffset(const Vec2f& mOffset) noexcept { offset = mOffset; }
-    inline const Vec2f& getOffset() const noexcept { return offset; }
-};
+    public:
+        OBCParticleEmitter(Entity& mE, OBCPhys& mCPhys,
+            GameParticleMemFn mParticleMemFn, SizeT mCount = 1)
+            : OBCActorND{mE, mCPhys}, particleMemFn{mParticleMemFn},
+              count{mCount}
+        {
+        }
+
+        inline void update(FT) override
+        {
+            (game.*particleMemFn)(count, cPhys.getPosPx() + offset);
+        }
+
+        inline void setOffset(const Vec2f& mOffset) noexcept
+        {
+            offset = mOffset;
+        }
+        inline const Vec2f& getOffset() const noexcept { return offset; }
+    };
 }
 
 #endif

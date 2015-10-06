@@ -11,44 +11,45 @@
 
 namespace ob
 {
-class OBWeightable
-{
-private:
-    Body& bodyWeightable;
-    bool wasWeighted{false}, weighted{false}, playerOnly;
-
-public:
-    OBWeightable(OBCPhys& mCPhys, bool mPlayerOnly) noexcept
-    : bodyWeightable(mCPhys.getBody()),
-      playerOnly{mPlayerOnly}
+    class OBWeightable
     {
-        bodyWeightable.setResolve(false);
-        bodyWeightable.addGroupsToCheck(OBGroup::GFriendly, OBGroup::GEnemy);
+    private:
+        Body& bodyWeightable;
+        bool wasWeighted{false}, weighted{false}, playerOnly;
 
-        bodyWeightable.onPreUpdate += [this]
+    public:
+        OBWeightable(OBCPhys& mCPhys, bool mPlayerOnly) noexcept
+            : bodyWeightable(mCPhys.getBody()),
+              playerOnly{mPlayerOnly}
         {
-            weighted = false;
-        };
-        bodyWeightable.onDetection += [this](const DetectionInfo& mDI)
-        {
-            if(mDI.body.hasGroup(OBGroup::GFlying)) return;
-            if((!playerOnly && mDI.body.hasGroup(OBGroup::GEnemy)) ||
-               mDI.body.hasGroup(OBGroup::GFriendly))
-                weighted = true;
-        };
-    }
-    inline void refresh() { wasWeighted = weighted; }
+            bodyWeightable.setResolve(false);
+            bodyWeightable.addGroupsToCheck(
+                OBGroup::GFriendly, OBGroup::GEnemy);
 
-    inline bool isWeighted() const noexcept { return weighted; }
-    inline bool hasBeenWeighted() const noexcept
-    {
-        return !wasWeighted && weighted;
-    }
-    inline bool hasBeenUnweighted() const noexcept
-    {
-        return wasWeighted && !weighted;
-    }
-};
+            bodyWeightable.onPreUpdate += [this]
+            {
+                weighted = false;
+            };
+            bodyWeightable.onDetection += [this](const DetectionInfo& mDI)
+            {
+                if(mDI.body.hasGroup(OBGroup::GFlying)) return;
+                if((!playerOnly && mDI.body.hasGroup(OBGroup::GEnemy)) ||
+                    mDI.body.hasGroup(OBGroup::GFriendly))
+                    weighted = true;
+            };
+        }
+        inline void refresh() { wasWeighted = weighted; }
+
+        inline bool isWeighted() const noexcept { return weighted; }
+        inline bool hasBeenWeighted() const noexcept
+        {
+            return !wasWeighted && weighted;
+        }
+        inline bool hasBeenUnweighted() const noexcept
+        {
+            return wasWeighted && !weighted;
+        }
+    };
 }
 
 #endif

@@ -12,75 +12,76 @@
 
 namespace ob
 {
-namespace GUI
-{
-    namespace Impl
+    namespace GUI
     {
-        class CheckBoxStateBox : public Widget
+        namespace Impl
+        {
+            class CheckBoxStateBox : public Widget
+            {
+            private:
+                Label& lblState;
+                Impl::ClickEffect clickEffect{
+                    getStyle().colorBtnUnpressed, *this};
+
+                inline void update(FT mFT) override { clickEffect.update(mFT); }
+
+            public:
+                CheckBoxStateBox(Context& mContext)
+                    : Widget{mContext}, lblState(create<Label>(""))
+                {
+                    setOutlineThickness(getStyle().outlineThickness);
+                    setOutlineColor(getStyle().colorOutline);
+                    setSize(getStyle().getBtnSquareSize());
+                    lblState.attach(At::Center, *this, At::Center);
+                }
+
+                inline void setState(bool mValue)
+                {
+                    clickEffect.click();
+                    lblState.setString(mValue ? "x" : "");
+                }
+                inline Label& getLabel() noexcept { return lblState; }
+            };
+        }
+
+        class CheckBox : public Widget
         {
         private:
-            Label& lblState;
-            Impl::ClickEffect clickEffect{getStyle().colorBtnUnpressed, *this};
-
-            inline void update(FT mFT) override { clickEffect.update(mFT); }
+            Impl::CheckBoxStateBox& cbsbBox;
+            Label& lblLabel;
+            bool state{false};
 
         public:
-            CheckBoxStateBox(Context& mContext)
-                : Widget{mContext}, lblState(create<Label>(""))
+            ssvu::Delegate<void()> onStateChanged;
+
+            CheckBox(Context& mContext, std::string mLabel, bool mState = false)
+                : Widget{mContext}, cbsbBox(create<Impl::CheckBoxStateBox>()),
+                  lblLabel(create<Label>(ssvu::mv(mLabel)))
             {
-                setOutlineThickness(getStyle().outlineThickness);
-                setOutlineColor(getStyle().colorOutline);
-                setSize(getStyle().getBtnSquareSize());
-                lblState.attach(At::Center, *this, At::Center);
+                setScaling(Scaling::FitToChildren);
+                setFillColor(sf::Color::Transparent);
+                setState(mState);
+
+                cbsbBox.attach(At::NW, *this, At::NW);
+                lblLabel.attach(At::Left, cbsbBox, At::Right,
+                    Vec2f{getStyle().outlineThickness, 0.f});
+
+                onLeftClick += [this]
+                {
+                    setState(!state);
+                };
             }
 
             inline void setState(bool mValue)
             {
-                clickEffect.click();
-                lblState.setString(mValue ? "x" : "");
+                state = mValue;
+                cbsbBox.setState(mValue);
+                onStateChanged();
             }
-            inline Label& getLabel() noexcept { return lblState; }
+            inline bool getState() const noexcept { return state; }
+            inline Label& getLabel() noexcept { return lblLabel; }
         };
     }
-
-    class CheckBox : public Widget
-    {
-    private:
-        Impl::CheckBoxStateBox& cbsbBox;
-        Label& lblLabel;
-        bool state{false};
-
-    public:
-        ssvu::Delegate<void()> onStateChanged;
-
-        CheckBox(Context& mContext, std::string mLabel, bool mState = false)
-            : Widget{mContext}, cbsbBox(create<Impl::CheckBoxStateBox>()),
-              lblLabel(create<Label>(ssvu::mv(mLabel)))
-        {
-            setScaling(Scaling::FitToChildren);
-            setFillColor(sf::Color::Transparent);
-            setState(mState);
-
-            cbsbBox.attach(At::NW, *this, At::NW);
-            lblLabel.attach(At::Left, cbsbBox, At::Right,
-            Vec2f{getStyle().outlineThickness, 0.f});
-
-            onLeftClick += [this]
-            {
-                setState(!state);
-            };
-        }
-
-        inline void setState(bool mValue)
-        {
-            state = mValue;
-            cbsbBox.setState(mValue);
-            onStateChanged();
-        }
-        inline bool getState() const noexcept { return state; }
-        inline Label& getLabel() noexcept { return lblLabel; }
-    };
-}
 }
 
 #endif

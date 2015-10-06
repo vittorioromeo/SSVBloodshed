@@ -10,55 +10,56 @@
 
 namespace ob
 {
-class OBCParticleSystem : public Component
-{
-private:
-    OBParticleSystem particleSystem;
-    sf::RenderTexture& renderTexture;
-    sf::RenderTarget& renderTarget;
-    sf::Sprite sprite;
-    sf::BlendMode blendMode;
-    unsigned char alpha;
-    bool clearOnDraw;
+    class OBCParticleSystem : public Component
+    {
+    private:
+        OBParticleSystem particleSystem;
+        sf::RenderTexture& renderTexture;
+        sf::RenderTarget& renderTarget;
+        sf::Sprite sprite;
+        sf::BlendMode blendMode;
+        unsigned char alpha;
+        bool clearOnDraw;
 
-public:
-    OBCParticleSystem(Entity& mE, sf::RenderTexture& mRenderTexture,
-    sf::RenderTarget& mRenderTarget, bool mClearOnDraw, unsigned char mAlpha,
-    sf::BlendMode mBlendMode) noexcept : Component{mE},
-                                         renderTexture(mRenderTexture),
-                                         renderTarget(mRenderTarget),
-                                         blendMode{mBlendMode},
-                                         alpha{mAlpha},
-                                         clearOnDraw{mClearOnDraw}
-    {
-        renderTexture.clear(sf::Color::Transparent);
-        sprite.setTexture(renderTexture.getTexture());
-        sprite.setColor({255, 255, 255, alpha});
-    }
-    inline void update(FT mFT) override { particleSystem.update(mFT); }
-    inline void draw() override
-    {
-        renderTexture.draw(particleSystem);
-        renderTexture.display();
-        renderTarget.draw(sprite, blendMode);
-        if(clearOnDraw) renderTexture.clear(sf::Color::Transparent);
-    }
+    public:
+        OBCParticleSystem(Entity& mE, sf::RenderTexture& mRenderTexture,
+            sf::RenderTarget& mRenderTarget, bool mClearOnDraw,
+            unsigned char mAlpha, sf::BlendMode mBlendMode) noexcept
+            : Component{mE},
+              renderTexture(mRenderTexture),
+              renderTarget(mRenderTarget),
+              blendMode{mBlendMode},
+              alpha{mAlpha},
+              clearOnDraw{mClearOnDraw}
+        {
+            renderTexture.clear(sf::Color::Transparent);
+            sprite.setTexture(renderTexture.getTexture());
+            sprite.setColor({255, 255, 255, alpha});
+        }
+        inline void update(FT mFT) override { particleSystem.update(mFT); }
+        inline void draw() override
+        {
+            renderTexture.draw(particleSystem);
+            renderTexture.display();
+            renderTarget.draw(sprite, blendMode);
+            if(clearOnDraw) renderTexture.clear(sf::Color::Transparent);
+        }
 
-    inline void setBlendMode(sf::BlendMode mMode) noexcept
-    {
-        blendMode = mMode;
-    }
+        inline void setBlendMode(sf::BlendMode mMode) noexcept
+        {
+            blendMode = mMode;
+        }
 
-    inline sf::BlendMode getBlendMode() const noexcept { return blendMode; }
-    inline OBParticleSystem& getParticleSystem() noexcept
-    {
-        return particleSystem;
-    }
-    inline const OBParticleSystem& getParticleSystem() const noexcept
-    {
-        return particleSystem;
-    }
-};
+        inline sf::BlendMode getBlendMode() const noexcept { return blendMode; }
+        inline OBParticleSystem& getParticleSystem() noexcept
+        {
+            return particleSystem;
+        }
+        inline const OBParticleSystem& getParticleSystem() const noexcept
+        {
+            return particleSystem;
+        }
+    };
 }
 
 #endif

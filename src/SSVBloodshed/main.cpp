@@ -25,7 +25,7 @@ int main()
     OBConfig::setSoundEnabled(false);
 
     unsigned int width{VideoMode::getDesktopMode().width},
-    height{VideoMode::getDesktopMode().height};
+        height{VideoMode::getDesktopMode().height};
     width = 640;
     height = 480;
 

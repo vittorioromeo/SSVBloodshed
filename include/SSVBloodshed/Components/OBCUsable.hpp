@@ -11,24 +11,24 @@
 
 namespace ob
 {
-class OBCPlayer;
+    class OBCPlayer;
 
-class OBCUsable : public OBCActorND
-{
-private:
-    std::string msg;
-
-public:
-    ssvu::Delegate<void(OBCPlayer&)> onUse;
-
-    OBCUsable(Entity& mE, OBCPhys& mCPhys) : OBCActorND{mE, mCPhys}
+    class OBCUsable : public OBCActorND
     {
-        getEntity().addGroups(OBGroup::GUsable);
-    }
+    private:
+        std::string msg;
 
-    inline void setMsg(std::string mMsg) { msg = ssvu::mv(mMsg); }
-    inline const std::string& getMsg() const noexcept { return msg; }
-};
+    public:
+        ssvu::Delegate<void(OBCPlayer&)> onUse;
+
+        OBCUsable(Entity& mE, OBCPhys& mCPhys) : OBCActorND{mE, mCPhys}
+        {
+            getEntity().addGroups(OBGroup::GUsable);
+        }
+
+        inline void setMsg(std::string mMsg) { msg = ssvu::mv(mMsg); }
+        inline const std::string& getMsg() const noexcept { return msg; }
+    };
 }
 
 #endif

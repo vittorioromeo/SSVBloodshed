@@ -10,46 +10,47 @@
 
 namespace ob
 {
-template <typename TGame>
-class OBGDebugText
-{
-private:
-    TGame& game;
-    ssvs::BitmapText debugText;
-
-public:
-    inline OBGDebugText(TGame& mGame)
-        : game(mGame), debugText{*game.getAssets().obStroked}
+    template <typename TGame>
+    class OBGDebugText
     {
-        debugText.setTracking(-3);
-    }
+    private:
+        TGame& game;
+        ssvs::BitmapText debugText;
 
-    inline void update(FT)
-    {
-        std::ostringstream s;
-        const auto& entities(game.getManager().getEntities());
-        const auto& bodies(game.getWorld().getBodies());
-        const auto& sensors(game.getWorld().getSensors());
-        SizeT componentCount{0}, dynamicBodiesCount{0};
-        for(const auto& e : entities)
-            componentCount += e->getComponents().size();
-        for(const auto& b : bodies)
-            if(!b->isStatic()) ++dynamicBodiesCount;
+    public:
+        inline OBGDebugText(TGame& mGame)
+            : game(mGame), debugText{*game.getAssets().obStroked}
+        {
+            debugText.setTracking(-3);
+        }
 
-        s << "FPS: " << ssvu::toInt(game.getGameWindow().getFPS()) << "\n"
-          << "U: " << game.gameWindow.getMsUpdate() << "\t"
-          << "D: " << game.gameWindow.getMsDraw() << "\n"
-          << "Bodies(all): " << bodies.size() << "\n"
-          << "Bodies(static): " << bodies.size() - dynamicBodiesCount << "\n"
-          << "Bodies(dynamic): " << dynamicBodiesCount << "\n"
-          << "Sensors: " << sensors.size() << "\n"
-          << "Entities: " << entities.size() << "\n"
-          << "Components: " << componentCount << "\n";
+        inline void update(FT)
+        {
+            std::ostringstream s;
+            const auto& entities(game.getManager().getEntities());
+            const auto& bodies(game.getWorld().getBodies());
+            const auto& sensors(game.getWorld().getSensors());
+            SizeT componentCount{0}, dynamicBodiesCount{0};
+            for(const auto& e : entities)
+                componentCount += e->getComponents().size();
+            for(const auto& b : bodies)
+                if(!b->isStatic()) ++dynamicBodiesCount;
 
-        debugText.setString(s.str());
-    }
-    inline void draw() const { game.render(debugText); }
-};
+            s << "FPS: " << ssvu::toInt(game.getGameWindow().getFPS()) << "\n"
+              << "U: " << game.gameWindow.getMsUpdate() << "\t"
+              << "D: " << game.gameWindow.getMsDraw() << "\n"
+              << "Bodies(all): " << bodies.size() << "\n"
+              << "Bodies(static): " << bodies.size() - dynamicBodiesCount
+              << "\n"
+              << "Bodies(dynamic): " << dynamicBodiesCount << "\n"
+              << "Sensors: " << sensors.size() << "\n"
+              << "Entities: " << entities.size() << "\n"
+              << "Components: " << componentCount << "\n";
+
+            debugText.setString(s.str());
+        }
+        inline void draw() const { game.render(debugText); }
+    };
 }
 
 #endif

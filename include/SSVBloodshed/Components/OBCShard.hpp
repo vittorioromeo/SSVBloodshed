@@ -11,45 +11,45 @@
 
 namespace ob
 {
-class OBCShard : public OBCActor
-{
-public:
-    OBCShard(Entity& mE, OBCPhys& mCPhys, OBCDraw& mCDraw) noexcept
-    : OBCActor{mE, mCPhys, mCDraw}
+    class OBCShard : public OBCActor
     {
-        getEntity().addGroups(OBGroup::GShard);
-        body.addGroups(OBGroup::GShard);
-        body.addGroupsToCheck(OBGroup::GSolidGround, OBGroup::GFriendly);
-        body.addGroupsNoResolve(OBGroup::GOrganic, OBGroup::GPit);
-        body.setRestitutionX(0.8f);
-        body.setRestitutionY(0.8f);
-        body.onPreUpdate += [this]
+    public:
+        OBCShard(Entity& mE, OBCPhys& mCPhys, OBCDraw& mCDraw) noexcept
+            : OBCActor{mE, mCPhys, mCDraw}
         {
+            getEntity().addGroups(OBGroup::GShard);
+            body.addGroups(OBGroup::GShard);
+            body.addGroupsToCheck(OBGroup::GSolidGround, OBGroup::GFriendly);
+            body.addGroupsNoResolve(OBGroup::GOrganic, OBGroup::GPit);
+            body.setRestitutionX(0.8f);
+            body.setRestitutionY(0.8f);
+            body.onPreUpdate += [this]
+            {
+                body.setVelocity(
+                    ssvs::getCClampedMax(body.getVelocity() * 0.99f, 500.f));
+            };
+            body.onDetection += [this](const DetectionInfo& mDI)
+            {
+                if(!mDI.body.hasGroup(OBGroup::GPlayer)) return;
+
+                getComponentFromBody<OBCPlayer>(mDI.body).shardGrabbed();
+                getEntity().destroy();
+                game.createPShard(20, cPhys.getPosPx());
+            };
+
             body.setVelocity(
-            ssvs::getCClampedMax(body.getVelocity() * 0.99f, 500.f));
-        };
-        body.onDetection += [this](const DetectionInfo& mDI)
+                ssvs::getVecFromRad(ssvu::getRndR<float>(0.f, ssvu::tau),
+                    ssvu::getRndR<float>(100.f, 370.f)));
+            cDraw.setBlendMode(sf::BlendAdd);
+            cDraw.setGlobalScale(0.65f);
+            cDraw.setRotation(ssvu::getRndI(0, 360));
+        }
+
+        inline void update(FT) override
         {
-            if(!mDI.body.hasGroup(OBGroup::GPlayer)) return;
-
-            getComponentFromBody<OBCPlayer>(mDI.body).shardGrabbed();
-            getEntity().destroy();
-            game.createPShard(20, cPhys.getPosPx());
-        };
-
-        body.setVelocity(
-        ssvs::getVecFromRad(ssvu::getRndR<float>(0.f, ssvu::tau),
-        ssvu::getRndR<float>(100.f, 370.f)));
-        cDraw.setBlendMode(sf::BlendAdd);
-        cDraw.setGlobalScale(0.65f);
-        cDraw.setRotation(ssvu::getRndI(0, 360));
-    }
-
-    inline void update(FT) override
-    {
-        cDraw[0].rotate(ssvs::getMag(body.getVelocity()) * 0.01f);
-    }
-};
+            cDraw[0].rotate(ssvs::getMag(body.getVelocity()) * 0.01f);
+        }
+    };
 }
 
 #endif

@@ -17,37 +17,37 @@
 
 namespace ob
 {
-class OBCWpnController : public OBCActorND
-{
-private:
-    OBWpn wpn;
-    Ticker tckShoot{0.f};
-
-public:
-    OBCWpnController(Entity& mE, OBCPhys& mCPhys, OBGroup mTargetGroup) noexcept
-    : OBCActorND{mE, mCPhys},
-      wpn{game, mTargetGroup}
+    class OBCWpnController : public OBCActorND
     {
-        tckShoot.setLoop(false);
-    }
-    inline void update(FT mFT) override { tckShoot.update(mFT); }
+    private:
+        OBWpn wpn;
+        Ticker tckShoot{0.f};
 
-    inline bool shoot(OBCActorND* mShooter, const Vec2i& mPos, float mDeg,
-    const Vec2f& mMuzzlePxPos)
-    {
-        if(tckShoot.isRunning()) return false;
-        tckShoot.restart(wpn.getDelay());
-        wpn.shoot(mShooter, mPos, mDeg, mMuzzlePxPos);
-        wpn.playSound();
-        return true;
-    }
+    public:
+        OBCWpnController(Entity& mE, OBCPhys& mCPhys,
+            OBGroup mTargetGroup) noexcept : OBCActorND{mE, mCPhys},
+                                             wpn{game, mTargetGroup}
+        {
+            tckShoot.setLoop(false);
+        }
+        inline void update(FT mFT) override { tckShoot.update(mFT); }
 
-    inline void setWpn(const OBWpnType& mWpn) noexcept { wpn.setWpn(mWpn); }
+        inline bool shoot(OBCActorND* mShooter, const Vec2i& mPos, float mDeg,
+            const Vec2f& mMuzzlePxPos)
+        {
+            if(tckShoot.isRunning()) return false;
+            tckShoot.restart(wpn.getDelay());
+            wpn.shoot(mShooter, mPos, mDeg, mMuzzlePxPos);
+            wpn.playSound();
+            return true;
+        }
 
-    inline OBWpnType& getWpn() noexcept { return wpn.getWpnType(); }
-    inline const Ticker& getTicker() const noexcept { return tckShoot; }
-    inline Ticker& getTicker() noexcept { return tckShoot; }
-};
+        inline void setWpn(const OBWpnType& mWpn) noexcept { wpn.setWpn(mWpn); }
+
+        inline OBWpnType& getWpn() noexcept { return wpn.getWpnType(); }
+        inline const Ticker& getTicker() const noexcept { return tckShoot; }
+        inline Ticker& getTicker() noexcept { return tckShoot; }
+    };
 }
 
 #endif

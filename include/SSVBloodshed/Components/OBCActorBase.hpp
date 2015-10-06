@@ -12,45 +12,45 @@
 
 namespace ob
 {
-class OBCActorND : public Component
-{
-protected:
-    OBGame& game;
-    OBCPhys& cPhys;
-    OBAssets& assets;
-    OBFactory& factory;
-    sses::Manager& manager;
-    Body& body;
-
-public:
-    inline OBCActorND(Entity& mE, OBCPhys& mCPhys) noexcept
-    : Component{mE},
-      game(mCPhys.getGame()),
-      cPhys(mCPhys),
-      assets(game.getAssets()),
-      factory(game.getFactory()),
-      manager(game.getManager()),
-      body(cPhys.getBody())
+    class OBCActorND : public Component
     {
-    }
+    protected:
+        OBGame& game;
+        OBCPhys& cPhys;
+        OBAssets& assets;
+        OBFactory& factory;
+        sses::Manager& manager;
+        Body& body;
 
-    inline OBGame& getGame() const noexcept { return game; }
-    inline OBCPhys& getCPhys() const noexcept { return cPhys; }
-};
+    public:
+        inline OBCActorND(Entity& mE, OBCPhys& mCPhys) noexcept
+            : Component{mE},
+              game(mCPhys.getGame()),
+              cPhys(mCPhys),
+              assets(game.getAssets()),
+              factory(game.getFactory()),
+              manager(game.getManager()),
+              body(cPhys.getBody())
+        {
+        }
 
-class OBCActor : public OBCActorND
-{
-protected:
-    OBCDraw& cDraw;
+        inline OBGame& getGame() const noexcept { return game; }
+        inline OBCPhys& getCPhys() const noexcept { return cPhys; }
+    };
 
-public:
-    inline OBCActor(Entity& mE, OBCPhys& mCPhys, OBCDraw& mCDraw) noexcept
-    : OBCActorND{mE, mCPhys},
-      cDraw(mCDraw)
+    class OBCActor : public OBCActorND
     {
-    }
-    inline OBCDraw& getCDraw() const noexcept { return cDraw; }
-};
+    protected:
+        OBCDraw& cDraw;
+
+    public:
+        inline OBCActor(Entity& mE, OBCPhys& mCPhys, OBCDraw& mCDraw) noexcept
+            : OBCActorND{mE, mCPhys},
+              cDraw(mCDraw)
+        {
+        }
+        inline OBCDraw& getCDraw() const noexcept { return cDraw; }
+    };
 }
 
 #endif

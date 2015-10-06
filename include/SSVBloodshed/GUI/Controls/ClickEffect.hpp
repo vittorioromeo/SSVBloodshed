@@ -10,34 +10,34 @@
 
 namespace ob
 {
-namespace GUI
-{
-    namespace Impl
+    namespace GUI
     {
-        class ClickEffect
+        namespace Impl
         {
-        private:
-            sf::Color color;
-            AABBShape& target;
-            float value{0.f};
+            class ClickEffect
+            {
+            private:
+                sf::Color color;
+                AABBShape& target;
+                float value{0.f};
 
-        public:
-            inline ClickEffect(const sf::Color& mColor,
-            AABBShape& mTarget) noexcept : color{mColor},
-                                           target(mTarget)
-            {
-            }
-            inline void update(FT mFT) noexcept
-            {
-                auto colorNew(color);
-                colorNew.g = value;
-                target.setFillColor(colorNew);
-                value = ssvu::getClampedMin(value - mFT * 15.f, 0.f);
-            }
-            inline void click() noexcept { value = 255; }
-        };
+            public:
+                inline ClickEffect(const sf::Color& mColor,
+                    AABBShape& mTarget) noexcept : color{mColor},
+                                                   target(mTarget)
+                {
+                }
+                inline void update(FT mFT) noexcept
+                {
+                    auto colorNew(color);
+                    colorNew.g = value;
+                    target.setFillColor(colorNew);
+                    value = ssvu::getClampedMin(value - mFT * 15.f, 0.f);
+                }
+                inline void click() noexcept { value = 255; }
+            };
+        }
     }
-}
 }
 
 #endif

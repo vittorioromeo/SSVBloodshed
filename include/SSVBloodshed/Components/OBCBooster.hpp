@@ -12,74 +12,74 @@
 
 namespace ob
 {
-class OBCBooster : public OBCActor
-{
-private:
-    OBCIdReceiver& cIdReceiver;
-    bool active{true};
-    float alpha{0}, rad, forceMult;
-    ssvs::Animation animation;
-
-public:
-    OBCBooster(Entity& mE, OBCPhys& mCPhys, OBCDraw& mCDraw,
-    OBCIdReceiver& mCIdReceiver, Dir8 mDir, float mForceMult) noexcept
-    : OBCActor{mE, mCPhys, mCDraw},
-      cIdReceiver(mCIdReceiver),
-      rad{getRadFromDir8(mDir)},
-      forceMult{mForceMult},
-      animation{assets.aForceField}
+    class OBCBooster : public OBCActor
     {
-        animation = assets.aBulletBooster;
+    private:
+        OBCIdReceiver& cIdReceiver;
+        bool active{true};
+        float alpha{0}, rad, forceMult;
+        ssvs::Animation animation;
 
-        controlBoolByIdAction(cIdReceiver, active);
-
-        cDraw.setRotation(ssvu::toDeg(rad));
-        getEntity().addGroups(OBGroup::GBooster);
-        body.setResolve(false);
-        body.addGroups(OBGroup::GBooster);
-        body.addGroupsToCheck(OBGroup::GProjectile);
-
-        body.onDetection += [this](const DetectionInfo& mDI)
+    public:
+        OBCBooster(Entity& mE, OBCPhys& mCPhys, OBCDraw& mCDraw,
+            OBCIdReceiver& mCIdReceiver, Dir8 mDir, float mForceMult) noexcept
+            : OBCActor{mE, mCPhys, mCDraw},
+              cIdReceiver(mCIdReceiver),
+              rad{getRadFromDir8(mDir)},
+              forceMult{mForceMult},
+              animation{assets.aForceField}
         {
-            if(!active) return;
-            const auto& dirVec(-ssvs::getVecFromRad(rad));
+            animation = assets.aBulletBooster;
 
-            // When something touches the force field, spawn particles
-            game.createPForceField(1, toPixels(mDI.body.getPosition()));
+            controlBoolByIdAction(cIdReceiver, active);
 
-            if(forceMult > 0.f)
-                mDI.body.applyAccel(dirVec * 30.f * forceMult);
-            else if(ssvs::getRad(mDI.body.getVelocity()) !=
-                    ssvs::getRad(dirVec))
+            cDraw.setRotation(ssvu::toDeg(rad));
+            getEntity().addGroups(OBGroup::GBooster);
+            body.setResolve(false);
+            body.addGroups(OBGroup::GBooster);
+            body.addGroupsToCheck(OBGroup::GProjectile);
+
+            body.onDetection += [this](const DetectionInfo& mDI)
             {
-                mDI.body.setVelocity(
-                dirVec * ssvs::getMag(mDI.body.getVelocity()));
-                mDI.body.setPosition(body.getPosition());
-            }
-        };
-    }
+                if(!active) return;
+                const auto& dirVec(-ssvs::getVecFromRad(rad));
 
-    inline void update(FT mFT) override
-    {
-        auto color(cDraw[0].getColor());
+                // When something touches the force field, spawn particles
+                game.createPForceField(1, toPixels(mDI.body.getPosition()));
 
-        if(!active)
-            color.a = 100;
-        else
-        {
-            animation.update(mFT);
-
-            if(forceMult != 0)
-                cDraw[0].setTextureRect(
-                (*assets.tsSmall)(animation.getTileIndex()));
-
-            alpha = std::fmod(alpha + mFT * 0.06f, ssvu::pi);
-            color.a = 255 - std::sin(alpha) * 125;
+                if(forceMult > 0.f)
+                    mDI.body.applyAccel(dirVec * 30.f * forceMult);
+                else if(ssvs::getRad(mDI.body.getVelocity()) !=
+                        ssvs::getRad(dirVec))
+                {
+                    mDI.body.setVelocity(
+                        dirVec * ssvs::getMag(mDI.body.getVelocity()));
+                    mDI.body.setPosition(body.getPosition());
+                }
+            };
         }
 
-        cDraw[0].setColor(color);
-    }
-};
+        inline void update(FT mFT) override
+        {
+            auto color(cDraw[0].getColor());
+
+            if(!active)
+                color.a = 100;
+            else
+            {
+                animation.update(mFT);
+
+                if(forceMult != 0)
+                    cDraw[0].setTextureRect(
+                        (*assets.tsSmall)(animation.getTileIndex()));
+
+                alpha = std::fmod(alpha + mFT * 0.06f, ssvu::pi);
+                color.a = 255 - std::sin(alpha) * 125;
+            }
+
+            cDraw[0].setColor(color);
+        }
+    };
 }
 
 #endif

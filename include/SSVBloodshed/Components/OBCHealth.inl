@@ -11,24 +11,26 @@
 
 namespace ob
 {
-inline bool OBCHealth::damage(
-sses::EntityStat mAttackerStat, OBCActorND* mAttacker, float mAmount) noexcept
-{
-    if(tckCooldown.isRunning() || isDead()) return false;
-    health = ssvu::getClampedMin(health - mAmount, 0.f);
-
-    if(isDead() && mAttacker != nullptr && getManager().isAlive(mAttackerStat))
+    inline bool OBCHealth::damage(sses::EntityStat mAttackerStat,
+        OBCActorND* mAttacker, float mAmount) noexcept
     {
-        if(mAttacker->getEntity().hasComponent<OBCPlayer>()) {
-            mAttacker->getEntity().getComponent<OBCPlayer>().onKill(
-            this->getEntity());
-        }
-    }
+        if(tckCooldown.isRunning() || isDead()) return false;
+        health = ssvu::getClampedMin(health - mAmount, 0.f);
 
-    tckCooldown.restart();
-    if(getManager().isAlive(mAttackerStat)) onDamage(mAttacker);
-    return true;
-}
+        if(isDead() && mAttacker != nullptr &&
+            getManager().isAlive(mAttackerStat))
+        {
+            if(mAttacker->getEntity().hasComponent<OBCPlayer>())
+            {
+                mAttacker->getEntity().getComponent<OBCPlayer>().onKill(
+                    this->getEntity());
+            }
+        }
+
+        tckCooldown.restart();
+        if(getManager().isAlive(mAttackerStat)) onDamage(mAttacker);
+        return true;
+    }
 }
 
 #endif

@@ -11,38 +11,38 @@
 
 namespace ob
 {
-class OBCDamageOnTouch : public OBCActorND
-{
-private:
-    float dmg;
-    OBGroup targetGroup;
-
-public:
-    OBCDamageOnTouch(Entity& mE, OBCPhys& mCPhys, float mDamage,
-    OBGroup mTargetGroup) noexcept : OBCActorND{mE, mCPhys},
-                                     dmg{mDamage},
-                                     targetGroup{mTargetGroup}
+    class OBCDamageOnTouch : public OBCActorND
     {
-        body.addGroupsToCheck(targetGroup);
-        body.onDetection += [this](const DetectionInfo& mDI)
+    private:
+        float dmg;
+        OBGroup targetGroup;
+
+    public:
+        OBCDamageOnTouch(Entity& mE, OBCPhys& mCPhys, float mDamage,
+            OBGroup mTargetGroup) noexcept : OBCActorND{mE, mCPhys},
+                                             dmg{mDamage},
+                                             targetGroup{mTargetGroup}
         {
-            auto thisStat(getEntity().getStat());
-            if(mDI.body.hasGroup(targetGroup) &&
-               !mDI.body.hasGroup(OBGroup::GEnvDestructible))
-                getComponentFromBody<OBCHealth>(mDI.body).damage(
-                thisStat, this, dmg);
-        };
-    }
+            body.addGroupsToCheck(targetGroup);
+            body.onDetection += [this](const DetectionInfo& mDI)
+            {
+                auto thisStat(getEntity().getStat());
+                if(mDI.body.hasGroup(targetGroup) &&
+                    !mDI.body.hasGroup(OBGroup::GEnvDestructible))
+                    getComponentFromBody<OBCHealth>(mDI.body).damage(
+                        thisStat, this, dmg);
+            };
+        }
 
-    inline void setDamage(float mValue) noexcept { dmg = mValue; }
-    inline void setTargetGroup(OBGroup mValue) noexcept
-    {
-        targetGroup = mValue;
-    }
+        inline void setDamage(float mValue) noexcept { dmg = mValue; }
+        inline void setTargetGroup(OBGroup mValue) noexcept
+        {
+            targetGroup = mValue;
+        }
 
-    inline float getDamage() const noexcept { return dmg; }
-    inline OBGroup getTargetGroup() const noexcept { return targetGroup; }
-};
+        inline float getDamage() const noexcept { return dmg; }
+        inline OBGroup getTargetGroup() const noexcept { return targetGroup; }
+    };
 }
 
 #endif
