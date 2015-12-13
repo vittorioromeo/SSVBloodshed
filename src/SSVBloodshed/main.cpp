@@ -20,8 +20,6 @@ using namespace ssvms;
 
 int main()
 {
-    SSVUT_RUN();
-
     OBConfig::setSoundEnabled(false);
 
     unsigned int width{VideoMode::getDesktopMode().width},
