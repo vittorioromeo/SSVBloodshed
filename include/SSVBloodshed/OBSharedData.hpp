@@ -121,11 +121,11 @@ namespace ob
         {
             return currentLevel == nullptr;
         }
-        inline bool isSectorValid(int mIdx) const noexcept
+        inline bool isSectorValid(int mIdx) const noexcept SSVU_ATTRIBUTE(pure)
         {
             return pack.isValid(mIdx);
         }
-        inline bool isLevelValid(int mX, int mY) const noexcept
+        inline bool isLevelValid(int mX, int mY) const noexcept SSVU_ATTRIBUTE(pure)
         {
             return getCurrentSector().isValid(mX, mY);
         }

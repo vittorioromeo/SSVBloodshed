@@ -40,7 +40,7 @@ namespace ob
             l.y = mY;
             return l;
         }
-        inline bool isValid(int mX, int mY) const noexcept
+        inline bool isValid(int mX, int mY) const noexcept SSVU_ATTRIBUTE(pure)
         {
             return levels.count(ssvu::get1DIdxFrom2D(mX, mY, cols)) > 0;
         }

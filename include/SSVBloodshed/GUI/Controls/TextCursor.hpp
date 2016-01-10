@@ -64,7 +64,7 @@ namespace ob
                     if(ssvu::isPunctuation(mChar)) return 1;
                     return -1;
                 }
-                inline int findNextWordBeginEnd(int mPos, int mDir)
+                inline int findNextWordBeginEnd(int mPos, int mDir) SSVU_ATTRIBUTE(pure)
                 {
                     do
                     {

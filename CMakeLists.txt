@@ -1,17 +1,24 @@
-cmake_minimum_required(VERSION 2.8)
-project(SSVBloodshed)
+cmake_minimum_required(VERSION 3.0)
 
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/../SSVCMake/cmake/modules/;${CMAKE_SOURCE_DIR}/extlibs/SSVCMake/cmake/modules/;${CMAKE_MODULE_PATH}")
+# Include SSVCmake.
+list(APPEND CMAKE_MODULE_PATH
+    "${CMAKE_SOURCE_DIR}/../SSVCMake/cmake/modules/"
+    "${CMAKE_SOURCE_DIR}/extlibs/SSVCMake/cmake/modules/")
+
 include(SSVCMake)
 
-SSVCMake_setDefaults()
+# Basic project setup.
+vrm_cmake_init_project(SSVBloodshed)
+vrm_cmake_find_extlib(vrm_pp)
+vrm_cmake_find_extlib(SSVUtils)
+vrm_cmake_find_extlib(SSVStart)
+vrm_cmake_find_extlib(SSVEntitySystem)
+vrm_cmake_find_extlib(SSVSCollision)
+vrm_cmake_find_extlib(SSVMenuSystem)
 SSVCMake_findSFML()
-SSVCMake_findExtlib(vrm_pp)
-SSVCMake_findExtlib(SSVUtils)
-SSVCMake_findExtlib(SSVStart)
-SSVCMake_findExtlib(SSVEntitySystem)
-SSVCMake_findExtlib(SSVSCollision)
-SSVCMake_findExtlib(SSVMenuSystem)
+
+SSVCMake_setDefaults()
+vrm_cmake_add_common_compiler_flags()
 
 add_executable(${PROJECT_NAME} ${SRC_LIST})
 SSVCMake_linkSFML()

@@ -32,7 +32,7 @@ namespace ob
         {
             return sectors[mIdx];
         }
-        inline bool isValid(int mIdx) const noexcept
+        inline bool isValid(int mIdx) const noexcept SSVU_ATTRIBUTE(pure)
         {
             return sectors.count(mIdx) > 0;
         }

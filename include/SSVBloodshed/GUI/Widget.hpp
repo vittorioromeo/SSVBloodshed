@@ -247,7 +247,8 @@ namespace ob
                 }
             }
             template <bool TIncludeCaller = true, typename T>
-            inline bool isAnyChildRecursive(const T& mFunc) const
+            inline bool SSVU_ATTRIBUTE(pure)
+                isAnyChildRecursive(const T& mFunc) const
             {
                 if(TIncludeCaller)
                     if(mFunc(*this)) return true;
@@ -255,8 +256,10 @@ namespace ob
                     if(w->isAnyChildRecursive<true, T>(mFunc)) return true;
                 return false;
             }
+
             template <bool TIncludeCaller = true, typename T>
-            inline bool isAnyParentRecursive(const T& mFunc) const
+            inline bool SSVU_ATTRIBUTE(pure)
+                isAnyParentRecursive(const T& mFunc) const
             {
                 if(TIncludeCaller)
                     if(mFunc(*this)) return true;
