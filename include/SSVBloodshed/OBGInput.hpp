@@ -80,7 +80,7 @@ namespace ob
                     game.newGame();
                 },
                 t::Once);
-            gs.addInput({{k::Pause}},
+            gs.addInput({{k::P}},
                 [this](FT)
                 {
                     if(isUsingGUI()) return;
@@ -193,11 +193,26 @@ namespace ob
             return game.guiCtx.isInUse();
         }
 
-        inline bool getIShoot() const noexcept { return iShoot; }
-        inline bool getISwitch() const noexcept { return iSwitch; }
-        inline bool getIBomb() const noexcept { return iBomb; }
-        inline int getIX() const noexcept { return iX; }
-        inline int getIY() const noexcept { return iY; }
+        inline bool getIShoot() const noexcept
+        {
+            return iShoot;
+        }
+        inline bool getISwitch() const noexcept
+        {
+            return iSwitch;
+        }
+        inline bool getIBomb() const noexcept
+        {
+            return iBomb;
+        }
+        inline int getIX() const noexcept
+        {
+            return iX;
+        }
+        inline int getIY() const noexcept
+        {
+            return iY;
+        }
     };
 }
 
